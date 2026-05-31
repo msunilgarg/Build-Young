@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   validEmail, newState, advance, netWorth, holdingsTotal,
-  takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES,
+  takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, marketEventFor,
 } from "../src/App.jsx";
 
 const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-hs-wed", track: "High School" };
@@ -91,6 +91,51 @@ describe("advance (one paycheck period)", () => {
     const next = advance(prev, flat);
     // $50 contribution + $50 match on a $1,000 paycheck
     expect(next.retirement).toBeCloseTo(100, 6);
+  });
+});
+
+describe("market schedule — events start on Week 3", () => {
+  const assetReturns = (ev) => ASSETS.map((a) => ev.e[a.key]);
+
+  it("Weeks 1–2 are flat for assets but savings still earns a yield", () => {
+    for (const wk of [1, 2]) {
+      const ev = marketEventFor("course", wk, 0);
+      expect(assetReturns(ev)).toEqual([0, 0, 0, 0]); // stocks/bonds/reits/bullion
+      expect(ev.e.sav).toBeGreaterThan(0);
+    }
+  });
+
+  it("the live arc begins on Week 3 and lands its key beats on the right weeks", () => {
+    expect(marketEventFor("course", 3, 0).h).toBe("The Fed hikes rates");
+    expect(marketEventFor("course", 5, 0).h).toBe("Housing boom");        // you buy a home
+    expect(marketEventFor("course", 6, 0).h).toBe("Recession fears spike"); // the very next week
+    expect(marketEventFor("course", 8, 0).h).toBe("Market correction");   // before the W8 review
+    expect(marketEventFor("course", 9, 0).h).toBe("Tech-led rally");      // rewards rebalancers
+    expect(marketEventFor("course", 11, 0).h).toBe("Geopolitical jitters"); // gold, as bullion is taught
+    expect(marketEventFor("course", 12, 0).h).toBe("Year-end melt-up");   // finale preserved
+  });
+
+  it("the two gentlest opener events were dropped", () => {
+    const headlines = [];
+    for (let wk = 1; wk <= 12; wk++) headlines.push(marketEventFor("course", wk, 0).h);
+    expect(headlines).not.toContain("Markets open calm");
+    expect(headlines).not.toContain("Steady expansion");
+  });
+
+  it("a flat (Week 1) advance does not move already-invested holdings, but savings grows", () => {
+    const s = newState(STUDENT);
+    s.settings.brokerageRate = 0; // isolate: no new contributions this period
+    s.holdings.stocks = 1000;
+    s.savings = 1000;
+    const flat = marketEventFor("course", 1, 0);
+    const next = advance(s, flat);
+    expect(next.holdings.stocks).toBeCloseTo(1000, 6); // assets unchanged in Weeks 1–2
+    expect(next.savings).toBeGreaterThan(1000);        // yield still applied
+  });
+
+  it("check-ins use their own six-event sequence", () => {
+    expect(marketEventFor("checkin", 12, 0).h).toBe("Q1 — Inflation cools");
+    expect(marketEventFor("checkin", 12, 5).h).toBe("Q6 — Volatile finish");
   });
 });
 
