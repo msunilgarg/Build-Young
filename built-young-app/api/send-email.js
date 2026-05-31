@@ -17,6 +17,10 @@
 // For production you should ALSO put this behind your own auth/origin check — a public,
 // unauthenticated send endpoint can be used to send mail from your domain to anyone.
 
+// The actual Resend call (+ HTML escaping + from-address) lives in the shared sender so the
+// public endpoint and the cron scheduler send identically and keep the API key server-side.
+import { sendEmail } from "./_lib/sendEmail.js";
+
 const MAX_SUBJECT = 200;
 const MAX_BODY = 5000;
 // RFC-5322-ish: good enough to reject obvious garbage and header-injection attempts.
@@ -84,32 +88,14 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Convert the plain-text body to simple HTML (preserve line breaks).
-    const html = `<div style="font-family:Segoe UI,system-ui,sans-serif;font-size:15px;line-height:1.6;color:#242424;white-space:pre-wrap">${
-      body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    }</div>`;
-
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "Built Young <team@builtyoung.com>",
-        to: [to.trim()],
-        subject,
-        text: body,
-        html,
-      }),
-    });
-
-    const data = await r.json();
-    if (!r.ok) {
-      res.status(502).json({ error: "Provider error", detail: data });
+    // Delegate the actual Resend call (HTML escaping + from-address) to the shared sender.
+    const result = await sendEmail({ to: to.trim(), subject, body });
+    if (!result.ok) {
+      const status = result.status === 502 ? 502 : 500;
+      res.status(status).json({ error: status === 502 ? "Provider error" : "Send failed", detail: result.detail });
       return;
     }
-    res.status(200).json({ ok: true, id: data.id });
+    res.status(200).json({ ok: true, id: result.id });
   } catch (e) {
     res.status(500).json({ error: "Send failed", detail: String(e) });
   }

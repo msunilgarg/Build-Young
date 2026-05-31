@@ -54,6 +54,17 @@ A serverless function is already included at `api/send-email.js` (Vercel-style).
 That's it — the welcome email fires on enrollment and a recap email fires each time a student advances a week/check-in. Until you enable it, the app shows the "email sent" confirmation but doesn't deliver (and Stripe's own receipt still covers payment confirmation).
 *On Netlify instead of Vercel:* move `api/send-email.js` to `netlify/functions/send-email.js`, adjust the handler signature to Netlify's format, and set `CONFIG.emailEndpoint` to `/.netlify/functions/send-email`.
 
+### 3b. Daily market-news scheduler (server-side cron)
+Before each weekly class with a live market event (Weeks 3–12), a 3-email drip goes out on the **real calendar days** −3 / −2 / −1 (breaking news → analysis → research challenge). This is driven by a daily Vercel Cron, not by the in-app click.
+
+- **Endpoint:** `api/cron/market-news.js`. **Schedule:** `vercel.json` runs it daily at `0 16 * * *` (16:00 UTC ≈ morning PT).
+- **What it does:** computes which cohorts have a class 3/2/1 days out today (`api/_lib/schedule.js`), then sends the matching media email to every enrolled student of those cohorts. Content is single-sourced from `src/marketMedia.js` (same source the app uses).
+- **Required env vars:**
+  - `RESEND_API_KEY` — same key as the email function. Missing ⇒ the cron is a graceful no-op (sends nothing).
+  - `CRON_SECRET` — a random secret. Vercel Cron sends it as `Authorization: Bearer <CRON_SECRET>`; the endpoint 401s on any other/missing value. **Set this before deploying** or the cron stays locked (401).
+  - `ROSTER_JSON` — the enrollment roster (see next bullet).
+- **Roster gap (important):** the app has **no server-side enrollment store** yet — enrollment round-trips through Stripe + the browser. `api/_lib/roster.js` defines the `getRoster(batchId)` interface the scheduler depends on, with a placeholder that reads `ROSTER_JSON` (a JSON array like `[{"email":"a@x.com","name":"Avery Lee","batchId":"fall-hs-wed"}]`). **For real cohorts, wire `getRoster()` to a durable store** — recommended: a Stripe `checkout.session.completed` webhook that persists `{email, name, batchId}` to a database (serverless memory won't survive). Until then the scheduler runs end-to-end but only emails whoever is in `ROSTER_JSON`.
+
 ### 4. Video — Zoom
 Replace the placeholder Zoom links in the `BATCHES` array (`src/App.jsx`) with your real recurring meeting links.
 
@@ -93,7 +104,12 @@ Student progress is saved in the browser via `localStorage` (see the shim in `in
 index.html          meta, favicon, localStorage storage shim
 src/main.jsx        mounts the app
 src/App.jsx         the entire site + simulation (CONFIG block near the top)
+src/marketMedia.js  dependency-free market-event schedule + media content (shared w/ cron)
+src/cohorts.js      dependency-free cohort catalog (SEASONS + BATCHES), shared w/ cron
 api/send-email.js   serverless email sender (Resend)
+api/cron/market-news.js   daily cron: sends the pre-class media drip on real dates
+api/_lib/           shared server helpers: sendEmail (Resend), schedule (date math), roster
+vercel.json         Vercel Cron schedule for the market-news scheduler
 public/favicon.svg  the Built Young mark
 public/og-image.png social/link-preview image
 public/robots.txt   crawler permissions (search + AI bots)
