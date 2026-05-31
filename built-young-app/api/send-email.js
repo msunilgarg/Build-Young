@@ -26,7 +26,9 @@ const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
 // hard guarantee — it just blunts trivial bursts from a single source. For real limits
 // use a shared store (e.g. Upstash/Redis) or your platform's edge rate limiting.
 const RATE_WINDOW_MS = 60_000;
-const RATE_MAX = 5;
+// Headroom for one class advance, which can fire a small burst from a single student:
+// a weekly recap + the 3-email pre-class market-news drip. Still blunts real abuse.
+const RATE_MAX = 10;
 const hits = new Map(); // ip -> number[] (timestamps within the window)
 
 function rateLimited(ip) {

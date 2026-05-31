@@ -265,6 +265,155 @@ The Team`,
   };
 }
 
+/* ============================ MARKET MEDIA ============================
+ * "Simulated media": before each class (Weeks 3–12), the in-sim event breaks and
+ * a 3-day email drip goes out (day -3 breaking → -2 analysis → -1 research challenge),
+ * each pointing to REAL, primary-source resources so students can research the
+ * real-world episode the sim event is modeled on and walk in with their own view.
+ * Keyed by the event headline. Every `url` is a primary/official source — per the
+ * statistics-integrity bar in CLAUDE.md, re-verify each link before launch.
+ */
+const MEDIA = {
+  "The Fed hikes rates": {
+    analog: "the Federal Reserve's 2022 campaign, when it lifted rates from near zero to over 4% in a single year — the fastest pace since the 1980s",
+    watch: "interest rates, bond prices, and savings yields",
+    question: "If borrowing money gets more expensive, who benefits and who gets hurt — and would you rather hold long-term bonds or cash earning a higher yield right now?",
+    resources: [
+      { label: "Federal Reserve — FOMC meetings & statements", url: "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm" },
+      { label: "FRED — Federal Funds Rate (chart the real history)", url: "https://fred.stlouisfed.org/series/FEDFUNDS" },
+    ],
+  },
+  "Inflation runs hot": {
+    analog: "June 2022, when U.S. inflation hit 9.1% over the prior year — the biggest jump in four decades",
+    watch: "the prices of hard assets (gold, real estate) versus bonds",
+    question: "If prices are rising fast, which of your assets are likely to keep up — and which quietly lose buying power just sitting there?",
+    resources: [
+      { label: "BLS — Consumer prices up 9.1% over the year ended June 2022 (40-year high)", url: "https://www.bls.gov/opub/ted/2022/consumer-prices-up-9-1-percent-over-the-year-ended-june-2022-largest-increase-in-40-years.htm" },
+      { label: "FRED — Consumer Price Index (CPIAUCSL)", url: "https://fred.stlouisfed.org/series/CPIAUCSL" },
+    ],
+  },
+  "Housing boom": {
+    analog: "2021, when U.S. home prices climbed almost 19% in a single year",
+    watch: "home prices and mortgage rates",
+    question: "When home prices climb fast, is it a better time to buy a house or to rent and invest the difference? What would you need to know to decide?",
+    resources: [
+      { label: "FRED — Case-Shiller U.S. National Home Price Index (CSUSHPINSA)", url: "https://fred.stlouisfed.org/series/CSUSHPINSA" },
+      { label: "FRED — 30-Year Fixed Mortgage Rate (MORTGAGE30US)", url: "https://fred.stlouisfed.org/series/MORTGAGE30US" },
+    ],
+  },
+  "Recession fears spike": {
+    analog: "the 2008 financial crisis, when frightened investors poured into Treasuries and gold while stocks tumbled",
+    watch: "Treasuries and gold — the classic safe havens",
+    question: "When everyone's scared, money rushes into 'safe' assets. Which of your holdings is the safe haven here — and is now a time to sell, or to keep buying?",
+    resources: [
+      { label: "Federal Reserve History — The Great Recession (2007–09)", url: "https://www.federalreservehistory.org/essays/great-recession-of-200709" },
+      { label: "FRED — S&P 500 (SP500)", url: "https://fred.stlouisfed.org/series/SP500" },
+    ],
+  },
+  "Soft landing hopes": {
+    analog: "2023–2024, when U.S. inflation cooled from about 9% toward 3% without the economy falling into recession — the hoped-for 'soft landing'",
+    watch: "inflation and the unemployment rate",
+    question: "If the economy cools without a crash, should you get more aggressive or stay cautious? What signal would change your mind?",
+    resources: [
+      { label: "Investopedia — Soft Landing (definition)", url: "https://www.investopedia.com/terms/s/softlanding.asp" },
+      { label: "FRED — U.S. Unemployment Rate (UNRATE)", url: "https://fred.stlouisfed.org/series/UNRATE" },
+    ],
+  },
+  "Market correction": {
+    analog: "late 2018, when the S&P 500 fell nearly 20% in about three months — then recovered the following year",
+    watch: "how far stocks fall and how fast they recover",
+    question: "Stocks just dropped sharply. Is this a reason to sell, or a chance to buy at lower prices? How would market history guide you?",
+    resources: [
+      { label: "Investopedia — Market Correction (definition)", url: "https://www.investopedia.com/terms/c/correction.asp" },
+      { label: "FRED — S&P 500 (SP500)", url: "https://fred.stlouisfed.org/series/SP500" },
+    ],
+  },
+  "Tech-led rally": {
+    analog: "2023, when excitement about AI (led by chipmaker Nvidia) drove a tech-heavy surge that lifted the Nasdaq about 43%",
+    watch: "tech-stock valuations and how concentrated the rally is",
+    question: "When one sector soars, is it smart to pile in or to rebalance away some gains? What's the risk of chasing a hot rally?",
+    resources: [
+      { label: "FRED — Nasdaq Composite Index (NASDAQCOM)", url: "https://fred.stlouisfed.org/series/NASDAQCOM" },
+      { label: "Investopedia — Bull Market (definition)", url: "https://www.investopedia.com/terms/b/bullmarket.asp" },
+    ],
+  },
+  "Rate cuts begin": {
+    analog: "September 2024, when the Federal Reserve cut interest rates by half a percentage point — its first cut in over four years",
+    watch: "bond prices and growth stocks",
+    question: "If interest rates start falling, what tends to happen to bonds, stocks, and your savings yield? Who wins, who loses?",
+    resources: [
+      { label: "Federal Reserve — FOMC statement, Sept 18, 2024 (first cut since 2020)", url: "https://www.federalreserve.gov/newsevents/pressreleases/monetary20240918a.htm" },
+      { label: "FRED — Federal Funds Rate (FEDFUNDS)", url: "https://fred.stlouisfed.org/series/FEDFUNDS" },
+    ],
+  },
+  "Geopolitical jitters": {
+    analog: "early 2022, when geopolitical shock sent investors rushing into gold as a safe haven while stocks swung wildly",
+    watch: "gold and other safe-haven assets",
+    question: "When the world feels uncertain, why does gold often rise? Should a long-term teen investor react to scary headlines at all?",
+    resources: [
+      { label: "Investopedia — Safe-Haven assets (definition)", url: "https://www.investopedia.com/terms/s/safe-haven.asp" },
+      { label: "World Gold Council — gold price history", url: "https://www.gold.org/goldhub/data/gold-prices" },
+    ],
+  },
+  "Year-end melt-up": {
+    analog: "late 2023, when a broad year-end rally lifted stocks and bonds together as the Fed signaled rate cuts ahead",
+    watch: "whether the rally is broad or driven by just a few names",
+    question: "After a big run-up, do you lock in gains, keep riding, or rebalance? What does your own plan say to do?",
+    resources: [
+      { label: "Investopedia — Santa Claus Rally (definition)", url: "https://www.investopedia.com/terms/s/santaclausrally.asp" },
+      { label: "FRED — S&P 500 (SP500)", url: "https://fred.stlouisfed.org/series/SP500" },
+    ],
+  },
+};
+
+// Build the 3-day pre-class media drip for the CURRENT course week's event.
+// Returns [] for the flat setup weeks (1–2), for check-ins, or any event without
+// authored media. Newest-first (day -1 leads), so it reads naturally in the inbox.
+export function mediaDrip(s, batch) {
+  if (s.phase !== "course") return [];
+  const ev = marketEventFor("course", s.week, s.checkin);
+  const m = MEDIA[ev.h];
+  if (!m) return [];
+  const first = (s.student.name || "there").split(" ")[0];
+  const wk = WEEKS[s.week - 1];
+  const moves = ASSETS.map((a) => `${a.label} ${pct(ev.e[a.key])}`).join(", ");
+  const from = `Built Young Newsroom <${MAIL_FROM}>`;
+  const stamp = Date.now();
+  const base = { from, type: "media", event: ev.h, resources: m.resources };
+  const breaking = {
+    ...base, id: `m3_${s.week}_${stamp}`, when: "3 days before class", day: 3,
+    subject: `📰 Breaking: ${ev.h}`,
+    body: `Hi ${first},
+
+Heads up before Week ${s.week}'s class ("${wk.t}") — a market event just broke in your simulation:
+
+${ev.h}. ${ev.d}
+
+This is simulated for class, but it's modeled on a real event: ${m.analog}. Over the next three days I'll send a little more so you can research it yourself and walk in with your own view. Start digging with the resources below.`,
+  };
+  const analysis = {
+    ...base, id: `m2_${s.week}_${stamp}`, when: "2 days before class", day: 2,
+    subject: `What "${ev.h}" means for your money`,
+    body: `Hi ${first},
+
+Two days until class. In the simulation, this event pushes the asset classes in different directions: ${moves}. Notice they don't all move together — that's the whole case for diversification.
+
+In the real world, this mirrors ${m.analog}. Keep an eye on ${m.watch}. The resources below show the real data.`,
+  };
+  const challenge = {
+    ...base, id: `m1_${s.week}_${stamp}`, when: "1 day before class", day: 1,
+    subject: `Class tomorrow — come with your own view`,
+    body: `Hi ${first},
+
+Class is tomorrow. Before we meet, do your own analysis and bring an opinion:
+
+${m.question}
+
+There are no wrong answers if you can back them up with what you find. Pull the real data and decide for yourself, then we'll compare notes in class.`,
+  };
+  return [challenge, analysis, breaking]; // newest first
+}
+
 export const newState = (student) => ({
   student,
   started: false, // class hasn't begun yet — full refund available until first session
@@ -1099,12 +1248,12 @@ function Platform({ state, setState, onExit }) {
     .filter((d) => d.value > 0);
 
   const doAdvance = () => {
-    let sentMail = null;
+    let toSend = [];
     setState((p) => {
       let ns = advance(p, macroNow);
       ns.started = true; // first session attended — class has begun
       const mail = followupEmail(ns, ns.week, batch);
-      if (mail) { ns.emails = [mail, ...(ns.emails || [])]; sentMail = mail; }
+      if (mail) ns.emails = [mail, ...(ns.emails || [])];
       if (ns.phase === "course") {
         if (ns.week >= 12) { ns.phase = "checkin"; ns.week = 12; ns.done = false; }
         else ns.week += 1;
@@ -1112,14 +1261,22 @@ function Platform({ state, setState, onExit }) {
         ns.checkin += 1;
         if (ns.checkin >= 6) ns.done = true;
       }
+      // simulated pre-class media for the week we just arrived at (Weeks 3–12)
+      const media = mediaDrip(ns, batch);
+      if (media.length) ns.emails = [...media, ...(ns.emails || [])];
+      toSend = [...(mail ? [mail] : []), ...media];
       return ns;
     });
     const who = s.student.email;
-    if (sentMail) sendEmail(who, sentMail.subject, sentMail.body);
-    const msg = s.phase === "course"
-      ? (s.week >= 12 ? `Course-complete email sent to ${who}` : `Week ${s.week} follow-up email sent to ${who}`)
+    const bodyFor = (m) => m.resources && m.resources.length
+      ? `${m.body}\n\nResources:\n${m.resources.map((r) => `• ${r.label}: ${r.url}`).join("\n")}`
+      : m.body;
+    toSend.forEach((m) => sendEmail(who, m.subject, bodyFor(m)));
+    const gotMedia = toSend.some((m) => m.type === "media");
+    const base = s.phase === "course"
+      ? (s.week >= 12 ? `Course-complete email sent to ${who}` : `Week ${s.week} recap sent to ${who}`)
       : `Check-in ${s.checkin + 1} email sent to ${who}`;
-    ping(msg);
+    ping(gotMedia ? `${base} (plus a 3-day market-news drip)` : base);
     setTab("dash");
   };
 
