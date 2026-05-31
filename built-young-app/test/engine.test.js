@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   validEmail, newState, advance, netWorth, holdingsTotal,
-  takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, marketEventFor,
+  takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, marketEventFor, mediaDrip,
 } from "../src/App.jsx";
 
 const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-hs-wed", track: "High School" };
@@ -136,6 +136,56 @@ describe("market schedule — events start on Week 3", () => {
   it("check-ins use their own six-event sequence", () => {
     expect(marketEventFor("checkin", 12, 0).h).toBe("Q1 — Inflation cools");
     expect(marketEventFor("checkin", 12, 5).h).toBe("Q6 — Volatile finish");
+  });
+});
+
+describe("market media drip — emails sent before each class", () => {
+  const batch = BATCHES[0];
+  const atWeek = (wk) => { const s = newState(STUDENT); s.week = wk; s.phase = "course"; return s; };
+
+  it("produces a 3-email pre-class drip for a live-market week (newest-first)", () => {
+    const drip = mediaDrip(atWeek(3), batch);
+    expect(drip).toHaveLength(3);
+    expect(drip.map((m) => m.day)).toEqual([1, 2, 3]); // day -1 leads the inbox
+    expect(drip.map((m) => m.when)).toEqual([
+      "1 day before class", "2 days before class", "3 days before class",
+    ]);
+    for (const m of drip) {
+      expect(m.type).toBe("media");
+      expect(m.subject).toBeTruthy();
+      expect(m.body).toContain("Jordan"); // personalized
+    }
+    // the breaking email names the event; the challenge email poses a research question
+    expect(drip[2].subject).toContain("The Fed hikes rates");
+    expect(drip[0].subject.toLowerCase()).toContain("class tomorrow");
+  });
+
+  it("every weekly event (W3–12) has authored media with real https resources", () => {
+    for (let wk = 3; wk <= 12; wk++) {
+      const drip = mediaDrip(atWeek(wk), batch);
+      expect(drip.length, `week ${wk}`).toBe(3);
+      for (const m of drip) {
+        expect(m.resources.length).toBeGreaterThan(0);
+        for (const r of m.resources) {
+          expect(r.label).toBeTruthy();
+          expect(r.url, `week ${wk} link`).toMatch(/^https:\/\//);
+        }
+      }
+    }
+  });
+
+  it("sends NO media for the flat setup weeks (1–2) or after graduation (check-ins)", () => {
+    expect(mediaDrip(atWeek(1), batch)).toEqual([]);
+    expect(mediaDrip(atWeek(2), batch)).toEqual([]);
+    const c = newState(STUDENT); c.phase = "checkin";
+    expect(mediaDrip(c, batch)).toEqual([]);
+  });
+
+  it("resource links are unique per email and point at primary/official sources", () => {
+    const drip = mediaDrip(atWeek(6), batch); // Recession fears spike
+    const urls = drip.flatMap((m) => m.resources.map((r) => r.url));
+    expect(urls.some((u) => u.includes("federalreservehistory.org"))).toBe(true);
+    expect(urls.some((u) => u.includes("fred.stlouisfed.org"))).toBe(true);
   });
 });
 

@@ -87,13 +87,13 @@ describe("/api/send-email handler", () => {
     expect(sent.text).toContain("<script>"); // plain-text part keeps the raw body
   });
 
-  it("rate-limits a burst from one IP", async () => {
+  it("rate-limits a burst from one IP (above the per-advance drip headroom)", async () => {
     const ip = freshIp();
     let last;
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 12; i++) {
       last = makeRes();
       await handler(makeReq({ ip, body: { to: "a@b.com", subject: "s", body: "b" } }), last);
     }
-    expect(last.statusCode).toBe(429); // 6th+ request within the window is blocked
+    expect(last.statusCode).toBe(429); // requests past the window cap (10) are blocked
   });
 });
