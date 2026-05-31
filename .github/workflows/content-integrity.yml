@@ -1,0 +1,82 @@
+name: Weekly content & link integrity
+
+# A scheduled "agent" that keeps the curriculum's external resources accurate and drafts
+# weekly class materials — then opens a PR for human review. It NEVER touches the live email
+# pipeline or any api/ logic, and it never merges: a human approves every change. This is the
+# right place for AI judgment (research, verification, drafting); the send/schedule/payment
+# code stays deterministic.
+#
+# Setup: add an ANTHROPIC_API_KEY repo secret (Settings → Secrets and variables → Actions).
+# Note: `schedule`/`workflow_dispatch` only run once this file is on the DEFAULT branch (main),
+# so merge this PR to activate it. Use the "Run workflow" button to trigger a manual test run.
+
+on:
+  schedule:
+    - cron: "0 14 * * 1"   # Mondays 14:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write          # create the working branch + commits
+  pull-requests: write     # open the review PR
+
+concurrency:
+  group: content-integrity
+  cancel-in-progress: false
+
+jobs:
+  content-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --allowedTools "Read,Edit,Glob,Grep,WebFetch,WebSearch,Bash(npm:*),Bash(git:*),Bash(gh:*)"
+            --max-turns 50
+          prompt: |
+            You are a scheduled maintenance agent for the Built Young repository — a live money-skills
+            program for teenagers. The app lives in `built-young-app/`. FIRST read
+            `built-young-app/CLAUDE.md` and strictly follow its **statistics-integrity bar**: every
+            external link must be a PRIMARY / official source, dated, and current.
+
+            Open exactly ONE pull request with whatever needs changing. If, after verifying, nothing
+            needs to change, do NOT open a PR.
+
+            Tasks (content & links ONLY):
+            1. LINK & STAT INTEGRITY
+               - `built-young-app/src/marketMedia.js` → the `MEDIA` map: check every resource `url`
+                 loads and is still the best primary source; replace dead/redirected links with an
+                 authoritative equivalent.
+               - `built-young-app/src/App.jsx` → the `WHY_STATS` array: confirm each link loads AND
+                 that the cited number + year still match the source. If a newer edition exists,
+                 update the number AND the url together.
+            2. WEEKLY EVENT EMAIL CONTENT
+               - In `MEDIA`, verify each `analog` (the real-world episode the sim event echoes) is
+                 accurate and not stale. Refine wording only for accuracy — do NOT change the voice.
+            3. WEEKLY CLASS MATERIALS
+               - In `built-young-app/src/App.jsx` the `WEEKS` array has an optional
+                 `materials: [{ label, url }]`. For weeks that have none, add 1–3 verified
+                 primary-source links (.gov / SEC Investor.gov / Federal Reserve / BLS / CFPB, or
+                 Investopedia for definitions) appropriate to that lesson.
+
+            Hard rules:
+            - PRIMARY / official sources only. Verify EVERY new or changed link with WebFetch/WebSearch
+              before committing it.
+            - Touch CONTENT/LINKS ONLY. Do NOT modify the simulation engine, the scheduler, the Stripe
+              webhook, the store, or anything under `api/`. Do not change app behavior or styling.
+            - After edits, both of these must pass — fix or revert until green:
+                npm --prefix built-young-app ci
+                npm --prefix built-young-app test
+                npm --prefix built-young-app run build
+            - Create a new branch `automation/content-check-$(date +%Y-%m-%d)`, commit, push, and open a
+              PR against `main` with `gh pr create`. The PR body must list: what you checked, exactly
+              what changed, and ANY links you could NOT verify (flag these clearly for a human).
+            - Never merge. Never push to `main`.
