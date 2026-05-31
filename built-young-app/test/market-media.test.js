@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mediaDrip, MEDIA, marketEventFor } from "../src/marketMedia.js";
+import { mediaDrip, MEDIA, marketEventFor, weekResources } from "../src/marketMedia.js";
 import { mediaDrip as appMediaDrip, MEDIA as appMEDIA } from "../src/App.jsx";
 
 const studentState = (week) => ({ phase: "course", week, checkin: 0, student: { name: "Jordan Rivera" } });
@@ -58,5 +58,26 @@ describe("media content selection per dayOffset", () => {
     expect(custom[0].from).toBe("Built Young Newsroom <news@builtyoung.com>");
     // default keeps the historical address so re-exported content is unchanged
     expect(pickByOffset(3, 3).from).toBe("Built Young Newsroom <team@builtyoung.com>");
+  });
+});
+
+describe("weekResources — per-week event resources for the dashboard hub", () => {
+  it("returns the event's resources for live-market weeks (3–12), matching the drip", () => {
+    for (let wk = 3; wk <= 12; wk++) {
+      const res = weekResources(wk);
+      expect(res.length, `week ${wk}`).toBeGreaterThan(0);
+      const drip = mediaDrip(studentState(wk), null);
+      // same links surfaced in the hub as the emails send
+      expect(res).toEqual(drip[0].resources);
+      for (const r of res) {
+        expect(r.label).toBeTruthy();
+        expect(r.url).toMatch(/^https:\/\//);
+      }
+    }
+  });
+
+  it("returns no resources for the flat setup weeks (1–2)", () => {
+    expect(weekResources(1)).toEqual([]);
+    expect(weekResources(2)).toEqual([]);
   });
 });
