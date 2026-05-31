@@ -245,3 +245,11 @@ There are no wrong answers if you can back them up with what you find. Pull the 
   };
   return [challenge, analysis, breaking]; // newest first
 }
+
+// The market-event resources tied to a COURSE week — the SAME links the pre-class drip
+// emails — surfaced so the dashboard can track them by week for review/catch-up.
+// Empty for the flat setup weeks (1–2), which have no market event.
+export function weekResources(week) {
+  const ev = marketEventFor("course", week, 0);
+  return (MEDIA[ev.h] && MEDIA[ev.h].resources) || [];
+}

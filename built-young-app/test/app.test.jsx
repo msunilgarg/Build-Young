@@ -78,3 +78,45 @@ describe("Legal modal", () => {
     expect(htmlLinks).toEqual([]);
   });
 });
+
+describe("Course hub (per-week resources & catch-up)", () => {
+  async function enrollToDashboard(user) {
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "Enroll →" }));
+    await screen.findByRole("heading", { name: /Reserve your seat/i });
+    await user.type(screen.getByLabelText("Student name"), "Jordan Rivera");
+    await user.type(screen.getByLabelText(/Email/i), "jordan@example.com");
+    await user.click(screen.getByRole("button", { name: /Continue to payment/i }));
+    await user.click(await screen.findByRole("button", { name: /Pay \$\d+ \(demo\)/i }));
+    await user.click(await screen.findByRole("button", { name: /Open my dashboard/i }));
+  }
+
+  it("opens a per-week hub: current week's materials show, future weeks are locked", async () => {
+    const user = userEvent.setup();
+    await enrollToDashboard(user);
+
+    await user.click(await screen.findByRole("button", { name: "Course" }));
+    expect(await screen.findByText(/Your course, week by week/i)).toBeInTheDocument();
+
+    // Week 1 is the current week and expanded by default → its seeded class material is visible
+    expect(screen.getByRole("link", { name: /About Form W-4/i })).toBeInTheDocument();
+
+    // A future week is locked (no spoilers) until the student reaches it
+    expect(screen.getByText(/Unlocks when you reach Week 12/i)).toBeInTheDocument();
+  });
+
+  it("has no serious/critical accessibility violations on the Course hub", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+    await user.click(screen.getByRole("button", { name: "Enroll →" }));
+    await screen.findByRole("heading", { name: /Reserve your seat/i });
+    await user.type(screen.getByLabelText("Student name"), "Jordan Rivera");
+    await user.type(screen.getByLabelText(/Email/i), "jordan@example.com");
+    await user.click(screen.getByRole("button", { name: /Continue to payment/i }));
+    await user.click(await screen.findByRole("button", { name: /Pay \$\d+ \(demo\)/i }));
+    await user.click(await screen.findByRole("button", { name: /Open my dashboard/i }));
+    await user.click(await screen.findByRole("button", { name: "Course" }));
+    await screen.findByText(/Your course, week by week/i);
+    await expectNoSeriousA11y(container);
+  });
+});

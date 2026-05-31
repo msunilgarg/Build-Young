@@ -3,7 +3,7 @@ import {
   TrendingUp, TrendingDown, Home, Car, Wallet, PiggyBank, LineChart as LineIcon,
   Shield, Coins, Building2, GraduationCap, ArrowRight, Check, Lock, Newspaper,
   CircleDollarSign, Sparkles, AlertTriangle, ShoppingBag, Landmark, Video, Mail, Briefcase,
-  Hourglass, Anchor, MessageCircle, Linkedin,
+  Hourglass, Anchor, MessageCircle, Linkedin, BookOpen,
 } from "lucide-react";
 // Market-media content + schedule live in a dependency-free module so the serverless
 // cron scheduler (api/cron/market-news.js) can import the SAME source. App.jsx layers
@@ -11,7 +11,7 @@ import {
 // shared pieces below so existing import paths + tests keep working unchanged.
 // Locally used by App.jsx (pct for formatting, ASSET_META to build ASSETS, marketEventFor +
 // mediaDrip in the dashboard).
-import { pct, ASSET_META, marketEventFor, mediaDrip } from "./marketMedia.js";
+import { pct, ASSET_META, marketEventFor, mediaDrip, weekResources } from "./marketMedia.js";
 // Re-export the shared content so callers importing from "../src/App.jsx" still work unchanged.
 export { pct, FLAT_MACRO, MACRO, CHECKIN_MACRO, marketEventFor, MEDIA, mediaDrip } from "./marketMedia.js";
 // recharts is heavy (~344 KB) and only used in the dashboard — load it on demand
@@ -130,14 +130,27 @@ export const ASSETS = ASSET_META.map((a) => ({ ...a, ...ASSET_UI[a.key] }));
 // FLAT_MACRO / MACRO / CHECKIN_MACRO / marketEventFor are imported from ./marketMedia.js
 // (the dependency-free single source, shared with the cron scheduler) and re-exported above.
 
+// Each week carries its lesson (t/s/act) and an optional `materials` list — the place the
+// team adds weekly class content as it's built (verified, primary-source links only, per the
+// statistics-integrity bar). A few are seeded as examples; the rest show "coming soon" in the
+// Course hub until filled in.
 const WEEKS = [
-  { act: 1, t: "Set Up Your Paycheck", s: "W-4, 401(k) + match, gross vs. net.", action: "settings" },
-  { act: 1, t: "Savings & Investing + Compounding", s: "Auto-fund accounts; pick your risk style and asset mix.", action: "allocation" },
+  { act: 1, t: "Set Up Your Paycheck", s: "W-4, 401(k) + match, gross vs. net.", action: "settings",
+    materials: [{ label: "IRS — About Form W-4", url: "https://www.irs.gov/forms-pubs/about-form-w-4" }] },
+  { act: 1, t: "Savings & Investing + Compounding", s: "Auto-fund accounts; pick your risk style and asset mix.", action: "allocation",
+    materials: [
+      { label: "Investor.gov — Compound Interest Calculator", url: "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator" },
+      { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
+    ] },
   { act: 1, t: "Macro Forces on Investments", s: "How inflation, rates and recessions move each asset class.", action: "macro" },
   { act: 2, t: "Big Purchases: The Framework", s: "Buy vs. rent, APR, good vs. bad debt, total cost of ownership.", action: "framework" },
   { act: 2, t: "Big Purchases: Making the Call", s: "Choose and finance your home and car.", action: "buy" },
   { act: 2, t: "Budgeting: Surprises & Temptations", s: "Bills autopay — handle an emergency and a spree.", action: "budget" },
-  { act: 2, t: "Credit & Credit Scores", s: "Cards, interest, and how your score sets your rates.", action: "credit" },
+  { act: 2, t: "Credit & Credit Scores", s: "Cards, interest, and how your score sets your rates.", action: "credit",
+    materials: [
+      { label: "CFPB — Credit reports and scores", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/" },
+      { label: "CFPB — Understand your credit score", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/understand-your-credit-score/" },
+    ] },
   { act: 2, t: "Portfolio Review: Same Start, Different Results", s: "Tally net worth and trace what drove the spread.", action: "review" },
   { act: 3, t: "Active Investing", s: "Review, diversify, rebalance.", action: "rebalance" },
   { act: 3, t: "Build Something: Earning in an AI World", s: "Be a builder, not just a consumer — turn a skill (and AI) into income.", action: "hustle" },
@@ -1094,6 +1107,7 @@ function Platform({ state, setState, onExit }) {
   const tabs = [
     { id: "dash", label: "Dashboard", icon: LineIcon },
     { id: "week", label: s.phase === "course" ? "This Week" : "Check-in", icon: GraduationCap },
+    { id: "course", label: "Course", icon: BookOpen },
     { id: "port", label: "Portfolio", icon: PiggyBank },
     { id: "macro", label: "Markets", icon: Newspaper },
   ];
@@ -1220,6 +1234,7 @@ function Platform({ state, setState, onExit }) {
         </div>
       )}
       {tab === "week" && <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} />}
+      {tab === "course" && <CoursePanel s={s} batch={batch} />}
       {tab === "port" && <PortfolioPanel s={s} setState={setState} pieData={pieData} nw={nw} />}
       {tab === "macro" && (
         <div className="rise">
@@ -1248,6 +1263,100 @@ function Platform({ state, setState, onExit }) {
     </div>
   );
 }
+// A single resource as a pill link (opens in a new tab, safely).
+function ResLink({ r, icon: Icon = Newspaper }) {
+  return (
+    <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 600, color: C.emerald, background: C.paper, border: `1px solid ${C.line}`, borderRadius: 999, padding: "6px 12px", textDecoration: "none", lineHeight: 1.3 }}>
+      <Icon size={12} style={{ flexShrink: 0 }} /> {r.label} ↗
+    </a>
+  );
+}
+
+/* ---- Course hub: every week's materials + the resources we email, for review/catch-up ---- */
+function CoursePanel({ s, batch }) {
+  const offCourse = s.phase !== "course"; // in check-ins / graduated, the 12 weeks are all done
+  const currentWeek = offCourse ? 12 : s.week;
+  const [open, setOpen] = useState(() => new Set([currentWeek]));
+  const toggle = (n) => setOpen((prev) => {
+    const nx = new Set(prev);
+    nx.has(n) ? nx.delete(n) : nx.add(n);
+    return nx;
+  });
+  return (
+    <div className="rise">
+      <Card style={{ padding: 20, marginBottom: 12 }}>
+        <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Your course, week by week</div>
+        <div style={{ fontSize: 13.5, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>
+          Missed a class or want to review? It's all here. Each week unlocks as you reach it, with its class materials and the same market-event resources we email you — so you can catch up, revise, and dig deeper any time.
+        </div>
+        {batch && (
+          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: C.ink2, flexWrap: "wrap" }}>
+            <Video size={14} color={C.emerald} /> Missed a session? Same class Zoom link every week:
+            <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, textDecoration: "none" }}>Join / rewatch ↗</a>
+          </div>
+        )}
+      </Card>
+      {[1, 2, 3].map((act) => (
+        <div key={act}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "14px 2px 8px" }}>
+            <Pill bg={act === 1 ? C.green : act === 2 ? C.pink : C.turq}>Act {act}</Pill>
+            <span className="disp" style={{ fontSize: 15, fontWeight: 700, color: C.ink2 }}>{ACTS[act]}</span>
+          </div>
+          {WEEKS.map((w, i) => {
+            const week = i + 1;
+            if (w.act !== act) return null;
+            const unlocked = offCourse || week <= currentWeek;
+            const status = !unlocked ? "Upcoming" : (week === currentWeek && !offCourse ? "This week" : "Completed");
+            const statusColor = status === "This week" ? C.emerald : status === "Completed" ? C.turq : C.muted;
+            const resources = unlocked ? weekResources(week) : [];
+            const materials = unlocked ? (w.materials || []) : [];
+            const isOpen = open.has(week);
+            return (
+              <Card key={week} style={{ padding: 0, marginBottom: 10, overflow: "hidden", opacity: unlocked ? 1 : 0.65 }}>
+                <button type="button" className="btn" onClick={() => unlocked && toggle(week)} aria-expanded={isOpen} disabled={!unlocked}
+                  style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "13px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, cursor: unlocked ? "pointer" : "not-allowed" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                    {!unlocked && <Lock size={13} color={C.muted} style={{ flexShrink: 0 }} />}
+                    <span style={{ minWidth: 0 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: statusColor, letterSpacing: ".04em" }}>WEEK {week} · {status.toUpperCase()}</span>
+                      <span className="disp" style={{ display: "block", fontSize: 16, fontWeight: 700, color: C.ink }}>{w.t}</span>
+                    </span>
+                  </span>
+                  {unlocked && <span aria-hidden="true" style={{ color: C.muted, fontSize: 20, flexShrink: 0, lineHeight: 1 }}>{isOpen ? "–" : "+"}</span>}
+                </button>
+                {unlocked && isOpen && (
+                  <div style={{ padding: "0 16px 16px", borderTop: `1px solid ${C.line}` }}>
+                    <div style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5, margin: "12px 0" }}>{w.s}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Class materials</div>
+                    {materials.length ? (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {materials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic" }}>Lesson materials coming soon.</div>
+                    )}
+                    {resources.length > 0 && (
+                      <>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", margin: "16px 0 8px" }}>This week's market event — research it</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                          {resources.map((r, j) => <ResLink key={j} r={r} icon={Newspaper} />)}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+                {!unlocked && (
+                  <div style={{ padding: "0 16px 13px 38px", fontSize: 12.5, color: C.muted }}>Unlocks when you reach Week {week}.</div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function PortfolioPanel({ s, setState, pieData, nw }) {
   const rebalance = (preset) => setState((p) => {
     const ns = JSON.parse(JSON.stringify(p));
