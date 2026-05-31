@@ -135,20 +135,29 @@ export const ASSETS = [
   { key: "bullion", label: "Bullion", color: C.goldLite, icon: Coins },
 ];
 
+// Weeks 1–2 are the setup phase (you don't even choose an allocation until Week 2),
+// so the market hasn't started moving the portfolio yet — assets are flat, though
+// savings still earns its small yield.
+const FLAT_MACRO = { h: "Markets are quiet", d: "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.", e: { stocks: 0, bonds: 0, reits: 0, bullion: 0, sav: .01 } };
+// The live market arc begins on WEEK 3 — exactly when the curriculum teaches "Macro
+// Forces on Investments." The 10 events are sequenced to land on lesson beats:
+//   W5 Housing boom (as you buy a home) → W6 Recession (the very next week) →
+//   W8 Market correction (just before the "Same Start, Different Results" review) →
+//   W9 Tech-led rally (rewarding students who rebalanced in Active Investing) →
+//   W11 Geopolitical jitters / gold spike (as you learn bullion in "Beyond Stocks") →
+//   W12 Year-end melt-up (the finale).
 // each advance applies these returns to the asset classes + savings yield
 const MACRO = [
-  { h: "Markets open calm", d: "A quiet start. Broad indexes drift up modestly.", e: { stocks: .02, bonds: .005, reits: .01, bullion: 0, sav: .01 } },
-  { h: "The Fed hikes rates", d: "Borrowing gets pricier. Bonds slip, gold catches a bid, savings yields rise.", e: { stocks: -.03, bonds: -.02, reits: -.025, bullion: .04, sav: .015 } },
-  { h: "Inflation runs hot", d: "Prices jump. Hard assets shine while bonds lag.", e: { stocks: -.015, bonds: -.03, reits: .03, bullion: .06, sav: .015 } },
-  { h: "Tech-led rally", d: "Risk appetite roars back and equities surge.", e: { stocks: .07, bonds: .005, reits: .02, bullion: -.02, sav: .01 } },
-  { h: "Housing boom", d: "Property values climb across the board.", e: { stocks: .015, bonds: .005, reits: .055, bullion: .005, sav: .01 } },
-  { h: "Recession fears spike", d: "Investors flee to safety. Stocks fall, bonds and gold rise.", e: { stocks: -.06, bonds: .03, reits: -.03, bullion: .035, sav: .01 } },
-  { h: "Soft landing hopes", d: "Cooling inflation without a crash. A relief rally.", e: { stocks: .045, bonds: .02, reits: .02, bullion: -.01, sav: .01 } },
-  { h: "Market correction", d: "A sharp pullback trims the froth.", e: { stocks: -.045, bonds: .01, reits: -.02, bullion: .015, sav: .01 } },
-  { h: "Steady expansion", d: "Earnings beat and the economy hums along.", e: { stocks: .035, bonds: .01, reits: .025, bullion: 0, sav: .01 } },
-  { h: "Rate cuts begin", d: "The Fed eases. Bonds and growth stocks cheer.", e: { stocks: .05, bonds: .03, reits: .03, bullion: .01, sav: -.005 } },
-  { h: "Geopolitical jitters", d: "Uncertainty sends gold up and stocks wobbling.", e: { stocks: -.025, bonds: .015, reits: -.01, bullion: .05, sav: .01 } },
-  { h: "Year-end melt-up", d: "Optimism into the close lifts most assets.", e: { stocks: .04, bonds: .015, reits: .025, bullion: .005, sav: .01 } },
+  { h: "The Fed hikes rates", d: "Borrowing gets pricier. Bonds slip, gold catches a bid, savings yields rise.", e: { stocks: -.03, bonds: -.02, reits: -.025, bullion: .04, sav: .015 } },   // Week 3
+  { h: "Inflation runs hot", d: "Prices jump. Hard assets shine while bonds lag.", e: { stocks: -.015, bonds: -.03, reits: .03, bullion: .06, sav: .015 } },                                  // Week 4
+  { h: "Housing boom", d: "Property values climb across the board.", e: { stocks: .015, bonds: .005, reits: .055, bullion: .005, sav: .01 } },                                                // Week 5
+  { h: "Recession fears spike", d: "Investors flee to safety. Stocks fall, bonds and gold rise.", e: { stocks: -.06, bonds: .03, reits: -.03, bullion: .035, sav: .01 } },                   // Week 6
+  { h: "Soft landing hopes", d: "Cooling inflation without a crash. A relief rally.", e: { stocks: .045, bonds: .02, reits: .02, bullion: -.01, sav: .01 } },                                 // Week 7
+  { h: "Market correction", d: "A sharp pullback trims the froth.", e: { stocks: -.045, bonds: .01, reits: -.02, bullion: .015, sav: .01 } },                                                 // Week 8
+  { h: "Tech-led rally", d: "Risk appetite roars back and equities surge.", e: { stocks: .07, bonds: .005, reits: .02, bullion: -.02, sav: .01 } },                                           // Week 9
+  { h: "Rate cuts begin", d: "The Fed eases. Bonds and growth stocks cheer.", e: { stocks: .05, bonds: .03, reits: .03, bullion: .01, sav: -.005 } },                                         // Week 10
+  { h: "Geopolitical jitters", d: "Uncertainty sends gold up and stocks wobbling.", e: { stocks: -.025, bonds: .015, reits: -.01, bullion: .05, sav: .01 } },                                 // Week 11
+  { h: "Year-end melt-up", d: "Optimism into the close lifts most assets.", e: { stocks: .04, bonds: .015, reits: .025, bullion: .005, sav: .01 } },                                          // Week 12
 ];
 const CHECKIN_MACRO = [
   { h: "Q1 — Inflation cools", d: "Bonds recover; gold gives back gains.", e: { stocks: .03, bonds: .025, reits: .02, bullion: -.02, sav: .012 } },
@@ -158,6 +167,14 @@ const CHECKIN_MACRO = [
   { h: "Q5 — Broad rally", d: "A goldilocks quarter lifts nearly everything.", e: { stocks: .04, bonds: .02, reits: .03, bullion: .015, sav: .012 } },
   { h: "Q6 — Volatile finish", d: "Choppy markets reward the diversified.", e: { stocks: -.02, bonds: .02, reits: .005, bullion: .03, sav: .012 } },
 ];
+
+// The single source of truth for "which market event is happening now."
+// Course: Weeks 1–2 are flat (setup), the live arc runs Weeks 3–12 (MACRO[week-3]).
+// Check-ins: one CHECKIN_MACRO event per monthly check-in.
+export function marketEventFor(phase, week, checkin) {
+  if (phase === "course") return week <= 2 ? FLAT_MACRO : MACRO[(week - 3) % MACRO.length];
+  return CHECKIN_MACRO[checkin % CHECKIN_MACRO.length];
+}
 
 const WEEKS = [
   { act: 1, t: "Set Up Your Paycheck", s: "W-4, 401(k) + match, gross vs. net.", action: "settings" },
@@ -1076,7 +1093,7 @@ function Platform({ state, setState, onExit }) {
   // compare to the PREVIOUS recorded period (the latest entry is the current one)
   const last = s.history.length > 1 ? s.history[s.history.length - 2].nw : 0;
   const wk = WEEKS[s.week - 1];
-  const macroNow = s.phase === "course" ? MACRO[(s.week - 1) % MACRO.length] : CHECKIN_MACRO[s.checkin % CHECKIN_MACRO.length];
+  const macroNow = marketEventFor(s.phase, s.week, s.checkin); // Weeks 1–2 flat; live market starts Week 3
 
   const pieData = ASSETS.map((a) => ({ name: a.label, value: Math.max(0, Math.round(s.holdings[a.key])), color: a.color }))
     .filter((d) => d.value > 0);
