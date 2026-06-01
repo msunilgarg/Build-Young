@@ -1,8 +1,12 @@
 import { describe, it, expect } from "vitest";
 import {
   validEmail, newState, advance, netWorth, holdingsTotal,
-  takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, marketEventFor, mediaDrip,
+  takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES,
 } from "../src/App.jsx";
+// The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
+// module so the future schedule never ships in the client bundle (anti-gaming). These engine
+// tests run in node, so they import directly from the server module.
+import { marketEventFor, mediaDrip } from "../api/_lib/marketSchedule.js";
 
 const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-hs-wed", track: "High School" };
 const CALM = { h: "Markets open calm", d: "Quiet.", e: { stocks: 0.02, bonds: 0.005, reits: 0.01, bullion: 0, sav: 0.01 } };

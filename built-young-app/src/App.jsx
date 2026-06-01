@@ -5,15 +5,17 @@ import {
   CircleDollarSign, Sparkles, AlertTriangle, ShoppingBag, Landmark, Video, Mail, Briefcase,
   Hourglass, Anchor, MessageCircle, Linkedin, BookOpen,
 } from "lucide-react";
-// Market-media content + schedule live in a dependency-free module so the serverless
-// cron scheduler (api/cron/market-news.js) can import the SAME source. App.jsx layers
-// React/lucide-specific bits (ASSETS icons, WEEKS subtitles) on top and re-exports the
-// shared pieces below so existing import paths + tests keep working unchanged.
-// Locally used by App.jsx (pct for formatting, ASSET_META to build ASSETS, marketEventFor +
-// mediaDrip in the dashboard).
-import { pct, ASSET_META, marketEventFor, mediaDrip, weekResources } from "./marketMedia.js";
-// Re-export the shared content so callers importing from "../src/App.jsx" still work unchanged.
-export { pct, FLAT_MACRO, MACRO, CHECKIN_MACRO, marketEventFor, MEDIA, mediaDrip } from "./marketMedia.js";
+// Client-safe market-media bits live in a dependency-free module (no React/lucide) so the
+// serverless cron + the server-only schedule module can share the SAME builders. The FUTURE
+// market SCHEDULE (FLAT_MACRO/MACRO/CHECKIN_MACRO/marketEventFor) + the MEDIA map are NOT
+// imported here on purpose — they're server-only (api/_lib/marketSchedule.js) so they never
+// ship in the client bundle (anti-gaming for the tuition prize; see CLAUDE.md). At advance
+// time the dashboard fetches the SINGLE current event from /api/market-event and falls back
+// to a non-revealing placeholder when offline (demo/tests). App.jsx layers React/lucide bits
+// (ASSETS icons, WEEKS subtitles) on top.
+import { pct, ASSET_META, buildMediaDrip } from "./marketMedia.js";
+// Re-export the client-safe content so callers importing from "../src/App.jsx" still work.
+export { pct, buildMediaDrip } from "./marketMedia.js";
 // recharts is heavy (~344 KB) and only used in the dashboard — load it on demand
 // so the landing/enroll/call pages don't pay for it.
 const Charts = React.lazy(() => import("./Charts.jsx"));
@@ -127,8 +129,40 @@ const ASSET_UI = {
 };
 export const ASSETS = ASSET_META.map((a) => ({ ...a, ...ASSET_UI[a.key] }));
 
-// FLAT_MACRO / MACRO / CHECKIN_MACRO / marketEventFor are imported from ./marketMedia.js
-// (the dependency-free single source, shared with the cron scheduler) and re-exported above.
+// The market-event SCHEDULE is server-only (api/_lib/marketSchedule.js) — see the import
+// note up top. The client learns the current event via /api/market-event (fetchMarketEvent
+// below), with a non-revealing placeholder fallback when offline (demo/tests).
+//
+// Non-revealing placeholder: a neutral "Markets are moving" event with zero-ish effects.
+// It keeps the demo running offline WITHOUT shipping any real future event. The Weeks 1–2
+// setup phase still reads as flat; from Week 3 on, the offline demo just shows this generic
+// event (the live deployment shows the real one fetched from the endpoint).
+const PLACEHOLDER_EVENT = { h: "Markets are moving", d: "Markets are open and your portfolio is live. The class will walk through what's driving prices this week.", e: { stocks: 0, bonds: 0, reits: 0, bullion: 0, sav: .01 } };
+const FLAT_PLACEHOLDER = { h: "Markets are quiet", d: "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.", e: { stocks: 0, bonds: 0, reits: 0, bullion: 0, sav: .01 } };
+
+// Synchronous, schedule-free fallback used before/instead of a successful fetch. Weeks 1–2
+// are genuinely flat; everything else is the neutral placeholder (never a real future event).
+function placeholderEventFor(phase, week) {
+  if (phase === "course" && week <= 2) return FLAT_PLACEHOLDER;
+  return PLACEHOLDER_EVENT;
+}
+
+// Fetch the SINGLE current market event from the server. Returns the event ({h,d,e[,media]})
+// or null on any failure (offline/demo/local/tests) so callers fall back gracefully.
+async function fetchMarketEvent(phase, week, checkin) {
+  if (typeof fetch !== "function") return null;
+  try {
+    const qs = phase === "course"
+      ? `phase=course&week=${encodeURIComponent(week)}`
+      : `phase=checkin&checkin=${encodeURIComponent(checkin)}`;
+    const r = await fetch(`/api/market-event?${qs}`, { headers: { Accept: "application/json" } });
+    if (!r.ok) return null;
+    const data = await r.json();
+    return data && data.event ? data.event : null;
+  } catch (e) {
+    return null;
+  }
+}
 
 // Each week carries its lesson (t/s/act) and an optional `materials` list — the place the
 // team adds weekly class content as it's built (verified, primary-source links only, per the
@@ -232,9 +266,9 @@ The Team`,
   };
 }
 
-// MEDIA (per-event analog/watch/question/resources) and mediaDrip (the 3-email pre-class
-// drip) live in ./marketMedia.js — the dependency-free single source shared with the cron
-// scheduler — and are imported + re-exported at the top of this file.
+// The MEDIA map (per-event analog/watch/question/resources) is SERVER-ONLY
+// (api/_lib/marketSchedule.js). The client receives the current event's media inline from
+// /api/market-event and builds the pre-class drip with buildMediaDrip (imported up top).
 
 export const newState = (student) => ({
   student,
@@ -1077,15 +1111,46 @@ function Platform({ state, setState, onExit }) {
   // compare to the PREVIOUS recorded period (the latest entry is the current one)
   const last = s.history.length > 1 ? s.history[s.history.length - 2].nw : 0;
   const wk = WEEKS[s.week - 1];
-  const macroNow = marketEventFor(s.phase, s.week, s.checkin); // Weeks 1–2 flat; live market starts Week 3
+
+  // The CURRENT market event. The full schedule is server-only (anti-gaming), so we fetch
+  // the single current event from /api/market-event. Until it resolves — or whenever the
+  // fetch fails (offline/demo/tests) — we use a schedule-free, non-revealing placeholder so
+  // the dashboard always has something to show and `advance()` always has its `.e` effects.
+  // Keyed on the exact {phase,week,checkin} render snapshot, so the value `advance()` uses
+  // matches what's displayed (preserves the original double-click semantics: two rapid
+  // clicks both apply this same event via the functional updater — no lost update).
+  const [macroNow, setMacroNow] = useState(() => placeholderEventFor(s.phase, s.week));
+  useEffect(() => {
+    let live = true;
+    setMacroNow(placeholderEventFor(s.phase, s.week)); // reset to a safe value on step change
+    fetchMarketEvent(s.phase, s.week, s.checkin).then((ev) => {
+      if (live && ev) setMacroNow(ev);
+    });
+    return () => { live = false; };
+  }, [s.phase, s.week, s.checkin]);
 
   const pieData = ASSETS.map((a) => ({ name: a.label, value: Math.max(0, Math.round(s.holdings[a.key])), color: a.color }))
     .filter((d) => d.value > 0);
 
-  const doAdvance = () => {
+  const doAdvance = async () => {
+    // Compute where this advance lands so we can pre-fetch the NEXT step's pre-class media
+    // (the drip is for the week the student arrives at). Server-only schedule → fetch it;
+    // on failure the drip is simply empty (the placeholder event has no authored media),
+    // which is the correct "non-revealing" behavior offline.
+    let nextPhase = s.phase, nextWeek = s.week, nextCheckin = s.checkin;
+    if (s.phase === "course") {
+      if (s.week >= 12) { nextPhase = "checkin"; nextWeek = 12; }
+      else nextWeek = s.week + 1;
+    } else {
+      nextCheckin = s.checkin + 1;
+    }
+    const nextEvent = await fetchMarketEvent(nextPhase, nextWeek, nextCheckin);
+    const nextMedia = nextEvent && nextEvent.media ? nextEvent.media : null;
+    const macroForAdvance = macroNow; // snapshot the event applied to THIS advance
+
     let toSend = [];
     setState((p) => {
-      let ns = advance(p, macroNow);
+      let ns = advance(p, macroForAdvance);
       ns.started = true; // first session attended — class has begun
       const mail = followupEmail(ns, ns.week, batch);
       if (mail) ns.emails = [mail, ...(ns.emails || [])];
@@ -1096,10 +1161,11 @@ function Platform({ state, setState, onExit }) {
         ns.checkin += 1;
         if (ns.checkin >= 6) ns.done = true;
       }
-      // Simulated pre-class media for the week we just arrived at (Weeks 3–12). In the
-      // click-driven sim the whole 3-email drip lands at once; in production it's delivered
-      // one email per real day (−3/−2/−1) by the daily cron in api/cron/market-news.js.
-      const media = mediaDrip(ns, batch);
+      // Simulated pre-class media for the week we just arrived at (Weeks 3–12), built from the
+      // event's media fetched above. In the click-driven sim the whole 3-email drip lands at
+      // once; in production it's delivered one email per real day (−3/−2/−1) by the daily cron
+      // in api/cron/market-news.js. Offline/demo: no media fetched → no drip (non-revealing).
+      const media = (nextEvent && nextMedia) ? buildMediaDrip(nextEvent, nextMedia, ns) : [];
       if (media.length) ns.emails = [...media, ...(ns.emails || [])];
       toSend = [...(mail ? [mail] : []), ...media];
       return ns;
@@ -1295,6 +1361,27 @@ function CoursePanel({ s, batch }) {
     nx.has(n) ? nx.delete(n) : nx.add(n);
     return nx;
   });
+
+  // The per-week market-event resources are server-only (the schedule isn't in the bundle).
+  // Fetch them for UNLOCKED weeks only (current + past — never future), one /api/market-event
+  // call per week, cached by week number. Offline/demo: fetch returns null → no resources
+  // shown (the class materials still render). This only ever surfaces past/current weeks, so
+  // it reveals nothing the student isn't already entitled to.
+  const [weekRes, setWeekRes] = useState({}); // { [week]: resources[] }
+  const unlockedThrough = offCourse ? 12 : currentWeek;
+  useEffect(() => {
+    let live = true;
+    for (let week = 1; week <= unlockedThrough; week++) {
+      if (weekRes[week] !== undefined) continue; // already fetched/cached
+      const wk = week; // capture
+      fetchMarketEvent("course", wk, 0).then((ev) => {
+        if (!live) return;
+        const res = ev && ev.media && ev.media.resources ? ev.media.resources : [];
+        setWeekRes((prev) => (prev[wk] !== undefined ? prev : { ...prev, [wk]: res }));
+      });
+    }
+    return () => { live = false; };
+  }, [unlockedThrough]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="rise">
       <Card style={{ padding: 20, marginBottom: 12 }}>
@@ -1321,7 +1408,7 @@ function CoursePanel({ s, batch }) {
             const unlocked = offCourse || week <= currentWeek;
             const status = !unlocked ? "Upcoming" : (week === currentWeek && !offCourse ? "This week" : "Completed");
             const statusColor = status === "This week" ? C.emerald : status === "Completed" ? C.turq : C.muted;
-            const resources = unlocked ? weekResources(week) : [];
+            const resources = unlocked ? (weekRes[week] || []) : [];
             const materials = unlocked ? (w.materials || []) : [];
             const isOpen = open.has(week);
             return (

@@ -13,7 +13,7 @@
 // "day number" so DST / timezone shifts can never throw the 3/2/1-day window off by one.
 
 // Weeks that carry a live market event (and therefore a media drip). Weeks 1–2 are the
-// flat setup phase — no event, no drip — matching marketEventFor() in marketMedia.js.
+// flat setup phase — no event, no drip — matching marketEventFor() in _lib/marketSchedule.js.
 export const MEDIA_WEEKS = { first: 3, last: 12 };
 
 // The day-offsets a drip goes out on, relative to class day: -3 (breaking), -2 (analysis),

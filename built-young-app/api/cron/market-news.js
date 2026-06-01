@@ -6,9 +6,11 @@
 // one per day. This replaces the in-app behavior where the whole 3-email drip fired at once
 // on a click — the content is identical, just delivered on real dates.
 //
-// Content is SINGLE-SOURCED from src/marketMedia.js (mediaDrip), the same module the browser
-// app re-exports. The schedule (which week's class is in 3/2/1 days) comes from
-// api/_lib/schedule.js. The roster (who to email) comes from api/_lib/roster.js.
+// Content is SINGLE-SOURCED: the message text comes from the shared client-safe builder in
+// src/marketMedia.js (buildMediaDrip), wrapped by mediaDrip in the SERVER-ONLY schedule
+// module api/_lib/marketSchedule.js (which holds the full future schedule + MEDIA map, kept
+// off the client bundle). The CALENDAR schedule (which week's class is in 3/2/1 days) comes
+// from api/_lib/schedule.js. The roster (who to email) comes from api/_lib/roster.js.
 //
 // SECURITY:
 //   - Requires `Authorization: Bearer <CRON_SECRET>` (Vercel Cron sends this automatically
@@ -18,7 +20,7 @@
 //     doesn't error the cron — it just sends nothing.
 
 import { BATCHES } from "../../src/cohorts.js";
-import { mediaDrip } from "../../src/marketMedia.js";
+import { mediaDrip } from "../_lib/marketSchedule.js";
 import { dueSends, DRIP_OFFSETS } from "../_lib/schedule.js";
 import { getRoster } from "../_lib/roster.js";
 import { sendEmail } from "../_lib/sendEmail.js";
