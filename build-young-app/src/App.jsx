@@ -516,11 +516,13 @@ const HeroBackdrop = () => (
   </svg>
 );
 
-// A stylized peek at the student simulation — continuously cycles through weeks.
+// A stylized peek at the student simulation — cycles through the FINANCE-act weeks (8/10/12),
+// when there's actually income from the build, a portfolio, and the $10k steady build income.
+// (Weeks 1–6 are the build act: pre-revenue, nothing invested yet — so we don't show them.)
 const HP_SNAPS = [
-  { week: 5, nw: 41500, pts: "0,190 70,176 140,182 210,158 280,166 350,140 420,148 490,124 540,110", alloc: [0.45, 0.30, 0.15, 0.10] },
-  { week: 8, nw: 68900, pts: "0,176 70,158 140,168 210,128 280,136 350,96 420,104 490,64 540,40", alloc: [0.55, 0.25, 0.12, 0.08] },
-  { week: 12, nw: 96250, pts: "0,170 70,150 140,160 210,116 280,124 350,80 420,72 490,40 540,14", alloc: [0.62, 0.18, 0.12, 0.08] },
+  { week: 8, nw: 24800, pts: "0,196 70,184 140,188 210,170 280,176 350,156 420,162 490,142 540,130", alloc: [0.45, 0.30, 0.15, 0.10] },
+  { week: 10, nw: 48200, pts: "0,184 70,166 140,176 210,140 280,148 350,112 420,120 490,84 540,66", alloc: [0.55, 0.25, 0.12, 0.08] },
+  { week: 12, nw: 74900, pts: "0,170 70,150 140,160 210,116 280,124 350,80 420,72 490,40 540,14", alloc: [0.62, 0.18, 0.12, 0.08] },
 ];
 const HeroPreview = () => {
   const C2 = C;
@@ -563,7 +565,9 @@ const HeroPreview = () => {
         </defs>
         {/* top bar */}
         <g transform="translate(28,26)">
-          <rect x="0" y="-4" width="16" height="22" rx="3" fill="#50a0e0" /><rect x="19" y="-12" width="16" height="30" rx="3" fill="#0078d4" /><rect x="38" y="-22" width="16" height="40" rx="3" fill="#0067b8" />
+          {/* logo — matches the real <Mark/>: 3 ascending blocks (22/36/54 scaled) + teal spark, bottom-aligned at y=18 */}
+          <rect x="0" y="4" width="15" height="14" rx="3" fill="#50a0e0" /><rect x="19" y="-5" width="15" height="23" rx="3" fill="#0078d4" /><rect x="38" y="-16" width="15" height="34" rx="3" fill="#0067b8" />
+          <path d="M44.5 -23 l5 7 h-10 z" fill="#038387" />
           <text x="70" y="14" fontFamily="Space Grotesk, sans-serif" fontSize="19" fontWeight="800" fill={C2.ink}>Build <tspan fill="url(#bygrad)">Young</tspan></text>
           <rect x="678" y="-8" width="186" height="30" rx="6" fill="#eaf3fb" />
           <text x="771" y="12" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.emerald} textAnchor="middle"><tspan className="hp-live">●</tspan> Week {snap.week} — live now</text>
