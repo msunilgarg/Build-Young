@@ -23,7 +23,7 @@
 import {
   newState, advance, netWorth, holdingsTotal,
   RISK_PRESETS, ASSETS, BATCHES,
-  PAY, HOME, CAR, EMERGENCY, SPREE, INSURANCE, ALT_BUY, PE_BUY, HUSTLE_START,
+  PAY, HOME, CAR, EMERGENCY, SPREE, INSURANCE, ALT_BUY, PE_BUY, HUSTLE_START, CHECKINS,
 } from "../src/App.jsx";
 import { WEEK_TITLES } from "../src/marketMedia.js";
 // The market schedule + schedule-resolving mediaDrip are server-only now (so the future
@@ -329,7 +329,7 @@ function recapEmail(s, batch) {
       subject: last ? "Course complete — your check-ins are coming" : `Week ${s.week} recap + your next class`,
     };
   }
-  return { type: "followup", when: "Just now", event: null, subject: `Check-in ${s.checkin + 1} recap` };
+  return { type: "followup", when: "Just now", event: null, subject: `Your monthly check-in recap` };
 }
 
 // Email-subject extraction: welcome email + per-period recaps + the 3-email media drips.
@@ -358,7 +358,7 @@ function runStudent(persona, batch) {
   // We advance exactly like the dashboard's doAdvance: apply this period's decisions, then
   // call advance(state, macroEvent), then roll the phase/week/checkin counters.
   let period = 0;
-  const MAX_PERIODS = 18; // 12 weeks + 6 check-ins
+  const MAX_PERIODS = 12 + CHECKINS; // 12 course weeks + monthly check-ins
   const introNoted = {}; // first-introduction "couldn't afford yet" note shown once per goal
   while (!s.done && period < MAX_PERIODS) {
     period += 1;
@@ -366,7 +366,7 @@ function runStudent(persona, batch) {
     const week = s.week;
     const checkin = s.checkin;
     const macro = marketEventFor(s.phase, week, checkin);
-    const label = isCourse ? `Week ${week}: ${WEEK_TITLES[week - 1]}` : `Check-in ${checkin + 1} of 6`;
+    const label = isCourse ? `Week ${week}: ${WEEK_TITLES[week - 1]}` : (CHECKINS > 1 ? `Check-in ${checkin + 1} of ${CHECKINS}` : "Monthly check-in");
 
     // 1) Apply this period's decisions onto a working clone (mirrors the UI `set` helper).
     let working = clone(s);
@@ -406,7 +406,7 @@ function runStudent(persona, batch) {
       else ns.week += 1;
     } else {
       ns.checkin += 1;
-      if (ns.checkin >= 6) ns.done = true;
+      if (ns.checkin >= CHECKINS) ns.done = true;
     }
 
     // Pre-class media drip for the week we just arrived at (mirrors doAdvance).
