@@ -1,16 +1,16 @@
 name,email,discoverySource,bookedCall,riskStyle,finalNetWorth,prizeRank,boughtHome,boughtCar,carriedCardDebt,creditScore
-"Ava Thompson",ava.thompson@example.com,"Instagram",true,aggressive,106911.94,7,false,false,false,804
-"Liam Patel",liam.patel@example.com,"friend referral",true,balanced,96803.09,12,false,true,false,804
-"Sofia Nguyen",sofia.nguyen@example.com,"Google search",true,conservative,104711.97,11,false,false,false,804
-"Noah Garcia",noah.garcia@example.com,"school flyer",false,balanced,93003.78,14,false,false,true,804
-"Maya Robinson",maya.robinson@example.com,"Instagram",true,aggressive,106844.02,10,false,false,false,804
-"Ethan Kim",ethan.kim@example.com,"YouTube",true,aggressive,123004.68,1,false,false,false,804
-"Olivia Martinez",olivia.martinez@example.com,"friend referral",true,balanced,116122.58,2,false,true,false,804
-"Lucas Brown",lucas.brown@example.com,"podcast ad",false,conservative,90272.03,15,false,false,false,804
-"Isabella Davis",isabella.davis@example.com,"Google search",true,conservative,108082.27,5,true,false,true,804
-"Mason Lee",mason.lee@example.com,"Instagram",true,balanced,113671.91,3,false,true,true,804
-"Charlotte Wilson",charlotte.wilson@example.com,"school flyer",true,aggressive,106911.94,8,false,false,false,804
-"Elijah Moore",elijah.moore@example.com,"Google search",false,balanced,111792.36,4,false,true,false,804
-"Amelia Taylor",amelia.taylor@example.com,"friend referral",true,conservative,108082.27,6,true,false,true,804
-"James Anderson",james.anderson@example.com,"Reddit",true,aggressive,106905.27,9,false,false,false,804
-"Harper Thomas",harper.thomas@example.com,"Instagram",true,balanced,93994.98,13,false,true,false,804
+"Ava Thompson",ava.thompson@example.com,"Instagram",true,aggressive,76934.95,5,false,false,false,804
+"Liam Patel",liam.patel@example.com,"friend referral",true,balanced,71210.68,11,false,true,false,804
+"Sofia Nguyen",sofia.nguyen@example.com,"Google search",true,conservative,76716.5,8,false,false,false,804
+"Noah Garcia",noah.garcia@example.com,"school flyer",false,balanced,73247.16,10,false,false,true,804
+"Maya Robinson",maya.robinson@example.com,"Instagram",true,aggressive,76988.95,4,false,false,false,804
+"Ethan Kim",ethan.kim@example.com,"YouTube",true,aggressive,76804.79,7,false,false,false,804
+"Olivia Martinez",olivia.martinez@example.com,"friend referral",true,balanced,70972.44,12,false,true,false,804
+"Lucas Brown",lucas.brown@example.com,"podcast ad",false,conservative,74863.6,9,false,false,false,804
+"Isabella Davis",isabella.davis@example.com,"Google search",true,conservative,80792.85,1,true,false,true,804
+"Mason Lee",mason.lee@example.com,"Instagram",true,balanced,69966.25,14,false,true,true,804
+"Charlotte Wilson",charlotte.wilson@example.com,"school flyer",true,aggressive,76934.95,6,false,false,false,804
+"Elijah Moore",elijah.moore@example.com,"Google search",false,balanced,70948.17,13,false,true,false,804
+"Amelia Taylor",amelia.taylor@example.com,"friend referral",true,conservative,80792.85,2,true,false,true,804
+"James Anderson",james.anderson@example.com,"Reddit",true,aggressive,77008.02,3,false,false,false,804
+"Harper Thomas",harper.thomas@example.com,"Instagram",true,balanced,69042.93,15,false,true,false,804

@@ -37,18 +37,18 @@ export const ASSET_META = [
 // The 12 weekly lesson titles (Act/curriculum order). App.jsx's richer WEEKS array carries
 // subtitles + actions; the scheduler only needs the title for email subjects/body.
 export const WEEK_TITLES = [
-  "Set Up Your Paycheck",
-  "Savings & Investing + Compounding",
-  "Macro Forces on Investments",
-  "Big Purchases: The Framework",
-  "Big Purchases: Making the Call",
-  "Budgeting: Surprises & Temptations",
   "Build: Find a Problem Worth Solving",
   "Build: Shape the Idea",
   "Build: Make It (with AI)",
-  "Build Something: Earning in an AI World",
-  "Build: First Customers & Reinvest",
-  "Capstone: What You Built",
+  "Build: Launch & First Customers",
+  "Build: Price It & Get Paid",
+  "Build: Grow What's Working",
+  "Set Up Your Business Finances",
+  "Savings & Investing + Compounding",
+  "Macro Forces on Investments",
+  "Big Purchases: Buy, Finance & Live With It",
+  "Budgeting: Surprises & Temptations",
+  "Capstone: What You Built & What It's Worth",
 ];
 
 // The from-address used on the drip emails. Kept as a constant here so the content stays

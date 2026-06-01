@@ -69,7 +69,7 @@ describe("/api/cron/market-news handler", () => {
   });
 
   it("sends one email per enrolled student for each due cohort on a given day", async () => {
-    // On 2026-09-20: fall-hs-wed (W3, -3), fall-ms-mon (W3, -1), fall-ms-tue (W3, -2) are due.
+    // On 2026-10-25: fall-hs-wed (W8, -3), fall-ms-mon (W8, -1), fall-ms-tue (W8, -2) are due.
     rosterSpy.mockImplementation(async (batchId) => {
       if (batchId === "fall-hs-wed") return [
         { email: "a@x.com", name: "Avery Lee", batchId },
@@ -80,7 +80,7 @@ describe("/api/cron/market-news handler", () => {
     });
 
     const res = makeRes();
-    await handler(makeReq({ auth: `Bearer ${SECRET}`, query: { date: "2026-09-20" } }), res);
+    await handler(makeReq({ auth: `Bearer ${SECRET}`, query: { date: "2026-10-25" } }), res);
 
     expect(res.statusCode).toBe(200);
     expect(res.payload.ok).toBe(true);

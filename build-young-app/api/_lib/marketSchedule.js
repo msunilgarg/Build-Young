@@ -58,10 +58,12 @@ export const CHECKIN_MACRO = [
 ];
 
 // The single source of truth for "which market event is happening now."
-// Course: Weeks 1–2 are flat (setup), the live arc runs Weeks 3–12 (MACRO[week-3]).
-// Check-ins: one CHECKIN_MACRO event per monthly check-in.
+// FLIPPED CURRICULUM: Weeks 1–6 are the BUILD act and Week 7 is finance setup — no portfolio
+// to move yet, so markets are flat. The live market arc runs once you're investing: Weeks
+// 8–12 (MACRO[week-8]). Check-ins: one CHECKIN_MACRO event per monthly check-in.
+export const MARKET_FIRST_WEEK = 8;
 export function marketEventFor(phase, week, checkin) {
-  if (phase === "course") return week <= 2 ? FLAT_MACRO : MACRO[(week - 3) % MACRO.length];
+  if (phase === "course") return week < MARKET_FIRST_WEEK ? FLAT_MACRO : MACRO[(week - MARKET_FIRST_WEEK) % MACRO.length];
   return CHECKIN_MACRO[checkin % CHECKIN_MACRO.length];
 }
 

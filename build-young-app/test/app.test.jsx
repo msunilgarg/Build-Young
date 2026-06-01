@@ -113,8 +113,8 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await user.click(await screen.findByRole("button", { name: "Course" }));
     expect(await screen.findByText(/Your course, week by week/i)).toBeInTheDocument();
 
-    // Week 1 is the current week and expanded by default → its seeded class material is visible
-    expect(screen.getByRole("link", { name: /About Form W-4/i })).toBeInTheDocument();
+    // Week 1 is the current week — the build arc opens the course (build-first curriculum)
+    expect(screen.getByText(/Find a Problem Worth Solving/i)).toBeInTheDocument();
 
     // A future week is locked (no spoilers) until the student reaches it
     expect(screen.getByText(/Unlocks when you reach Week 12/i)).toBeInTheDocument();

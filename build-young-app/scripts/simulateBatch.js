@@ -237,29 +237,29 @@ const PERSONAS = [
 function weekOps(persona, week, phase) {
   const ops = [];
   const courseWeek = phase === "course" ? week : 99; // check-ins are "after week 12"
-  // settings (course weeks 1–2)
-  if (courseWeek === 1) ops.push({ key: "setSettings", arg: { retire401k: persona.retire401k } });
-  if (courseWeek === 2) {
+  // FLIPPED CURRICULUM: Weeks 1–6 are the BUILD act (placeholder lessons, no dashboard
+  // mechanics; income from the build ramps automatically in advance()). The FINANCE act runs
+  // Weeks 7–12 and is where the financial decisions happen.
+  // Week 7 — set up business finances (retirement set-aside; no employer match).
+  if (courseWeek === 7) ops.push({ key: "setSettings", arg: { retire401k: persona.retire401k } });
+  // Week 8 — savings/brokerage rates + risk style.
+  if (courseWeek === 8) {
     ops.push({ key: "setSettings", arg: { savingsRate: persona.savingsRate, brokerageRate: persona.brokerageRate } });
     ops.push({ key: "setRisk", arg: persona.risk });
   }
-  // big purchases: introduced Week 5, then retried every period until affordable
-  if (courseWeek >= 5) {
+  // Week 10 — big purchases, then retried every later period until affordable.
+  if (courseWeek >= 10) {
     if (persona.buyHome) ops.push({ key: "buyHome", once: true });
     if (persona.buyCar) ops.push({ key: "buyCar", once: true });
   }
-  // budget week (Week 6 only)
-  if (courseWeek === 6) {
+  // Week 11 — budgeting: emergency + spree-vs-invest.
+  if (courseWeek === 11) {
     ops.push({ key: persona.emergency === "credit" ? "emergencyOnCredit" : "emergencyFromSavings" });
     ops.push({ key: persona.spree === "treat" ? "spree" : "investInstead" });
   }
-  // NOTE: Act 3 (Weeks 7–12) is now the BUILD arc; the former finance weeks (credit card,
-  // active-investing rebalance, and the bullion/REIT/PE/insurance "protect" week) were
-  // retired from the student flow, so the harness no longer applies their mechanics. Only
-  // the Week-10 hustle/build remains. Persona finance flags are kept (unused) so any week
-  // can be reinstated if Sunil's outline brings a mechanic back.
-  // hustle / build (Week 10 only)
-  if (courseWeek === 10 && persona.hustle) ops.push({ key: "hustle" });
+  // NOTE: the retired finance mechanics (credit card, rebalance, bullion/REIT/PE, insurance)
+  // remain in `decide` but are no longer applied. Income comes from the build revenue curve in
+  // advance(), so there is no separate "hustle" op anymore.
   return ops;
 }
 
@@ -269,7 +269,7 @@ function describeOp(op) {
     case "setSettings": {
       const a = op.arg;
       const parts = [];
-      if (a.retire401k != null) parts.push(`set 401(k) contribution to ${Math.round(a.retire401k * 100)}% (employer matches up to 5%)`);
+      if (a.retire401k != null) parts.push(`set retirement set-aside to ${Math.round(a.retire401k * 100)}% of business income (self-employed — no employer match)`);
       if (a.savingsRate != null) parts.push(`auto-save ${Math.round(a.savingsRate * 100)}% of net pay`);
       if (a.brokerageRate != null) parts.push(`auto-invest ${Math.round(a.brokerageRate * 100)}% of net pay to brokerage`);
       return parts.join("; ");
