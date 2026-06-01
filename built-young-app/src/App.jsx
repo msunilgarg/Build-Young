@@ -714,6 +714,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>Middle school meets <b>Mondays & Tuesdays</b>, high school <b>Wednesdays & Thursdays</b> — every cohort is <b>100% live online over Zoom</b>. We run three cohorts a year — pick the season and day that fit.</p>
           <p style={{ color: C.muted, fontSize: 14, marginTop: 8 }}>Not sure it's the right fit? <b>Cancel before your cohort starts for a full refund.</b> After it begins, withdraw through <b>Act 1 (the first 3 weeks)</b> for a prorated refund. After Act 1, tuition is non-refundable.</p>
+          <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value</b> at the end of each cohort earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; see Terms.)</span></p>
           <p style={{ fontSize: 14, marginTop: 6 }}>Still deciding? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Book a free 15-minute call with Sunil →</span></p>
         </div>
         {/* season selector */}
@@ -1602,6 +1603,12 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       {action === "capstone" && (
         <Wrap title="Capstone: Your Net Worth" blurb="You started with nothing but a paycheck. Here's the life you built.">
           <Stat label="Final net worth" value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />
+          <div style={{ marginTop: 12, padding: 14, background: "#e7f3ee", border: `1px solid ${C.green}`, borderRadius: 4, display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <Sparkles size={18} color={C.green} style={{ flexShrink: 0, marginTop: 2 }} />
+            <div style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>
+              <b style={{ color: C.green }}>This is your entry for the tuition prize.</b> The student with the highest portfolio value in your cohort earns their <b>tuition refunded</b>. Your check-ins still count — keep growing it. <span style={{ color: C.muted }}>Simulated; winner confirmed by Sunil at the close. See Terms.</span>
+            </div>
+          </div>
           <div style={{ fontSize: 14, color: C.ink2, marginTop: 12 }}>From here you move into 6 monthly check-ins — the markets keep moving, and you keep managing your portfolio. Advance to begin.</div>
         </Wrap>
       )}
@@ -1658,6 +1665,7 @@ const LEGAL = {
       ["Education, not financial advice", "Built Young is financial education. It is not licensed financial, investment, tax, or legal advice. All money, accounts, prices, and returns shown in the simulation are simulated; no real funds are ever involved."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
       ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of Act 1 (the first three weeks) — the refund equals the tuition multiplied by the fraction of sessions not yet held. After Act 1, tuition is non-refundable."],
+      ["Tuition prize", "Each cohort, the enrolled student whose simulated portfolio has the highest value at the end of the 12-week course is awarded a refund of their tuition. Standings are based solely on the in-course simulation; all figures are simulated and no real investing occurs. One award per cohort; in the event of a tie or a data discrepancy, Built Young determines the winner in good faith, and its decision is final. The award is the tuition amount paid for that cohort and is issued after the course concludes. No purchase advantage is conferred by investing style — every student faces the same simulated market. Built Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; the prize is a contest involving minors and must be reviewed by counsel for applicable contest/sweepstakes rules before launch.)"],
       ["Conduct", "We ask students and families to be respectful in live sessions. We may remove anyone whose conduct disrupts the class, consistent with the refund policy above."],
       ["Changes & contact", `We may update these terms and will post the new date above. Questions: ${CONFIG.contactEmail}.`],
     ],
