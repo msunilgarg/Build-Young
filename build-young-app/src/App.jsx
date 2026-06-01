@@ -607,7 +607,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
     <div style={{ position: "relative", zIndex: 2 }}>
       {/* nav */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 6vw", maxWidth: 1200, margin: "0 auto" }}>
-        <div className="disp" style={{ fontWeight: 900, fontSize: 22, letterSpacing: "-.02em" }}>
+        <div className="disp" {...act(() => { try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); } })} aria-label="Build Young — back to top" style={{ fontWeight: 900, fontSize: 22, letterSpacing: "-.02em", cursor: "pointer" }}>
           <Mark size={24} /> Build <span className="grad">Young</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
@@ -733,7 +733,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
             <b className="disp">Raising builders, not consumers.</b> How money works — the thing that matters most in real life — isn't on any test. We teach it by letting our kids live it, so in a world changing faster than any classroom can keep up, their future rests on what they can build, not just what they were credentialed to do.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
-            The real way to get ahead is to <b>build something other people will pay for</b> — to solve a problem and create value, the one skill no degree guarantees and no AI takes away from the person who can do it. That's the heart of this: a kid who has actually made something people wanted, and earned from it, carries that for life. Being money-savvy is what lets them <b>keep and grow</b> what they build — putting it to work so it compounds instead of slipping away. And learned this young, it shapes who they become. A kid who builds something real practices initiative and grit; one who lives with a choice — a splurge that set back a goal, an emergency that tested their cushion — builds responsibility and resilience. Because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear. The point was never a credential — it's a young person who can build, and knows what to do with what they earn.
+            The real way to get ahead is to <b>build something other people will pay for</b> — to solve a problem and create value, the one skill no degree guarantees and no AI takes away from the person who can do it. That's the heart of this: a kid who has actually made something people wanted, and earned from it, carries that for life. Being money-savvy is what lets them <b>keep and grow</b> what they build — putting it to work so it compounds instead of slipping away. And learned this young, it shapes who they become. A kid who builds something real practices initiative and grit; one who lives with a choice — a splurge that set back a goal, an emergency that tested their cushion — builds responsibility and resilience. Because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear. The point was never a credential — it's a young person who can build, knows how to grow and protect what they make, and knows what to do with what they earn.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, marginTop: 24 }}>
             {[
@@ -755,7 +755,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
               <CompoundGraphic />
             </Card>
             <p style={{ color: C.ink2, fontSize: 16.5, lineHeight: 1.6 }}>
-              Financial literacy is the foundation, not the finish line. Taught early, it doesn't just make kids better with money — it makes them steadier, more honest, and more in command of their own lives, and gives them the footing to build. In a world being reshaped by AI, that's the most durable lesson of all: <b style={{ color: C.ink }}>save what you earn — and learn to build what earns.</b>
+              Financial literacy is the foundation, not the finish line. Taught early, it doesn't just make kids better with money — it makes them steadier, more honest, and more in command of their own lives, and gives them the footing to build. In a world being reshaped by AI, that's the most durable lesson of all: <b style={{ color: C.ink }}>build what earns — then grow and protect it.</b>
             </p>
           </div>
 
@@ -792,8 +792,8 @@ function Landing({ onEnroll, onCall, onLegal }) {
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>Middle school meets <b>Mondays & Tuesdays</b>, high school <b>Wednesdays & Thursdays</b> — every cohort is <b>100% live online over Zoom</b>. We run three cohorts a year — pick the season and day that fit.</p>
-          <p style={{ color: C.muted, fontSize: 14, marginTop: 8 }}>Not sure it's the right fit? <b>Cancel before your cohort starts for a full refund.</b> After it begins, withdraw through <b>Act 1 (the first 3 weeks)</b> for a prorated refund. After Act 1, tuition is non-refundable.</p>
-          <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value at the final (6th) monthly check-in</b> earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; see Terms.)</span></p>
+          <p style={{ color: C.muted, fontSize: 14, marginTop: 8 }}>Not sure it's the right fit? <b>Cancel before your cohort starts for a full refund.</b> After it begins, withdraw through the <b>first 3 weeks</b> for a prorated refund. After that, tuition is non-refundable.</p>
+          <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value at the final (6th) monthly check-in</b> earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; <span {...act(() => onLegal("terms"))} style={{ textDecoration: "underline", cursor: "pointer" }}>see Terms</span>.)</span></p>
           <p style={{ fontSize: 14, marginTop: 6 }}>Still deciding? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Book a free 15-minute call with Sunil →</span></p>
         </div>
         {/* season selector */}
@@ -942,7 +942,7 @@ function Enroll({ preselect, onDone, onBack, onCall }) {
                     <span className="disp" style={{ fontSize: 26, fontWeight: 800 }}>${b.price}</span>
                   </div>
                   <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
-                    <b style={{ color: C.ink2 }}>Full refund</b> if you cancel before {b.start}. After classes begin, a <b style={{ color: C.ink2 }}>prorated refund</b> is available through Act 1 (Week 3); non-refundable after.
+                    <b style={{ color: C.ink2 }}>Full refund</b> if you cancel before {b.start}. After classes begin, a <b style={{ color: C.ink2 }}>prorated refund</b> is available through the first 3 weeks; non-refundable after.
                   </div>
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 8, fontWeight: 700, letterSpacing: ".04em" }}>WHAT YOU GET FROM ME</div>
                   <div style={{ marginTop: 8, display: "grid", gap: 7 }}>
@@ -1149,7 +1149,7 @@ function Platform({ state, setState, onExit }) {
   const s = state;
   const batch = BATCHES.find((b) => b.id === s.student.batch) || BATCHES[0];
   const notStarted = !s.started; // before the first session → full refund
-  const canWithdraw = notStarted || (s.phase === "course" && s.week <= 3); // pre-start, or Act 1
+  const canWithdraw = notStarted || (s.phase === "course" && s.week <= 3); // pre-start, or within the first 3 weeks
   const refund = notStarted ? batch.price : Math.round((batch.price * (12 - s.week)) / 12);
   const nw = netWorth(s);
   // compare to the PREVIOUS recorded period (the latest entry is the current one)
@@ -1253,7 +1253,7 @@ function Platform({ state, setState, onExit }) {
                 <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>
                   {notStarted
                     ? <>Your cohort hasn't started yet, so you'll receive a <b>full refund of {fmt(refund)}</b> — no questions asked. This frees up your seat for someone else.</>
-                    : <>You've attended {s.week} of 12 sessions. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {12 - s.week} sessions remaining. Refunds are available only through Act 1 (Week 3), so this can't be reversed.</>}
+                    : <>You've attended {s.week} of 12 sessions. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {12 - s.week} sessions remaining. Refunds are available only through the first 3 weeks, so this can't be reversed.</>}
                 </p>
                 <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
                   <button className="btn" onClick={() => setWithdraw(false)} style={{ flex: 1, background: C.paper2, color: C.ink, border: `1px solid ${C.line}`, padding: 12, borderRadius: 4, fontSize: 14 }}>Cancel</button>
@@ -1342,7 +1342,7 @@ function Platform({ state, setState, onExit }) {
               <div style={{ fontSize: 13, color: C.muted, maxWidth: 560 }}>
                 {notStarted
                   ? <>Changed your mind before the first class? Cancel any time before your cohort starts for a <b style={{ color: C.ink }}>full refund of {fmt(refund)}</b> — no questions asked.</>
-                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> any time through the end of Act 1 (Week 3). You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {12 - s.week} sessions you haven't attended.</>}
+                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> any time through the end of the first 3 weeks. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {12 - s.week} sessions you haven't attended.</>}
               </div>
               <button className="btn" onClick={() => setWithdraw("confirm")} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "9px 14px", borderRadius: 4, fontSize: 13 }}>{notStarted ? "Cancel enrollment" : "Withdraw"}</button>
             </Card>
@@ -1350,7 +1350,7 @@ function Platform({ state, setState, onExit }) {
           {!canWithdraw && s.started && s.phase === "course" && s.week > 3 && (
             <Card style={{ padding: 14, marginTop: 14 }}>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                The refund window closed at the end of Act 1 (Week 3). Past that point, tuition is non-refundable — but you keep full access through all 12 weeks and every monthly check-in.
+                The refund window closed at the end of the first 3 weeks. Past that point, tuition is non-refundable — but you keep full access through all 12 weeks and every monthly check-in.
               </div>
             </Card>
           )}
@@ -1832,7 +1832,7 @@ const LEGAL = {
       ["Eligibility", "Students must be at least 13 years old. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
       ["Education, not financial advice", "Build Young is financial education. It is not licensed financial, investment, tax, or legal advice. All money, accounts, prices, and returns shown in the simulation are simulated; no real funds are ever involved."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
-      ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of Act 1 (the first three weeks) — the refund equals the tuition multiplied by the fraction of sessions not yet held. After Act 1, tuition is non-refundable."],
+      ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first three weeks — the refund equals the tuition multiplied by the fraction of sessions not yet held. After the first three weeks, tuition is non-refundable."],
       ["Tuition prize", "Each cohort, the enrolled student whose simulated portfolio has the highest value at the final (sixth) monthly check-in — i.e. at the close of the full program — is awarded a refund of their tuition. Standings are based solely on the in-program simulation; all figures are simulated and no real investing occurs. One award per cohort; in the event of a tie or a data discrepancy, Build Young determines the winner in good faith, and its decision is final. The award is the tuition amount paid for that cohort and is issued after the program concludes. No advantage is conferred by investing style — every student faces the same simulated market. Build Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; the prize is a contest involving minors and must be reviewed by counsel for applicable contest/sweepstakes rules before launch.)"],
       ["Conduct", "We ask students and families to be respectful in live sessions. We may remove anyone whose conduct disrupts the class, consistent with the refund policy above."],
       ["Changes & contact", `We may update these terms and will post the new date above. Questions: ${CONFIG.contactEmail}.`],
