@@ -54,7 +54,7 @@ export const WEEK_TITLES = [
 // The from-address used on the drip emails. Kept as a constant here so the content stays
 // identical whether it's rendered in the browser app or the serverless scheduler. (App.jsx
 // historically used CONFIG.contactEmail, which is this same value.)
-export const NEWSROOM_FROM_EMAIL = "team@buildyoung.com";
+export const NEWSROOM_FROM_EMAIL = "team@build-young.com";
 
 // Build the 3-day pre-class media drip for an ALREADY-RESOLVED course-week event.
 //

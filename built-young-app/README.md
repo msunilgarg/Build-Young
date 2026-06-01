@@ -25,7 +25,7 @@ The build output (`./dist`) is a static site. Easiest paths:
 - **Netlify** — drag the `dist` folder to <https://app.netlify.com/drop>, or connect the repo (build command `npm run build`, publish dir `dist`).
 - **Cloudflare Pages / GitHub Pages / S3** — serve the contents of `dist`.
 
-Point your domain (e.g. `buildyoung.com`) at the host per its DNS instructions.
+Point your domain (e.g. `build-young.com`) at the host per its DNS instructions.
 
 ---
 
@@ -47,7 +47,7 @@ Everything below is what *only you* can set up. Each item maps to a value in `sr
 
 ### 3. Email — Resend (function included)
 A serverless function is already included at `api/send-email.js` (Vercel-style). To turn on real delivery:
-1. Create a **Resend** account (resend.com) and verify your domain `buildyoung.com` (add the SPF/DKIM records they give you).
+1. Create a **Resend** account (resend.com) and verify your domain `build-young.com` (add the SPF/DKIM records they give you).
 2. In your host's settings, add an environment variable: `RESEND_API_KEY = re_xxxxxxxx`.
 3. In `src/App.jsx` → `CONFIG`, set `emailEnabled: true`.
 
@@ -92,7 +92,7 @@ This is wired up:
 - Host on a platform with prerendering/SSR.
 This is optional polish — out of the box the site is already discoverable and AI-readable via the static metadata above.
 
-**After you deploy:** submit your domain to **Google Search Console** and **Bing Webmaster Tools**, and submit `https://buildyoung.com/sitemap.xml` in each. Update every `buildyoung.com` URL in `index.html`, `robots.txt`, `sitemap.xml`, and `llms.txt` if your final domain differs.
+**After you deploy:** submit your domain to **Google Search Console** and **Bing Webmaster Tools**, and submit `https://build-young.com/sitemap.xml` in each. Update every `build-young.com` URL in `index.html`, `robots.txt`, `sitemap.xml`, and `llms.txt` if your final domain differs.
 
 ---
 

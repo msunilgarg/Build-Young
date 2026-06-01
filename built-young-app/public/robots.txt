@@ -38,4 +38,4 @@ Allow: /
 User-agent: meta-externalagent
 Allow: /
 
-Sitemap: https://buildyoung.com/sitemap.xml
+Sitemap: https://build-young.com/sitemap.xml

@@ -7,7 +7,7 @@
 // SECURITY: the API key is read from process.env.RESEND_API_KEY and never leaves the server.
 // Callers are responsible for their own auth / validation BEFORE calling this.
 
-export const FROM_ADDRESS = "Build Young <team@buildyoung.com>";
+export const FROM_ADDRESS = "Build Young <team@build-young.com>";
 
 // Escape a plain-text body for safe embedding in the HTML part (no innerHTML/eval anywhere).
 export function escapeHtml(s) {

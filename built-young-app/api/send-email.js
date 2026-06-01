@@ -2,7 +2,7 @@
 // Works as a Vercel function at /api/send-email. (For Netlify, see README note.)
 //
 // Setup:
-//   1. Create a Resend account (https://resend.com) and verify your domain (buildyoung.com).
+//   1. Create a Resend account (https://resend.com) and verify your domain (build-young.com).
 //   2. Add an env var in your host:  RESEND_API_KEY = re_xxxxxxxx
 //   3. In src/App.jsx CONFIG, set emailEnabled: true.
 //

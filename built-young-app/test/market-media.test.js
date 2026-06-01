@@ -67,10 +67,10 @@ describe("media content selection per dayOffset", () => {
   });
 
   it("uses the configurable newsroom from-address", () => {
-    const custom = mediaDrip(studentState(3), null, { fromEmail: "news@buildyoung.com" });
-    expect(custom[0].from).toBe("Build Young Newsroom <news@buildyoung.com>");
+    const custom = mediaDrip(studentState(3), null, { fromEmail: "news@build-young.com" });
+    expect(custom[0].from).toBe("Build Young Newsroom <news@build-young.com>");
     // default keeps the historical address so re-exported content is unchanged
-    expect(pickByOffset(3, 3).from).toBe("Build Young Newsroom <team@buildyoung.com>");
+    expect(pickByOffset(3, 3).from).toBe("Build Young Newsroom <team@build-young.com>");
   });
 });
 

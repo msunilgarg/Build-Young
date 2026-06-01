@@ -95,10 +95,10 @@ export { BATCHES } from "./cohorts.js";
  *   - contactEmail / brandDomain: shown in the UI and emails.
  */
 const CONFIG = {
-  brandDomain: "buildyoung.com",
-  contactEmail: "team@buildyoung.com",
+  brandDomain: "build-young.com",
+  contactEmail: "team@build-young.com",
   linkedinUrl: "https://www.linkedin.com/in/msunilgarg",
-  calendlyUrl: "", // e.g. "https://calendly.com/sunil-buildyoung/15min"
+  calendlyUrl: "", // e.g. "https://calendly.com/sunil-build-young/15min"
   // One Stripe Payment Link per batch id (set each link's success URL to
   // https://YOURDOMAIN/?enrolled={batchId}). Filled per id below; empty = demo flow.
   stripeLinks: Object.fromEntries(BATCHES.map((b) => [b.id, ""])),

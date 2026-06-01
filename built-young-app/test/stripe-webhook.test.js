@@ -84,7 +84,7 @@ describe("/api/stripe-webhook", () => {
     vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ result: 1 }) })));
     const evt = JSON.stringify({
       type: "checkout.session.completed",
-      data: { object: { customer_email: "a@b.com", success_url: "https://buildyoung.com/?enrolled=winter-ms-mon" } },
+      data: { object: { customer_email: "a@b.com", success_url: "https://build-young.com/?enrolled=winter-ms-mon" } },
     });
     const res = makeRes();
     await handler(makeReq({ raw: evt, sig: sign(evt) }), res);
