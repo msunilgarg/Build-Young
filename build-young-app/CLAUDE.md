@@ -161,8 +161,9 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   their future rests on what they can build, not just what they were credentialed to do."*
   If you reword it, keep all instances in sync. Tone is confident and forward, never fearful;
   the AI/credential shift is implied, never stated outright.
-- Tone is first-person from Sunil where the parent is deciding ("…taught by me", "I'll
-  answer anything"). CTAs say "Talk to Sunil", not "the founder".
+- Tone is first-person from Sunil where the parent is deciding ("…taught by me", "ask me
+  about…"). CTAs say "Talk to Sunil", not "the founder". Keep it warm and grounded — avoid
+  overclaiming/boastful phrasing (e.g. don't promise to "answer anything").
 - **Founder's note positioning (the "Why this exists" card in `Landing`):** after Sunil's
   personal story, the note now carries the product's positioning narrative — keep these three
   beats intact and consistent on future edits: (1) **free content goes unwatched** — banks/
