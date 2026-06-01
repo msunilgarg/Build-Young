@@ -876,7 +876,7 @@ function WhyStrip() {
   );
 }
 
-function Enroll({ preselect, onDone, onBack, onCall }) {
+function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -891,7 +891,7 @@ function Enroll({ preselect, onDone, onBack, onCall }) {
       <PageBackdrop tint="#e7f3ee" />
       <div style={{ position: "relative", zIndex: 2, maxWidth: step === 1 ? 880 : 540, margin: "0 auto", padding: "26px 5vw 60px", transition: "max-width .2s" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div className="disp" style={{ fontWeight: 900, fontSize: 18 }}><Mark size={20} /> Build Young</div>
+        <div className="disp" {...act(() => onHome && onHome())} aria-label="Build Young — home" style={{ fontWeight: 900, fontSize: 18, cursor: "pointer" }}><Mark size={20} /> Build Young</div>
         <button className="btn" onClick={() => (step > 1 ? setStep(step - 1) : onBack())} style={{ background: "transparent", color: C.muted, fontSize: 14 }}>← Back</button>
       </div>
       <Card style={{ padding: 28 }}>
@@ -1049,7 +1049,7 @@ function BookCall({ onBack, onHome, onEnroll }) {
       <PageBackdrop tint="#e3f1f1" />
       <div style={{ position: "relative", zIndex: 2, maxWidth: done ? 540 : 860, margin: "0 auto", padding: "26px 5vw 60px", transition: "max-width .2s" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div className="disp" style={{ fontWeight: 900, fontSize: 18 }}><Mark size={20} /> Build Young</div>
+        <div className="disp" {...act(() => onHome && onHome())} aria-label="Build Young — home" style={{ fontWeight: 900, fontSize: 18, cursor: "pointer" }}><Mark size={20} /> Build Young</div>
         <button className="btn" onClick={onBack} style={{ background: "transparent", color: C.muted, fontSize: 14 }}>← Back</button>
       </div>
       <Card style={{ padding: 28 }}>
@@ -1274,7 +1274,7 @@ function Platform({ state, setState, onExit }) {
       {/* header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
         <div>
-          <div className="disp" style={{ fontWeight: 900, fontSize: 20 }}><Mark size={22} /> Build Young</div>
+          <div className="disp" {...act(() => { try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); } })} aria-label="Build Young — back to top" style={{ fontWeight: 900, fontSize: 20, cursor: "pointer" }}><Mark size={22} /> Build Young</div>
           <div style={{ fontSize: 13, color: C.muted }}>{s.student.name} · {s.student.track} cohort</div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -1971,7 +1971,7 @@ export default function App() {
         <Coins size={13} color={C.goldLite} style={{ verticalAlign: "-2px", marginRight: 5 }} /> Learning simulation — every dollar shown is <b style={{ whiteSpace: "nowrap" }}>simulated money,</b> not real currency. No real funds are ever involved.
       </div>
       {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} />}
-      {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} />}
+      {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} />}
       {route === "call" && <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
