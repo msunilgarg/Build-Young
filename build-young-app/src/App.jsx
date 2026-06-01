@@ -785,13 +785,13 @@ function Landing({ onEnroll, onCall, onLegal }) {
             <div style={{ flex: 1, minWidth: 260 }}>
               <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 8 }}>
-                I came to the United States with almost nothing — and with family back home depending on me to provide. I built my life from zero, supporting them while finding my own footing, and made it my own country. Two decades as a product leader at Microsoft later, I'd reached financial independence and was able to step away at 51. But here's the truth I can't stop thinking about: if I'd understood how money really works as a teenager, I'd have gotten there years sooner. That lost time is the whole reason this exists. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. I wanted them to understand how money really works before the world started making those decisions for them — so I built this for them. The two tracks grew out of watching them learn at different ages, and the simulation starts exactly where I did: at zero, with a paycheck and a choice about what to do with it. These days I build AI products for a living, and I'm certain of one thing: in a world being rewritten by AI, the kids who learn to build — not just consume — will own their futures. That's why I called it Build Young: the one advantage these kids have that no one can buy is time. Habits, character, and even a few invested dollars all compound.
+                I came to the United States with almost nothing — and with family back home depending on me to provide. I built my life from zero, supporting them while finding my own footing, and made it my own country. Two decades as a product leader at Microsoft later, I'd reached financial independence and was able to step away at 51. But here's the truth I can't stop thinking about: if I'd understood how money really works as a teenager, I'd have gotten there years sooner. That lost time is the whole reason this exists. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. I wanted them to understand how money really works before the world started making those decisions for them — so I built this for them. The two tracks grew out of watching them learn at different ages, and the simulation starts exactly where every builder does: at zero, with nothing but an idea and the will to make it real. These days I build AI products for a living, and I'm certain of one thing: in a world being rewritten by AI, the kids who learn to build — not just consume — will own their futures. That's why I called it Build Young: the one advantage these kids have that no one can buy is time. Habits, character, and even a few invested dollars all compound.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 Here's what I noticed when I went looking for something like this for my own kids. There's plenty of free material out there — banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. And the paid classes that are live? They mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                So I built the thing I couldn't find. Not more content to ignore, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It starts with the financial foundation — a paycheck, taxes, a budget that breaks and gets fixed, big purchases, investing — and then goes where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that other people would pay for. And not a one-off lesson, but one continuous simulation your kid carries for twelve weeks plus a follow-up check-in a month later, where the decisions compound and the mistakes are safe because the money isn't real yet.
+                So I built the thing I couldn't find. Not more content to ignore, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It starts where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that people would pay for — and in the simulation, that's where the income comes from. Then it gets practical — taxes, a budget that breaks and gets fixed, big purchases, investing — learning to manage and grow what the build earns. And not a one-off lesson, but one continuous simulation your kid carries for twelve weeks plus a follow-up check-in a month later, where the decisions compound and the mistakes are safe because the money isn't real yet.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 That's the whole idea: money isn't a subject you study, it's a skill you practice. We're raising builders, not consumers — kids who reach adulthood having already lived it, in a world where what you can build matters more than what you were credentialed to do.
@@ -1557,7 +1557,7 @@ function PortfolioPanel({ s, setState, pieData, nw }) {
   const rows = [
     { l: "Cash (checking)", v: s.cash, c: C.ink },
     { l: "Savings", v: s.savings, c: C.emerald },
-    { l: "401(k) retirement", v: s.retirement, c: C.emerald },
+    { l: "Retirement (self-directed)", v: s.retirement, c: C.emerald },
     ...ASSETS.map((a) => ({ l: a.label + " (brokerage)", v: s.holdings[a.key], c: a.color })),
     ...(s.pe > 0 ? [{ l: "Private equity (locked up)", v: s.pe, c: C.pink }] : []),
     ...(s.home ? [{ l: "Home equity", v: s.home.value - s.home.mortgage, c: C.gold }] : []),
@@ -1652,7 +1652,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "allocation" && (
-        <Wrap title="Savings & Investing" blurb="Decide how much of each paycheck flows automatically into savings and your brokerage, and pick an investing style. Starting now means decades of compounding.">
+        <Wrap title="Savings & Investing" blurb="Decide how much of your income flows automatically into savings and your brokerage, and pick an investing style. Starting now means decades of compounding.">
           {sliderRow("Auto-save to savings", s.settings.savingsRate, (v) => set((n) => n.settings.savingsRate = v), 0, 0.5, 0.05)}
           {sliderRow("Auto-invest to brokerage", s.settings.brokerageRate, (v) => set((n) => n.settings.brokerageRate = v), 0, 0.5, 0.05)}
           <div style={{ fontSize: 13, fontWeight: 700, margin: "6px 0 8px" }}>Investing style</div>
@@ -1735,7 +1735,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "review" && (
-        <Wrap title="Same Start, Different Results" blurb={`Everyone began with identical ${fmt(PAY)} paychecks. Here's what your choices built so far — and there's still time to adjust before the final stretch.`}>
+        <Wrap title="Same Start, Different Results" blurb={`Everyone's build earns the same ${fmt(PAY)} a period. Here's what your choices built so far — and there's still time to adjust before the final stretch.`}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <Stat label="Net worth" value={fmt(netWorth(s))} color={C.emerald} />
             <Stat label="Invested" value={fmt(holdingsTotal(s) + s.retirement)} />
@@ -1766,7 +1766,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
             <Sparkles size={22} color={C.gold} style={{ marginBottom: 8 }} />
             <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Live with Sunil — interactive lesson coming soon</div>
             <div style={{ fontSize: 13.5, color: C.muted, marginTop: 6, lineHeight: 1.5, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
-              This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that other people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built. Advancing still collects your paycheck and applies the week's market move.
+              This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built. Advancing still collects your income and applies the week's market move.
             </div>
           </div>
         </Wrap>
@@ -1789,7 +1789,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "capstone" && (
-        <Wrap title="Capstone: Your Net Worth" blurb="You started with nothing but a paycheck. Here's the life you built.">
+        <Wrap title="Capstone: What You Built" blurb="You started with nothing but an idea. Here's the business and net worth you built.">
           <Stat label="Final net worth" value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />
           <div style={{ marginTop: 12, padding: 14, background: "#e7f3ee", border: `1px solid ${C.green}`, borderRadius: 4, display: "flex", gap: 10, alignItems: "flex-start" }}>
             <Sparkles size={18} color={C.green} style={{ flexShrink: 0, marginTop: 2 }} />
@@ -1813,7 +1813,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
           {(() => {
             const inc = incomeFor(s.phase, s.week);
             const earn = inc > 0 ? `Collect ${fmt(inc)} & ` : "";
-            if (s.phase === "course") return s.week >= 12 ? "Finish course → begin check-ins" : `${earn}advance to Week ${s.week + 1}`;
+            if (s.phase === "course") return s.week >= 12 ? "Finish course → your check-in" : `${earn}advance to Week ${s.week + 1}`;
             return `Collect ${fmt(inc)} & continue`;
           })()} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
         </button>
