@@ -161,6 +161,18 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   the AI/credential shift is implied, never stated outright.
 - Tone is first-person from Sunil where the parent is deciding ("…taught by me", "I'll
   answer anything"). CTAs say "Talk to Sunil", not "the founder".
+- **Founder's note positioning (the "Why this exists" card in `Landing`):** after Sunil's
+  personal story, the note now carries the product's positioning narrative — keep these three
+  beats intact and consistent on future edits: (1) **free content goes unwatched** — banks/
+  nonprofits have libraries of material, but a video doesn't make a teen show up; (2) **the
+  paid live classes are investing-only** — they teach stock-picking (the flashy 10%), not the
+  part that shapes a life; (3) **Built Young is the answer**: live + small-group + a standing
+  weekly time (turns "available" into "done"), the **whole** financial picture (paycheck, taxes,
+  budget, credit, big purchase, portfolio — not investing trivia), and **one continuous
+  simulation** carried across 12 weeks + 6 monthly check-ins where decisions compound and
+  mistakes are safe. Closes on "money is a skill you practice, not a subject you study" →
+  "raising builders, not consumers." It renders as separate sibling `<p>`s sharing the founder
+  paragraph's style (`color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12`).
 - Microsoft is framed as **ex-Microsoft** in short credential tags.
 - Keep the design calm and credible (no gimmicky floating widgets). Centered section headers.
 - **Typography:** display/headings/wordmark use **Space Grotesk** (`.disp` class); body uses
