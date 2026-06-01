@@ -69,74 +69,72 @@ describe("budget choices (Week 6) — the spree decision", () => {
   });
 });
 
-describe("advance (one paycheck period)", () => {
-  it("pays, allocates, and grows net worth without mutating the previous state", () => {
+describe("advance (one income period)", () => {
+  it("earns from the build, allocates, and grows net worth without mutating the previous state", () => {
     const prev = newState(STUDENT);
+    prev.week = 8; // a finance-act week: the build is established and earning steady income
     const next = advance(prev, CALM);
 
     // immutability: the input is untouched
     expect(prev.cash).toBe(0);
     expect(prev.history).toHaveLength(0);
 
-    // a $1,000 paycheck (15% tax, 5% 401k + match) leaves money across buckets
-    expect(next.retirement).toBeGreaterThan(0);   // 401k + employer match
-    expect(next.savings).toBeGreaterThan(0);       // 25% auto-save of net
-    expect(holdingsTotal(next)).toBeGreaterThan(0); // 20% auto-invest of net
+    // business income (15% tax, retirement set-aside, auto-save/invest) lands across buckets
+    expect(next.retirement).toBeGreaterThan(0);   // self-directed retirement
+    expect(next.savings).toBeGreaterThan(0);       // auto-save of net
+    expect(holdingsTotal(next)).toBeGreaterThan(0); // auto-invest of net
     expect(netWorth(next)).toBeGreaterThan(0);
 
     // it records one market event and one history point
     expect(next.feed).toHaveLength(1);
     expect(next.history).toHaveLength(1);
-    expect(next.week).toBe(1); // advance() applies a period; week is bumped by the UI
   });
 
-  it("employer matches 401k dollar-for-dollar up to 5%", () => {
+  it("the build act earns no income early (weeks 1–3 are pre-revenue)", () => {
+    const prev = newState(STUDENT); // week 1
+    const next = advance(prev, CALM);
+    expect(next.retirement).toBe(0);
+    expect(next.savings).toBe(0);
+    expect(holdingsTotal(next)).toBe(0);
+  });
+
+  it("retirement is a self-directed set-aside with NO employer match", () => {
     const prev = newState(STUDENT);
-    prev.settings.retire401k = 0.05; // contribute exactly 5%
-    // zero out market growth so we can read the raw contribution
+    prev.week = 8;                   // established income
+    prev.settings.retire401k = 0.05; // set aside 5%
     const flat = { h: "", d: "", e: { stocks: 0, bonds: 0, reits: 0, bullion: 0, sav: 0 } };
     const next = advance(prev, flat);
-    // 5% contribution + 5% match on the paycheck = 10% of PAY
-    expect(next.retirement).toBeCloseTo(PAY * 0.1, 6);
+    // 5% of steady income — no match (self-employed builder)
+    expect(next.retirement).toBeCloseTo(PAY * 0.05, 6);
   });
 });
 
-describe("market schedule — events start on Week 3", () => {
+describe("market schedule — events run in the finance act (Weeks 8–12)", () => {
   const assetReturns = (ev) => ASSETS.map((a) => ev.e[a.key]);
 
-  it("Weeks 1–2 are flat for assets but savings still earns a yield", () => {
-    for (const wk of [1, 2]) {
+  it("Weeks 1–7 (build act + finance setup) are flat for assets but savings still earns a yield", () => {
+    for (const wk of [1, 3, 6, 7]) {
       const ev = marketEventFor("course", wk, 0);
       expect(assetReturns(ev)).toEqual([0, 0, 0, 0]); // stocks/bonds/reits/bullion
       expect(ev.e.sav).toBeGreaterThan(0);
     }
   });
 
-  it("the live arc begins on Week 3 and lands its key beats on the right weeks", () => {
-    expect(marketEventFor("course", 3, 0).h).toBe("The Fed hikes rates");
-    expect(marketEventFor("course", 5, 0).h).toBe("Housing boom");        // you buy a home
-    expect(marketEventFor("course", 6, 0).h).toBe("Recession fears spike"); // the very next week
-    expect(marketEventFor("course", 8, 0).h).toBe("Market correction");   // before the W8 review
-    expect(marketEventFor("course", 9, 0).h).toBe("Tech-led rally");      // rewards rebalancers
-    expect(marketEventFor("course", 11, 0).h).toBe("Geopolitical jitters"); // gold, as bullion is taught
-    expect(marketEventFor("course", 12, 0).h).toBe("Year-end melt-up");   // finale preserved
+  it("the live arc begins on Week 8 (the first investing week)", () => {
+    expect(marketEventFor("course", 8, 0).h).toBe("The Fed hikes rates"); // MACRO[0]
+    expect(marketEventFor("course", 9, 0).h).toBe("Inflation runs hot");  // MACRO[1]
+    expect(marketEventFor("course", 12, 0).h).toBe("Soft landing hopes"); // MACRO[4]
   });
 
-  it("the two gentlest opener events were dropped", () => {
-    const headlines = [];
-    for (let wk = 1; wk <= 12; wk++) headlines.push(marketEventFor("course", wk, 0).h);
-    expect(headlines).not.toContain("Markets open calm");
-    expect(headlines).not.toContain("Steady expansion");
-  });
-
-  it("a flat (Week 1) advance does not move already-invested holdings, but savings grows", () => {
+  it("a flat (build-act) advance does not move already-invested holdings, but savings grows", () => {
     const s = newState(STUDENT);
+    s.week = 1;
     s.settings.brokerageRate = 0; // isolate: no new contributions this period
     s.holdings.stocks = 1000;
     s.savings = 1000;
     const flat = marketEventFor("course", 1, 0);
     const next = advance(s, flat);
-    expect(next.holdings.stocks).toBeCloseTo(1000, 6); // assets unchanged in Weeks 1–2
+    expect(next.holdings.stocks).toBeCloseTo(1000, 6); // assets unchanged before week 8
     expect(next.savings).toBeGreaterThan(1000);        // yield still applied
   });
 
@@ -146,12 +144,12 @@ describe("market schedule — events start on Week 3", () => {
   });
 });
 
-describe("market media drip — emails sent before each class", () => {
+describe("market media drip — emails sent before each investing class", () => {
   const batch = BATCHES[0];
   const atWeek = (wk) => { const s = newState(STUDENT); s.week = wk; s.phase = "course"; return s; };
 
   it("produces a 3-email pre-class drip for a live-market week (newest-first)", () => {
-    const drip = mediaDrip(atWeek(3), batch);
+    const drip = mediaDrip(atWeek(8), batch);
     expect(drip).toHaveLength(3);
     expect(drip.map((m) => m.day)).toEqual([1, 2, 3]); // day -1 leads the inbox
     expect(drip.map((m) => m.when)).toEqual([
@@ -167,8 +165,8 @@ describe("market media drip — emails sent before each class", () => {
     expect(drip[0].subject.toLowerCase()).toContain("class tomorrow");
   });
 
-  it("every weekly event (W3–12) has authored media with real https resources", () => {
-    for (let wk = 3; wk <= 12; wk++) {
+  it("every live-market week (W8–12) has authored media with real https resources", () => {
+    for (let wk = 8; wk <= 12; wk++) {
       const drip = mediaDrip(atWeek(wk), batch);
       expect(drip.length, `week ${wk}`).toBe(3);
       for (const m of drip) {
@@ -181,17 +179,17 @@ describe("market media drip — emails sent before each class", () => {
     }
   });
 
-  it("sends NO media for the flat setup weeks (1–2) or after graduation (check-ins)", () => {
+  it("sends NO media for the build/setup weeks (1–7) or after graduation (check-ins)", () => {
     expect(mediaDrip(atWeek(1), batch)).toEqual([]);
-    expect(mediaDrip(atWeek(2), batch)).toEqual([]);
+    expect(mediaDrip(atWeek(7), batch)).toEqual([]);
     const c = newState(STUDENT); c.phase = "checkin";
     expect(mediaDrip(c, batch)).toEqual([]);
   });
 
-  it("resource links are unique per email and point at primary/official sources", () => {
-    const drip = mediaDrip(atWeek(6), batch); // Recession fears spike
+  it("resource links point at primary/official sources", () => {
+    const drip = mediaDrip(atWeek(8), batch); // The Fed hikes rates
     const urls = drip.flatMap((m) => m.resources.map((r) => r.url));
-    expect(urls.some((u) => u.includes("federalreservehistory.org"))).toBe(true);
+    expect(urls.some((u) => u.includes("federalreserve"))).toBe(true);
     expect(urls.some((u) => u.includes("fred.stlouisfed.org"))).toBe(true);
   });
 });

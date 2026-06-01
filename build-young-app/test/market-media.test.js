@@ -16,8 +16,8 @@ describe("App.jsx re-exports the client-safe media builder", () => {
     expect(appBuildMediaDrip).toBe(buildMediaDrip);
   });
   it("the server mediaDrip delegates to the shared builder (byte-identical content)", () => {
-    const s = studentState(3);
-    const ev = marketEventFor("course", 3, 0);
+    const s = studentState(8);
+    const ev = marketEventFor("course", 8, 0);
     const viaServer = mediaDrip(s, null, { fromEmail: "x@y.com" });
     const viaBuilder = buildMediaDrip(ev, MEDIA[ev.h], s, { fromEmail: "x@y.com" });
     // ids carry a Date.now() stamp, so compare the stable fields
@@ -28,7 +28,7 @@ describe("App.jsx re-exports the client-safe media builder", () => {
 
 describe("media content selection per dayOffset", () => {
   it("dayOffset 3 → breaking news that names the event", () => {
-    const m = pickByOffset(3, 3); // Week 3 = "The Fed hikes rates"
+    const m = pickByOffset(8, 3); // Week 8 = "The Fed hikes rates"
     expect(m.day).toBe(3);
     expect(m.when).toBe("3 days before class");
     expect(m.subject).toContain("Breaking");
@@ -37,14 +37,14 @@ describe("media content selection per dayOffset", () => {
   });
 
   it("dayOffset 2 → analysis email about what it means for your money", () => {
-    const m = pickByOffset(3, 2);
+    const m = pickByOffset(8, 2);
     expect(m.day).toBe(2);
     expect(m.when).toBe("2 days before class");
     expect(m.subject.toLowerCase()).toContain("means for your money");
   });
 
   it("dayOffset 1 → research challenge for class tomorrow", () => {
-    const m = pickByOffset(3, 1);
+    const m = pickByOffset(8, 1);
     expect(m.day).toBe(1);
     expect(m.when).toBe("1 day before class");
     expect(m.subject.toLowerCase()).toContain("class tomorrow");
@@ -52,8 +52,8 @@ describe("media content selection per dayOffset", () => {
     expect(m.body).toContain(MEDIA["The Fed hikes rates"].question.slice(0, 30));
   });
 
-  it("each weekly event (W3–12) has all three offsets with https resources, personalized", () => {
-    for (let w = 3; w <= 12; w++) {
+  it("each live-market week (W8–12) has all three offsets with https resources, personalized", () => {
+    for (let w = 8; w <= 12; w++) {
       const event = marketEventFor("course", w, 0).h;
       for (const offset of [3, 2, 1]) {
         const m = pickByOffset(w, offset);
@@ -67,16 +67,16 @@ describe("media content selection per dayOffset", () => {
   });
 
   it("uses the configurable newsroom from-address", () => {
-    const custom = mediaDrip(studentState(3), null, { fromEmail: "news@build-young.com" });
+    const custom = mediaDrip(studentState(8), null, { fromEmail: "news@build-young.com" });
     expect(custom[0].from).toBe("Build Young Newsroom <news@build-young.com>");
     // default keeps the historical address so re-exported content is unchanged
-    expect(pickByOffset(3, 3).from).toBe("Build Young Newsroom <team@build-young.com>");
+    expect(pickByOffset(8, 3).from).toBe("Build Young Newsroom <team@build-young.com>");
   });
 });
 
 describe("weekResources — per-week event resources for the dashboard hub", () => {
-  it("returns the event's resources for live-market weeks (3–12), matching the drip", () => {
-    for (let wk = 3; wk <= 12; wk++) {
+  it("returns the event's resources for live-market weeks (8–12), matching the drip", () => {
+    for (let wk = 8; wk <= 12; wk++) {
       const res = weekResources(wk);
       expect(res.length, `week ${wk}`).toBeGreaterThan(0);
       const drip = mediaDrip(studentState(wk), null);
@@ -89,8 +89,8 @@ describe("weekResources — per-week event resources for the dashboard hub", () 
     }
   });
 
-  it("returns no resources for the flat setup weeks (1–2)", () => {
+  it("returns no resources for the build/setup weeks (1–7)", () => {
     expect(weekResources(1)).toEqual([]);
-    expect(weekResources(2)).toEqual([]);
+    expect(weekResources(7)).toEqual([]);
   });
 });

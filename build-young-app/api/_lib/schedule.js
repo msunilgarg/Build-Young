@@ -12,9 +12,10 @@
 // class date; Week N is start + (N-1)*7 days. We normalize every date to a UTC midnight
 // "day number" so DST / timezone shifts can never throw the 3/2/1-day window off by one.
 
-// Weeks that carry a live market event (and therefore a media drip). Weeks 1–2 are the
-// flat setup phase — no event, no drip — matching marketEventFor() in _lib/marketSchedule.js.
-export const MEDIA_WEEKS = { first: 3, last: 12 };
+// Weeks that carry a live market event (and therefore a media drip). FLIPPED CURRICULUM:
+// Weeks 1–7 are the Build act + finance setup (no portfolio yet, no event/drip); the live
+// market arc runs Weeks 8–12 — matching marketEventFor() in _lib/marketSchedule.js.
+export const MEDIA_WEEKS = { first: 8, last: 12 };
 
 // The day-offsets a drip goes out on, relative to class day: -3 (breaking), -2 (analysis),
 // -1 (challenge). Stored as positive "days before class".

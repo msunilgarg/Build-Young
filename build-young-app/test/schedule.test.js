@@ -43,25 +43,25 @@ describe("classDateForWeek", () => {
 });
 
 describe("dueSends — picks the right sends for a given day", () => {
-  it("emits a send when a Week 3–12 class is exactly 3 / 2 / 1 days out", () => {
-    // Week 3 class for fall-hs-wed is Sep 23, 2026.
-    expect(dueSends("2026-09-20", [WED])).toEqual([{ batchId: "fall-hs-wed", week: 3, dayOffset: 3 }]);
-    expect(dueSends("2026-09-21", [WED])).toEqual([{ batchId: "fall-hs-wed", week: 3, dayOffset: 2 }]);
-    expect(dueSends("2026-09-22", [WED])).toEqual([{ batchId: "fall-hs-wed", week: 3, dayOffset: 1 }]);
+  it("emits a send when a Week 8–12 class is exactly 3 / 2 / 1 days out", () => {
+    // Week 8 class for fall-hs-wed is Oct 28, 2026 (first investing week).
+    expect(dueSends("2026-10-25", [WED])).toEqual([{ batchId: "fall-hs-wed", week: 8, dayOffset: 3 }]);
+    expect(dueSends("2026-10-26", [WED])).toEqual([{ batchId: "fall-hs-wed", week: 8, dayOffset: 2 }]);
+    expect(dueSends("2026-10-27", [WED])).toEqual([{ batchId: "fall-hs-wed", week: 8, dayOffset: 1 }]);
   });
 
   it("emits nothing on the class day itself or 4+ days out", () => {
-    expect(dueSends("2026-09-23", [WED])).toEqual([]); // class day
-    expect(dueSends("2026-09-19", [WED])).toEqual([]); // 4 days out
+    expect(dueSends("2026-10-28", [WED])).toEqual([]); // class day
+    expect(dueSends("2026-10-24", [WED])).toEqual([]); // 4 days out
   });
 
-  it("never schedules a drip for the flat setup weeks (1–2)", () => {
-    // Week 1 class is Sep 9 → 3 days before is Sep 6; Week 2 is Sep 16 → Sep 13. No sends.
-    expect(dueSends("2026-09-06", [WED])).toEqual([]);
-    expect(dueSends("2026-09-13", [WED])).toEqual([]);
+  it("never schedules a drip for the build/setup weeks (1–7)", () => {
+    // Week 7 class is Oct 21 → 3 days before is Oct 18. No sends before the investing act.
+    expect(dueSends("2026-09-06", [WED])).toEqual([]); // before week 1
+    expect(dueSends("2026-10-18", [WED])).toEqual([]); // 3 days before week 7
   });
 
-  it("walks a full cohort window: every Week 3–12 class yields exactly 3 send-days", () => {
+  it("walks a full cohort window: every Week 8–12 class yields exactly 3 send-days", () => {
     const counts = {}; // "week:offset" -> times seen across the season
     // Scan a wide date range covering the whole fall-hs-wed run (Sep 2026 → Dec 2026).
     const start = toUtcMidnight("2026-09-01");
@@ -76,19 +76,19 @@ describe("dueSends — picks the right sends for a given day", () => {
         expect(s.week).toBeLessThanOrEqual(MEDIA_WEEKS.last);
       }
     }
-    // Weeks 3..12 (10 weeks) × offsets {3,2,1} = 30 distinct (week,offset) send-days, each once.
-    expect(Object.keys(counts)).toHaveLength(30);
+    // Weeks 8..12 (5 weeks) × offsets {3,2,1} = 15 distinct (week,offset) send-days, each once.
+    expect(Object.keys(counts)).toHaveLength(15);
     for (const k of Object.keys(counts)) expect(counts[k]).toBe(1);
   });
 
   it("handles multiple cohorts on one day and sorts deterministically", () => {
-    // Sep 20, 2026: fall-hs-wed W3 is 3 days out, fall-ms-mon W3 (Sep 21) is 1 day out,
-    // fall-ms-tue W3 (Sep 22) is 2 days out.
-    const due = dueSends("2026-09-20", BATCHES);
+    // Oct 25, 2026: fall-hs-wed W8 (Oct 28) is 3 days out, fall-ms-mon W8 (Oct 26) is 1 day
+    // out, fall-ms-tue W8 (Oct 27) is 2 days out.
+    const due = dueSends("2026-10-25", BATCHES);
     expect(due).toEqual([
-      { batchId: "fall-hs-wed", week: 3, dayOffset: 3 },
-      { batchId: "fall-ms-mon", week: 3, dayOffset: 1 },
-      { batchId: "fall-ms-tue", week: 3, dayOffset: 2 },
+      { batchId: "fall-hs-wed", week: 8, dayOffset: 3 },
+      { batchId: "fall-ms-mon", week: 8, dayOffset: 1 },
+      { batchId: "fall-ms-tue", week: 8, dayOffset: 2 },
     ]);
   });
 

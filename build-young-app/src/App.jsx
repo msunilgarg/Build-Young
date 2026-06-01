@@ -168,22 +168,31 @@ async function fetchMarketEvent(phase, week, checkin) {
 // team adds weekly class content as it's built (verified, primary-source links only, per the
 // statistics-integrity bar). A few are seeded as examples; the rest show "coming soon" in the
 // Course hub until filled in.
+// FLIPPED CURRICULUM: Act 1 is the BUILD arc (Weeks 1–6) — you create something people pay
+// for; that's what starts your income. Act 2 (Weeks 7–12) is FINANCE — now manage the income
+// your build earns. Build-week lesson content is pending Sunil's outline (placeholder panels).
 const WEEKS = [
-  { act: 1, t: "Set Up Your Paycheck", s: "W-4, 401(k) + match, gross vs. net.", action: "settings",
-    materials: [{ label: "IRS — About Form W-4", url: "https://www.irs.gov/forms-pubs/about-form-w-4" }] },
-  { act: 1, t: "Savings & Investing + Compounding", s: "Auto-fund accounts; pick your risk style and asset mix.", action: "allocation",
+  // ─── Act 1 · BUILD (Weeks 1–6) — placeholder panels until Sunil's outline lands ───
+  { act: 1, t: "Build: Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your build starts here.", action: "build", comingSoon: true },
+  { act: 1, t: "Build: Shape the Idea", s: "Turn the need into a concrete product or service you could make.", action: "build", comingSoon: true },
+  { act: 1, t: "Build: Make It (with AI)", s: "Use your skills and AI as a tool to build a first version.", action: "build", comingSoon: true },
+  { act: 1, t: "Build: Launch & First Customers", s: "Put it in front of real people — and earn your first dollars.", action: "build", comingSoon: true },
+  { act: 1, t: "Build: Price It & Get Paid", s: "Charge for the value you create; turn interest into income.", action: "build", comingSoon: true },
+  { act: 1, t: "Build: Grow What's Working", s: "Double down on what sells — your build is now earning.", action: "build", comingSoon: true },
+  // ─── Act 2 · FINANCE (Weeks 7–12) — manage the income your build earns ───
+  { act: 2, t: "Set Up Your Business Finances", s: "Self-employment tax, paying yourself, setting aside for the future.", action: "settings",
+    materials: [{ label: "IRS — Self-Employed Individuals Tax Center", url: "https://www.irs.gov/businesses/small-businesses-self-employed/self-employed-individuals-tax-center" }] },
+  { act: 2, t: "Savings & Investing + Compounding", s: "Auto-fund accounts; pick your risk style and asset mix.", action: "allocation",
     materials: [
       { label: "Investor.gov — Compound Interest Calculator", url: "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator" },
       { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
     ] },
-  { act: 1, t: "Macro Forces on Investments", s: "How inflation, rates and recessions move each asset class.", action: "macro" },
-  { act: 2, t: "Big Purchases: The Framework", s: "Buy vs. rent, APR, good vs. bad debt, total cost of ownership.", action: "framework" },
-  { act: 2, t: "Big Purchases: Making the Call", s: "Choose and finance your home and car.", action: "buy" },
+  { act: 2, t: "Macro Forces on Investments", s: "How inflation, rates and recessions move each asset class.", action: "macro" },
+  { act: 2, t: "Big Purchases: Buy, Finance & Live With It", s: "Buy vs. rent, good vs. bad debt — choose and finance a home and a car.", action: "buy" },
   { act: 2, t: "Budgeting: Surprises & Temptations", s: "Bills autopay — handle an emergency and a spree.", action: "budget",
     // PLACEHOLDER PARK: finance topics retired from their own weeks (Credit, Portfolio Review,
     // Active Investing, Beyond Stocks) are parked here so we don't lose them. Final placement is
-    // TBD — founder will decide how to reorganize (fold in, or restore as weeks). Resource links
-    // are the verified primary sources from when these were standalone weeks.
+    // TBD — founder will decide how to reorganize. Links are the verified primary sources.
     parked: [
       { t: "Credit & Credit Scores", d: "Cards, interest, and how your score sets your rates.", materials: [
         { label: "CFPB — Credit reports and scores", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/" },
@@ -193,26 +202,29 @@ const WEEKS = [
       { t: "Active Investing", d: "Review, diversify, rebalance.", materials: [] },
       { t: "Beyond Stocks: Growing & Protecting Wealth", d: "Bullion, real estate, insurance — and a safety net.", materials: [] },
     ] },
-  // ─── Act 3 is now the BUILD arc (Weeks 7–12). Lesson content is pending Sunil's outline;
-  // these weeks show a "coming soon" panel for now. The former finance weeks (Credit,
-  // Portfolio Review, Active Investing, Beyond Stocks) were retired from the student flow —
-  // their panel code remains below (unrouted) so any piece can be reinstated later.
-  { act: 3, t: "Build: Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your build starts here.", action: "build", comingSoon: true },
-  { act: 3, t: "Build: Shape the Idea", s: "Turn the need into a concrete product or service you could make.", action: "build", comingSoon: true },
-  { act: 3, t: "Build: Make It (with AI)", s: "Use your skills and AI as a tool to build a first version.", action: "build", comingSoon: true },
-  { act: 3, t: "Build Something: Earning in an AI World", s: "Create value others will pay for — turn a skill (and AI) into income you own.", action: "hustle" },
-  { act: 3, t: "Build: First Customers & Reinvest", s: "Price it, earn your first dollars, and put the profit to work.", action: "build", comingSoon: true },
-  { act: 3, t: "Capstone: What You Built", s: "Total it all up and tell the story of what you built.", action: "capstone" },
+  { act: 2, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the build you made and the net worth it earned.", action: "capstone" },
 ];
-const ACTS = { 1: "Set Up Your Money", 2: "Major Decisions & Independence", 3: "Build Something of Your Own" };
+const ACTS = { 1: "Build Something People Want", 2: "Manage What You've Earned" };
 
 // ============================ SIM ECONOMY ============================
 // One place for every dollar figure, re-tuned to a realistic young-adult budget around a
 // $10,000 paycheck per class. Keep purchases funds-gated against this so the "save toward a
 // goal / live with the payments" lessons hold. Change PAY here and the rest stays in scale.
-export const PAY = 10000;            // take-home paycheck earned each class
-const TAX_RATE = 0.15;               // flat tax on the paycheck
-export const LIVING = 3500;          // living costs per period (rent, food, utilities, phone)
+// Income comes from the student's BUILD, not a flat paycheck. Build act (weeks 1–6): you
+// create the product and it starts landing customers — revenue ramps from zero. Finance act
+// (weeks 7–12) + check-ins: the established build earns a steady income you now learn to
+// manage. INCOME[courseWeek-1] is the business revenue that period.
+export const INCOME = [0, 0, 0, 3000, 6000, 9000, 10000, 10000, 10000, 10000, 10000, 10000];
+export const STEADY_INCOME = 10000;  // per-period business income in the finance act + check-ins
+export const PAY = STEADY_INCOME;    // back-comat alias (steady business income, not a paycheck)
+const TAX_RATE = 0.15;               // tax on business income (self-employment / business tax)
+const FINANCE_FIRST_WEEK = 7;        // weeks 1–6 = Build act; 7–12 = Finance act
+// income for a given period: the build's revenue curve in the course, steady once established
+export function incomeFor(phase, week) {
+  if (phase !== "course") return STEADY_INCOME; // check-ins: the build is established
+  return INCOME[week - 1] || 0;
+}
+export const LIVING = 3500;          // living costs per period — only once you're independent (finance act)
 export const HOME = { price: 400000, down: 20000, mortgage: 380000, payment: 2500 }; // 5% down
 export const CAR = { price: 30000, down: 6000, loan: 24000, payment: 600 };          // 20% down
 export const EMERGENCY = 2500;       // surprise car-repair (Week 6)
@@ -247,7 +259,7 @@ Welcome aboard! Your seat in the ${b.track} cohort is confirmed.
 
 Your username is your email (${student.email}) — use it to log in to your student portal anytime.
 
-Week 1 is "Set Up Your Paycheck." Come ready to choose your 401(k) contribution and watch your first ${PAY.toLocaleString()} paycheck land. Everything runs inside your student dashboard.
+Week 1 is "Find a Problem Worth Solving" — the start of building something people will actually pay for. That build is what earns your income in the weeks ahead, and then you'll learn to make it grow. Everything runs inside your student dashboard.
 
 See you in class,
 The Build Young Team`,
@@ -349,23 +361,22 @@ export function investInstead(n) {
   ASSETS.forEach((a) => { n.holdings[a.key] += SPREE * (n.alloc[a.key] || 0); });
 }
 
-// process one period: pay, allocate, apply macro, pay bills
+// process one period: earn (from the build), allocate, apply macro, pay bills
 export function advance(prev, macro) {
   const s = JSON.parse(JSON.stringify(prev));
-  const pay = PAY;
+  // Income comes from the student's BUILD (no employer paycheck). It ramps during the build
+  // act and is steady once established. Business income is taxed; there is no employer 401(k)
+  // match — a self-made builder pays themselves (retirement contribution, no match).
+  const pay = incomeFor(s.phase, s.week);
   const tax = pay * TAX_RATE;
-  const k = pay * s.settings.retire401k;
-  const match = pay * Math.min(s.settings.retire401k, 0.05);
-  s.retirement += k + match;
+  const k = pay * s.settings.retire401k;     // self-directed retirement ("pay yourself first")
+  s.retirement += k;                          // no employer match
   const net = pay - tax - k;
   const toSav = net * s.settings.savingsRate;
   const toBrk = net * s.settings.brokerageRate;
   s.savings += toSav;
   ASSETS.forEach((a) => { s.holdings[a.key] += toBrk * (s.alloc[a.key] || 0); });
   s.cash += net - toSav - toBrk;
-
-  // hustle bonus
-  if (s.hustle) { s.cash += HUSTLE_BASE + Math.round(Math.random() * HUSTLE_VAR); }
 
   // macro effects by asset class
   const e = macro.e;
@@ -388,7 +399,9 @@ export function advance(prev, macro) {
     s.car.value *= 0.985; // depreciation
     s.car.loan = Math.max(0, s.car.loan - s.car.payment * 0.7);
   }
-  s.cash -= LIVING; // living costs (rent/food/utilities/phone)
+  // living costs kick in once you're independent (finance act onward) — during the build act
+  // you're still getting your venture off the ground.
+  if (s.phase !== "course" || s.week >= FINANCE_FIRST_WEEK) s.cash -= LIVING;
 
   // credit card interest
   if (s.card.balance > 0) s.card.balance *= 1.04;
@@ -560,7 +573,7 @@ const HeroPreview = () => {
         <g transform="translate(40,92)">
           <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR NET WORTH</text>
           <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>${nw.toLocaleString()}</text>
-          <g key={"chip" + i} className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +{fmt(PAY)} paycheck</text></g>
+          <g key={"chip" + i} className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +{fmt(STEADY_INCOME)} from your build</text></g>
           <defs>
             <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#0067b8" stopOpacity="0.28" /><stop offset="100%" stopColor="#0067b8" stopOpacity="0" />
@@ -613,7 +626,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
         </h1>
         <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — financial literacy, learned by living it.</p>
         <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
-          Build Young is a <b>live, instructor-led course</b> where teens learn to <b>build economic value</b> two ways: <b>create it</b> — make something other people will pay for — and <b>own it</b> — put money to work so it compounds while you sleep. The deepest lesson is the first one: you get ahead by adding value to other people's lives. They run a realistic simulation — earning a paycheck, investing it through real-world market swings, financing a home and a car, and launching something people would actually pay for — and graduate having built a net worth from zero. <b>Financial literacy is the foundation; building value is the point.</b> It's a hands-on sandbox — <b>no real money is ever involved</b> — just the real skills, practiced somewhere safe before the stakes are real.
+          Build Young is a <b>live, instructor-led course</b> where teens first <b>build something people will pay for</b> — using a skill and AI to create real value — and <b>that</b> is where their income comes from. Then they learn to <b>manage what they earn</b>: taxes, saving, investing through real market swings, big purchases, and watching it compound — graduating having built both a business and a net worth from zero. <b>You create the value first; the money follows.</b> It's a hands-on sandbox — <b>no real money is ever involved</b> — just the real skills, practiced somewhere safe before the stakes are real.
         </p>
         <HeroPreview />
         <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
@@ -642,15 +655,15 @@ function Landing({ onEnroll, onCall, onLegal }) {
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 6vw" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 26px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works</h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Getting money-savvy is the foundation — then your student uses it to build. They earn it, invest it, make the big calls, watch it compound, and build something people will pay for.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>First your student builds something people will pay for — that's where the income starts. Then they learn to manage it: invest it, make the big calls, and watch it compound.</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
-            { icon: Wallet, t: "Attendance is your paycheck", d: `Show up, earn ${fmt(PAY)}. Set your W-4 and 401(k) once — it runs the whole course.`, c: C.emerald },
-            { icon: LineIcon, t: "Markets move like the real world", d: "Live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
-            { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car. Live with the payments.", c: C.green },
-            { icon: Sparkles, t: "Build something people need", d: "Use a skill (and AI) to solve a real problem for other people. Create value they'll pay for — the truest way to get ahead.", c: C.gold },
-            { icon: Shield, t: "Watch it compound", d: "Your savings, 401(k), and investments grow through every market move — and you graduate knowing your own net worth.", c: C.pink },
+            { icon: Sparkles, t: "Build something people need", d: "First, use a skill (and AI) to solve a real problem for other people — create value they'll pay for.", c: C.gold },
+            { icon: Wallet, t: "Your build earns the income", d: `That's where the money comes from — your venture grows to about ${fmt(STEADY_INCOME)} a period. No paycheck handed to you.`, c: C.emerald },
+            { icon: LineIcon, t: "Markets move like the real world", d: "Once you're investing, live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
+            { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car with what you've earned. Live with the payments.", c: C.green },
+            { icon: Shield, t: "Watch it compound", d: "Your savings and investments grow through every market move — and you graduate knowing your own net worth.", c: C.pink },
           ].map((x, i) => (
             <Card key={i} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: x.c }} />
@@ -665,8 +678,8 @@ function Landing({ onEnroll, onCall, onLegal }) {
       {/* curriculum */}
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
-          <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks: first the financial foundation — a paycheck, smart habits, investing through real market swings — then a hands-on build arc where your student creates something of their own that other people would pay for.</p>
+          <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">two acts</span></h2>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks: first a hands-on build arc where your student creates something people pay for — the source of their income — then the finance act, learning to manage and grow what that build earns.</p>
         </div>
         {[1, 2, 3].map((act) => (
           <div key={act} style={{ marginTop: 26 }}>
@@ -1606,10 +1619,10 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
         </a>
       )}
       {action === "settings" && (
-        <Wrap title="Set Up Your Paycheck" blurb={`Every class pays ${fmt(PAY)}. A flat 15% goes to taxes. Choose your 401(k) contribution — your employer matches dollar-for-dollar up to 5%. These become your standing settings for the whole course.`}>
-          {sliderRow("401(k) contribution", s.settings.retire401k, (v) => set((n) => n.settings.retire401k = v), 0, 0.1, 0.01)}
+        <Wrap title="Set Up Your Business Finances" blurb={`Your build is earning now — about ${fmt(STEADY_INCOME)} a period. You're self-employed, so there's no employer and no W-4: a flat 15% goes to taxes, and YOU choose how much to pay your future self. These become your standing settings for the rest of the course.`}>
+          {sliderRow("Pay yourself first (retirement)", s.settings.retire401k, (v) => set((n) => n.settings.retire401k = v), 0, 0.1, 0.01)}
           <div style={{ background: C.paper, borderRadius: 4, padding: 12, fontSize: 13, color: C.ink2 }}>
-            On a {fmt(PAY)} paycheck: ~{fmt(PAY * s.settings.retire401k)} to your 401(k), plus a {fmt(PAY * Math.min(s.settings.retire401k, 0.05))} employer match — free money.
+            On {fmt(STEADY_INCOME)} of business income: ~{fmt(STEADY_INCOME * s.settings.retire401k)} set aside for your future (a SEP/solo retirement account). No employer match when you work for yourself — but no boss taking a cut either.
           </div>
         </Wrap>
       )}
@@ -1765,7 +1778,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "checkin" && (
-        <Wrap title={s.done ? "You've graduated 🎓" : `Check-in ${s.checkin + 1} of 6`} blurb={s.done ? "Six months of independent investing, done. Your portfolio reflects every decision you made." : `Showing up still earns your ${fmt(PAY)} salary. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your pay and apply it.`}>
+        <Wrap title={s.done ? "You've graduated 🎓" : `Check-in ${s.checkin + 1} of 6`} blurb={s.done ? "Six months of independent investing, done. Your portfolio reflects every decision you made." : `Your build keeps earning about ${fmt(STEADY_INCOME)} a period. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your income and apply it.`}>
           {!s.done && <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}><b>{macroNow.h}.</b> <span style={{ color: C.ink2 }}>{macroNow.d}</span></div>}
           {s.done && <Stat label="Net worth after one year independent" value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />}
         </Wrap>
@@ -1773,7 +1786,12 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
 
       {!s.done && (
         <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
-          {s.phase === "course" ? (s.week >= 12 ? "Finish course → begin check-ins" : `Collect ${fmt(PAY)} & advance to Week ${s.week + 1}`) : `Collect ${fmt(PAY)} salary & continue`} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
+          {(() => {
+            const inc = incomeFor(s.phase, s.week);
+            const earn = inc > 0 ? `Collect ${fmt(inc)} & ` : "";
+            if (s.phase === "course") return s.week >= 12 ? "Finish course → begin check-ins" : `${earn}advance to Week ${s.week + 1}`;
+            return `Collect ${fmt(inc)} & continue`;
+          })()} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
         </button>
       )}
     </div>

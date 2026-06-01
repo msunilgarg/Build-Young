@@ -19,20 +19,20 @@ function call({ method = "GET", query } = {}) {
 
 describe("/api/market-event — returns the SINGLE current event", () => {
   it("returns the correct single course-week event with media for a live-market week", () => {
-    const res = call({ query: { phase: "course", week: "3" } });
+    const res = call({ query: { phase: "course", week: "8" } });
     expect(res.statusCode).toBe(200);
     const ev = res.payload.event;
-    const expected = marketEventFor("course", 3, 0);
-    expect(ev.h).toBe(expected.h); // "The Fed hikes rates"
+    const expected = marketEventFor("course", 8, 0);
+    expect(ev.h).toBe(expected.h); // "The Fed hikes rates" (first investing week)
     expect(ev.d).toBe(expected.d);
     expect(ev.e).toEqual(expected.e);
-    // live-market weeks (3–12) carry their authored media inline
+    // live-market weeks (8–12) carry their authored media inline
     expect(ev.media).toEqual(MEDIA[expected.h]);
     expect(ev.media.resources.length).toBeGreaterThan(0);
   });
 
-  it("returns the flat setup event (no media) for weeks 1–2", () => {
-    for (const week of ["1", "2"]) {
+  it("returns the flat setup event (no media) for the build/setup weeks (1–7)", () => {
+    for (const week of ["1", "7"]) {
       const res = call({ query: { phase: "course", week } });
       expect(res.statusCode).toBe(200);
       const ev = res.payload.event;
@@ -56,10 +56,10 @@ describe("/api/market-event — returns the SINGLE current event", () => {
     // no field on the response leaks the full arrays
     const json = JSON.stringify(res.payload);
     // a distinctive OTHER week's headline must not appear in a single-week response
-    expect(json).not.toContain("The Fed hikes rates"); // that's week 3, not requested
-    expect(json).not.toContain("Recession fears spike"); // week 6, not requested
+    expect(json).not.toContain("The Fed hikes rates"); // that's week 8, not requested
+    expect(json).not.toContain("Inflation runs hot"); // week 9, not requested
     // and the response carries exactly one event headline
-    expect(res.payload.event.h).toBe("Year-end melt-up");
+    expect(res.payload.event.h).toBe("Soft landing hopes"); // week 12 = MACRO[4]
   });
 
   it("validates inputs: bad phase, out-of-range week, non-integer", () => {
@@ -81,8 +81,8 @@ describe("/api/market-event — returns the SINGLE current event", () => {
 
   it("parses params from req.url when req.query is absent (non-Vercel host)", () => {
     const res = makeRes();
-    handler({ method: "GET", url: "/api/market-event?phase=course&week=5" }, res);
+    handler({ method: "GET", url: "/api/market-event?phase=course&week=9" }, res);
     expect(res.statusCode).toBe(200);
-    expect(res.payload.event.h).toBe("Housing boom");
+    expect(res.payload.event.h).toBe("Inflation runs hot"); // week 9 = MACRO[1]
   });
 });

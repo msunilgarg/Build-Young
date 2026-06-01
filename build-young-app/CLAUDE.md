@@ -88,7 +88,7 @@ This keeps the landing-page initial JS ~90 KB gzip. Don't statically import rech
 App.jsx — that would undo it. `npm run build` (Vite) preserves this split automatically.
 
 - **Refund policy (in code):** full refund before the cohort starts (state flag `started:false`, flips true on first `doAdvance`); prorated refund through Act 1 (weeks 1–3) = `price×(12−week)/12`; non-refundable after Act 1 (shown explicitly to the student once Week 3 passes). Logic lives in `Platform` (`notStarted`, `canWithdraw`, `refund`) and the Terms copy in `LEGAL`.
-- **Sim economy (one source):** every dollar figure lives in the exported constants block in `App.jsx` (after `ACTS`): `PAY` (paycheck = **$10,000**/class), `LIVING`, `HOME`/`CAR` (price/down/loan/payment), `EMERGENCY`, `SPREE`, `INSURANCE`, `ALT_BUY`, `PE_BUY`, `HUSTLE_START`, etc. Re-tuned to a realistic young-adult budget so purchases stay funds-gated and the "save toward a goal / live with the payments" lessons hold. All paycheck/cost COPY (settings blurb, buy cards, hero chip, how-it-works, welcome email, advance button, HeroPreview mock net worths) derives from these — change a constant and the UI + the batch-simulation harness (which imports them) follow. Tests assert relationships (e.g. match = 10% of `PAY`), not literals.
+- **Income model (BUILD-EARNED, not a paycheck):** income comes from the student's *build*, not employment. `INCOME[]` in `App.jsx` is the per-course-week revenue curve — **$0 in the early build weeks**, ramping to a steady `STEADY_INCOME` (= `PAY` = **$10,000**) once the build lands customers (≈week 6) and through the finance act + check-ins. `incomeFor(phase, week)` is the single source; `advance()` uses it. **There is NO employer 401(k) match** (self-employed builder — `advance` adds only the student's own retirement set-aside, no match). **Taxes stay** (15%, framed as self-employment/business tax). **Living costs** (`LIVING`) apply only once independent (finance act, week ≥ `FINANCE_FIRST_WEEK`=7). Other dollar constants (`HOME`/`CAR`/`EMERGENCY`/`SPREE`/`INSURANCE`/`ALT_BUY`/`PE_BUY`) unchanged. All income/cost COPY derives from these; the batch-sim harness imports them. Tests assert relationships, not literals.
 - **Tuition prize:** each cohort, the student with the **highest simulated portfolio value at the final (6th) monthly check-in** — i.e. the close of the full program (12 weeks + 6 check-ins) — wins their **tuition refunded**. Criterion is deliberately *highest value* (the real-world objective) — we welcome diverse investing beliefs, not a diversification gate. Surfaced in three places that must stay in sync: the landing **pricing** intro ("Win your tuition back"), the dashboard **capstone** ("you're in the running"), and the **Terms** "Tuition prize" section in `LEGAL`. The winner is **instructor-confirmed** (the app has no server-side cross-student comparison). It's a contest involving minors → keep the attorney-review flag in the Terms copy. **Anti-gaming (layer 1 — done):** the market schedule (`FLAT_MACRO`/`MACRO`/`CHECKIN_MACRO`/`marketEventFor` + the `MEDIA` map) now lives **server-only** in `api/_lib/marketSchedule.js` and NO LONGER ships in the client bundle, so students can't read future events from devtools. The client learns the **single current** event by fetching `/api/market-event` (server-only schedule lookup; never the full array); offline/demo/tests fall back to a **non-revealing placeholder** ("Markets are moving", neutral effects) so the demo still runs without leaking the schedule. Per-student randomization is intentionally NOT used — a fair cohort prize requires everyone face the same market. **Remaining gap (layer 2):** the simulation state still lives in client localStorage and is user-editable, so true tamper-proof scoring needs **server-authoritative state + auth** (a separate follow-up). The schedule modules `src/marketMedia.js` (client-safe builders/metadata) and `api/_lib/marketSchedule.js` (server-only schedule) MUST stay separate — never import the latter from anything under `src/`.
 
 ## Business & legal setup (do first — not legal advice; consult professionals)
@@ -175,16 +175,19 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   simulation** (12 weeks + 6 monthly check-ins) where decisions compound and mistakes are safe.
   Closes on "money is a skill you practice" → "raising builders, not consumers." Renders as
   sibling `<p>`s sharing the founder paragraph's style.
-- **Curriculum structure (WEEKS):** still **12 weeks**, three acts. Act 1 (W1–3) Set Up Your
-  Money; Act 2 (W4–6) Major Decisions (purchases, budget); **Act 3 (W7–12) is the BUILD arc**
-  ("Build Something of Your Own"). The former finance weeks — Credit (W7), Portfolio Review
-  (W8), Active Investing (W9), Beyond Stocks (W11) — were **retired from the student flow** per
-  founder direction; their `WeekPanel` branches (`credit`/`review`/`rebalance`/`protect`) and the
-  harness finance ops remain in the code (unrouted) so any can be reinstated. Build weeks use
-  `action: "build"` with `comingSoon: true` and a placeholder panel — **real lesson content is
-  pending Sunil's outline.** `WEEK_TITLES` in `marketMedia.js` must stay in sync with `WEEKS`
-  titles (used for email subjects). Keeping it at 12 weeks means NO ripple to the sim engine,
-  market schedule, scheduler, pricing, or refund math.
+- **Curriculum structure (WEEKS) — BUILD-FIRST, two acts, 12 weeks:** the order is flipped so
+  the narrative is causal: **Act 1 "Build Something People Want" (Weeks 1–6)** — the student
+  creates something people pay for; *that* is what starts their income — then **Act 2 "Manage
+  What You've Earned" (Weeks 7–12)** — business finances, investing, big purchases, budgeting,
+  capstone. Markets only run once there's a portfolio: `MACRO` events fire **Weeks 8–12**
+  (`MARKET_FIRST_WEEK`=8 in `marketSchedule.js`; `MEDIA_WEEKS`={8,12} in `schedule.js`); weeks
+  1–7 are flat. Build weeks use `action:"build"` + `comingSoon:true` with a placeholder panel —
+  **real build-lesson content is pending Sunil's outline.** Retired finance topics (Credit,
+  Portfolio Review, Active Investing, Beyond Stocks) are **parked** on the budget week
+  (`parked:[]`, shown as "More money topics — coming soon"); their old `WeekPanel` branches
+  remain unrouted. `WEEK_TITLES` in `marketMedia.js` must stay in sync with `WEEKS` titles.
+  Still 12 weeks → no ripple to pricing/refund math, but the income engine + market-start week
+  DID change (see Income model above), so the harness, schedule, and ~40 tests were updated.
 - Microsoft is framed as **ex-Microsoft** in short credential tags.
 - Keep the design calm and credible (no gimmicky floating widgets). Centered section headers.
 - **Typography:** display/headings/wordmark use **Space Grotesk** (`.disp` class); body uses
