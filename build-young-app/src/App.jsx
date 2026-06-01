@@ -698,7 +698,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
             </div>
           </div>
         ))}
-        <p style={{ color: C.muted, marginTop: 22, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>In <b>Week 4</b>, high-school cohorts go deeper with a <b>Paying for College</b> unit — student loans, financial aid, and the true cost of college. After the 12 weeks, students keep going with <b>6 monthly check-ins</b> over the next six months — managing the <b>same simulated portfolio</b> they built in class as new market developments unfold.</p>
+        <p style={{ color: C.muted, marginTop: 22, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>After the 12 weeks, students keep going with <b>6 monthly check-ins</b> over the next six months — managing the <b>business and portfolio</b> they built in class as new market developments unfold.</p>
       </section>
 
       {/* philosophy + founder */}
@@ -733,7 +733,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
             <b className="disp">Raising builders, not consumers.</b> How money works — the thing that matters most in real life — isn't on any test. We teach it by letting our kids live it, so in a world changing faster than any classroom can keep up, their future rests on what they can build, not just what they were credentialed to do.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
-            Being money-savvy is the foundation — but the goal is to <b>build economic value</b>, in two ways: <b>grow what you have</b> by putting money to work, and <b>create what others will pay for</b>. The second is the real engine of getting ahead — you add value to your own life by adding value to someone else's — and the first lets you own a piece of everyone else's building, compounding quietly over time. Learned early, money skills shape who a kid becomes. A child saving toward something they want is practicing patience and self-control. One who lives with the consequences of a choice — a splurge that set back a goal, an emergency that tested their cushion — is building responsibility and resilience. And because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame or pretense. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear. Solid ground under their feet — so they can start building on it young.
+            The real way to get ahead is to <b>build something other people will pay for</b> — to solve a problem and create value, the one skill no degree guarantees and no AI takes away from the person who can do it. That's the heart of this: a kid who has actually made something people wanted, and earned from it, carries that for life. Being money-savvy is what lets them <b>keep and grow</b> what they build — putting it to work so it compounds instead of slipping away. And learned this young, it shapes who they become. A kid who builds something real practices initiative and grit; one who lives with a choice — a splurge that set back a goal, an emergency that tested their cushion — builds responsibility and resilience. Because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear. The point was never a credential — it's a young person who can build, and knows what to do with what they earn.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, marginTop: 24 }}>
             {[
@@ -817,12 +817,12 @@ function Landing({ onEnroll, onCall, onLegal }) {
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom</div>
               <div style={{ fontSize: 13, color: C.ink2, marginTop: 10, lineHeight: 1.45 }}>
                 {b.track === "High School"
-                  ? "The full 12-week program, with an in-depth Paying for College unit in Week 4 — student loans, financial aid, and the true cost of college."
-                  : "The full 12-week program — paycheck, investing, buying and financing a home and a car, the complete simulation."}
+                  ? "The full 12-week program — build something people pay for, then manage the income it earns. In an AI world, the edge isn't a degree; it's what you can build."
+                  : "The full 12-week program — build something people pay for, then invest, budget, and finance a home and a car with what you earn."}
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
-                <span style={{ fontSize: 13, color: b.seats < 8 ? C.rust : C.muted, fontWeight: 600 }}>{b.seats} seats left</span>
+                <span style={{ fontSize: 13, color: b.seats < 5 ? C.rust : C.muted, fontWeight: 600 }}>{b.seats} seats left</span>
               </div>
               <button className="btn" onClick={() => onEnroll(b.id)} style={{ width: "100%", background: acc, color: "#fff", padding: "12px", borderRadius: 4, fontSize: 15 }}>Enroll in this batch</button>
             </Card>
@@ -950,8 +950,7 @@ function Enroll({ preselect, onDone, onBack, onCall }) {
                       "12 live 90-min classes, taught by me",
                       "6 monthly check-ins after the course",
                       "Your own student dashboard",
-                      "My hands-on market simulation",
-                      ...(b.track === "High School" ? ["My Paying-for-College unit"] : []),
+                      "Build a real product, then manage what it earns",
                     ].map((t, i) => (
                       <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12.5, color: C.ink2 }}>
                         <Check size={14} color={acc} style={{ flexShrink: 0, marginTop: 1 }} /> {t}
@@ -962,7 +961,7 @@ function Enroll({ preselect, onDone, onBack, onCall }) {
                     {[
                       { icon: Video, t: "100% live online over Zoom" },
                       { icon: Lock, t: "Simulated money — no real funds" },
-                      { icon: GraduationCap, t: "Capped at 15 students" },
+                      { icon: GraduationCap, t: "Capped at 10 students" },
                     ].map((x, i) => (
                       <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, color: C.muted, fontWeight: 600 }}>
                         <x.icon size={13} color={C.muted} /> {x.t}

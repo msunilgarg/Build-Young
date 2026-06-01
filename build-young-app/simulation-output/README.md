@@ -86,14 +86,14 @@ trade-off worth showing students.
 
 ### fall-ms-mon — Middle School (Mondays · 5:00–6:30 PM PST)
 
-- Students: 15 · Tuition: $599
+- Students: 15 · Tuition: $899
 - Average final net worth: **$74,882** (min $69,043, max $80,793)
 - Tuition-prize winner (highest portfolio value): **Isabella Davis** at $80,793
 - By risk style: aggressive 5 (avg $76,934), balanced 6 (avg $70,898), conservative 4 (avg $78,291)
 
 ### fall-hs-wed — High School (Wednesdays · 5:00–6:30 PM PST)
 
-- Students: 15 · Tuition: $799
+- Students: 15 · Tuition: $899
 - Average final net worth: **$74,882** (min $69,043, max $80,793)
 - Tuition-prize winner (highest portfolio value): **Isabella Davis** at $80,793
 - By risk style: aggressive 5 (avg $76,934), balanced 6 (avg $70,898), conservative 4 (avg $78,291)

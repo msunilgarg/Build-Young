@@ -1,23 +1,27 @@
 # Build Young
 
-> A live, hands-on program for teenagers (ages 13–18) that teaches them to build economic value. Tagline: "Raising builders, not consumers." Financial literacy is the foundation; building value is the point. Students learn by living it — earning a simulated paycheck, investing, budgeting, managing credit, making big purchases, and launching a build of their own that other people would pay for.
+> A live, hands-on program for teenagers (ages 13–18) that teaches them to build economic value. Tagline: "Raising builders, not consumers." Students first build something people will pay for — that becomes their income — then learn to manage what they earn. In an AI world, the edge isn't a degree; it's what you can build.
 
 ## About
-Build Young is an online program founded by Sunil Garg that teaches teens to build economic value two ways — getting money-savvy as the foundation, then growing it (putting money to work so it compounds) and, above all, creating something other people will pay for (you get ahead by adding value to other people's lives). It runs as a 12-week course (90-minute weekly sessions) plus 6 monthly check-ins, delivered live over Zoom. Each class, students earn a simulated paycheck and make real-world money decisions inside an interactive simulation. The program is financial education, not licensed financial advice; all money in the simulation is simulated.
+Build Young is an online program founded by Sunil Garg that teaches teens to build economic value. First they build something other people will pay for (using a skill and AI to create real value) — and that becomes their income; then they learn to manage what they earn: business taxes, saving, investing so it compounds, big purchases, and budgeting. It runs as a 12-week course (90-minute weekly sessions) plus 6 monthly check-ins, delivered live over Zoom, inside an interactive simulation where income is earned by the student's build. The program is financial education, not licensed financial advice; all money in the simulation is simulated.
 
 ## Who it's for
 Teens ages 13 and up, in two tracks:
-- Middle School cohort — $599
-- High School cohort — $799 (includes a "Paying for College" unit on financial aid and student loans)
+- Middle School cohort — $899
+- High School cohort — $899
 
 ## What students learn
-- Paychecks, taxes, and 401(k) basics
+Act 1 — Build (Weeks 1–6):
+- Find a real problem people will pay to solve
+- Shape it into a product or service and make a first version with AI as a tool
+- Launch, get first customers, price it, and grow what's working — your build becomes your income
+Act 2 — Manage what you've earned (Weeks 7–12):
+- Business finances: self-employment taxes and paying yourself
 - Saving, investing, diversification, and compounding
 - How macro forces (inflation, interest rates, recessions) move markets
 - Big purchases: buying and financing a home and a car; good vs. bad debt
-- Budgeting, credit and credit scores
-- Building and protecting wealth (including alternatives like private equity) and avoiding scams
-- Earning in an AI world — being a builder, not just a consumer
+- Budgeting and handling financial surprises
+Then 6 monthly check-ins managing the business and portfolio they built.
 
 ## Enrolling
 Families can book a free 15-minute call with the founder before enrolling. A prorated refund is available through the end of Act 1 (first 3 weeks).
