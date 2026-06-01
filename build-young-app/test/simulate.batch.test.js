@@ -12,7 +12,7 @@ import { runCohort, cohortCsv, studentForFile, PERSONAS, PAY, HOME, CAR, PE_BUY 
 const usd = (v) => "$" + Math.round(v).toLocaleString();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// simulation-output lives at the built-young-app/ root, next to src/ and scripts/.
+// simulation-output lives at the build-young-app/ root, next to src/ and scripts/.
 const OUT_ROOT = path.resolve(__dirname, "..", "simulation-output");
 
 const COHORTS = ["fall-ms-mon", "fall-hs-wed"]; // a Middle School + a High School batch

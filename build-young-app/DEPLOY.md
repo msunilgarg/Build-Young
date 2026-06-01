@@ -11,7 +11,7 @@ Step 1 to test the front end, and wire the backend (email, payments, the news dr
 ## Step 1 — Deploy the app (free, ~2 min)
 
 1. Go to **vercel.com** → sign in with GitHub → **Add New → Project** → import **`msunilgarg/BuiltYoung`**.
-2. **Root Directory: `built-young-app`** ← important (the app is nested in the repo).
+2. **Root Directory: `build-young-app`** ← important (the app is nested in the repo).
 3. Framework auto-detects as **Vite** (Build `npm run build`, Output `dist`). Leave as-is.
 4. **Deploy.** You get a public URL.
 

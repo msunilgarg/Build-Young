@@ -27,7 +27,7 @@ npm run preview    # preview the production build
 
 ## Project structure
 ```
-built-young-app/
+build-young-app/
 ├── index.html            # SEO meta, JSON-LD (EducationalOrganization + Course), noscript fallback
 ├── src/
 │   ├── main.jsx          # entry; mounts <App/> in React.StrictMode
