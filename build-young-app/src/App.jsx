@@ -295,7 +295,7 @@ function followupEmail(s, week, batch) {
 
 You finished all 12 weeks of Build Young — your simulated net worth is ${fmt(netWorth(s))}. 
 
-Next up is a monthly check-in where you'll keep managing your portfolio through new market developments. We'll email you before it.
+Next up is your follow-up check-in a month from now, where you'll keep managing your portfolio through new market developments. We'll email you before it.
 
 ${batch.day}  ·  Zoom: ${batch.zoom}
 
@@ -314,7 +314,7 @@ The Team`,
   }
   return {
     id: "c" + s.checkin + "_" + Date.now(), from: MAIL_FROM, when: "Just now", type: "followup",
-    subject: `Your monthly check-in recap`,
+    subject: `Your check-in recap`,
     body: `Hi ${first},
 
 Your portfolio is now worth ${fmt(netWorth(s))} (simulated). Markets keep moving — log in to review and rebalance.
@@ -791,7 +791,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
                 Here's what I noticed when I went looking for something like this for my own kids. There's plenty of free material out there — banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. And the paid classes that are live? They mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                So I built the thing I couldn't find. Not more content to ignore, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It starts with the financial foundation — a paycheck, taxes, a budget that breaks and gets fixed, big purchases, investing — and then goes where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that other people would pay for. And not a one-off lesson, but one continuous simulation your kid carries for twelve weeks and a monthly check-in, where the decisions compound and the mistakes are safe because the money isn't real yet.
+                So I built the thing I couldn't find. Not more content to ignore, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It starts with the financial foundation — a paycheck, taxes, a budget that breaks and gets fixed, big purchases, investing — and then goes where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that other people would pay for. And not a one-off lesson, but one continuous simulation your kid carries for twelve weeks plus a follow-up check-in a month later, where the decisions compound and the mistakes are safe because the money isn't real yet.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 That's the whole idea: money isn't a subject you study, it's a skill you practice. We're raising builders, not consumers — kids who reach adulthood having already lived it, in a world where what you can build matters more than what you were credentialed to do.
@@ -973,7 +973,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ marginTop: 8, display: "grid", gap: 7 }}>
                     {[
                       "12 live 90-min classes, taught by me",
-                      "A monthly check-in after the course",
+                      "A follow-up check-in a month after the course",
                       "Your own student dashboard",
                       "Build a real product, then manage what it earns",
                     ].map((t, i) => (
@@ -1116,7 +1116,7 @@ function BookCall({ onBack, onHome, onEnroll }) {
                   <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em" }}>WHAT YOU'LL GET FROM ME</div>
                   <div style={{ marginTop: 10, display: "grid", gap: 9 }}>
                     {[
-                      "I'll answer anything — money, the format, your kid",
+                      "Ask me about the program, the format, or your kid",
                       "We'll figure out together if it's the right fit",
                       "You'll meet me face to face on Zoom",
                       "No pitch, no pressure — you have my word",
@@ -1375,7 +1375,7 @@ function Platform({ state, setState, onExit }) {
           {!canWithdraw && s.started && s.phase === "course" && s.week > 3 && (
             <Card style={{ padding: 14, marginTop: 14 }}>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                The refund window closed at the end of the first 3 weeks. Past that point, tuition is non-refundable — but you keep full access through all 12 weeks and every monthly check-in.
+                The refund window closed at the end of the first 3 weeks. Past that point, tuition is non-refundable — but you keep full access through all 12 weeks and the follow-up check-in.
               </div>
             </Card>
           )}
@@ -1797,12 +1797,12 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
               <b style={{ color: C.green }}>You're in the running for the tuition prize.</b> The student with the highest portfolio value at the <b>final check-in</b> earns their <b>tuition refunded</b> — so the check-in still counts. Keep growing it. <span style={{ color: C.muted }}>Simulated; winner confirmed by Sunil at the close. See Terms.</span>
             </div>
           </div>
-          <div style={{ fontSize: 14, color: C.ink2, marginTop: 12 }}>From here you move into your monthly check-in — the markets keep moving, and you keep managing your portfolio. Advance to begin.</div>
+          <div style={{ fontSize: 14, color: C.ink2, marginTop: 12 }}>From here you move into your follow-up check-in a month out — the markets keep moving, and you keep managing your portfolio. Advance to begin.</div>
         </Wrap>
       )}
 
       {action === "checkin" && (
-        <Wrap title={s.done ? "You've graduated 🎓" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Your monthly check-in")} blurb={s.done ? "A month of independent investing, done. Your portfolio reflects every decision you made." : `Your build keeps earning about ${fmt(STEADY_INCOME)} a period. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your income and apply it.`}>
+        <Wrap title={s.done ? "You've graduated 🎓" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Your follow-up check-in")} blurb={s.done ? "A month of independent investing, done. Your portfolio reflects every decision you made." : `Your build keeps earning about ${fmt(STEADY_INCOME)} a period. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your income and apply it.`}>
           {!s.done && <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}><b>{macroNow.h}.</b> <span style={{ color: C.ink2 }}>{macroNow.d}</span></div>}
           {s.done && <Stat label="Net worth after one year independent" value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />}
         </Wrap>
@@ -1853,12 +1853,12 @@ const LEGAL = {
   terms: {
     title: "Terms of Service",
     sections: [
-      ["The program", "Build Young offers live, online money-skills classes — 12 weekly sessions plus monthly check-ins — delivered over video conference. Class activities use a learning simulation."],
+      ["The program", "Build Young offers live, online money-skills classes — 12 weekly sessions plus one follow-up check-in a month after the course — delivered over video conference. Class activities use a learning simulation."],
       ["Eligibility", "Students must be at least 13 years old. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
       ["Education, not financial advice", "Build Young is financial education. It is not licensed financial, investment, tax, or legal advice. All money, accounts, prices, and returns shown in the simulation are simulated; no real funds are ever involved."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
       ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first three weeks — the refund equals the tuition multiplied by the fraction of sessions not yet held. After the first three weeks, tuition is non-refundable."],
-      ["Tuition prize", "Each cohort, the enrolled student whose simulated portfolio has the highest value at the final (sixth) monthly check-in — i.e. at the close of the full program — is awarded a refund of their tuition. Standings are based solely on the in-program simulation; all figures are simulated and no real investing occurs. One award per cohort; in the event of a tie or a data discrepancy, Build Young determines the winner in good faith, and its decision is final. The award is the tuition amount paid for that cohort and is issued after the program concludes. No advantage is conferred by investing style — every student faces the same simulated market. Build Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; the prize is a contest involving minors and must be reviewed by counsel for applicable contest/sweepstakes rules before launch.)"],
+      ["Tuition prize", "Each cohort, the enrolled student whose simulated portfolio has the highest value at the follow-up check-in (a month after the course) — i.e. at the close of the full program — is awarded a refund of their tuition. Standings are based solely on the in-program simulation; all figures are simulated and no real investing occurs. One award per cohort; in the event of a tie or a data discrepancy, Build Young determines the winner in good faith, and its decision is final. The award is the tuition amount paid for that cohort and is issued after the program concludes. No advantage is conferred by investing style — every student faces the same simulated market. Build Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; the prize is a contest involving minors and must be reviewed by counsel for applicable contest/sweepstakes rules before launch.)"],
       ["Conduct", "We ask students and families to be respectful in live sessions. We may remove anyone whose conduct disrupts the class, consistent with the refund policy above."],
       ["Changes & contact", `We may update these terms and will post the new date above. Questions: ${CONFIG.contactEmail}.`],
     ],
