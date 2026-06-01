@@ -3,7 +3,7 @@ import {
   TrendingUp, TrendingDown, Home, Car, Wallet, PiggyBank, LineChart as LineIcon,
   Shield, Coins, Building2, GraduationCap, ArrowRight, Check, Lock, Newspaper,
   CircleDollarSign, Sparkles, AlertTriangle, ShoppingBag, Landmark, Video, Mail, Briefcase,
-  Hourglass, Anchor, MessageCircle, Linkedin, BookOpen,
+  Anchor, Linkedin, BookOpen,
 } from "lucide-react";
 // Client-safe market-media bits live in a dependency-free module (no React/lucide) so the
 // serverless cron + the server-only schedule module can share the SAME builders. The FUTURE
@@ -753,13 +753,13 @@ function Landing({ onEnroll, onCall, onLegal }) {
             <b className="disp">Raising builders, not consumers.</b> The skill that matters most in an AI world isn't on any test: building something people value. We teach it by letting kids live it — they build, they earn, then they learn to grow and protect what they've made — because their future rests on what they can build, not just what they were credentialed to do.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
-            It's not only about the money — it's who a kid becomes in the doing. A kid who builds something real, and earns from it, practices initiative and grit; one who lives with a choice — a splurge that set back a goal, an emergency that tested their cushion — builds responsibility and resilience. And because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear.
+            It's not only about the money — it's who a kid becomes in the doing. Making something real, putting it in front of people, living with the wins and the flops — that shapes a person in ways no lecture can. And because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who has actually earned and managed it can talk about it plainly — needs, trade-offs, even mistakes — without shame. They ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, marginTop: 24 }}>
             {[
-              { t: "Patience & discipline", d: "Saving and waiting for a goal trains self-control that outlasts any single purchase.", icon: Hourglass, c: C.green },
-              { t: "Responsibility & resilience", d: "Owning real decisions — and recovering from the ones that don't work out — builds grit.", icon: Anchor, c: C.pink },
-              { t: "Candor & confidence", d: "Kids who understand money speak about it honestly and openly, instead of avoiding it.", icon: MessageCircle, c: C.turq },
+              { t: "Initiative", d: "Shipping something real — not waiting to be told what to do — is a muscle most kids never get to train.", icon: Sparkles, c: C.green },
+              { t: "Resilience", d: "A build that flops, a price no one pays — recovering and trying again is where the grit comes from.", icon: Anchor, c: C.pink },
+              { t: "Ownership", d: "You made it, so you own the upside. That changes how a kid sees money — and themselves.", icon: Briefcase, c: C.turq },
             ].map((x, i) => (
               <Card key={i} style={{ padding: 18, background: C.card }}>
                 <div style={{ width: 40, height: 40, borderRadius: 4, background: x.c + "1a", display: "grid", placeItems: "center", marginBottom: 12 }}><x.icon size={20} color={x.c} /></div>
