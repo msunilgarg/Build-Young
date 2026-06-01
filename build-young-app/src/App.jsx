@@ -607,7 +607,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
     <div style={{ position: "relative", zIndex: 2 }}>
       {/* nav */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "22px 6vw", maxWidth: 1200, margin: "0 auto" }}>
-        <div className="disp" style={{ fontWeight: 900, fontSize: 22, letterSpacing: "-.02em" }}>
+        <div className="disp" {...act(() => { try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); } })} aria-label="Build Young — back to top" style={{ fontWeight: 900, fontSize: 22, letterSpacing: "-.02em", cursor: "pointer" }}>
           <Mark size={24} /> Build <span className="grad">Young</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
@@ -733,7 +733,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
             <b className="disp">Raising builders, not consumers.</b> How money works — the thing that matters most in real life — isn't on any test. We teach it by letting our kids live it, so in a world changing faster than any classroom can keep up, their future rests on what they can build, not just what they were credentialed to do.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
-            The real way to get ahead is to <b>build something other people will pay for</b> — to solve a problem and create value, the one skill no degree guarantees and no AI takes away from the person who can do it. That's the heart of this: a kid who has actually made something people wanted, and earned from it, carries that for life. Being money-savvy is what lets them <b>keep and grow</b> what they build — putting it to work so it compounds instead of slipping away. And learned this young, it shapes who they become. A kid who builds something real practices initiative and grit; one who lives with a choice — a splurge that set back a goal, an emergency that tested their cushion — builds responsibility and resilience. Because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear. The point was never a credential — it's a young person who can build, and knows what to do with what they earn.
+            The real way to get ahead is to <b>build something other people will pay for</b> — to solve a problem and create value, the one skill no degree guarantees and no AI takes away from the person who can do it. That's the heart of this: a kid who has actually made something people wanted, and earned from it, carries that for life. Being money-savvy is what lets them <b>keep and grow</b> what they build — putting it to work so it compounds instead of slipping away. And learned this young, it shapes who they become. A kid who builds something real practices initiative and grit; one who lives with a choice — a splurge that set back a goal, an emergency that tested their cushion — builds responsibility and resilience. Because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear. The point was never a credential — it's a young person who can build, knows how to grow and protect what they make, and knows what to do with what they earn.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, marginTop: 24 }}>
             {[
@@ -755,7 +755,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
               <CompoundGraphic />
             </Card>
             <p style={{ color: C.ink2, fontSize: 16.5, lineHeight: 1.6 }}>
-              Financial literacy is the foundation, not the finish line. Taught early, it doesn't just make kids better with money — it makes them steadier, more honest, and more in command of their own lives, and gives them the footing to build. In a world being reshaped by AI, that's the most durable lesson of all: <b style={{ color: C.ink }}>save what you earn — and learn to build what earns.</b>
+              Financial literacy is the foundation, not the finish line. Taught early, it doesn't just make kids better with money — it makes them steadier, more honest, and more in command of their own lives, and gives them the footing to build. In a world being reshaped by AI, that's the most durable lesson of all: <b style={{ color: C.ink }}>build what earns — then grow and protect it.</b>
             </p>
           </div>
 
