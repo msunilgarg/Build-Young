@@ -23,9 +23,12 @@
 import {
   newState, advance, netWorth, holdingsTotal,
   RISK_PRESETS, ASSETS, BATCHES,
-  marketEventFor, mediaDrip,
 } from "../src/App.jsx";
 import { WEEK_TITLES } from "../src/marketMedia.js";
+// The market schedule + schedule-resolving mediaDrip are server-only now (so the future
+// schedule never ships in the client bundle); the harness runs in node, so it imports them
+// directly from the server module — same content the app fetches via /api/market-event.
+import { marketEventFor, mediaDrip } from "../api/_lib/marketSchedule.js";
 
 const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
 const round2 = (n) => Math.round(n * 100) / 100;
