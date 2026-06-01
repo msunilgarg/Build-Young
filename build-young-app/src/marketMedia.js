@@ -43,12 +43,12 @@ export const WEEK_TITLES = [
   "Big Purchases: The Framework",
   "Big Purchases: Making the Call",
   "Budgeting: Surprises & Temptations",
-  "Credit & Credit Scores",
-  "Portfolio Review: Same Start, Different Results",
-  "Active Investing",
+  "Build: Find a Problem Worth Solving",
+  "Build: Shape the Idea",
+  "Build: Make It (with AI)",
   "Build Something: Earning in an AI World",
-  "Beyond Stocks: Growing & Protecting Wealth",
-  "Capstone: Net Worth & Plan",
+  "Build: First Customers & Reinvest",
+  "Capstone: What You Built",
 ];
 
 // The from-address used on the drip emails. Kept as a constant here so the content stays

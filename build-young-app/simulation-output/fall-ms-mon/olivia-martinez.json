@@ -267,7 +267,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Credit & Credit Scores",
+      "period": "Week 7: Build: Find a Problem Worth Solving",
       "phase": "course",
       "marketEvent": {
         "headline": "Soft landing hopes",
@@ -281,7 +281,7 @@
         }
       },
       "decisionsMade": [
-        "opened a first credit card"
+        "attended class; no portfolio changes this week"
       ],
       "netWorth": 34732.29,
       "cash": 2040,
@@ -302,14 +302,14 @@
         "equity": 5930.15
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 8: Portfolio Review: Same Start, Different Results",
+      "period": "Week 8: Build: Shape the Idea",
       "phase": "course",
       "marketEvent": {
         "headline": "Market correction",
@@ -344,14 +344,14 @@
         "equity": 5920.1
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 9: Active Investing",
+      "period": "Week 9: Build: Make It (with AI)",
       "phase": "course",
       "marketEvent": {
         "headline": "Tech-led rally",
@@ -386,7 +386,7 @@
         "equity": 5916.5
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -428,14 +428,14 @@
         "equity": 5919.25
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": true
     },
     {
-      "period": "Week 11: Beyond Stocks: Growing & Protecting Wealth",
+      "period": "Week 11: Build: First Customers & Reinvest",
       "phase": "course",
       "marketEvent": {
         "headline": "Geopolitical jitters",
@@ -449,12 +449,10 @@
         }
       },
       "decisionsMade": [
-        "wanted $5,000 in bullion but couldn't afford it yet — saving toward it",
-        "wanted $5,000 in a REIT but couldn't afford it yet — saving toward it",
-        "bought an insurance policy (−$1,500)"
+        "attended class; no portfolio changes this week"
       ],
-      "netWorth": 56141.59,
-      "cash": 2911,
+      "netWorth": 57641.59,
+      "cash": 4411,
       "savings": 22533.05,
       "retirement": 11468.05,
       "holdings": {
@@ -472,14 +470,14 @@
         "equity": 5928.26
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
-      "period": "Week 12: Capstone: Net Worth & Plan",
+      "period": "Week 12: Capstone: What You Built",
       "phase": "course",
       "marketEvent": {
         "headline": "Year-end melt-up",
@@ -495,8 +493,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 64996.83,
-      "cash": 5921,
+      "netWorth": 66496.83,
+      "cash": 7421,
       "savings": 25586.38,
       "retirement": 12873.26,
       "holdings": {
@@ -514,10 +512,10 @@
         "equity": 5943.44
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -535,17 +533,17 @@
         }
       },
       "decisionsMade": [
-        "bought $5,000 in bullion (gold inflation hedge)"
+        "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 72489.52,
-      "cash": 2630,
+      "netWorth": 74089.52,
+      "cash": 9130,
       "savings": 28727.02,
       "retirement": 14268.65,
       "holdings": {
         "stocks": 8796.48,
         "bonds": 4047.35,
         "reits": 1896.5,
-        "bullion": 6158.84
+        "bullion": 1258.84
       },
       "privateEquity": 0,
       "creditScore": 764,
@@ -556,10 +554,10 @@
         "equity": 5964.68
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -579,15 +577,15 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 80610.69,
-      "cash": 6311,
+      "netWorth": 82039.19,
+      "cash": 12811,
       "savings": 31999.92,
       "retirement": 14749.52,
       "holdings": {
         "stocks": 8951.5,
         "bonds": 4201.6,
         "reits": 1951.35,
-        "bullion": 6453.89
+        "bullion": 1382.39
       },
       "privateEquity": 0,
       "creditScore": 772,
@@ -598,10 +596,10 @@
         "equity": 5991.91
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -619,17 +617,17 @@
         }
       },
       "decisionsMade": [
-        "bought $5,000 in bullion (gold inflation hedge)"
+        "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 88452,
-      "cash": 2842,
+      "netWorth": 89981.21,
+      "cash": 14342,
       "savings": 35217.52,
       "retirement": 16379.5,
       "holdings": {
         "stocks": 10000.87,
         "bonds": 4463.81,
         "reits": 2107.88,
-        "bullion": 11415.38
+        "bullion": 1444.6
       },
       "privateEquity": 0,
       "creditScore": 780,
@@ -640,10 +638,10 @@
         "equity": 6025.03
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -663,15 +661,15 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 96163.25,
-      "cash": 4946,
+      "netWorth": 97592.76,
+      "cash": 16446,
       "savings": 38473.73,
       "retirement": 17553.29,
       "holdings": {
         "stocks": 10634.16,
         "bonds": 4750.85,
         "reits": 2134.15,
-        "bullion": 11607.1
+        "bullion": 1536.61
       },
       "privateEquity": 0,
       "creditScore": 788,
@@ -682,10 +680,10 @@
         "equity": 6063.96
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -705,15 +703,15 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 105836.03,
-      "cash": 7899,
+      "netWorth": 107114.48,
+      "cash": 19399,
       "savings": 41769.02,
       "retirement": 19184.11,
       "holdings": {
         "stocks": 11608.65,
         "bonds": 5090.67,
         "reits": 2316.83,
-        "bullion": 11859.16
+        "bullion": 1637.61
       },
       "privateEquity": 0,
       "creditScore": 796,
@@ -724,10 +722,10 @@
         "equity": 6108.6
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -745,17 +743,17 @@
         }
       },
       "decisionsMade": [
-        "bought $5,000 in bullion (gold inflation hedge)"
+        "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 115300.78,
-      "cash": 6796,
+      "netWorth": 116122.58,
+      "cash": 23296,
       "savings": 45103.85,
       "retirement": 20022.63,
       "holdings": {
         "stocks": 11893.92,
         "bonds": 5437.28,
         "reits": 2444.19,
-        "bullion": 17444.04
+        "bullion": 1765.84
       },
       "privateEquity": 0,
       "creditScore": 804,
@@ -766,10 +764,10 @@
         "equity": 6158.87
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     }
   ],
@@ -1070,13 +1068,13 @@
     }
   ],
   "final": {
-    "finalNetWorth": 115300.78,
+    "finalNetWorth": 116122.58,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 6796,
+      "cash": 23296,
       "savings": 45103.85,
       "retirement": 20022.63,
-      "brokerageHoldings": 37219.43,
+      "brokerageHoldings": 21541.23,
       "privateEquity": 0,
       "homeEquity": 0,
       "carEquity": 6158.87,
@@ -1086,8 +1084,8 @@
     "boughtHome": false,
     "boughtCar": true,
     "carriedCardDebt": false,
-    "insured": true,
+    "insured": false,
     "hustled": true,
-    "narrative": "Olivia ran a balanced strategy, rented (no home), bought a car, used a credit card responsibly, ran a side hustle for extra income, stayed insured — finishing with a simulated net worth of $115,301 and a credit score of 804. All figures simulated."
+    "narrative": "Olivia ran a balanced strategy, rented (no home), bought a car, never opened a credit card, ran a side hustle for extra income — finishing with a simulated net worth of $116,123 and a credit score of 804. All figures simulated."
   }
 }

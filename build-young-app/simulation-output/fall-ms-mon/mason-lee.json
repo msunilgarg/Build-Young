@@ -267,7 +267,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Credit & Credit Scores",
+      "period": "Week 7: Build: Find a Problem Worth Solving",
       "phase": "course",
       "marketEvent": {
         "headline": "Soft landing hopes",
@@ -309,7 +309,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Portfolio Review: Same Start, Different Results",
+      "period": "Week 8: Build: Shape the Idea",
       "phase": "course",
       "marketEvent": {
         "headline": "Market correction",
@@ -351,7 +351,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Active Investing",
+      "period": "Week 9: Build: Make It (with AI)",
       "phase": "course",
       "marketEvent": {
         "headline": "Tech-led rally",
@@ -435,7 +435,7 @@
       "hustleActive": true
     },
     {
-      "period": "Week 11: Beyond Stocks: Growing & Protecting Wealth",
+      "period": "Week 11: Build: First Customers & Reinvest",
       "phase": "course",
       "marketEvent": {
         "headline": "Geopolitical jitters",
@@ -449,10 +449,10 @@
         }
       },
       "decisionsMade": [
-        "bought an insurance policy (−$1,500)"
+        "attended class; no portfolio changes this week"
       ],
-      "netWorth": 54395.01,
-      "cash": 5894,
+      "netWorth": 55895.01,
+      "cash": 7394,
       "savings": 20966.77,
       "retirement": 11468.05,
       "holdings": {
@@ -473,11 +473,11 @@
         "open": true,
         "balance": 3163.3
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
-      "period": "Week 12: Capstone: Net Worth & Plan",
+      "period": "Week 12: Capstone: What You Built",
       "phase": "course",
       "marketEvent": {
         "headline": "Year-end melt-up",
@@ -493,8 +493,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 61826.05,
-      "cash": 8026,
+      "netWorth": 63326.05,
+      "cash": 9526,
       "savings": 23600.44,
       "retirement": 12873.26,
       "holdings": {
@@ -515,7 +515,7 @@
         "open": true,
         "balance": 3289.83
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -535,8 +535,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 70487.52,
-      "cash": 11364,
+      "netWorth": 71987.52,
+      "cash": 12864,
       "savings": 26312.44,
       "retirement": 14268.65,
       "holdings": {
@@ -557,7 +557,7 @@
         "open": true,
         "balance": 3421.42
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -577,8 +577,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 77899.12,
-      "cash": 15086,
+      "netWorth": 79399.12,
+      "cash": 16586,
       "savings": 29143.13,
       "retirement": 14749.52,
       "holdings": {
@@ -599,7 +599,7 @@
         "open": true,
         "balance": 3558.28
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -619,8 +619,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 87887.72,
-      "cash": 19245,
+      "netWorth": 89387.72,
+      "cash": 20745,
       "savings": 31921.64,
       "retirement": 16379.5,
       "holdings": {
@@ -641,7 +641,7 @@
         "open": true,
         "balance": 3700.61
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -661,8 +661,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 95396.9,
-      "cash": 21839,
+      "netWorth": 96896.9,
+      "cash": 23339,
       "savings": 34733.5,
       "retirement": 17553.29,
       "holdings": {
@@ -683,7 +683,7 @@
         "open": true,
         "balance": 3848.64
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -703,8 +703,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 105300.99,
-      "cash": 25778,
+      "netWorth": 106800.99,
+      "cash": 27278,
       "savings": 37579.11,
       "retirement": 19184.11,
       "holdings": {
@@ -725,7 +725,7 @@
         "open": true,
         "balance": 4002.58
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     },
     {
@@ -745,8 +745,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 112171.91,
-      "cash": 28153,
+      "netWorth": 113671.91,
+      "cash": 29653,
       "savings": 40458.86,
       "retirement": 20022.63,
       "holdings": {
@@ -767,7 +767,7 @@
         "open": true,
         "balance": 4162.68
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": true
     }
   ],
@@ -1068,10 +1068,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 112171.91,
+    "finalNetWorth": 113671.91,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 28153,
+      "cash": 29653,
       "savings": 40458.86,
       "retirement": 20022.63,
       "brokerageHoldings": 21541.23,
@@ -1084,8 +1084,8 @@
     "boughtHome": false,
     "boughtCar": true,
     "carriedCardDebt": true,
-    "insured": true,
+    "insured": false,
     "hustled": true,
-    "narrative": "Mason ran a balanced strategy, rented (no home), bought a car, finished carrying $4,163 in card debt, ran a side hustle for extra income, stayed insured — finishing with a simulated net worth of $112,172 and a credit score of 804. All figures simulated."
+    "narrative": "Mason ran a balanced strategy, rented (no home), bought a car, finished carrying $4,163 in card debt, ran a side hustle for extra income — finishing with a simulated net worth of $113,672 and a credit score of 804. All figures simulated."
   }
 }

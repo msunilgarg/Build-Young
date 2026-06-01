@@ -169,12 +169,22 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   nonprofits have libraries of material, but a video doesn't make a teen show up; (2) **the
   paid live classes are investing-only** — they teach stock-picking (the flashy 10%), not the
   part that shapes a life; (3) **Build Young is the answer**: live + small-group + a standing
-  weekly time (turns "available" into "done"), the **whole** financial picture (paycheck, taxes,
-  budget, credit, big purchase, portfolio — not investing trivia), and **one continuous
-  simulation** carried across 12 weeks + 6 monthly check-ins where decisions compound and
-  mistakes are safe. Closes on "money is a skill you practice, not a subject you study" →
-  "raising builders, not consumers." It renders as separate sibling `<p>`s sharing the founder
-  paragraph's style (`color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12`).
+  weekly time (turns "available" into "done"), a financial foundation (paycheck, taxes, budget,
+  big purchases, investing) and then the part almost no class does — **actually building
+  something of your own, with AI as a tool, that people would pay for** — across **one continuous
+  simulation** (12 weeks + 6 monthly check-ins) where decisions compound and mistakes are safe.
+  Closes on "money is a skill you practice" → "raising builders, not consumers." Renders as
+  sibling `<p>`s sharing the founder paragraph's style.
+- **Curriculum structure (WEEKS):** still **12 weeks**, three acts. Act 1 (W1–3) Set Up Your
+  Money; Act 2 (W4–6) Major Decisions (purchases, budget); **Act 3 (W7–12) is the BUILD arc**
+  ("Build Something of Your Own"). The former finance weeks — Credit (W7), Portfolio Review
+  (W8), Active Investing (W9), Beyond Stocks (W11) — were **retired from the student flow** per
+  founder direction; their `WeekPanel` branches (`credit`/`review`/`rebalance`/`protect`) and the
+  harness finance ops remain in the code (unrouted) so any can be reinstated. Build weeks use
+  `action: "build"` with `comingSoon: true` and a placeholder panel — **real lesson content is
+  pending Sunil's outline.** `WEEK_TITLES` in `marketMedia.js` must stay in sync with `WEEKS`
+  titles (used for email subjects). Keeping it at 12 weeks means NO ripple to the sim engine,
+  market schedule, scheduler, pricing, or refund math.
 - Microsoft is framed as **ex-Microsoft** in short credential tags.
 - Keep the design calm and credible (no gimmicky floating widgets). Centered section headers.
 - **Typography:** display/headings/wordmark use **Space Grotesk** (`.disp` class); body uses

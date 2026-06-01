@@ -16,7 +16,7 @@
       "brokerageRate": 0.12,
       "finalRisk": "balanced"
     },
-    "prizeRank": 14
+    "prizeRank": 13
   },
   "funnel": [
     "discovered (Instagram)",
@@ -267,7 +267,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Credit & Credit Scores",
+      "period": "Week 7: Build: Find a Problem Worth Solving",
       "phase": "course",
       "marketEvent": {
         "headline": "Soft landing hopes",
@@ -281,7 +281,7 @@
         }
       },
       "decisionsMade": [
-        "opened a first credit card"
+        "attended class; no portfolio changes this week"
       ],
       "netWorth": 33131,
       "cash": 4440,
@@ -302,14 +302,14 @@
         "equity": 5930.15
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 8: Portfolio Review: Same Start, Different Results",
+      "period": "Week 8: Build: Shape the Idea",
       "phase": "course",
       "marketEvent": {
         "headline": "Market correction",
@@ -344,14 +344,14 @@
         "equity": 5920.1
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 9: Active Investing",
+      "period": "Week 9: Build: Make It (with AI)",
       "phase": "course",
       "marketEvent": {
         "headline": "Tech-led rally",
@@ -386,7 +386,7 @@
         "equity": 5916.5
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -428,14 +428,14 @@
         "equity": 5919.25
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 11: Beyond Stocks: Growing & Protecting Wealth",
+      "period": "Week 11: Build: First Customers & Reinvest",
       "phase": "course",
       "marketEvent": {
         "headline": "Geopolitical jitters",
@@ -449,10 +449,10 @@
         }
       },
       "decisionsMade": [
-        "bought an insurance policy (−$1,500)"
+        "attended class; no portfolio changes this week"
       ],
-      "netWorth": 52572.83,
-      "cash": 5100,
+      "netWorth": 54072.83,
+      "cash": 6600,
       "savings": 18352.38,
       "retirement": 11468.05,
       "holdings": {
@@ -470,14 +470,14 @@
         "equity": 5928.26
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 12: Capstone: Net Worth & Plan",
+      "period": "Week 12: Capstone: What You Built",
       "phase": "course",
       "marketEvent": {
         "headline": "Year-end melt-up",
@@ -493,8 +493,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 58466.9,
-      "cash": 5640,
+      "netWorth": 59966.9,
+      "cash": 7140,
       "savings": 20959.9,
       "retirement": 12873.26,
       "holdings": {
@@ -512,10 +512,10 @@
         "equity": 5943.44
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": false
     },
     {
@@ -535,8 +535,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 64392.1,
-      "cash": 6180,
+      "netWorth": 65892.1,
+      "cash": 7680,
       "savings": 23640.22,
       "retirement": 14268.65,
       "holdings": {
@@ -554,10 +554,10 @@
         "equity": 5964.68
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": false
     },
     {
@@ -577,8 +577,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 68764.71,
-      "cash": 6720,
+      "netWorth": 70264.71,
+      "cash": 8220,
       "savings": 26430.83,
       "retirement": 14749.52,
       "holdings": {
@@ -596,10 +596,10 @@
         "equity": 5991.91
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": false
     },
     {
@@ -619,8 +619,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 75191.66,
-      "cash": 7260,
+      "netWorth": 76691.66,
+      "cash": 8760,
       "savings": 29176.8,
       "retirement": 16379.5,
       "holdings": {
@@ -638,10 +638,10 @@
         "equity": 6025.03
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": false
     },
     {
@@ -661,8 +661,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 80754.64,
-      "cash": 7800,
+      "netWorth": 82254.64,
+      "cash": 9300,
       "savings": 31955.72,
       "retirement": 17553.29,
       "holdings": {
@@ -680,10 +680,10 @@
         "equity": 6063.96
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": false
     },
     {
@@ -703,8 +703,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 87327.15,
-      "cash": 8340,
+      "netWorth": 88827.15,
+      "cash": 9840,
       "savings": 34767.99,
       "retirement": 19184.11,
       "holdings": {
@@ -722,10 +722,10 @@
         "equity": 6108.6
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": false
     },
     {
@@ -745,8 +745,8 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 92494.98,
-      "cash": 8880,
+      "netWorth": 93994.98,
+      "cash": 10380,
       "savings": 37614,
       "retirement": 20022.63,
       "holdings": {
@@ -764,10 +764,10 @@
         "equity": 6158.87
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
-      "insured": true,
+      "insured": false,
       "hustleActive": false
     }
   ],
@@ -1068,10 +1068,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 92494.98,
+    "finalNetWorth": 93994.98,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 8880,
+      "cash": 10380,
       "savings": 37614,
       "retirement": 20022.63,
       "brokerageHoldings": 19819.47,
@@ -1084,8 +1084,8 @@
     "boughtHome": false,
     "boughtCar": true,
     "carriedCardDebt": false,
-    "insured": true,
+    "insured": false,
     "hustled": false,
-    "narrative": "Harper ran a balanced strategy, rented (no home), bought a car, used a credit card responsibly, stayed insured — finishing with a simulated net worth of $92,495 and a credit score of 804. All figures simulated."
+    "narrative": "Harper ran a balanced strategy, rented (no home), bought a car, never opened a credit card — finishing with a simulated net worth of $93,995 and a credit score of 804. All figures simulated."
   }
 }

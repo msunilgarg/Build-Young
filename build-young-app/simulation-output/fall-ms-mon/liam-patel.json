@@ -267,7 +267,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Credit & Credit Scores",
+      "period": "Week 7: Build: Find a Problem Worth Solving",
       "phase": "course",
       "marketEvent": {
         "headline": "Soft landing hopes",
@@ -281,7 +281,7 @@
         }
       },
       "decisionsMade": [
-        "opened a first credit card"
+        "attended class; no portfolio changes this week"
       ],
       "netWorth": 34820.08,
       "cash": 600,
@@ -302,14 +302,14 @@
         "equity": 5930.15
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 8: Portfolio Review: Same Start, Different Results",
+      "period": "Week 8: Build: Shape the Idea",
       "phase": "course",
       "marketEvent": {
         "headline": "Market correction",
@@ -344,14 +344,14 @@
         "equity": 5920.1
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 9: Active Investing",
+      "period": "Week 9: Build: Make It (with AI)",
       "phase": "course",
       "marketEvent": {
         "headline": "Tech-led rally",
@@ -386,7 +386,7 @@
         "equity": 5916.5
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -428,14 +428,14 @@
         "equity": 5919.25
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 11: Beyond Stocks: Growing & Protecting Wealth",
+      "period": "Week 11: Build: First Customers & Reinvest",
       "phase": "course",
       "marketEvent": {
         "headline": "Geopolitical jitters",
@@ -449,7 +449,7 @@
         }
       },
       "decisionsMade": [
-        "wanted insurance (−$1,500) but couldn't afford it yet — saving toward it"
+        "attended class; no portfolio changes this week"
       ],
       "netWorth": 55934.14,
       "cash": 200,
@@ -470,14 +470,14 @@
         "equity": 5928.26
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
       "hustleActive": false
     },
     {
-      "period": "Week 12: Capstone: Net Worth & Plan",
+      "period": "Week 12: Capstone: What You Built",
       "phase": "course",
       "marketEvent": {
         "headline": "Year-end melt-up",
@@ -512,7 +512,7 @@
         "equity": 5943.44
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -554,7 +554,7 @@
         "equity": 5964.68
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -596,7 +596,7 @@
         "equity": 5991.91
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -638,7 +638,7 @@
         "equity": 6025.03
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -680,7 +680,7 @@
         "equity": 6063.96
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -722,7 +722,7 @@
         "equity": 6108.6
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -764,7 +764,7 @@
         "equity": 6158.87
       },
       "creditCard": {
-        "open": true,
+        "open": false,
         "balance": 0
       },
       "insured": false,
@@ -1086,6 +1086,6 @@
     "carriedCardDebt": false,
     "insured": false,
     "hustled": false,
-    "narrative": "Liam ran a balanced strategy, rented (no home), bought a car, used a credit card responsibly — finishing with a simulated net worth of $96,803 and a credit score of 804. All figures simulated."
+    "narrative": "Liam ran a balanced strategy, rented (no home), bought a car, never opened a credit card — finishing with a simulated net worth of $96,803 and a credit score of 804. All figures simulated."
   }
 }

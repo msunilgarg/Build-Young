@@ -7,17 +7,17 @@
   "seats": 15,
   "studentCount": 15,
   "seed": 12345,
-  "averageNetWorth": 105263.76,
+  "averageNetWorth": 105807.67,
   "minNetWorth": 90272.03,
-  "maxNetWorth": 120749.9,
+  "maxNetWorth": 123004.68,
   "prizeWinner": {
     "name": "Ethan Kim",
-    "netWorth": 120749.9
+    "netWorth": 123004.68
   },
   "distributionByRiskStyle": {
     "aggressive": {
       "count": 5,
-      "totalNetWorth": 548485.51,
+      "totalNetWorth": 550577.85,
       "students": [
         "Ava Thompson",
         "Maya Robinson",
@@ -25,11 +25,11 @@
         "Charlotte Wilson",
         "James Anderson"
       ],
-      "avgNetWorth": 109697.1
+      "avgNetWorth": 110115.57
     },
     "balanced": {
       "count": 6,
-      "totalNetWorth": 620822.3400000001,
+      "totalNetWorth": 625388.7,
       "students": [
         "Liam Patel",
         "Noah Garcia",
@@ -38,18 +38,18 @@
         "Elijah Moore",
         "Harper Thomas"
       ],
-      "avgNetWorth": 103470.39
+      "avgNetWorth": 104231.45
     },
     "conservative": {
       "count": 4,
-      "totalNetWorth": 409648.54000000004,
+      "totalNetWorth": 411148.54000000004,
       "students": [
         "Sofia Nguyen",
         "Lucas Brown",
         "Isabella Davis",
         "Amelia Taylor"
       ],
-      "avgNetWorth": 102412.14
+      "avgNetWorth": 102787.14
     }
   },
   "notableOutcomes": {
@@ -97,28 +97,28 @@
       "rank": 1,
       "name": "Ethan Kim",
       "riskStyle": "aggressive",
-      "finalNetWorth": 120749.9,
+      "finalNetWorth": 123004.68,
       "creditScore": 804
     },
     {
       "rank": 2,
       "name": "Olivia Martinez",
       "riskStyle": "balanced",
-      "finalNetWorth": 115300.78,
+      "finalNetWorth": 116122.58,
       "creditScore": 804
     },
     {
       "rank": 3,
       "name": "Mason Lee",
       "riskStyle": "balanced",
-      "finalNetWorth": 112171.91,
+      "finalNetWorth": 113671.91,
       "creditScore": 804
     },
     {
       "rank": 4,
       "name": "Elijah Moore",
       "riskStyle": "balanced",
-      "finalNetWorth": 111047.8,
+      "finalNetWorth": 111792.36,
       "creditScore": 804
     },
     {
@@ -137,37 +137,37 @@
     },
     {
       "rank": 7,
-      "name": "Charlotte Wilson",
-      "riskStyle": "aggressive",
-      "finalNetWorth": 106994.77,
-      "creditScore": 804
-    },
-    {
-      "rank": 8,
-      "name": "Maya Robinson",
-      "riskStyle": "aggressive",
-      "finalNetWorth": 106923.63,
-      "creditScore": 804
-    },
-    {
-      "rank": 9,
       "name": "Ava Thompson",
       "riskStyle": "aggressive",
       "finalNetWorth": 106911.94,
       "creditScore": 804
     },
     {
-      "rank": 10,
+      "rank": 8,
+      "name": "Charlotte Wilson",
+      "riskStyle": "aggressive",
+      "finalNetWorth": 106911.94,
+      "creditScore": 804
+    },
+    {
+      "rank": 9,
       "name": "James Anderson",
       "riskStyle": "aggressive",
       "finalNetWorth": 106905.27,
       "creditScore": 804
     },
     {
+      "rank": 10,
+      "name": "Maya Robinson",
+      "riskStyle": "aggressive",
+      "finalNetWorth": 106844.02,
+      "creditScore": 804
+    },
+    {
       "rank": 11,
       "name": "Sofia Nguyen",
       "riskStyle": "conservative",
-      "finalNetWorth": 103211.97,
+      "finalNetWorth": 104711.97,
       "creditScore": 804
     },
     {
@@ -179,16 +179,16 @@
     },
     {
       "rank": 13,
-      "name": "Noah Garcia",
+      "name": "Harper Thomas",
       "riskStyle": "balanced",
-      "finalNetWorth": 93003.78,
+      "finalNetWorth": 93994.98,
       "creditScore": 804
     },
     {
       "rank": 14,
-      "name": "Harper Thomas",
+      "name": "Noah Garcia",
       "riskStyle": "balanced",
-      "finalNetWorth": 92494.98,
+      "finalNetWorth": 93003.78,
       "creditScore": 804
     },
     {
