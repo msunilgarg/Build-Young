@@ -43,8 +43,8 @@ jobs:
             --max-turns 50
           prompt: |
             You are a scheduled maintenance agent for the Built Young repository — a live money-skills
-            program for teenagers. The app lives in `built-young-app/`. FIRST read
-            `built-young-app/CLAUDE.md` and strictly follow its **statistics-integrity bar**: every
+            program for teenagers. The app lives in `build-young-app/`. FIRST read
+            `build-young-app/CLAUDE.md` and strictly follow its **statistics-integrity bar**: every
             external link must be a PRIMARY / official source, dated, and current.
 
             Open exactly ONE pull request with whatever needs changing. If, after verifying, nothing
@@ -52,17 +52,17 @@ jobs:
 
             Tasks (content & links ONLY):
             1. LINK & STAT INTEGRITY
-               - `built-young-app/src/marketMedia.js` → the `MEDIA` map: check every resource `url`
+               - `build-young-app/src/marketMedia.js` → the `MEDIA` map: check every resource `url`
                  loads and is still the best primary source; replace dead/redirected links with an
                  authoritative equivalent.
-               - `built-young-app/src/App.jsx` → the `WHY_STATS` array: confirm each link loads AND
+               - `build-young-app/src/App.jsx` → the `WHY_STATS` array: confirm each link loads AND
                  that the cited number + year still match the source. If a newer edition exists,
                  update the number AND the url together.
             2. WEEKLY EVENT EMAIL CONTENT
                - In `MEDIA`, verify each `analog` (the real-world episode the sim event echoes) is
                  accurate and not stale. Refine wording only for accuracy — do NOT change the voice.
             3. WEEKLY CLASS MATERIALS
-               - In `built-young-app/src/App.jsx` the `WEEKS` array has an optional
+               - In `build-young-app/src/App.jsx` the `WEEKS` array has an optional
                  `materials: [{ label, url }]`. For weeks that have none, add 1–3 verified
                  primary-source links (.gov / SEC Investor.gov / Federal Reserve / BLS / CFPB, or
                  Investopedia for definitions) appropriate to that lesson.
@@ -73,9 +73,9 @@ jobs:
             - Touch CONTENT/LINKS ONLY. Do NOT modify the simulation engine, the scheduler, the Stripe
               webhook, the store, or anything under `api/`. Do not change app behavior or styling.
             - After edits, both of these must pass — fix or revert until green:
-                npm --prefix built-young-app ci
-                npm --prefix built-young-app test
-                npm --prefix built-young-app run build
+                npm --prefix build-young-app ci
+                npm --prefix build-young-app test
+                npm --prefix build-young-app run build
             - Create a new branch `automation/content-check-$(date +%Y-%m-%d)`, commit, push, and open a
               PR against `main` with `gh pr create`. The PR body must list: what you checked, exactly
               what changed, and ANY links you could NOT verify (flag these clearly for a human).
