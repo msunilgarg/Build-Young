@@ -253,23 +253,13 @@ function weekOps(persona, week, phase) {
     ops.push({ key: persona.emergency === "credit" ? "emergencyOnCredit" : "emergencyFromSavings" });
     ops.push({ key: persona.spree === "treat" ? "spree" : "investInstead" });
   }
-  // credit card (Week 7 only)
-  if (courseWeek === 7 && persona.card !== "never") {
-    ops.push({ key: "openCard" });
-    // "carry" leaves the Week-6 emergency balance on the card; "payInFull" clears it.
-    if (persona.card === "payInFull") ops.push({ key: "payCardInFull" });
-  }
-  // active investing rebalance (Week 9 only)
-  if (courseWeek === 9 && persona.rebalance) ops.push({ key: "rebalance", arg: persona.rebalance });
-  // hustle (Week 10 only)
+  // NOTE: Act 3 (Weeks 7–12) is now the BUILD arc; the former finance weeks (credit card,
+  // active-investing rebalance, and the bullion/REIT/PE/insurance "protect" week) were
+  // retired from the student flow, so the harness no longer applies their mechanics. Only
+  // the Week-10 hustle/build remains. Persona finance flags are kept (unused) so any week
+  // can be reinstated if Sunil's outline brings a mechanic back.
+  // hustle / build (Week 10 only)
   if (courseWeek === 10 && persona.hustle) ops.push({ key: "hustle" });
-  // protect: bullion / REIT / PE / insurance — introduced Week 11, retried until affordable
-  if (courseWeek >= 11) {
-    if (persona.buyBullion) ops.push({ key: "buyBullion", once: true });
-    if (persona.buyReit) ops.push({ key: "buyReit", once: true });
-    if (persona.buyPE) ops.push({ key: "buyPE", once: true });
-    if (persona.insure) ops.push({ key: "insure", once: true });
-  }
   return ops;
 }
 

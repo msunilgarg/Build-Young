@@ -180,18 +180,18 @@ const WEEKS = [
   { act: 2, t: "Big Purchases: The Framework", s: "Buy vs. rent, APR, good vs. bad debt, total cost of ownership.", action: "framework" },
   { act: 2, t: "Big Purchases: Making the Call", s: "Choose and finance your home and car.", action: "buy" },
   { act: 2, t: "Budgeting: Surprises & Temptations", s: "Bills autopay — handle an emergency and a spree.", action: "budget" },
-  { act: 2, t: "Credit & Credit Scores", s: "Cards, interest, and how your score sets your rates.", action: "credit",
-    materials: [
-      { label: "CFPB — Credit reports and scores", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/" },
-      { label: "CFPB — Understand your credit score", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/understand-your-credit-score/" },
-    ] },
-  { act: 2, t: "Portfolio Review: Same Start, Different Results", s: "Tally net worth and trace what drove the spread.", action: "review" },
-  { act: 3, t: "Active Investing", s: "Review, diversify, rebalance.", action: "rebalance" },
+  // ─── Act 3 is now the BUILD arc (Weeks 7–12). Lesson content is pending Sunil's outline;
+  // these weeks show a "coming soon" panel for now. The former finance weeks (Credit,
+  // Portfolio Review, Active Investing, Beyond Stocks) were retired from the student flow —
+  // their panel code remains below (unrouted) so any piece can be reinstated later.
+  { act: 3, t: "Build: Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your build starts here.", action: "build", comingSoon: true },
+  { act: 3, t: "Build: Shape the Idea", s: "Turn the need into a concrete product or service you could make.", action: "build", comingSoon: true },
+  { act: 3, t: "Build: Make It (with AI)", s: "Use your skills and AI as a tool to build a first version.", action: "build", comingSoon: true },
   { act: 3, t: "Build Something: Earning in an AI World", s: "Create value others will pay for — turn a skill (and AI) into income you own.", action: "hustle" },
-  { act: 3, t: "Beyond Stocks: Growing & Protecting Wealth", s: "Bullion, real estate, insurance — and a safety net.", action: "protect" },
-  { act: 3, t: "Capstone: Net Worth & Plan", s: "Total it all up and tell your story.", action: "capstone" },
+  { act: 3, t: "Build: First Customers & Reinvest", s: "Price it, earn your first dollars, and put the profit to work.", action: "build", comingSoon: true },
+  { act: 3, t: "Capstone: What You Built", s: "Total it all up and tell the story of what you built.", action: "capstone" },
 ];
-const ACTS = { 1: "Set Up Your Money", 2: "Major Decisions & Independence", 3: "Grow & Protect" };
+const ACTS = { 1: "Set Up Your Money", 2: "Major Decisions & Independence", 3: "Build Something of Your Own" };
 
 // ============================ SIM ECONOMY ============================
 // One place for every dollar figure, re-tuned to a realistic young-adult budget around a
@@ -653,7 +653,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks that lay the financial foundation — a first paycheck, smart money habits — then build on it, until your student is managing a real portfolio and building income of their own.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks: first the financial foundation — a paycheck, smart habits, investing through real market swings — then a hands-on build arc where your student creates something of their own that other people would pay for.</p>
         </div>
         {[1, 2, 3].map((act) => (
           <div key={act} style={{ marginTop: 26 }}>
@@ -745,7 +745,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
                 Here's what I noticed when I went looking for something like this for my own kids. There's plenty of free material out there — banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. And the paid classes that are live? They mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                So I built the thing I couldn't find. Not more content to ignore, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” Not investing trivia, but the whole picture: a paycheck, taxes, a budget that breaks and gets fixed, credit, a first big purchase, a portfolio — the full arc of a financial life. And not a one-off lesson, but one continuous simulation your kid carries for twelve weeks and six monthly check-ins, where the decisions compound and the mistakes are safe because the money isn't real yet.
+                So I built the thing I couldn't find. Not more content to ignore, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It starts with the financial foundation — a paycheck, taxes, a budget that breaks and gets fixed, big purchases, investing — and then goes where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that other people would pay for. And not a one-off lesson, but one continuous simulation your kid carries for twelve weeks and six monthly check-ins, where the decisions compound and the mistakes are safe because the money isn't real yet.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 That's the whole idea: money isn't a subject you study, it's a skill you practice. We're raising builders, not consumers — kids who reach adulthood having already lived it, in a world where what you can build matters more than what you were credentialed to do.
@@ -1687,6 +1687,18 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
           {!s.hustle
             ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your build (−{fmt(HUSTLE_START)} to start)</button>
             : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your build is live — people are paying for the value it creates, so it earns every time you advance. That's building economic value: solve a real problem, own the upside.</div>}
+        </Wrap>
+      )}
+
+      {action === "build" && (
+        <Wrap title={wk.t} blurb={wk.s}>
+          <div style={{ background: C.paper, borderRadius: 4, padding: 18, textAlign: "center" }}>
+            <Sparkles size={22} color={C.gold} style={{ marginBottom: 8 }} />
+            <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Live with Sunil — interactive lesson coming soon</div>
+            <div style={{ fontSize: 13.5, color: C.muted, marginTop: 6, lineHeight: 1.5, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
+              This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that other people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built. Advancing still collects your paycheck and applies the week's market move.
+            </div>
+          </div>
         </Wrap>
       )}
 

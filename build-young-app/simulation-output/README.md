@@ -87,14 +87,14 @@ trade-off worth showing students.
 ### fall-ms-mon — Middle School (Mondays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $599
-- Average final net worth: **$105,264** (min $90,272, max $120,750)
-- Tuition-prize winner (highest portfolio value): **Ethan Kim** at $120,750
-- By risk style: aggressive 5 (avg $109,697), balanced 6 (avg $103,470), conservative 4 (avg $102,412)
+- Average final net worth: **$105,808** (min $90,272, max $123,005)
+- Tuition-prize winner (highest portfolio value): **Ethan Kim** at $123,005
+- By risk style: aggressive 5 (avg $110,116), balanced 6 (avg $104,231), conservative 4 (avg $102,787)
 
 ### fall-hs-wed — High School (Wednesdays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $799
-- Average final net worth: **$105,831** (min $90,272, max $122,963)
-- Tuition-prize winner (highest portfolio value): **Ethan Kim** at $122,963
-- By risk style: aggressive 5 (avg $110,140), balanced 6 (avg $104,520), conservative 4 (avg $102,412)
+- Average final net worth: **$106,344** (min $90,272, max $125,218)
+- Tuition-prize winner (highest portfolio value): **Ethan Kim** at $125,218
+- By risk style: aggressive 5 (avg $110,558), balanced 6 (avg $105,204), conservative 4 (avg $102,787)
 
