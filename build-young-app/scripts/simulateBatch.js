@@ -1,6 +1,6 @@
 // ============================ BATCH SIMULATION HARNESS ============================
 //
-// OFFLINE data-generation harness for Built Young. It drives the SAME simulation engine
+// OFFLINE data-generation harness for Build Young. It drives the SAME simulation engine
 // that powers the student dashboard (imported READ-ONLY from src/App.jsx + marketMedia.js)
 // through the FULL student lifecycle — 12 course weeks + 6 monthly check-ins — for a whole
 // cohort of 15 personas, then persists rich per-student + per-cohort data for founder review.

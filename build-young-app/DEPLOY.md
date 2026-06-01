@@ -1,4 +1,4 @@
-# Deploying Built Young
+# Deploying Build Young
 
 The app is a Vite single-page app **plus** serverless functions (`api/`) and a daily cron.
 The whole thing runs on **Vercel**. Below is the order to bring it up — you can stop after
@@ -20,7 +20,7 @@ What works immediately, with no further config:
   simulation** (paycheck → invest → markets → home/car → net worth), plus the **Course hub**.
 - Email is **off** by default, so nothing tries to send.
 
-> **Hobby tier** is free and fine for testing. Built Young takes payments, so move to **Vercel
+> **Hobby tier** is free and fine for testing. Build Young takes payments, so move to **Vercel
 > Pro ($20/mo)** before real, commercial use.
 
 ---

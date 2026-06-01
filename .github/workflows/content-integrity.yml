@@ -42,7 +42,7 @@ jobs:
             --allowedTools "Read,Edit,Glob,Grep,WebFetch,WebSearch,Bash(npm:*),Bash(git:*),Bash(gh:*)"
             --max-turns 50
           prompt: |
-            You are a scheduled maintenance agent for the Built Young repository — a live money-skills
+            You are a scheduled maintenance agent for the Build Young repository — a live money-skills
             program for teenagers. The app lives in `build-young-app/`. FIRST read
             `build-young-app/CLAUDE.md` and strictly follow its **statistics-integrity bar**: every
             external link must be a PRIMARY / official source, dated, and current.
