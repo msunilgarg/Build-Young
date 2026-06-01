@@ -642,15 +642,15 @@ function Landing({ onEnroll, onCall, onLegal }) {
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 6vw" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 26px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works</h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Getting money-savvy is the foundation — then your student uses it to build. Every week they earn it, invest it, make the big calls, build something of their own, and protect it.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Getting money-savvy is the foundation — then your student uses it to build. They earn it, invest it, make the big calls, watch it compound, and build something people will pay for.</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
             { icon: Wallet, t: "Attendance is your paycheck", d: `Show up, earn ${fmt(PAY)}. Set your W-4 and 401(k) once — it runs the whole course.`, c: C.emerald },
             { icon: LineIcon, t: "Markets move like the real world", d: "Live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
             { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car. Live with the payments.", c: C.green },
-            { icon: Sparkles, t: "Build something of your own", d: "Turn a skill (and AI) into something people will pay for — income you own, earning on top of your paycheck.", c: C.gold },
-            { icon: Shield, t: "Grow & protect it", d: "Diversify into bullion, real estate, and private equity, insure against loss, and total your net worth.", c: C.pink },
+            { icon: Sparkles, t: "Build something people need", d: "Use a skill (and AI) to solve a real problem for other people. Create value they'll pay for — the truest way to get ahead.", c: C.gold },
+            { icon: Shield, t: "Watch it compound", d: "Your savings, 401(k), and investments grow through every market move — and you graduate knowing your own net worth.", c: C.pink },
           ].map((x, i) => (
             <Card key={i} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: x.c }} />
