@@ -155,12 +155,13 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
 ## House style (from the build so far)
 - **Tagline / mission:** "**Raising builders, not consumers.**" This is the canonical line —
   it appears as the hero headline, in the footer, and in the SEO/JSON-LD. The full mission
-  paragraph lives in the "More than money" section: *"Raising builders, not consumers. How
-  money works — the thing that matters most in real life — isn't on any test. We teach it by
-  letting our kids live it, so in a world changing faster than any classroom can keep up,
-  their future rests on what they can build, not just what they were credentialed to do."*
-  If you reword it, keep all instances in sync. Tone is confident and forward, never fearful;
-  the AI/credential shift is implied, never stated outright.
+  paragraph lives in the "More than money" section: *"Raising builders, not consumers. The
+  skill that matters most in an AI world isn't on any test: building something people value.
+  We teach it by letting kids live it — they build, they earn, then they learn to grow and
+  protect what they've made — because their future rests on what they can build, not just what
+  they were credentialed to do."* It is BUILD-LED (building first; money-savvy is how you grow
+  and protect what you build, not the headline). If you reword it, keep all instances in sync.
+  Tone is confident and forward, never fearful; the AI/credential shift is stated plainly now.
 - Tone is first-person from Sunil where the parent is deciding ("…taught by me", "ask me
   about…"). CTAs say "Talk to Sunil", not "the founder". Keep it warm and grounded — avoid
   overclaiming/boastful phrasing (e.g. don't promise to "answer anything").
