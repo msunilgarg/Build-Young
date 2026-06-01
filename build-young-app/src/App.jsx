@@ -179,7 +179,20 @@ const WEEKS = [
   { act: 1, t: "Macro Forces on Investments", s: "How inflation, rates and recessions move each asset class.", action: "macro" },
   { act: 2, t: "Big Purchases: The Framework", s: "Buy vs. rent, APR, good vs. bad debt, total cost of ownership.", action: "framework" },
   { act: 2, t: "Big Purchases: Making the Call", s: "Choose and finance your home and car.", action: "buy" },
-  { act: 2, t: "Budgeting: Surprises & Temptations", s: "Bills autopay — handle an emergency and a spree.", action: "budget" },
+  { act: 2, t: "Budgeting: Surprises & Temptations", s: "Bills autopay — handle an emergency and a spree.", action: "budget",
+    // PLACEHOLDER PARK: finance topics retired from their own weeks (Credit, Portfolio Review,
+    // Active Investing, Beyond Stocks) are parked here so we don't lose them. Final placement is
+    // TBD — founder will decide how to reorganize (fold in, or restore as weeks). Resource links
+    // are the verified primary sources from when these were standalone weeks.
+    parked: [
+      { t: "Credit & Credit Scores", d: "Cards, interest, and how your score sets your rates.", materials: [
+        { label: "CFPB — Credit reports and scores", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/" },
+        { label: "CFPB — Understand your credit score", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/understand-your-credit-score/" },
+      ] },
+      { t: "Portfolio Review: Same Start, Different Results", d: "Tally net worth and trace what drove the spread.", materials: [] },
+      { t: "Active Investing", d: "Review, diversify, rebalance.", materials: [] },
+      { t: "Beyond Stocks: Growing & Protecting Wealth", d: "Bullion, real estate, insurance — and a safety net.", materials: [] },
+    ] },
   // ─── Act 3 is now the BUILD arc (Weeks 7–12). Lesson content is pending Sunil's outline;
   // these weeks show a "coming soon" panel for now. The former finance weeks (Credit,
   // Portfolio Review, Active Investing, Beyond Stocks) were retired from the student flow —
@@ -1429,6 +1442,7 @@ function CoursePanel({ s, batch }) {
             const statusColor = status === "This week" ? C.emerald : status === "Completed" ? C.turq : C.muted;
             const resources = unlocked ? (weekRes[week] || []) : [];
             const materials = unlocked ? (w.materials || []) : [];
+            const parked = unlocked ? (w.parked || []) : [];
             const isOpen = open.has(week);
             return (
               <Card key={week} style={{ padding: 0, marginBottom: 10, overflow: "hidden", opacity: unlocked ? 1 : 0.65 }}>
@@ -1461,6 +1475,25 @@ function CoursePanel({ s, batch }) {
                           {resources.map((r, j) => <ResLink key={j} r={r} icon={Newspaper} />)}
                         </div>
                       </>
+                    )}
+                    {parked.length > 0 && (
+                      <div style={{ marginTop: 16, padding: 14, background: C.paper, borderRadius: 4, border: `1px dashed ${C.line}` }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 4 }}>More money topics — coming soon</div>
+                        <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>We also cover these in the program. Where they land in the schedule is being finalized — here's a preview and some resources to get a head start.</div>
+                        <div style={{ display: "grid", gap: 10 }}>
+                          {parked.map((pt, j) => (
+                            <div key={j}>
+                              <div className="disp" style={{ fontWeight: 700, fontSize: 14 }}>{pt.t}</div>
+                              <div style={{ fontSize: 12.5, color: C.muted, margin: "2px 0 6px", lineHeight: 1.4 }}>{pt.d}</div>
+                              {pt.materials && pt.materials.length > 0 && (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                                  {pt.materials.map((r, k) => <ResLink key={k} r={r} icon={BookOpen} />)}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
