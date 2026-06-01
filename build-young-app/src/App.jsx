@@ -636,6 +636,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
             { icon: Wallet, t: "Attendance is your paycheck", d: `Show up, earn ${fmt(PAY)}. Set your W-4 and 401(k) once — it runs the whole course.`, c: C.emerald },
             { icon: LineIcon, t: "Markets move like the real world", d: "Live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
             { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car. Live with the payments.", c: C.green },
+            { icon: Sparkles, t: "Build something of your own", d: "Turn a skill (and AI) into something people will pay for — income you own, earning on top of your paycheck.", c: C.gold },
             { icon: Shield, t: "Grow & protect it", d: "Diversify into bullion, real estate, and private equity, insure against loss, and total your net worth.", c: C.pink },
           ].map((x, i) => (
             <Card key={i} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden" }}>
