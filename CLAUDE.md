@@ -1,11 +1,11 @@
-# Built Young — project guide for Claude Code
+# Build Young — project guide for Claude Code
 
 This file orients you (Claude Code) to the project so you can build new functionality
 confidently. Read it fully before making changes.
 
 ## What this is
 
-**Built Young** is a live, online money-skills program for teens (ages 13–18), plus a
+**Build Young** is a live, online money-skills program for teens (ages 13–18), plus a
 single-page React marketing site + enrollment flow + an interactive “money simulation”
 dashboard students use after enrolling. Tagline: *“Raising builders, not consumers.”*
 Founder: **Sunil Garg** (ex-Microsoft, 20 years in product). LinkedIn:
