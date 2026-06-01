@@ -54,7 +54,7 @@ export const WEEK_TITLES = [
 // The from-address used on the drip emails. Kept as a constant here so the content stays
 // identical whether it's rendered in the browser app or the serverless scheduler. (App.jsx
 // historically used CONFIG.contactEmail, which is this same value.)
-export const NEWSROOM_FROM_EMAIL = "team@builtyoung.com";
+export const NEWSROOM_FROM_EMAIL = "team@buildyoung.com";
 
 // Build the 3-day pre-class media drip for an ALREADY-RESOLVED course-week event.
 //
@@ -75,7 +75,7 @@ export function buildMediaDrip(ev, media, s, opts = {}) {
   const first = (s.student.name || "there").split(" ")[0];
   const title = WEEK_TITLES[s.week - 1];
   const moves = ASSET_META.map((a) => `${a.label} ${pct(ev.e[a.key])}`).join(", ");
-  const from = `Built Young Newsroom <${opts.fromEmail || NEWSROOM_FROM_EMAIL}>`;
+  const from = `Build Young Newsroom <${opts.fromEmail || NEWSROOM_FROM_EMAIL}>`;
   const stamp = Date.now();
   const base = { from, type: "media", event: ev.h, resources: media.resources };
   const breaking = {

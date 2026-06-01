@@ -1,8 +1,8 @@
-// Serverless email sender for Built Young.
+// Serverless email sender for Build Young.
 // Works as a Vercel function at /api/send-email. (For Netlify, see README note.)
 //
 // Setup:
-//   1. Create a Resend account (https://resend.com) and verify your domain (builtyoung.com).
+//   1. Create a Resend account (https://resend.com) and verify your domain (buildyoung.com).
 //   2. Add an env var in your host:  RESEND_API_KEY = re_xxxxxxxx
 //   3. In src/App.jsx CONFIG, set emailEnabled: true.
 //

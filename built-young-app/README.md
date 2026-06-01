@@ -1,4 +1,4 @@
-# Built Young — website
+# Build Young — website
 
 A live, hands-on money program for teens (ages 13+). This is the marketing site, enrollment flow, founder-call booking, and the interactive learning simulation, in one React app.
 
@@ -25,7 +25,7 @@ The build output (`./dist`) is a static site. Easiest paths:
 - **Netlify** — drag the `dist` folder to <https://app.netlify.com/drop>, or connect the repo (build command `npm run build`, publish dir `dist`).
 - **Cloudflare Pages / GitHub Pages / S3** — serve the contents of `dist`.
 
-Point your domain (e.g. `builtyoung.com`) at the host per its DNS instructions.
+Point your domain (e.g. `buildyoung.com`) at the host per its DNS instructions.
 
 ---
 
@@ -47,7 +47,7 @@ Everything below is what *only you* can set up. Each item maps to a value in `sr
 
 ### 3. Email — Resend (function included)
 A serverless function is already included at `api/send-email.js` (Vercel-style). To turn on real delivery:
-1. Create a **Resend** account (resend.com) and verify your domain `builtyoung.com` (add the SPF/DKIM records they give you).
+1. Create a **Resend** account (resend.com) and verify your domain `buildyoung.com` (add the SPF/DKIM records they give you).
 2. In your host's settings, add an environment variable: `RESEND_API_KEY = re_xxxxxxxx`.
 3. In `src/App.jsx` → `CONFIG`, set `emailEnabled: true`.
 
@@ -84,7 +84,7 @@ This is wired up:
 - `index.html` has full SEO meta (title, description, robots, canonical), Open Graph + Twitter cards, and **JSON-LD structured data** (`EducationalOrganization` + `Course`) so search engines and AI assistants can read structured facts about the program.
 - `public/robots.txt` explicitly **allows** all major search and AI crawlers (Googlebot, Bingbot, GPTBot, ClaudeBot, PerplexityBot, Applebot, etc.) and points to the sitemap.
 - `public/sitemap.xml` lists the pages.
-- `public/llms.txt` gives AI agents a clean, curated summary of Built Young.
+- `public/llms.txt` gives AI agents a clean, curated summary of Build Young.
 - A `<noscript>` block in `index.html` exposes the core pitch, pricing, and contact as plain HTML.
 
 **Important caveat — this is a JavaScript app.** Modern Googlebot renders JavaScript, so it will index the full site. But some crawlers and AI agents don't run JS well; they rely on the static `<noscript>`, meta, JSON-LD, and `llms.txt` (all of which are now present). For the *strongest* coverage, pre-render the pages to static HTML so the full content is visible without JS:
@@ -92,7 +92,7 @@ This is wired up:
 - Host on a platform with prerendering/SSR.
 This is optional polish — out of the box the site is already discoverable and AI-readable via the static metadata above.
 
-**After you deploy:** submit your domain to **Google Search Console** and **Bing Webmaster Tools**, and submit `https://builtyoung.com/sitemap.xml` in each. Update every `builtyoung.com` URL in `index.html`, `robots.txt`, `sitemap.xml`, and `llms.txt` if your final domain differs.
+**After you deploy:** submit your domain to **Google Search Console** and **Bing Webmaster Tools**, and submit `https://buildyoung.com/sitemap.xml` in each. Update every `buildyoung.com` URL in `index.html`, `robots.txt`, `sitemap.xml`, and `llms.txt` if your final domain differs.
 
 ---
 
@@ -110,7 +110,7 @@ api/send-email.js   serverless email sender (Resend)
 api/cron/market-news.js   daily cron: sends the pre-class media drip on real dates
 api/_lib/           shared server helpers: sendEmail (Resend), schedule (date math), roster
 vercel.json         Vercel Cron schedule for the market-news scheduler
-public/favicon.svg  the Built Young mark
+public/favicon.svg  the Build Young mark
 public/og-image.png social/link-preview image
 public/robots.txt   crawler permissions (search + AI bots)
 public/sitemap.xml  page list for search engines

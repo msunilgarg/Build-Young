@@ -7,14 +7,14 @@
 // SECURITY: the API key is read from process.env.RESEND_API_KEY and never leaves the server.
 // Callers are responsible for their own auth / validation BEFORE calling this.
 
-export const FROM_ADDRESS = "Built Young <team@builtyoung.com>";
+export const FROM_ADDRESS = "Build Young <team@buildyoung.com>";
 
 // Escape a plain-text body for safe embedding in the HTML part (no innerHTML/eval anywhere).
 export function escapeHtml(s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-// Wrap a plain-text body in the simple Built Young HTML shell (preserves line breaks).
+// Wrap a plain-text body in the simple Build Young HTML shell (preserves line breaks).
 export function bodyToHtml(body) {
   return `<div style="font-family:Segoe UI,system-ui,sans-serif;font-size:15px;line-height:1.6;color:#242424;white-space:pre-wrap">${escapeHtml(body)}</div>`;
 }

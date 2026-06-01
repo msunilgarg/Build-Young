@@ -1,4 +1,4 @@
-# Built Young — all crawlers welcome
+# Build Young — all crawlers welcome
 User-agent: *
 Allow: /
 
@@ -38,4 +38,4 @@ Allow: /
 User-agent: meta-externalagent
 Allow: /
 
-Sitemap: https://builtyoung.com/sitemap.xml
+Sitemap: https://buildyoung.com/sitemap.xml

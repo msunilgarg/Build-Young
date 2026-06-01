@@ -82,7 +82,7 @@ export default async function handler(req, res) {
           to: student.email,
           subject: m.subject,
           body: bodyWithResources(m),
-          from: m.from, // "Built Young Newsroom <…>"
+          from: m.from, // "Build Young Newsroom <…>"
         });
         if (result.ok) sent += 1; else failed += 1;
       } catch {
