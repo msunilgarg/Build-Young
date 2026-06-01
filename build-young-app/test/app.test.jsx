@@ -32,7 +32,7 @@ describe("Enroll flow", () => {
     expect(await screen.findByRole("heading", { name: /Reserve your seat/i })).toBeInTheDocument();
   });
 
-  it("gates 'Continue to payment' on a valid email", async () => {
+  it("gates 'Continue to payment' on a valid email AND the 13+ confirmation", async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: "Enroll →" }));
@@ -47,6 +47,9 @@ describe("Enroll flow", () => {
 
     await user.clear(screen.getByLabelText(/Email/i));
     await user.type(screen.getByLabelText(/Email/i), "jordan@example.com");
+    expect(cont).toBeDisabled(); // valid email, but 13+ not yet confirmed
+
+    await user.click(screen.getByRole("checkbox", { name: /13 or older/i }));
     expect(cont).toBeEnabled();
   });
 
@@ -101,6 +104,7 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await screen.findByRole("heading", { name: /Reserve your seat/i });
     await user.type(screen.getByLabelText("Student name"), "Jordan Rivera");
     await user.type(screen.getByLabelText(/Email/i), "jordan@example.com");
+    await user.click(screen.getByRole("checkbox", { name: /13 or older/i }));
     await user.click(screen.getByRole("button", { name: /Continue to payment/i }));
     await user.click(await screen.findByRole("button", { name: /Pay \$\d+ \(demo\)/i }));
     await user.click(await screen.findByRole("button", { name: /Open my dashboard/i }));
@@ -127,6 +131,7 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await screen.findByRole("heading", { name: /Reserve your seat/i });
     await user.type(screen.getByLabelText("Student name"), "Jordan Rivera");
     await user.type(screen.getByLabelText(/Email/i), "jordan@example.com");
+    await user.click(screen.getByRole("checkbox", { name: /13 or older/i }));
     await user.click(screen.getByRole("button", { name: /Continue to payment/i }));
     await user.click(await screen.findByRole("button", { name: /Pay \$\d+ \(demo\)/i }));
     await user.click(await screen.findByRole("button", { name: /Open my dashboard/i }));

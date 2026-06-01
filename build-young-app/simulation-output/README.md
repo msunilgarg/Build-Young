@@ -11,7 +11,7 @@ so the numbers match what a student would see in the live simulation.
 - Runner: `test/simulate.batch.test.js` (run with `npm run simulate` or `npm test`).
 - The engine is imported READ-ONLY from `src/App.jsx` + `src/marketMedia.js`.
 - Each student is run through the full lifecycle: 12 weekly classes (`phase:"course"`)
-  then 6 monthly check-ins (`phase:"checkin"`), 18 periods total. Each period applies
+  then 1 monthly check-in (`phase:"checkin"`), 13 periods total. Each period applies
   one $10,000 paycheck (split per the student's settings), then the period's shared
   market event from `marketEventFor(...)`, then that week's decisions.
 - **Reproducible:** the only randomness is the hustle bonus in `advance()`. The harness
@@ -21,7 +21,7 @@ so the numbers match what a student would see in the live simulation.
 ## Funnel modeled
 
 discover (source) → (maybe) book a free 15-min call → enroll → engage weekly →
-complete the course → finish 6 check-ins → graduate. Each student's `funnel` field
+complete the course → finish the monthly check-in → graduate. Each student's `funnel` field
 records their stage progression, and `discoverySource` / `bookedCall` capture the top.
 
 ## Files
@@ -77,7 +77,7 @@ dashboard's disabled buy buttons enforce, so the harness models the realistic be
 *saving toward a goal and buying when it's affordable*. In practice: a **car** ($6,000
 down) is reachable for steady savers; a **home** ($20,000 down) is only reachable by
 max-rate savers, and only by the final check-ins; and the **$15,000 private-equity** buy
-is effectively unreachable for everyone within the 18 periods given how little cash
+is effectively unreachable for everyone within the 13 periods given how little cash
 accumulates — so no persona clears it this run (the field is still captured, always $0).
 Heavy auto-investors finish with the largest invested base but stay cash-poor — a genuine
 trade-off worth showing students.
@@ -87,14 +87,14 @@ trade-off worth showing students.
 ### fall-ms-mon — Middle School (Mondays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $899
-- Average final net worth: **$74,882** (min $69,043, max $80,793)
-- Tuition-prize winner (highest portfolio value): **Isabella Davis** at $80,793
-- By risk style: aggressive 5 (avg $76,934), balanced 6 (avg $70,898), conservative 4 (avg $78,291)
+- Average final net worth: **$49,285** (min $44,951, max $58,398)
+- Tuition-prize winner (highest portfolio value): **Isabella Davis** at $58,398
+- By risk style: aggressive 5 (avg $49,279), balanced 6 (avg $46,356), conservative 4 (avg $53,686)
 
 ### fall-hs-wed — High School (Wednesdays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $899
-- Average final net worth: **$74,882** (min $69,043, max $80,793)
-- Tuition-prize winner (highest portfolio value): **Isabella Davis** at $80,793
-- By risk style: aggressive 5 (avg $76,934), balanced 6 (avg $70,898), conservative 4 (avg $78,291)
+- Average final net worth: **$49,285** (min $44,951, max $58,398)
+- Tuition-prize winner (highest portfolio value): **Isabella Davis** at $58,398
+- By risk style: aggressive 5 (avg $49,279), balanced 6 (avg $46,356), conservative 4 (avg $53,686)
 

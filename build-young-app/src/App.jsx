@@ -219,6 +219,22 @@ export const STEADY_INCOME = 10000;  // per-period business income in the financ
 export const PAY = STEADY_INCOME;    // back-comat alias (steady business income, not a paycheck)
 const TAX_RATE = 0.15;               // tax on business income (self-employment / business tax)
 const FINANCE_FIRST_WEEK = 7;        // weeks 1–6 = Build act; 7–12 = Finance act
+export const CHECKINS = 1;           // monthly check-ins after the 12-week course (the prize is decided at the last one)
+export const CHECKIN_TIME = "5:00–6:00 PM PST"; // 60-minute monthly check-in
+// The check-in is ONE MONTH after the cohort's final (Week 12) class, kept on the cohort's
+// usual weekday (the same weekday it started/meets). Returns a label like
+// "Mon, Dec 28, 2026 · 5:00–6:00 PM PST", or "" if the start is unparseable.
+export function checkinDateLabel(batch) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime())) return "";
+  const weekday = start.getDay(); // the cohort's meeting weekday
+  // Week 12 class ≈ start + 11 weeks, then +1 calendar month.
+  const wk12 = new Date(start.getTime() + 11 * 7 * 24 * 60 * 60 * 1000);
+  const d = new Date(wk12.getFullYear(), wk12.getMonth() + 1, wk12.getDate());
+  // Snap to the cohort's weekday (nearest on/after) so it lands on the same day they meet.
+  d.setDate(d.getDate() + ((weekday - d.getDay() + 7) % 7));
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }) + " · " + CHECKIN_TIME;
+}
 // income for a given period: the build's revenue curve in the course, steady once established
 export function incomeFor(phase, week) {
   if (phase !== "course") return STEADY_INCOME; // check-ins: the build is established
@@ -273,13 +289,13 @@ function followupEmail(s, week, batch) {
     const next = WEEKS[week];
     return {
       id: "f" + week + "_" + Date.now(), from: MAIL_FROM, when: "Just now", type: "followup",
-      subject: last ? "Course complete — your check-ins are coming" : `Week ${week} recap + your next class`,
+      subject: last ? "Course complete — your check-in is coming" : `Week ${week} recap + your next class`,
       body: last
         ? `Hi ${first},
 
 You finished all 12 weeks of Build Young — your simulated net worth is ${fmt(netWorth(s))}. 
 
-Next up are 6 monthly check-ins where you'll keep managing your portfolio through new market developments. We'll email you before each one.
+Next up is a monthly check-in where you'll keep managing your portfolio through new market developments. We'll email you before it.
 
 ${batch.day}  ·  Zoom: ${batch.zoom}
 
@@ -298,12 +314,12 @@ The Team`,
   }
   return {
     id: "c" + s.checkin + "_" + Date.now(), from: MAIL_FROM, when: "Just now", type: "followup",
-    subject: `Check-in ${s.checkin + 1} recap`,
+    subject: `Your monthly check-in recap`,
     body: `Hi ${first},
 
-Your portfolio is now worth ${fmt(netWorth(s))} (simulated). Markets keep moving — log in to review and rebalance before your next check-in.
+Your portfolio is now worth ${fmt(netWorth(s))} (simulated). Markets keep moving — log in to review and rebalance.
 
-${batch.day}  ·  Zoom: ${batch.zoom}
+Your 60-minute check-in: ${checkinDateLabel(batch) || batch.day}  ·  Zoom: ${batch.zoom}
 
 The Team`,
   };
@@ -702,7 +718,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
             </div>
           </div>
         ))}
-        <p style={{ color: C.muted, marginTop: 22, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>After the 12 weeks, students keep going with <b>6 monthly check-ins</b> over the next six months — managing the <b>business and portfolio</b> they built in class as new market developments unfold.</p>
+        <p style={{ color: C.muted, marginTop: 22, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>After the 12 weeks, students return for a <b>60-minute check-in a month later</b> — same day of the week as class — managing the <b>business and portfolio</b> they built as new market developments unfold.</p>
       </section>
 
       {/* philosophy + founder */}
@@ -775,7 +791,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
                 Here's what I noticed when I went looking for something like this for my own kids. There's plenty of free material out there — banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. And the paid classes that are live? They mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                So I built the thing I couldn't find. Not more content to ignore, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It starts with the financial foundation — a paycheck, taxes, a budget that breaks and gets fixed, big purchases, investing — and then goes where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that other people would pay for. And not a one-off lesson, but one continuous simulation your kid carries for twelve weeks and six monthly check-ins, where the decisions compound and the mistakes are safe because the money isn't real yet.
+                So I built the thing I couldn't find. Not more content to ignore, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It starts with the financial foundation — a paycheck, taxes, a budget that breaks and gets fixed, big purchases, investing — and then goes where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that other people would pay for. And not a one-off lesson, but one continuous simulation your kid carries for twelve weeks and a monthly check-in, where the decisions compound and the mistakes are safe because the money isn't real yet.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 That's the whole idea: money isn't a subject you study, it's a skill you practice. We're raising builders, not consumers — kids who reach adulthood having already lived it, in a world where what you can build matters more than what you were credentialed to do.
@@ -797,7 +813,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>Middle school meets <b>Mondays & Tuesdays</b>, high school <b>Wednesdays & Thursdays</b> — every cohort is <b>100% live online over Zoom</b>. We run three cohorts a year — pick the season and day that fit.</p>
           <p style={{ color: C.muted, fontSize: 14, marginTop: 8 }}>Not sure it's the right fit? <b>Cancel before your cohort starts for a full refund.</b> After it begins, withdraw through the <b>first 3 weeks</b> for a prorated refund. After that, tuition is non-refundable.</p>
-          <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value at the final (6th) monthly check-in</b> earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; <span {...act(() => onLegal("terms"))} style={{ textDecoration: "underline", cursor: "pointer" }}>see Terms</span>.)</span></p>
+          <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value at the final check-in</b> earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; <span {...act(() => onLegal("terms"))} style={{ textDecoration: "underline", cursor: "pointer" }}>see Terms</span>.)</span></p>
           <p style={{ fontSize: 14, marginTop: 6 }}>Still deciding? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Book a free 15-minute call with Sunil →</span></p>
         </div>
         {/* season selector */}
@@ -884,9 +900,10 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [age13, setAge13] = useState(false); // COPPA age gate — confirm the student is 13+
   const [batch, setBatch] = useState(preselect || BATCHES[0].id);
   const b = BATCHES.find((x) => x.id === batch);
-  const canContinue = name.trim() && validEmail(email);
+  const canContinue = name.trim() && validEmail(email) && age13;
   const acc = b.track === "High School" ? C.emerald : C.green;
   const inputS = { width: "100%", padding: "12px 14px", borderRadius: 4, border: `1.5px solid ${C.line}`, background: C.paper2, fontSize: 15, marginTop: 6 };
   const label = { fontSize: 13, fontWeight: 700, color: C.ink2 };
@@ -928,6 +945,10 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                 </div>
                 <div style={{ marginTop: 14 }}><div style={label}>Student name</div><input aria-label="Student name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jordan Rivera" style={inputS} /></div>
                 <div style={{ marginTop: 14 }}><div style={label}>Email <span style={{ color: C.muted, fontWeight: 500 }}>— this is your username</span></div><input aria-label="Email (your username)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={inputS} /></div>
+                <label style={{ display: "flex", gap: 9, alignItems: "flex-start", marginTop: 14, fontSize: 13, color: C.ink2, cursor: "pointer", lineHeight: 1.45 }}>
+                  <input type="checkbox" checked={age13} onChange={(e) => setAge13(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.emerald, flexShrink: 0 }} />
+                  <span>I'm the parent/guardian enrolling, and I confirm the student is <b>13 or older</b>. <span style={{ color: C.muted }}>Build Young is for ages 13–18.</span></span>
+                </label>
                 <button className="btn" disabled={!canContinue} onClick={() => setStep(2)} style={{ width: "100%", marginTop: 18, background: canContinue ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canContinue ? "pointer" : "not-allowed" }}>Continue to payment →</button>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 12, color: C.muted, fontSize: 12.5 }}>
                   <Lock size={13} /> Secure checkout · no charge until the next step
@@ -952,7 +973,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ marginTop: 8, display: "grid", gap: 7 }}>
                     {[
                       "12 live 90-min classes, taught by me",
-                      "6 monthly check-ins after the course",
+                      "A monthly check-in after the course",
                       "Your own student dashboard",
                       "Build a real product, then manage what it earns",
                     ].map((t, i) => (
@@ -1207,7 +1228,7 @@ function Platform({ state, setState, onExit }) {
         else ns.week += 1;
       } else {
         ns.checkin += 1;
-        if (ns.checkin >= 6) ns.done = true;
+        if (ns.checkin >= CHECKINS) ns.done = true;
       }
       // Simulated pre-class media for the week we just arrived at (Weeks 3–12), built from the
       // event's media fetched above. In the click-driven sim the whole 3-email drip lands at
@@ -1282,7 +1303,7 @@ function Platform({ state, setState, onExit }) {
           <div style={{ fontSize: 13, color: C.muted }}>{s.student.name} · {s.student.track} cohort</div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <Pill bg={C.turq}>{s.phase === "course" ? `Week ${s.week} of 12` : s.done ? "Graduated" : `Check-in ${s.checkin + 1} of 6`}</Pill>
+          <Pill bg={C.turq}>{s.phase === "course" ? `Week ${s.week} of 12` : s.done ? "Graduated" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Check-in")}</Pill>
           <button className="btn" onClick={onExit} style={{ background: "transparent", border: `1.5px solid ${C.line}`, color: C.muted, padding: "7px 12px", borderRadius: 4, fontSize: 13 }}>Exit</button>
         </div>
       </div>
@@ -1773,15 +1794,15 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
           <div style={{ marginTop: 12, padding: 14, background: "#e7f3ee", border: `1px solid ${C.green}`, borderRadius: 4, display: "flex", gap: 10, alignItems: "flex-start" }}>
             <Sparkles size={18} color={C.green} style={{ flexShrink: 0, marginTop: 2 }} />
             <div style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>
-              <b style={{ color: C.green }}>You're in the running for the tuition prize.</b> The student with the highest portfolio value at the <b>final (6th) monthly check-in</b> earns their <b>tuition refunded</b> — so the 6 check-ins still count. Keep growing it. <span style={{ color: C.muted }}>Simulated; winner confirmed by Sunil at the close. See Terms.</span>
+              <b style={{ color: C.green }}>You're in the running for the tuition prize.</b> The student with the highest portfolio value at the <b>final check-in</b> earns their <b>tuition refunded</b> — so the check-in still counts. Keep growing it. <span style={{ color: C.muted }}>Simulated; winner confirmed by Sunil at the close. See Terms.</span>
             </div>
           </div>
-          <div style={{ fontSize: 14, color: C.ink2, marginTop: 12 }}>From here you move into 6 monthly check-ins — the markets keep moving, and you keep managing your portfolio. Advance to begin.</div>
+          <div style={{ fontSize: 14, color: C.ink2, marginTop: 12 }}>From here you move into your monthly check-in — the markets keep moving, and you keep managing your portfolio. Advance to begin.</div>
         </Wrap>
       )}
 
       {action === "checkin" && (
-        <Wrap title={s.done ? "You've graduated 🎓" : `Check-in ${s.checkin + 1} of 6`} blurb={s.done ? "Six months of independent investing, done. Your portfolio reflects every decision you made." : `Your build keeps earning about ${fmt(STEADY_INCOME)} a period. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your income and apply it.`}>
+        <Wrap title={s.done ? "You've graduated 🎓" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Your monthly check-in")} blurb={s.done ? "A month of independent investing, done. Your portfolio reflects every decision you made." : `Your build keeps earning about ${fmt(STEADY_INCOME)} a period. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your income and apply it.`}>
           {!s.done && <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}><b>{macroNow.h}.</b> <span style={{ color: C.ink2 }}>{macroNow.d}</span></div>}
           {s.done && <Stat label="Net worth after one year independent" value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />}
         </Wrap>

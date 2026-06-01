@@ -44,13 +44,13 @@ describe.each(COHORTS)("cohort %s", (batchId) => {
     expect(results[batchId].students).toHaveLength(15);
   });
 
-  it("every student completed all 18 periods (12 weeks + 6 check-ins) and graduated", () => {
+  it("every student completed all 13 periods (12 weeks + 1 check-in) and graduated", () => {
     for (const st of results[batchId].students) {
-      expect(st.weekByWeek).toHaveLength(18);
+      expect(st.weekByWeek).toHaveLength(13);
       expect(st._internal.state.done).toBe(true);
-      expect(st._internal.state.checkin).toBe(6);
-      // last period is the 6th check-in
-      expect(st.weekByWeek[st.weekByWeek.length - 1].period).toBe("Check-in 6 of 6");
+      expect(st._internal.state.checkin).toBe(1);
+      // last period is the monthly check-in
+      expect(st.weekByWeek[st.weekByWeek.length - 1].period).toBe("Monthly check-in");
       expect(st.funnel).toContain("graduated");
     }
   });
@@ -138,7 +138,7 @@ function writeReadme(results) {
   lines.push("- Runner: `test/simulate.batch.test.js` (run with `npm run simulate` or `npm test`).");
   lines.push("- The engine is imported READ-ONLY from `src/App.jsx` + `src/marketMedia.js`.");
   lines.push("- Each student is run through the full lifecycle: 12 weekly classes (`phase:\"course\"`)");
-  lines.push("  then 6 monthly check-ins (`phase:\"checkin\"`), 18 periods total. Each period applies");
+  lines.push("  then 1 monthly check-in (`phase:\"checkin\"`), 13 periods total. Each period applies");
   lines.push(`  one ${usd(PAY)} paycheck (split per the student's settings), then the period's shared`);
   lines.push("  market event from `marketEventFor(...)`, then that week's decisions.");
   lines.push("- **Reproducible:** the only randomness is the hustle bonus in `advance()`. The harness");
@@ -148,7 +148,7 @@ function writeReadme(results) {
   lines.push("## Funnel modeled");
   lines.push("");
   lines.push("discover (source) → (maybe) book a free 15-min call → enroll → engage weekly →");
-  lines.push("complete the course → finish 6 check-ins → graduate. Each student's `funnel` field");
+  lines.push("complete the course → finish the monthly check-in → graduate. Each student's `funnel` field");
   lines.push("records their stage progression, and `discoverySource` / `bookedCall` capture the top.");
   lines.push("");
   lines.push("## Files");
@@ -190,7 +190,7 @@ function writeReadme(results) {
   lines.push(`*saving toward a goal and buying when it's affordable*. In practice: a **car** (${usd(CAR.down)}`);
   lines.push(`down) is reachable for steady savers; a **home** (${usd(HOME.down)} down) is only reachable by`);
   lines.push(`max-rate savers, and only by the final check-ins; and the **${usd(PE_BUY)} private-equity** buy`);
-  lines.push("is effectively unreachable for everyone within the 18 periods given how little cash");
+  lines.push("is effectively unreachable for everyone within the 13 periods given how little cash");
   lines.push("accumulates — so no persona clears it this run (the field is still captured, always $0).");
   lines.push("Heavy auto-investors finish with the largest invested base but stay cash-poor — a genuine");
   lines.push("trade-off worth showing students.");

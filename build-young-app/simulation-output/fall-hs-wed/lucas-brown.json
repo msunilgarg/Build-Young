@@ -486,7 +486,7 @@
       "hustleActive": false
     },
     {
-      "period": "Check-in 1 of 6",
+      "period": "Monthly check-in",
       "phase": "checkin",
       "marketEvent": {
         "headline": "Q1 — Inflation cools",
@@ -522,232 +522,12 @@
       },
       "insured": false,
       "hustleActive": false
-    },
-    {
-      "period": "Check-in 2 of 6",
-      "phase": "checkin",
-      "marketEvent": {
-        "headline": "Q2 — Surprise rate hike",
-        "detail": "A hot jobs print rattles markets.",
-        "effects": {
-          "stocks": -0.04,
-          "bonds": -0.02,
-          "reits": -0.03,
-          "bullion": 0.035,
-          "sav": 0.015
-        }
-      },
-      "decisionsMade": [
-        "showed up, collected salary, let the portfolio ride"
-      ],
-      "netWorth": 53578.88,
-      "cash": 33670,
-      "savings": 9998.88,
-      "retirement": 866.12,
-      "holdings": {
-        "stocks": 3901.97,
-        "bonds": 3236.48,
-        "reits": 1107.35,
-        "bullion": 798.07
-      },
-      "privateEquity": 0,
-      "creditScore": 772,
-      "home": null,
-      "car": null,
-      "creditCard": {
-        "open": false,
-        "balance": 0
-      },
-      "insured": false,
-      "hustleActive": false
-    },
-    {
-      "period": "Check-in 3 of 6",
-      "phase": "checkin",
-      "marketEvent": {
-        "headline": "Q3 — Earnings strength",
-        "detail": "Corporate profits push equities higher.",
-        "effects": {
-          "stocks": 0.055,
-          "bonds": 0.005,
-          "reits": 0.02,
-          "bullion": -0.01,
-          "sav": 0.012
-        }
-      },
-      "decisionsMade": [
-        "showed up, collected salary, let the portfolio ride"
-      ],
-      "netWorth": 58998.49,
-      "cash": 37395,
-      "savings": 10979.06,
-      "retirement": 900.77,
-      "holdings": {
-        "stocks": 4273.51,
-        "bonds": 3444.87,
-        "reits": 1181.52,
-        "bullion": 823.75
-      },
-      "privateEquity": 0,
-      "creditScore": 780,
-      "home": null,
-      "car": null,
-      "creditCard": {
-        "open": false,
-        "balance": 0
-      },
-      "insured": false,
-      "hustleActive": false
-    },
-    {
-      "period": "Check-in 4 of 6",
-      "phase": "checkin",
-      "marketEvent": {
-        "headline": "Q4 — Property repricing",
-        "detail": "Real estate cools as listings rise.",
-        "effects": {
-          "stocks": 0.01,
-          "bonds": 0.01,
-          "reits": -0.04,
-          "bullion": 0.01,
-          "sav": 0.012
-        }
-      },
-      "decisionsMade": [
-        "showed up, collected salary, let the portfolio ride"
-      ],
-      "netWorth": 64189.3,
-      "cash": 41120,
-      "savings": 11971.01,
-      "retirement": 909.78,
-      "holdings": {
-        "stocks": 4466.49,
-        "bonds": 3672.48,
-        "reits": 1183.22,
-        "bullion": 866.33
-      },
-      "privateEquity": 0,
-      "creditScore": 788,
-      "home": null,
-      "car": null,
-      "creditCard": {
-        "open": false,
-        "balance": 0
-      },
-      "insured": false,
-      "hustleActive": false
-    },
-    {
-      "period": "Check-in 5 of 6",
-      "phase": "checkin",
-      "marketEvent": {
-        "headline": "Q5 — Broad rally",
-        "detail": "A goldilocks quarter lifts nearly everything.",
-        "effects": {
-          "stocks": 0.04,
-          "bonds": 0.02,
-          "reits": 0.03,
-          "bullion": 0.015,
-          "sav": 0.012
-        }
-      },
-      "decisionsMade": [
-        "showed up, collected salary, let the portfolio ride"
-      ],
-      "netWorth": 69686.5,
-      "cash": 44845,
-      "savings": 12974.86,
-      "retirement": 940.71,
-      "holdings": {
-        "stocks": 4799.85,
-        "bonds": 3941.01,
-        "reits": 1271.25,
-        "bullion": 913.83
-      },
-      "privateEquity": 0,
-      "creditScore": 796,
-      "home": null,
-      "car": null,
-      "creditCard": {
-        "open": false,
-        "balance": 0
-      },
-      "insured": false,
-      "hustleActive": false
-    },
-    {
-      "period": "Check-in 6 of 6",
-      "phase": "checkin",
-      "marketEvent": {
-        "headline": "Q6 — Volatile finish",
-        "detail": "Choppy markets reward the diversified.",
-        "effects": {
-          "stocks": -0.02,
-          "bonds": 0.02,
-          "reits": 0.005,
-          "bullion": 0.03,
-          "sav": 0.012
-        }
-      },
-      "decisionsMade": [
-        "showed up, collected salary, let the portfolio ride"
-      ],
-      "netWorth": 74863.6,
-      "cash": 48570,
-      "savings": 13990.76,
-      "retirement": 933.18,
-      "holdings": {
-        "stocks": 4849.62,
-        "bonds": 4214.9,
-        "reits": 1328.86,
-        "bullion": 976.27
-      },
-      "privateEquity": 0,
-      "creditScore": 804,
-      "home": null,
-      "car": null,
-      "creditCard": {
-        "open": false,
-        "balance": 0
-      },
-      "insured": false,
-      "hustleActive": false
     }
   ],
   "emailsReceived": [
     {
       "type": "followup",
-      "subject": "Check-in 6 recap",
-      "when": "Just now",
-      "event": null
-    },
-    {
-      "type": "followup",
-      "subject": "Check-in 5 recap",
-      "when": "Just now",
-      "event": null
-    },
-    {
-      "type": "followup",
-      "subject": "Check-in 4 recap",
-      "when": "Just now",
-      "event": null
-    },
-    {
-      "type": "followup",
-      "subject": "Check-in 3 recap",
-      "when": "Just now",
-      "event": null
-    },
-    {
-      "type": "followup",
-      "subject": "Check-in 2 recap",
-      "when": "Just now",
-      "event": null
-    },
-    {
-      "type": "followup",
-      "subject": "Check-in 1 recap",
+      "subject": "Your monthly check-in recap",
       "when": "Just now",
       "event": null
     },
@@ -921,24 +701,24 @@
     }
   ],
   "final": {
-    "finalNetWorth": 74863.6,
+    "finalNetWorth": 48697.49,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 48570,
-      "savings": 13990.76,
-      "retirement": 933.18,
-      "brokerageHoldings": 11369.65,
+      "cash": 29945,
+      "savings": 9001.11,
+      "retirement": 896.61,
+      "brokerageHoldings": 8854.78,
       "privateEquity": 0,
       "homeEquity": 0,
       "carEquity": 0,
       "creditCardDebt": 0
     },
-    "creditScore": 804,
+    "creditScore": 764,
     "boughtHome": false,
     "boughtCar": false,
     "carriedCardDebt": false,
     "insured": false,
     "hustled": false,
-    "narrative": "Lucas ran a conservative strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $74,864 and a credit score of 804. All figures simulated."
+    "narrative": "Lucas ran a conservative strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $48,697 and a credit score of 764. All figures simulated."
   }
 }
