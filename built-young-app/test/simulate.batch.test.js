@@ -7,7 +7,9 @@ import { describe, it, expect, beforeAll } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { runCohort, cohortCsv, studentForFile, PERSONAS } from "../scripts/simulateBatch.js";
+import { runCohort, cohortCsv, studentForFile, PERSONAS, PAY, HOME, CAR, PE_BUY } from "../scripts/simulateBatch.js";
+
+const usd = (v) => "$" + Math.round(v).toLocaleString();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // simulation-output lives at the built-young-app/ root, next to src/ and scripts/.
@@ -136,7 +138,7 @@ function writeReadme(results) {
   lines.push("- The engine is imported READ-ONLY from `src/App.jsx` + `src/marketMedia.js`.");
   lines.push("- Each student is run through the full lifecycle: 12 weekly classes (`phase:\"course\"`)");
   lines.push("  then 6 monthly check-ins (`phase:\"checkin\"`), 18 periods total. Each period applies");
-  lines.push("  one $1,000 paycheck (split per the student's settings), then the period's shared");
+  lines.push(`  one ${usd(PAY)} paycheck (split per the student's settings), then the period's shared`);
   lines.push("  market event from `marketEventFor(...)`, then that week's decisions.");
   lines.push("- **Reproducible:** the only randomness is the hustle bonus in `advance()`. The harness");
   lines.push("  installs a seeded PRNG (seed 12345, mixed with the batch id) and restores `Math.random`");
@@ -181,16 +183,16 @@ function writeReadme(results) {
   lines.push("");
   lines.push("## A note on the engine's economics (a real, teachable finding)");
   lines.push("");
-  lines.push("On a $1,000/period salary with living costs of $350/period, students are LIQUIDITY-");
-  lines.push("constrained. Big lump purchases are gated by available funds, exactly as the dashboard's");
-  lines.push("disabled buy buttons enforce, so the harness models the realistic behavior of *saving");
-  lines.push("toward a goal and buying when it's affordable*. In practice that means: a **car** ($3,000");
-  lines.push("down) is reachable by the later weeks/check-ins for steady savers; a **home** ($7,500");
-  lines.push("down) is only reachable by max-rate savers, and only by the final check-ins; and the");
-  lines.push("**$2,000 private-equity** buy is effectively unreachable for everyone within the 18");
-  lines.push("periods given how little cash accumulates — so no persona clears it this run (the field");
-  lines.push("is still captured, always $0). Heavy auto-investors finish with the largest invested base");
-  lines.push("but stay cash-poor — a genuine trade-off worth showing students.");
+  lines.push(`On a ${usd(PAY)}/period salary re-tuned to a realistic young-adult budget, students are`);
+  lines.push("LIQUIDITY-constrained. Big lump purchases are gated by available funds, exactly as the");
+  lines.push("dashboard's disabled buy buttons enforce, so the harness models the realistic behavior of");
+  lines.push(`*saving toward a goal and buying when it's affordable*. In practice: a **car** (${usd(CAR.down)}`);
+  lines.push(`down) is reachable for steady savers; a **home** (${usd(HOME.down)} down) is only reachable by`);
+  lines.push(`max-rate savers, and only by the final check-ins; and the **${usd(PE_BUY)} private-equity** buy`);
+  lines.push("is effectively unreachable for everyone within the 18 periods given how little cash");
+  lines.push("accumulates — so no persona clears it this run (the field is still captured, always $0).");
+  lines.push("Heavy auto-investors finish with the largest invested base but stay cash-poor — a genuine");
+  lines.push("trade-off worth showing students.");
   lines.push("");
   lines.push("## Headline results");
   lines.push("");

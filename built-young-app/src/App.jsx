@@ -193,6 +193,24 @@ const WEEKS = [
 ];
 const ACTS = { 1: "Set Up Your Money", 2: "Major Decisions & Independence", 3: "Grow & Protect" };
 
+// ============================ SIM ECONOMY ============================
+// One place for every dollar figure, re-tuned to a realistic young-adult budget around a
+// $10,000 paycheck per class. Keep purchases funds-gated against this so the "save toward a
+// goal / live with the payments" lessons hold. Change PAY here and the rest stays in scale.
+export const PAY = 10000;            // take-home paycheck earned each class
+const TAX_RATE = 0.15;               // flat tax on the paycheck
+export const LIVING = 3500;          // living costs per period (rent, food, utilities, phone)
+export const HOME = { price: 400000, down: 20000, mortgage: 380000, payment: 2500 }; // 5% down
+export const CAR = { price: 30000, down: 6000, loan: 24000, payment: 600 };          // 20% down
+export const EMERGENCY = 2500;       // surprise car-repair (Week 6)
+export const SPREE = 1500;           // shopping-spree temptation (Week 6)
+export const INSURANCE = 1500;       // insurance policy (Act 3)
+export const ALT_BUY = 5000;         // bullion / REIT lump buy (Act 3)
+export const PE_BUY = 15000;         // private-equity lump buy (Act 3, illiquid)
+export const HUSTLE_START = 2000;    // cost to launch the build (Week 10)
+const HUSTLE_BASE = 1200, HUSTLE_VAR = 2600; // extra income per period once running
+const CARD_DEBT_HEAVY = 15000;       // carried-balance threshold that dings the credit score
+
 export const RISK_PRESETS = {
   conservative: { stocks: .35, bonds: .45, reits: .12, bullion: .08 },
   balanced: { stocks: .55, bonds: .25, reits: .12, bullion: .08 },
@@ -216,7 +234,7 @@ Welcome aboard! Your seat in the ${b.track} cohort is confirmed.
 
 Your username is your email (${student.email}) — use it to log in to your student portal anytime.
 
-Week 1 is "Set Up Your Paycheck." Come ready to choose your 401(k) contribution and watch your first $1,000 paycheck land. Everything runs inside your student dashboard.
+Week 1 is "Set Up Your Paycheck." Come ready to choose your 401(k) contribution and watch your first ${PAY.toLocaleString()} paycheck land. Everything runs inside your student dashboard.
 
 See you in class,
 The Built Young Team`,
@@ -309,20 +327,20 @@ export function netWorth(s) {
 // Week-6 budget choices, written as pure state mutators so they can be unit-tested.
 // Both spend the same $500 — "treat" burns it on consumption; "invest" moves it into
 // the brokerage split by the student's current allocation (net worth is preserved, only
-// the form of the money changes). Keep these symmetrical: each must debit cash by 500.
+// the form of the money changes). Keep these symmetrical: each must debit cash by SPREE.
 export function takeSpree(n) {
-  n.cash -= 500;
+  n.cash -= SPREE;
 }
 export function investInstead(n) {
-  n.cash -= 500;
-  ASSETS.forEach((a) => { n.holdings[a.key] += 500 * (n.alloc[a.key] || 0); });
+  n.cash -= SPREE;
+  ASSETS.forEach((a) => { n.holdings[a.key] += SPREE * (n.alloc[a.key] || 0); });
 }
 
 // process one period: pay, allocate, apply macro, pay bills
 export function advance(prev, macro) {
   const s = JSON.parse(JSON.stringify(prev));
-  const pay = 1000;
-  const tax = pay * 0.15;
+  const pay = PAY;
+  const tax = pay * TAX_RATE;
   const k = pay * s.settings.retire401k;
   const match = pay * Math.min(s.settings.retire401k, 0.05);
   s.retirement += k + match;
@@ -334,7 +352,7 @@ export function advance(prev, macro) {
   s.cash += net - toSav - toBrk;
 
   // hustle bonus
-  if (s.hustle) { s.cash += 120 + Math.round(Math.random() * 260); }
+  if (s.hustle) { s.cash += HUSTLE_BASE + Math.round(Math.random() * HUSTLE_VAR); }
 
   // macro effects by asset class
   const e = macro.e;
@@ -357,7 +375,7 @@ export function advance(prev, macro) {
     s.car.value *= 0.985; // depreciation
     s.car.loan = Math.max(0, s.car.loan - s.car.payment * 0.7);
   }
-  s.cash -= 350; // living costs (food/utilities/phone)
+  s.cash -= LIVING; // living costs (rent/food/utilities/phone)
 
   // credit card interest
   if (s.card.balance > 0) s.card.balance *= 1.04;
@@ -370,7 +388,7 @@ export function advance(prev, macro) {
 
   // credit score drift
   s.creditScore = Math.max(520, Math.min(820,
-    s.creditScore + (s.card.balance > 1500 ? -8 : 6) + (s.cash < 0 ? -10 : 2)));
+    s.creditScore + (s.card.balance > CARD_DEBT_HEAVY ? -8 : 6) + (s.cash < 0 ? -10 : 2)));
 
   s.feed.unshift({ when: s.phase === "course" ? `Week ${s.week}` : `Check-in ${s.checkin + 1}`, ...macro });
   s.history.push({ label: s.phase === "course" ? `W${s.week}` : `M${s.checkin + 1}`, nw: Math.round(netWorth(s)) });
@@ -474,9 +492,9 @@ const HeroBackdrop = () => (
 
 // A stylized peek at the student simulation — continuously cycles through weeks.
 const HP_SNAPS = [
-  { week: 5, nw: 27600, pts: "0,190 70,176 140,182 210,158 280,166 350,140 420,148 490,124 540,110", alloc: [0.45, 0.30, 0.15, 0.10] },
-  { week: 8, nw: 48250, pts: "0,176 70,158 140,168 210,128 280,136 350,96 420,104 490,64 540,40", alloc: [0.55, 0.25, 0.12, 0.08] },
-  { week: 12, nw: 73400, pts: "0,170 70,150 140,160 210,116 280,124 350,80 420,72 490,40 540,14", alloc: [0.62, 0.18, 0.12, 0.08] },
+  { week: 5, nw: 41500, pts: "0,190 70,176 140,182 210,158 280,166 350,140 420,148 490,124 540,110", alloc: [0.45, 0.30, 0.15, 0.10] },
+  { week: 8, nw: 68900, pts: "0,176 70,158 140,168 210,128 280,136 350,96 420,104 490,64 540,40", alloc: [0.55, 0.25, 0.12, 0.08] },
+  { week: 12, nw: 96250, pts: "0,170 70,150 140,160 210,116 280,124 350,80 420,72 490,40 540,14", alloc: [0.62, 0.18, 0.12, 0.08] },
 ];
 const HeroPreview = () => {
   const C2 = C;
@@ -529,7 +547,7 @@ const HeroPreview = () => {
         <g transform="translate(40,92)">
           <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR NET WORTH</text>
           <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>${nw.toLocaleString()}</text>
-          <g key={"chip" + i} className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +$1,000 paycheck</text></g>
+          <g key={"chip" + i} className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +{fmt(PAY)} paycheck</text></g>
           <defs>
             <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#0067b8" stopOpacity="0.28" /><stop offset="100%" stopColor="#0067b8" stopOpacity="0" />
@@ -615,7 +633,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
-            { icon: Wallet, t: "Attendance is your paycheck", d: "Show up, earn $1,000. Set your W-4 and 401(k) once — it runs the whole course.", c: C.emerald },
+            { icon: Wallet, t: "Attendance is your paycheck", d: `Show up, earn ${fmt(PAY)}. Set your W-4 and 401(k) once — it runs the whole course.`, c: C.emerald },
             { icon: LineIcon, t: "Markets move like the real world", d: "Live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
             { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car. Live with the payments.", c: C.green },
             { icon: Shield, t: "Grow & protect it", d: "Diversify into bullion, real estate, and private equity, insure against loss, and total your net worth.", c: C.pink },
@@ -748,7 +766,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>Middle school meets <b>Mondays & Tuesdays</b>, high school <b>Wednesdays & Thursdays</b> — every cohort is <b>100% live online over Zoom</b>. We run three cohorts a year — pick the season and day that fit.</p>
           <p style={{ color: C.muted, fontSize: 14, marginTop: 8 }}>Not sure it's the right fit? <b>Cancel before your cohort starts for a full refund.</b> After it begins, withdraw through <b>Act 1 (the first 3 weeks)</b> for a prorated refund. After Act 1, tuition is non-refundable.</p>
-          <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value</b> at the end of each cohort earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; see Terms.)</span></p>
+          <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value at the final (6th) monthly check-in</b> earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; see Terms.)</span></p>
           <p style={{ fontSize: 14, marginTop: 6 }}>Still deciding? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Book a free 15-minute call with Sunil →</span></p>
         </div>
         {/* season selector */}
@@ -1554,10 +1572,10 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
         </a>
       )}
       {action === "settings" && (
-        <Wrap title="Set Up Your Paycheck" blurb="Every class pays $1,000. A flat 15% goes to taxes. Choose your 401(k) contribution — your employer matches dollar-for-dollar up to 5%. These become your standing settings for the whole course.">
+        <Wrap title="Set Up Your Paycheck" blurb={`Every class pays ${fmt(PAY)}. A flat 15% goes to taxes. Choose your 401(k) contribution — your employer matches dollar-for-dollar up to 5%. These become your standing settings for the whole course.`}>
           {sliderRow("401(k) contribution", s.settings.retire401k, (v) => set((n) => n.settings.retire401k = v), 0, 0.1, 0.01)}
           <div style={{ background: C.paper, borderRadius: 4, padding: 12, fontSize: 13, color: C.ink2 }}>
-            On a $1,000 paycheck: ~${(1000 * s.settings.retire401k).toFixed(0)} to your 401(k), plus a ${(1000 * Math.min(s.settings.retire401k, 0.05)).toFixed(0)} employer match — free money.
+            On a {fmt(PAY)} paycheck: ~{fmt(PAY * s.settings.retire401k)} to your 401(k), plus a {fmt(PAY * Math.min(s.settings.retire401k, 0.05))} employer match — free money.
           </div>
         </Wrap>
       )}
@@ -1601,12 +1619,12 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       {action === "buy" && (
         <Wrap title="Big Purchases: Making the Call" blurb="Use your savings for down payments and finance the rest. The monthly payments will autopay from your account for the rest of the course.">
           <div style={{ display: "grid", gap: 12 }}>
-            <BuyCard icon={Home} color={C.gold} title="Starter home — $150,000" detail="5% down ($7,500) · ~$1,000/mo mortgage" owned={!!s.home}
-              onBuy={() => set((n) => { n.savings -= 7500; n.home = { value: 150000, mortgage: 142500, payment: 1000 }; })} disabled={s.savings < 7500} />
-            <BuyCard icon={Car} color={C.turq} title="Used car — $15,000" detail="20% down ($3,000) · ~$300/mo loan" owned={!!s.car}
-              onBuy={() => set((n) => { n.savings -= 3000; n.car = { value: 15000, loan: 12000, payment: 300 }; })} disabled={s.savings < 3000} />
+            <BuyCard icon={Home} color={C.gold} title={`Starter home — ${fmt(HOME.price)}`} detail={`5% down (${fmt(HOME.down)}) · ~${fmt(HOME.payment)}/mo mortgage`} owned={!!s.home}
+              onBuy={() => set((n) => { n.savings -= HOME.down; n.home = { value: HOME.price, mortgage: HOME.mortgage, payment: HOME.payment }; })} disabled={s.savings < HOME.down} />
+            <BuyCard icon={Car} color={C.turq} title={`Used car — ${fmt(CAR.price)}`} detail={`20% down (${fmt(CAR.down)}) · ~${fmt(CAR.payment)}/mo loan`} owned={!!s.car}
+              onBuy={() => set((n) => { n.savings -= CAR.down; n.car = { value: CAR.price, loan: CAR.loan, payment: CAR.payment }; })} disabled={s.savings < CAR.down} />
           </div>
-          {s.savings < 7500 && !s.home && <div style={{ marginTop: 10, fontSize: 13, color: C.rust }}>Not enough saved for the home down payment yet — keep advancing weeks, or buy just the car for now.</div>}
+          {s.savings < HOME.down && !s.home && <div style={{ marginTop: 10, fontSize: 13, color: C.rust }}>Not enough saved for the home down payment yet — keep advancing weeks, or buy just the car for now.</div>}
         </Wrap>
       )}
 
@@ -1614,16 +1632,16 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
         <Wrap title="Surprises & Temptations" blurb="Your bills now autopay in the background. This week two things hit at once: a surprise emergency and the urge to splurge. Your choices change your balances.">
           <div style={{ display: "grid", gap: 12 }}>
             <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}>
-              <div style={{ display: "flex", gap: 8 }}><AlertTriangle size={18} color={C.rust} /><b>Emergency: $800 car repair</b></div>
+              <div style={{ display: "flex", gap: 8 }}><AlertTriangle size={18} color={C.rust} /><b>Emergency: {fmt(EMERGENCY)} car repair</b></div>
               <div style={{ fontSize: 13, color: C.ink2, margin: "6px 0 10px" }}>Cover it from savings (smart) or put it on a credit card (costly).</div>
               <div style={{ display: "flex", gap: 8 }}>
-                <button className="btn" onClick={() => set((n) => n.savings -= 800)} style={{ ...btn, background: C.emerald }}>Pay from savings</button>
-                <button className="btn" onClick={() => set((n) => { n.card.open = true; n.card.balance += 800; })} style={{ ...btn, background: C.paper, color: C.ink, border: `1px solid ${C.line}` }}>Put on credit</button>
+                <button className="btn" onClick={() => set((n) => n.savings -= EMERGENCY)} style={{ ...btn, background: C.emerald }}>Pay from savings</button>
+                <button className="btn" onClick={() => set((n) => { n.card.open = true; n.card.balance += EMERGENCY; })} style={{ ...btn, background: C.paper, color: C.ink, border: `1px solid ${C.line}` }}>Put on credit</button>
               </div>
             </div>
             <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}>
-              <div style={{ display: "flex", gap: 8 }}><ShoppingBag size={18} color={C.gold} /><b>Temptation: $500 shopping spree</b></div>
-              <div style={{ fontSize: 13, color: C.ink2, margin: "6px 0 10px" }}>That same $500 invested could be worth far more later.</div>
+              <div style={{ display: "flex", gap: 8 }}><ShoppingBag size={18} color={C.gold} /><b>Temptation: {fmt(SPREE)} shopping spree</b></div>
+              <div style={{ fontSize: 13, color: C.ink2, margin: "6px 0 10px" }}>That same {fmt(SPREE)} invested could be worth far more later.</div>
               <div style={{ display: "flex", gap: 8 }}>
                 <button className="btn" onClick={() => set(takeSpree)} style={{ ...btn, background: C.gold }}>Treat myself</button>
                 <button className="btn" onClick={() => set(investInstead)} style={{ ...btn, background: C.emerald }}>Invest it instead</button>
@@ -1646,7 +1664,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "review" && (
-        <Wrap title="Same Start, Different Results" blurb="Everyone began with identical $1,000 paychecks. Here's what your choices built so far — and there's still time to adjust before the final stretch.">
+        <Wrap title="Same Start, Different Results" blurb={`Everyone began with identical ${fmt(PAY)} paychecks. Here's what your choices built so far — and there's still time to adjust before the final stretch.`}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <Stat label="Net worth" value={fmt(netWorth(s))} color={C.emerald} />
             <Stat label="Invested" value={fmt(holdingsTotal(s) + s.retirement)} />
@@ -1666,7 +1684,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       {action === "hustle" && (
         <Wrap title="Build Something — Market Day" blurb="AI is changing how the world earns — the builders and owners capture the value, not the consumers. Use a skill (with AI as a tool) to build something people will pay for, on top of your paycheck.">
           {!s.hustle
-            ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= 200; })} style={btn} disabled={s.cash < 200}>Launch your build (−$200 to start)</button>
+            ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your build (−{fmt(HUSTLE_START)} to start)</button>
             : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your build is up and running — it adds extra income each time you advance. Nice work.</div>}
         </Wrap>
       )}
@@ -1674,14 +1692,14 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       {action === "protect" && (
         <Wrap title="Grow & Protect" blurb="Round out your portfolio with alternatives — and protect what you've built with insurance and an emergency fund.">
           <div style={{ display: "grid", gap: 10 }}>
-            <BuyCard icon={Coins} color={C.goldLite} title="Buy $1,000 in bullion" detail="Gold — an inflation hedge" owned={false}
-              onBuy={() => set((n) => { n.cash -= 1000; n.holdings.bullion += 1000; })} disabled={s.cash < 1000} cta="Buy" />
-            <BuyCard icon={Building2} color={C.green} title="Buy $1,000 in a REIT" detail="Income real estate, fully liquid" owned={false}
-              onBuy={() => set((n) => { n.cash -= 1000; n.holdings.reits += 1000; })} disabled={s.cash < 1000} cta="Buy" />
-            <BuyCard icon={Briefcase} color={C.pink} title="Buy $2,000 in private equity" detail="Private companies — high return, but illiquid & locked up" owned={false}
-              onBuy={() => set((n) => { n.cash -= 2000; n.pe = (n.pe || 0) + 2000; })} disabled={s.cash < 2000} cta="Invest" />
+            <BuyCard icon={Coins} color={C.goldLite} title={`Buy ${fmt(ALT_BUY)} in bullion`} detail="Gold — an inflation hedge" owned={false}
+              onBuy={() => set((n) => { n.cash -= ALT_BUY; n.holdings.bullion += ALT_BUY; })} disabled={s.cash < ALT_BUY} cta="Buy" />
+            <BuyCard icon={Building2} color={C.green} title={`Buy ${fmt(ALT_BUY)} in a REIT`} detail="Income real estate, fully liquid" owned={false}
+              onBuy={() => set((n) => { n.cash -= ALT_BUY; n.holdings.reits += ALT_BUY; })} disabled={s.cash < ALT_BUY} cta="Buy" />
+            <BuyCard icon={Briefcase} color={C.pink} title={`Buy ${fmt(PE_BUY)} in private equity`} detail="Private companies — high return, but illiquid & locked up" owned={false}
+              onBuy={() => set((n) => { n.cash -= PE_BUY; n.pe = (n.pe || 0) + PE_BUY; })} disabled={s.cash < PE_BUY} cta="Invest" />
             <BuyCard icon={Shield} color={C.emerald} title="Insurance policy" detail="Protects against major losses" owned={s.insured} cta="Insure"
-              onBuy={() => set((n) => { n.insured = true; n.cash -= 150; })} disabled={s.cash < 150} />
+              onBuy={() => set((n) => { n.insured = true; n.cash -= INSURANCE; })} disabled={s.cash < INSURANCE} />
           </div>
           <div style={{ fontSize: 13, color: s.insured ? C.emerald : C.muted, marginTop: 10 }}>{s.insured ? "You're insured — a major setback won't wipe you out." : "Without insurance, a big emergency comes straight out of your pocket."}</div>
         </Wrap>
@@ -1693,7 +1711,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
           <div style={{ marginTop: 12, padding: 14, background: "#e7f3ee", border: `1px solid ${C.green}`, borderRadius: 4, display: "flex", gap: 10, alignItems: "flex-start" }}>
             <Sparkles size={18} color={C.green} style={{ flexShrink: 0, marginTop: 2 }} />
             <div style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>
-              <b style={{ color: C.green }}>This is your entry for the tuition prize.</b> The student with the highest portfolio value in your cohort earns their <b>tuition refunded</b>. Your check-ins still count — keep growing it. <span style={{ color: C.muted }}>Simulated; winner confirmed by Sunil at the close. See Terms.</span>
+              <b style={{ color: C.green }}>You're in the running for the tuition prize.</b> The student with the highest portfolio value at the <b>final (6th) monthly check-in</b> earns their <b>tuition refunded</b> — so the 6 check-ins still count. Keep growing it. <span style={{ color: C.muted }}>Simulated; winner confirmed by Sunil at the close. See Terms.</span>
             </div>
           </div>
           <div style={{ fontSize: 14, color: C.ink2, marginTop: 12 }}>From here you move into 6 monthly check-ins — the markets keep moving, and you keep managing your portfolio. Advance to begin.</div>
@@ -1701,7 +1719,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "checkin" && (
-        <Wrap title={s.done ? "You've graduated 🎓" : `Check-in ${s.checkin + 1} of 6`} blurb={s.done ? "Six months of independent investing, done. Your portfolio reflects every decision you made." : "Showing up still earns your $1,000 salary. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your pay and apply it."}>
+        <Wrap title={s.done ? "You've graduated 🎓" : `Check-in ${s.checkin + 1} of 6`} blurb={s.done ? "Six months of independent investing, done. Your portfolio reflects every decision you made." : `Showing up still earns your ${fmt(PAY)} salary. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your pay and apply it.`}>
           {!s.done && <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}><b>{macroNow.h}.</b> <span style={{ color: C.ink2 }}>{macroNow.d}</span></div>}
           {s.done && <Stat label="Net worth after one year independent" value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />}
         </Wrap>
@@ -1709,7 +1727,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
 
       {!s.done && (
         <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
-          {s.phase === "course" ? (s.week >= 12 ? "Finish course → begin check-ins" : `Collect $1,000 & advance to Week ${s.week + 1}`) : `Collect $1,000 salary & continue`} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
+          {s.phase === "course" ? (s.week >= 12 ? "Finish course → begin check-ins" : `Collect ${fmt(PAY)} & advance to Week ${s.week + 1}`) : `Collect ${fmt(PAY)} salary & continue`} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
         </button>
       )}
     </div>
@@ -1752,7 +1770,7 @@ const LEGAL = {
       ["Education, not financial advice", "Built Young is financial education. It is not licensed financial, investment, tax, or legal advice. All money, accounts, prices, and returns shown in the simulation are simulated; no real funds are ever involved."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
       ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of Act 1 (the first three weeks) — the refund equals the tuition multiplied by the fraction of sessions not yet held. After Act 1, tuition is non-refundable."],
-      ["Tuition prize", "Each cohort, the enrolled student whose simulated portfolio has the highest value at the end of the 12-week course is awarded a refund of their tuition. Standings are based solely on the in-course simulation; all figures are simulated and no real investing occurs. One award per cohort; in the event of a tie or a data discrepancy, Built Young determines the winner in good faith, and its decision is final. The award is the tuition amount paid for that cohort and is issued after the course concludes. No purchase advantage is conferred by investing style — every student faces the same simulated market. Built Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; the prize is a contest involving minors and must be reviewed by counsel for applicable contest/sweepstakes rules before launch.)"],
+      ["Tuition prize", "Each cohort, the enrolled student whose simulated portfolio has the highest value at the final (sixth) monthly check-in — i.e. at the close of the full program — is awarded a refund of their tuition. Standings are based solely on the in-program simulation; all figures are simulated and no real investing occurs. One award per cohort; in the event of a tie or a data discrepancy, Built Young determines the winner in good faith, and its decision is final. The award is the tuition amount paid for that cohort and is issued after the program concludes. No advantage is conferred by investing style — every student faces the same simulated market. Built Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; the prize is a contest involving minors and must be reviewed by counsel for applicable contest/sweepstakes rules before launch.)"],
       ["Conduct", "We ask students and families to be respectful in live sessions. We may remove anyone whose conduct disrupts the class, consistent with the refund policy above."],
       ["Changes & contact", `We may update these terms and will post the new date above. Questions: ${CONFIG.contactEmail}.`],
     ],

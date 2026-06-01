@@ -12,7 +12,7 @@ so the numbers match what a student would see in the live simulation.
 - The engine is imported READ-ONLY from `src/App.jsx` + `src/marketMedia.js`.
 - Each student is run through the full lifecycle: 12 weekly classes (`phase:"course"`)
   then 6 monthly check-ins (`phase:"checkin"`), 18 periods total. Each period applies
-  one $1,000 paycheck (split per the student's settings), then the period's shared
+  one $10,000 paycheck (split per the student's settings), then the period's shared
   market event from `marketEventFor(...)`, then that week's decisions.
 - **Reproducible:** the only randomness is the hustle bonus in `advance()`. The harness
   installs a seeded PRNG (seed 12345, mixed with the batch id) and restores `Math.random`
@@ -71,30 +71,30 @@ low-engagement (skip optional buys, minimal contributions) to model the students
 
 ## A note on the engine's economics (a real, teachable finding)
 
-On a $1,000/period salary with living costs of $350/period, students are LIQUIDITY-
-constrained. Big lump purchases are gated by available funds, exactly as the dashboard's
-disabled buy buttons enforce, so the harness models the realistic behavior of *saving
-toward a goal and buying when it's affordable*. In practice that means: a **car** ($3,000
-down) is reachable by the later weeks/check-ins for steady savers; a **home** ($7,500
-down) is only reachable by max-rate savers, and only by the final check-ins; and the
-**$2,000 private-equity** buy is effectively unreachable for everyone within the 18
-periods given how little cash accumulates — so no persona clears it this run (the field
-is still captured, always $0). Heavy auto-investors finish with the largest invested base
-but stay cash-poor — a genuine trade-off worth showing students.
+On a $10,000/period salary re-tuned to a realistic young-adult budget, students are
+LIQUIDITY-constrained. Big lump purchases are gated by available funds, exactly as the
+dashboard's disabled buy buttons enforce, so the harness models the realistic behavior of
+*saving toward a goal and buying when it's affordable*. In practice: a **car** ($6,000
+down) is reachable for steady savers; a **home** ($20,000 down) is only reachable by
+max-rate savers, and only by the final check-ins; and the **$15,000 private-equity** buy
+is effectively unreachable for everyone within the 18 periods given how little cash
+accumulates — so no persona clears it this run (the field is still captured, always $0).
+Heavy auto-investors finish with the largest invested base but stay cash-poor — a genuine
+trade-off worth showing students.
 
 ## Headline results
 
 ### fall-ms-mon — Middle School (Mondays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $599
-- Average final net worth: **$9,358** (min $8,035, max $10,222)
-- Tuition-prize winner (highest portfolio value): **Olivia Martinez** at $10,222
-- By risk style: aggressive 5 (avg $10,033), balanced 6 (avg $9,047), conservative 4 (avg $8,980)
+- Average final net worth: **$105,264** (min $90,272, max $120,750)
+- Tuition-prize winner (highest portfolio value): **Ethan Kim** at $120,750
+- By risk style: aggressive 5 (avg $109,697), balanced 6 (avg $103,470), conservative 4 (avg $102,412)
 
 ### fall-hs-wed — High School (Wednesdays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $799
-- Average final net worth: **$9,382** (min $8,035, max $10,526)
-- Tuition-prize winner (highest portfolio value): **Elijah Moore** at $10,526
-- By risk style: aggressive 5 (avg $10,033), balanced 6 (avg $9,107), conservative 4 (avg $8,980)
+- Average final net worth: **$105,831** (min $90,272, max $122,963)
+- Tuition-prize winner (highest portfolio value): **Ethan Kim** at $122,963
+- By risk style: aggressive 5 (avg $110,140), balanced 6 (avg $104,520), conservative 4 (avg $102,412)
 

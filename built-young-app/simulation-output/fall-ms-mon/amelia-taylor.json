@@ -16,7 +16,7 @@
       "brokerageRate": 0,
       "finalRisk": "conservative"
     },
-    "prizeRank": 11
+    "prizeRank": 6
   },
   "funnel": [
     "discovered (friend referral)",
@@ -45,15 +45,15 @@
       "decisionsMade": [
         "set 401(k) contribution to 0% (employer matches up to 5%)"
       ],
-      "netWorth": 502.13,
-      "cash": 117.5,
-      "savings": 214.63,
+      "netWorth": 5021.25,
+      "cash": 1175,
+      "savings": 2146.25,
       "retirement": 0,
       "holdings": {
-        "stocks": 93.5,
-        "bonds": 42.5,
-        "reits": 20.4,
-        "bullion": 13.6
+        "stocks": 935,
+        "bonds": 425,
+        "reits": 204,
+        "bullion": 136
       },
       "privateEquity": 0,
       "creditScore": 668,
@@ -84,15 +84,15 @@
         "auto-save 50% of net pay; auto-invest 0% of net pay to brokerage",
         "chose a conservative investing style"
       ],
-      "netWorth": 1008.52,
-      "cash": 192.5,
-      "savings": 646.02,
+      "netWorth": 10085.21,
+      "cash": 1925,
+      "savings": 6460.21,
       "retirement": 0,
       "holdings": {
-        "stocks": 93.5,
-        "bonds": 42.5,
-        "reits": 20.4,
-        "bullion": 13.6
+        "stocks": 935,
+        "bonds": 425,
+        "reits": 204,
+        "bullion": 136
       },
       "privateEquity": 0,
       "creditScore": 676,
@@ -122,15 +122,15 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 1520.97,
-      "cash": 267.5,
-      "savings": 1087.09,
+      "netWorth": 15209.66,
+      "cash": 2675,
+      "savings": 10870.87,
       "retirement": 0,
       "holdings": {
-        "stocks": 90.7,
-        "bonds": 41.65,
-        "reits": 19.89,
-        "bullion": 14.14
+        "stocks": 906.95,
+        "bonds": 416.5,
+        "reits": 198.9,
+        "bullion": 141.44
       },
       "privateEquity": 0,
       "creditScore": 684,
@@ -160,15 +160,15 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 2042.48,
-      "cash": 342.5,
-      "savings": 1534.77,
+      "netWorth": 20424.82,
+      "cash": 3425,
+      "savings": 15347.68,
       "retirement": 0,
       "holdings": {
-        "stocks": 89.33,
-        "bonds": 40.4,
-        "reits": 20.49,
-        "bullion": 14.99
+        "stocks": 893.35,
+        "bonds": 404.01,
+        "reits": 204.87,
+        "bullion": 149.93
       },
       "privateEquity": 0,
       "creditScore": 692,
@@ -196,17 +196,17 @@
         }
       },
       "decisionsMade": [
-        "wanted a home ($7,500 down) but couldn't afford it yet — saving toward it"
+        "wanted a home ($20,000 down) but couldn't afford it yet — saving toward it"
       ],
-      "netWorth": 2564.82,
-      "cash": 417.5,
-      "savings": 1979.37,
+      "netWorth": 25648.24,
+      "cash": 4175,
+      "savings": 19793.66,
       "retirement": 0,
       "holdings": {
-        "stocks": 90.67,
-        "bonds": 40.6,
-        "reits": 21.61,
-        "bullion": 15.07
+        "stocks": 906.75,
+        "bonds": 406.03,
+        "reits": 216.13,
+        "bullion": 150.68
       },
       "privateEquity": 0,
       "creditScore": 700,
@@ -234,18 +234,18 @@
         }
       },
       "decisionsMade": [
-        "put the $800 emergency car repair on a credit card",
-        "invested the $500 instead of spending it"
+        "put the $2,500 emergency car repair on a credit card",
+        "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 2248.37,
-      "cash": 0,
-      "savings": 2420.91,
+      "netWorth": 28232.79,
+      "cash": 3425,
+      "savings": 24284.09,
       "retirement": 0,
       "holdings": {
-        "stocks": 249.73,
-        "bonds": 273.57,
-        "reits": 79.17,
-        "bullion": 56.99
+        "stocks": 1345.84,
+        "bonds": 1113.46,
+        "reits": 384.25,
+        "bullion": 280.15
       },
       "privateEquity": 0,
       "creditScore": 708,
@@ -253,7 +253,7 @@
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 832
+        "balance": 2600
       },
       "insured": false,
       "hustleActive": false
@@ -273,25 +273,29 @@
         }
       },
       "decisionsMade": [
-        "attended class; no portfolio changes this week"
+        "bought a starter home ($400,000, 5% down, ~$2,500/mo mortgage)"
       ],
-      "netWorth": 2761.28,
-      "cash": 75,
-      "savings": 2874.37,
+      "netWorth": 38076.85,
+      "cash": 1675,
+      "savings": 8619.43,
       "retirement": 0,
       "holdings": {
-        "stocks": 260.97,
-        "bonds": 279.04,
-        "reits": 80.75,
-        "bullion": 56.43
+        "stocks": 1406.4,
+        "bonds": 1135.72,
+        "reits": 391.94,
+        "bullion": 277.35
       },
       "privateEquity": 0,
       "creditScore": 716,
-      "home": null,
+      "home": {
+        "value": 406400,
+        "mortgage": 379125,
+        "equity": 27275
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 865.28
+        "balance": 2704
       },
       "insured": false,
       "hustleActive": false
@@ -313,23 +317,27 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 3249.94,
-      "cash": 150,
-      "savings": 3332.36,
+      "netWorth": 38165.57,
+      "cash": 0,
+      "savings": 12923.13,
       "retirement": 0,
       "holdings": {
-        "stocks": 249.23,
-        "bonds": 281.83,
-        "reits": 79.13,
-        "bullion": 57.27
+        "stocks": 1343.12,
+        "bonds": 1147.08,
+        "reits": 384.1,
+        "bullion": 281.51
       },
       "privateEquity": 0,
       "creditScore": 724,
-      "home": null,
+      "home": {
+        "value": 403148.8,
+        "mortgage": 378250,
+        "equity": 24898.8
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 899.89
+        "balance": 2812.16
       },
       "insured": false,
       "hustleActive": false
@@ -351,23 +359,27 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 3770.81,
-      "cash": 225,
-      "savings": 3794.94,
+      "netWorth": 48152,
+      "cash": 0,
+      "savings": 15594.86,
       "retirement": 0,
       "holdings": {
-        "stocks": 266.67,
-        "bonds": 283.24,
-        "reits": 80.72,
-        "bullion": 56.13
+        "stocks": 1437.13,
+        "bonds": 1152.82,
+        "reits": 391.78,
+        "bullion": 275.88
       },
       "privateEquity": 0,
       "creditScore": 732,
-      "home": null,
+      "home": {
+        "value": 409599.18,
+        "mortgage": 377375,
+        "equity": 32224.18
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 935.89
+        "balance": 2924.65
       },
       "insured": false,
       "hustleActive": false
@@ -389,23 +401,27 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 4237.09,
-      "cash": 300,
-      "savings": 4198.84,
+      "netWorth": 60442.93,
+      "cash": 0,
+      "savings": 17995.63,
       "retirement": 0,
       "holdings": {
-        "stocks": 280.01,
-        "bonds": 291.74,
-        "reits": 83.14,
-        "bullion": 56.69
+        "stocks": 1508.99,
+        "bonds": 1187.4,
+        "reits": 403.53,
+        "bullion": 278.64
       },
       "privateEquity": 0,
       "creditScore": 740,
-      "home": null,
+      "home": {
+        "value": 418610.36,
+        "mortgage": 376500,
+        "equity": 42110.36
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 973.32
+        "balance": 3041.63
       },
       "insured": false,
       "hustleActive": false
@@ -427,23 +443,27 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 4743.77,
-      "cash": 375,
-      "savings": 4670.07,
+      "netWorth": 63071.48,
+      "cash": 0,
+      "savings": 20718.09,
       "retirement": 0,
       "holdings": {
-        "stocks": 273.01,
-        "bonds": 296.11,
-        "reits": 82.31,
-        "bullion": 59.52
+        "stocks": 1471.27,
+        "bonds": 1205.21,
+        "reits": 399.5,
+        "bullion": 292.57
       },
       "privateEquity": 0,
       "creditScore": 748,
-      "home": null,
+      "home": {
+        "value": 417773.14,
+        "mortgage": 375625,
+        "equity": 42148.14
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 1012.26
+        "balance": 3163.3
       },
       "insured": false,
       "hustleActive": false
@@ -465,23 +485,27 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 5271.95,
-      "cash": 450,
-      "savings": 5146.03,
+      "netWorth": 74595.7,
+      "cash": 0,
+      "savings": 23467.77,
       "retirement": 0,
       "holdings": {
-        "stocks": 283.93,
-        "bonds": 300.56,
-        "reits": 84.36,
-        "bullion": 59.82
+        "stocks": 1530.12,
+        "bonds": 1223.29,
+        "reits": 409.48,
+        "bullion": 294.03
       },
       "privateEquity": 0,
       "creditScore": 756,
-      "home": null,
+      "home": {
+        "value": 425710.83,
+        "mortgage": 374750,
+        "equity": 50960.83
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 1052.75
+        "balance": 3289.83
       },
       "insured": false,
       "hustleActive": false
@@ -503,23 +527,27 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 5813.21,
-      "cash": 525,
-      "savings": 5637.88,
+      "netWorth": 85061.89,
+      "cash": 0,
+      "savings": 26300.38,
       "retirement": 0,
       "holdings": {
-        "stocks": 292.45,
-        "bonds": 308.07,
-        "reits": 86.05,
-        "bullion": 58.62
+        "stocks": 1576.02,
+        "bonds": 1253.87,
+        "reits": 417.67,
+        "bullion": 288.15
       },
       "privateEquity": 0,
       "creditScore": 764,
-      "home": null,
+      "home": {
+        "value": 432522.21,
+        "mortgage": 373875,
+        "equity": 58647.21
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 1094.86
+        "balance": 3421.42
       },
       "insured": false,
       "hustleActive": false
@@ -541,23 +569,27 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 6341.97,
-      "cash": 600,
-      "savings": 6153.82,
+      "netWorth": 82612.41,
+      "cash": 0,
+      "savings": 29258.64,
       "retirement": 0,
       "holdings": {
-        "stocks": 280.75,
-        "bonds": 301.91,
-        "reits": 83.47,
-        "bullion": 60.67
+        "stocks": 1512.98,
+        "bonds": 1228.8,
+        "reits": 405.14,
+        "bullion": 298.24
       },
       "privateEquity": 0,
       "creditScore": 772,
-      "home": null,
+      "home": {
+        "value": 426466.89,
+        "mortgage": 373000,
+        "equity": 53466.89
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 1138.65
+        "balance": 3558.28
       },
       "insured": false,
       "hustleActive": false
@@ -579,23 +611,27 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 6893.39,
-      "cash": 675,
-      "savings": 6657.77,
+      "netWorth": 93165.13,
+      "cash": 0,
+      "savings": 32160.74,
       "retirement": 0,
       "holdings": {
-        "stocks": 296.19,
-        "bonds": 303.42,
-        "reits": 85.14,
-        "bullion": 60.07
+        "stocks": 1596.19,
+        "bonds": 1234.94,
+        "reits": 413.25,
+        "bullion": 295.25
       },
       "privateEquity": 0,
       "creditScore": 780,
-      "home": null,
+      "home": {
+        "value": 433290.36,
+        "mortgage": 372125,
+        "equity": 61165.36
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 1184.2
+        "balance": 3700.61
       },
       "insured": false,
       "hustleActive": false
@@ -617,23 +653,27 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 7434.2,
-      "cash": 750,
-      "savings": 7167.76,
+      "netWorth": 88177.96,
+      "cash": 0,
+      "savings": 35097.67,
       "retirement": 0,
       "holdings": {
-        "stocks": 299.15,
-        "bonds": 306.45,
-        "reits": 81.73,
-        "bullion": 60.67
+        "stocks": 1612.16,
+        "bonds": 1247.29,
+        "reits": 396.72,
+        "bullion": 298.21
       },
       "privateEquity": 0,
       "creditScore": 788,
-      "home": null,
+      "home": {
+        "value": 424624.56,
+        "mortgage": 371250,
+        "equity": 53374.56
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 1231.56
+        "balance": 3848.64
       },
       "insured": false,
       "hustleActive": false
@@ -655,23 +695,27 @@
       "decisionsMade": [
         "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 7997.51,
-      "cash": 825,
-      "savings": 7683.87,
+      "netWorth": 101318.74,
+      "cash": 0,
+      "savings": 38069.85,
       "retirement": 0,
       "holdings": {
-        "stocks": 311.12,
-        "bonds": 312.58,
-        "reits": 84.19,
-        "bullion": 61.58
+        "stocks": 1676.64,
+        "bonds": 1272.24,
+        "reits": 408.62,
+        "bullion": 302.68
       },
       "privateEquity": 0,
       "creditScore": 796,
-      "home": null,
+      "home": {
+        "value": 433966.3,
+        "mortgage": 370375,
+        "equity": 63591.3
+      },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 1280.83
+        "balance": 4002.58
       },
       "insured": false,
       "hustleActive": false
@@ -691,29 +735,29 @@
         }
       },
       "decisionsMade": [
-        "bought a starter home ($150k, 5% down, ~$1,000/mo mortgage)"
+        "showed up, collected salary, let the portfolio ride"
       ],
-      "netWorth": 8855.88,
+      "netWorth": 108082.27,
       "cash": 0,
-      "savings": 516.18,
+      "savings": 41077.68,
       "retirement": 0,
       "holdings": {
-        "stocks": 304.89,
-        "bonds": 318.83,
-        "reits": 84.61,
-        "bullion": 63.43
+        "stocks": 1643.11,
+        "bonds": 1297.68,
+        "reits": 410.66,
+        "bullion": 311.76
       },
       "privateEquity": 0,
       "creditScore": 804,
       "home": {
-        "value": 151050,
-        "mortgage": 142150,
-        "equity": 8900
+        "value": 437004.06,
+        "mortgage": 369500,
+        "equity": 67504.06
       },
       "car": null,
       "creditCard": {
         "open": true,
-        "balance": 1332.06
+        "balance": 4162.68
       },
       "insured": false,
       "hustleActive": false
@@ -1016,17 +1060,17 @@
     }
   ],
   "final": {
-    "finalNetWorth": 8855.88,
-    "totalPaychecksReceived": 18000,
+    "finalNetWorth": 108082.27,
+    "totalPaychecksReceived": 180000,
     "breakdown": {
       "cash": 0,
-      "savings": 516.18,
+      "savings": 41077.68,
       "retirement": 0,
-      "brokerageHoldings": 771.76,
+      "brokerageHoldings": 3663.21,
       "privateEquity": 0,
-      "homeEquity": 8900,
+      "homeEquity": 67504.06,
       "carEquity": 0,
-      "creditCardDebt": 1332.06
+      "creditCardDebt": 4162.68
     },
     "creditScore": 804,
     "boughtHome": true,
@@ -1034,6 +1078,6 @@
     "carriedCardDebt": true,
     "insured": false,
     "hustled": false,
-    "narrative": "Amelia ran a conservative strategy, bought a home, skipped the car, finished carrying $1,332 in card debt — finishing with a simulated net worth of $8,856 and a credit score of 804. All figures simulated."
+    "narrative": "Amelia ran a conservative strategy, bought a home, skipped the car, finished carrying $4,163 in card debt — finishing with a simulated net worth of $108,082 and a credit score of 804. All figures simulated."
   }
 }

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   validEmail, newState, advance, netWorth, holdingsTotal,
-  takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES,
+  takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, PAY,
 } from "../src/App.jsx";
 // The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
 // module so the future schedule never ships in the client bundle (anti-gaming). These engine
@@ -44,23 +44,26 @@ describe("newState", () => {
   });
 });
 
-describe("budget choices (Week 6) — the $500 decision", () => {
-  it("takeSpree spends $500: cash and net worth both drop by 500", () => {
+describe("budget choices (Week 6) — the spree decision", () => {
+  // The spree amount is derived from the sim economy; assert the relationship, not a literal.
+  it("takeSpree spends the spree amount: cash and net worth both drop by it", () => {
     const s = newState(STUDENT);
     const before = netWorth(s);
     takeSpree(s);
-    expect(s.cash).toBe(-500);
-    expect(netWorth(s)).toBe(before - 500);
+    const spent = -s.cash; // cash went from 0 to negative
+    expect(spent).toBeGreaterThan(0);
+    expect(netWorth(s)).toBeCloseTo(before - spent, 6);
   });
 
-  it("investInstead MOVES $500 from cash into holdings — net worth is preserved (regression for the money-minting bug)", () => {
+  it("investInstead MOVES the spree amount from cash into holdings — net worth preserved (regression for the money-minting bug)", () => {
     const s = newState(STUDENT); // alloc defaults to balanced
     const before = netWorth(s);
     investInstead(s);
-    expect(s.cash).toBe(-500);
-    // exactly $500 distributed by allocation — stocks not double-counted
-    expect(holdingsTotal(s)).toBeCloseTo(500, 6);
-    expect(s.holdings.stocks).toBeCloseTo(500 * RISK_PRESETS.balanced.stocks, 6);
+    const spent = -s.cash;
+    expect(spent).toBeGreaterThan(0);
+    // the full amount is distributed by allocation — stocks not double-counted
+    expect(holdingsTotal(s)).toBeCloseTo(spent, 6);
+    expect(s.holdings.stocks).toBeCloseTo(spent * RISK_PRESETS.balanced.stocks, 6);
     // money only changed form; net worth must be unchanged
     expect(netWorth(s)).toBeCloseTo(before, 6);
   });
@@ -93,8 +96,8 @@ describe("advance (one paycheck period)", () => {
     // zero out market growth so we can read the raw contribution
     const flat = { h: "", d: "", e: { stocks: 0, bonds: 0, reits: 0, bullion: 0, sav: 0 } };
     const next = advance(prev, flat);
-    // $50 contribution + $50 match on a $1,000 paycheck
-    expect(next.retirement).toBeCloseTo(100, 6);
+    // 5% contribution + 5% match on the paycheck = 10% of PAY
+    expect(next.retirement).toBeCloseTo(PAY * 0.1, 6);
   });
 });
 
