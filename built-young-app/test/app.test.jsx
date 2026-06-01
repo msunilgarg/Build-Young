@@ -79,6 +79,21 @@ describe("Legal modal", () => {
   });
 });
 
+describe("Tuition prize", () => {
+  it("advertises the highest-portfolio tuition prize on the landing pricing section", () => {
+    render(<App />);
+    expect(screen.getByText(/Win your tuition back/i)).toBeInTheDocument();
+    expect(screen.getByText(/highest portfolio value/i)).toBeInTheDocument();
+  });
+
+  it("states the prize in the in-app Terms", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByText("Terms"));
+    expect(await screen.findByRole("heading", { name: "Tuition prize" })).toBeInTheDocument();
+  });
+});
+
 describe("Course hub (per-week resources & catch-up)", () => {
   async function enrollToDashboard(user) {
     render(<App />);
