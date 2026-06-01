@@ -1,15 +1,28 @@
 import { describe, it, expect } from "vitest";
-import { mediaDrip, MEDIA, marketEventFor, weekResources } from "../src/marketMedia.js";
-import { mediaDrip as appMediaDrip, MEDIA as appMEDIA } from "../src/App.jsx";
+// The SCHEDULE + MEDIA map + the schedule-resolving mediaDrip/weekResources are server-only
+// now (api/_lib/marketSchedule.js) so the future schedule never ships in the client bundle.
+import { mediaDrip, MEDIA, marketEventFor, weekResources } from "../api/_lib/marketSchedule.js";
+// The client-safe builder lives in src/marketMedia.js and is re-exported by App.jsx; the
+// server's mediaDrip delegates to it, so the content is byte-identical to before.
+import { buildMediaDrip } from "../src/marketMedia.js";
+import { buildMediaDrip as appBuildMediaDrip } from "../src/App.jsx";
 
 const studentState = (week) => ({ phase: "course", week, checkin: 0, student: { name: "Jordan Rivera" } });
 // The cron picks the email whose `day` matches the dayOffset (3 → breaking, 2 → analysis, 1 → challenge).
 const pickByOffset = (week, offset) => mediaDrip(studentState(week), null).find((m) => m.day === offset);
 
-describe("App.jsx re-exports the single-sourced media", () => {
-  it("exposes the SAME mediaDrip + MEDIA as marketMedia.js (single source of truth)", () => {
-    expect(appMediaDrip).toBe(mediaDrip);
-    expect(appMEDIA).toBe(MEDIA);
+describe("App.jsx re-exports the client-safe media builder", () => {
+  it("exposes the SAME buildMediaDrip as marketMedia.js (single source of truth)", () => {
+    expect(appBuildMediaDrip).toBe(buildMediaDrip);
+  });
+  it("the server mediaDrip delegates to the shared builder (byte-identical content)", () => {
+    const s = studentState(3);
+    const ev = marketEventFor("course", 3, 0);
+    const viaServer = mediaDrip(s, null, { fromEmail: "x@y.com" });
+    const viaBuilder = buildMediaDrip(ev, MEDIA[ev.h], s, { fromEmail: "x@y.com" });
+    // ids carry a Date.now() stamp, so compare the stable fields
+    const stable = (m) => ({ when: m.when, day: m.day, subject: m.subject, body: m.body, from: m.from, event: m.event, resources: m.resources, type: m.type });
+    expect(viaServer.map(stable)).toEqual(viaBuilder.map(stable));
   });
 });
 
