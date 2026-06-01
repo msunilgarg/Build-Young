@@ -23,12 +23,16 @@
 import {
   newState, advance, netWorth, holdingsTotal,
   RISK_PRESETS, ASSETS, BATCHES,
+  PAY, HOME, CAR, EMERGENCY, SPREE, INSURANCE, ALT_BUY, PE_BUY, HUSTLE_START,
 } from "../src/App.jsx";
 import { WEEK_TITLES } from "../src/marketMedia.js";
 // The market schedule + schedule-resolving mediaDrip are server-only now (so the future
 // schedule never ships in the client bundle); the harness runs in node, so it imports them
 // directly from the server module — same content the app fetches via /api/market-event.
 import { marketEventFor, mediaDrip } from "../api/_lib/marketSchedule.js";
+
+// Short USD formatter for human-readable decision narratives (e.g. "$400,000").
+const money = (v) => "$" + Math.round(v).toLocaleString();
 
 const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -59,14 +63,14 @@ const decide = {
   },
   setRisk(n, risk) { n.settings.risk = risk; n.alloc = { ...RISK_PRESETS[risk] }; },
   // Week 5 buy handlers
-  buyHome(n) { n.savings -= 7500; n.home = { value: 150000, mortgage: 142500, payment: 1000 }; },
-  buyCar(n) { n.savings -= 3000; n.car = { value: 15000, loan: 12000, payment: 300 }; },
+  buyHome(n) { n.savings -= HOME.down; n.home = { value: HOME.price, mortgage: HOME.mortgage, payment: HOME.payment }; },
+  buyCar(n) { n.savings -= CAR.down; n.car = { value: CAR.price, loan: CAR.loan, payment: CAR.payment }; },
   // Week 6 emergency
-  emergencyFromSavings(n) { n.savings -= 800; },
-  emergencyOnCredit(n) { n.card.open = true; n.card.balance += 800; },
+  emergencyFromSavings(n) { n.savings -= EMERGENCY; },
+  emergencyOnCredit(n) { n.card.open = true; n.card.balance += EMERGENCY; },
   // Week 6 spree vs invest (mirrors takeSpree / investInstead)
-  spree(n) { n.cash -= 500; },
-  investInstead(n) { n.cash -= 500; ASSETS.forEach((a) => { n.holdings[a.key] += 500 * (n.alloc[a.key] || 0); }); },
+  spree(n) { n.cash -= SPREE; },
+  investInstead(n) { n.cash -= SPREE; ASSETS.forEach((a) => { n.holdings[a.key] += SPREE * (n.alloc[a.key] || 0); }); },
   // Week 7 credit card
   openCard(n) { n.card.open = true; },
   // Mirrors the dashboard's "Pay it off in full" button, which only renders when there's a
@@ -85,12 +89,12 @@ const decide = {
     ASSETS.forEach((x) => { n.holdings[x.key] = tot * RISK_PRESETS[preset][x.key]; });
   },
   // Week 10 hustle
-  hustle(n) { n.hustle = true; n.cash -= 200; },
+  hustle(n) { n.hustle = true; n.cash -= HUSTLE_START; },
   // Week 11 protect
-  buyBullion(n) { n.cash -= 1000; n.holdings.bullion += 1000; },
-  buyReit(n) { n.cash -= 1000; n.holdings.reits += 1000; },
-  buyPE(n) { n.cash -= 2000; n.pe = (n.pe || 0) + 2000; },
-  insure(n) { n.insured = true; n.cash -= 150; },
+  buyBullion(n) { n.cash -= ALT_BUY; n.holdings.bullion += ALT_BUY; },
+  buyReit(n) { n.cash -= ALT_BUY; n.holdings.reits += ALT_BUY; },
+  buyPE(n) { n.cash -= PE_BUY; n.pe = (n.pe || 0) + PE_BUY; },
+  insure(n) { n.insured = true; n.cash -= INSURANCE; },
 };
 
 // Deep clone exactly like the UI's `set`/`advance` helpers.
@@ -113,15 +117,16 @@ function alreadyDone(key, n) {
 // Funds gate mirroring the dashboard's disabled buy buttons. Returns null if affordable,
 // else { note } describing the shortfall.
 function fundsGate(key, n) {
+  const usd = (v) => "$" + Math.round(v).toLocaleString();
   const short = (label) => ({ note: `wanted ${label} but couldn't afford it yet — saving toward it` });
   switch (key) {
-    case "buyHome": return n.savings < 7500 ? short("a home ($7,500 down)") : null;
-    case "buyCar": return n.savings < 3000 ? short("a car ($3,000 down)") : null;
-    case "buyBullion": return n.cash < 1000 ? short("$1,000 in bullion") : null;
-    case "buyReit": return n.cash < 1000 ? short("$1,000 in a REIT") : null;
-    case "buyPE": return n.cash < 2000 ? short("$2,000 in private equity") : null;
-    case "hustle": return n.cash < 200 ? short("to launch a hustle (−$200)") : null;
-    case "insure": return n.cash < 150 ? short("insurance (−$150)") : null;
+    case "buyHome": return n.savings < HOME.down ? short(`a home (${usd(HOME.down)} down)`) : null;
+    case "buyCar": return n.savings < CAR.down ? short(`a car (${usd(CAR.down)} down)`) : null;
+    case "buyBullion": return n.cash < ALT_BUY ? short(`${usd(ALT_BUY)} in bullion`) : null;
+    case "buyReit": return n.cash < ALT_BUY ? short(`${usd(ALT_BUY)} in a REIT`) : null;
+    case "buyPE": return n.cash < PE_BUY ? short(`${usd(PE_BUY)} in private equity`) : null;
+    case "hustle": return n.cash < HUSTLE_START ? short(`to launch a hustle (−${usd(HUSTLE_START)})`) : null;
+    case "insure": return n.cash < INSURANCE ? short(`insurance (−${usd(INSURANCE)})`) : null;
     default: return null;
   }
 }
@@ -144,7 +149,7 @@ const P = (over) => ({
 // emergency: "savings" | "credit"
 // spree: "invest" | "treat"
 // rebalance: null | "conservative" | "balanced" | "aggressive" (applied Week 9)
-// Tuning note: on a $1,000 salary, living costs (−$350/period) are paid from CASH, and the
+// Tuning note: on the $PAY salary, living costs (LIVING/period) are paid from CASH, and the
 // overdraft guard pulls from savings when cash runs short. So the realistic way to fund a big
 // purchase is a high SAVINGS rate paired with a LOW brokerage rate (so cash, not savings, eats
 // the living costs). Personas are calibrated so their intended behavior actually occurs in the
@@ -220,9 +225,9 @@ const PERSONAS = [
 // ============================ PER-WEEK DECISION SCHEDULE ============================
 // Maps the persona's flags onto the 12-week curriculum's action weeks (matching WEEKS in
 // App.jsx). Returns the ordered list of {key, arg} ops to apply in a given course week
-// (the engine's $1,000 salary keeps paying through the 6 check-ins too — see below).
+// (the engine.s salary keeps paying through the 6 check-ins too — see below).
 //
-// NOTE on big purchases: on a $1,000 salary with heavy auto-investing, savings accumulates
+// NOTE on big purchases: on the salary with heavy auto-investing, savings accumulates
 // slowly, so the home ($7,500 down) / car ($3,000 down) / PE ($2,000) buys are LIQUIDITY-
 // gated. We model the realistic teen behavior of *saving toward a goal and buying when it's
 // affordable*: an intending student attempts the purchase on the curriculum week the option
@@ -280,20 +285,20 @@ function describeOp(op) {
       return parts.join("; ");
     }
     case "setRisk": return `chose a ${op.arg} investing style`;
-    case "buyHome": return "bought a starter home ($150k, 5% down, ~$1,000/mo mortgage)";
-    case "buyCar": return "bought a used car ($15k, 20% down, ~$300/mo loan)";
-    case "emergencyFromSavings": return "covered the $800 emergency car repair from savings";
-    case "emergencyOnCredit": return "put the $800 emergency car repair on a credit card";
-    case "spree": return "took the $500 shopping spree (treat myself)";
-    case "investInstead": return "invested the $500 instead of spending it";
+    case "buyHome": return `bought a starter home (${money(HOME.price)}, 5% down, ~${money(HOME.payment)}/mo mortgage)`;
+    case "buyCar": return `bought a used car (${money(CAR.price)}, 20% down, ~${money(CAR.payment)}/mo loan)`;
+    case "emergencyFromSavings": return `covered the ${money(EMERGENCY)} emergency car repair from savings`;
+    case "emergencyOnCredit": return `put the ${money(EMERGENCY)} emergency car repair on a credit card`;
+    case "spree": return `took the ${money(SPREE)} shopping spree (treat myself)`;
+    case "investInstead": return `invested the ${money(SPREE)} instead of spending it`;
     case "openCard": return "opened a first credit card";
     case "payCardInFull": return "paid the credit-card balance in full";
     case "rebalance": return `rebalanced the portfolio to a ${op.arg} mix`;
-    case "hustle": return "launched a side build/hustle (−$200 to start, recurring income after)";
-    case "buyBullion": return "bought $1,000 in bullion (gold inflation hedge)";
-    case "buyReit": return "bought $1,000 in a REIT";
-    case "buyPE": return "invested $2,000 in private equity (locked up)";
-    case "insure": return "bought an insurance policy (−$150)";
+    case "hustle": return `launched a side build/hustle (−${money(HUSTLE_START)} to start, recurring income after)`;
+    case "buyBullion": return `bought ${money(ALT_BUY)} in bullion (gold inflation hedge)`;
+    case "buyReit": return `bought ${money(ALT_BUY)} in a REIT`;
+    case "buyPE": return `invested ${money(PE_BUY)} in private equity (locked up)`;
+    case "insure": return `bought an insurance policy (−${money(INSURANCE)})`;
     default: return op.key;
   }
 }
@@ -436,7 +441,7 @@ function runStudent(persona, batch) {
 
   const final = snapshot(s);
   // total contributed = 18 paychecks of $1,000 (the only money that ever enters the sim).
-  const totalPaychecks = 18 * 1000;
+  const totalPaychecks = 18 * PAY;
   const narrative = buildNarrative(persona, final);
 
   return {
@@ -611,3 +616,5 @@ export function studentForFile(s) {
 }
 
 export { PERSONAS, slugify };
+// Re-export the sim economy so the README generator/tests describe the CURRENT figures.
+export { PAY, HOME, CAR, EMERGENCY, SPREE, INSURANCE, ALT_BUY, PE_BUY, HUSTLE_START };
