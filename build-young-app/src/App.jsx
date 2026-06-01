@@ -187,7 +187,7 @@ const WEEKS = [
     ] },
   { act: 2, t: "Portfolio Review: Same Start, Different Results", s: "Tally net worth and trace what drove the spread.", action: "review" },
   { act: 3, t: "Active Investing", s: "Review, diversify, rebalance.", action: "rebalance" },
-  { act: 3, t: "Build Something: Earning in an AI World", s: "Be a builder, not just a consumer — turn a skill (and AI) into income.", action: "hustle" },
+  { act: 3, t: "Build Something: Earning in an AI World", s: "Create value others will pay for — turn a skill (and AI) into income you own.", action: "hustle" },
   { act: 3, t: "Beyond Stocks: Growing & Protecting Wealth", s: "Bullion, real estate, insurance — and a safety net.", action: "protect" },
   { act: 3, t: "Capstone: Net Worth & Plan", s: "Total it all up and tell your story.", action: "capstone" },
 ];
@@ -1682,10 +1682,10 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "hustle" && (
-        <Wrap title="Build Something — Market Day" blurb="AI is changing how the world earns — the builders and owners capture the value, not the consumers. Use a skill (with AI as a tool) to build something people will pay for, on top of your paycheck.">
+        <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a build you own creates value while you sleep. Use a skill (with AI as a tool) to make something people would actually pay for — and watch it earn on top of your paycheck.">
           {!s.hustle
             ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your build (−{fmt(HUSTLE_START)} to start)</button>
-            : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your build is up and running — it adds extra income each time you advance. Nice work.</div>}
+            : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your build is live — people are paying for the value it creates, so it earns every time you advance. That's building economic value: solve a real problem, own the upside.</div>}
         </Wrap>
       )}
 
