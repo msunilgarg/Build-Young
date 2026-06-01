@@ -646,7 +646,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
         </h1>
         <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — financial literacy, learned by living it.</p>
         <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
-          Build Young is a <b>live, instructor-led course</b> where teens first <b>build something people will pay for</b> — using a skill and AI to create real value — and <b>that</b> is where their income comes from. Then they learn to <b>manage what they earn</b>: taxes, saving, investing through real market swings, big purchases, and watching it compound — graduating having built both a business and a net worth from zero. <b>You create the value first; the money follows.</b> It's a hands-on sandbox — <b>no real money is ever involved</b> — just the real skills, practiced somewhere safe before the stakes are real.
+          Build Young is a <b>live, instructor-led course</b> where teens first <b>build something they believe people will pay for</b> — a small product, app, or service, with AI as their tool — and in the simulation, <b>that</b> is where their income comes from. Then they learn to <b>manage what they earn</b>: taxes, saving, investing through real market swings, big purchases, and watching it compound — graduating having built both a business and a net worth from zero. <b>You create the value first; the money follows.</b> It's a hands-on sandbox — <b>no real money is ever involved</b> — just the real skills, practiced somewhere safe before the stakes are real.
         </p>
         <HeroPreview />
         <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
@@ -675,11 +675,11 @@ function Landing({ onEnroll, onCall, onLegal }) {
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 6vw" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 26px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works</h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>First your student builds something people will pay for — that's where the income starts. Then they learn to manage it: invest it, make the big calls, and watch it compound.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>First your student builds something they believe people will pay for — and in the simulation, that's where the income starts. Then they learn to manage it: invest it, make the big calls, and watch it compound.</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
-            { icon: Sparkles, t: "Build something people need", d: "First, use a skill (and AI) to solve a real problem for other people — create value they'll pay for.", c: C.gold },
+            { icon: Sparkles, t: "Build something people need", d: "First, make a small product, app, or service (with AI as your tool) that solves a real problem for other people.", c: C.gold },
             { icon: Wallet, t: "Your build earns the income", d: `That's where the money comes from — your venture grows to about ${fmt(STEADY_INCOME)} a period. No paycheck handed to you.`, c: C.emerald },
             { icon: LineIcon, t: "Markets move like the real world", d: "Once you're investing, live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
             { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car with what you've earned. Live with the payments.", c: C.green },
@@ -699,9 +699,9 @@ function Landing({ onEnroll, onCall, onLegal }) {
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">two acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks: first a hands-on build arc where your student creates something people pay for — the source of their income — then the finance act, learning to manage and grow what that build earns.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks: first a hands-on build arc where your student creates something they believe people would pay for — the source of their income in the simulation — then the finance act, learning to manage and grow what that build earns.</p>
         </div>
-        {[1, 2, 3].map((act) => (
+        {Object.keys(ACTS).map(Number).map((act) => (
           <div key={act} style={{ marginTop: 26 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <Pill bg={act === 1 ? C.green : act === 2 ? C.pink : C.turq}>Act {act}</Pill>
@@ -750,10 +750,10 @@ function Landing({ onEnroll, onCall, onLegal }) {
             <div style={{ width: 64, height: 4, borderRadius: 2, margin: "12px auto 0", background: `linear-gradient(90deg, ${C.green}, ${C.turq}, ${C.pink})` }} />
           </div>
           <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 24, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
-            <b className="disp">Raising builders, not consumers.</b> How money works — the thing that matters most in real life — isn't on any test. We teach it by letting our kids live it, so in a world changing faster than any classroom can keep up, their future rests on what they can build, not just what they were credentialed to do.
+            <b className="disp">Raising builders, not consumers.</b> The skill that matters most in an AI world isn't on any test: building something people value. We teach it by letting kids live it — they build, they earn, then they learn to grow and protect what they've made — because their future rests on what they can build, not just what they were credentialed to do.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
-            The real way to get ahead is to <b>build something other people will pay for</b> — to solve a problem and create value, the one skill no degree guarantees and no AI takes away from the person who can do it. That's the heart of this: a kid who has actually made something people wanted, and earned from it, carries that for life. Being money-savvy is what lets them <b>keep and grow</b> what they build — putting it to work so it compounds instead of slipping away. And learned this young, it shapes who they become. A kid who builds something real practices initiative and grit; one who lives with a choice — a splurge that set back a goal, an emergency that tested their cushion — builds responsibility and resilience. Because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear. The point was never a credential — it's a young person who can build, knows how to grow and protect what they make, and knows what to do with what they earn.
+            The real way to get ahead is to <b>build something people will actually pay for</b> — to solve a problem and create value, the one skill no degree guarantees and no AI takes away from the person who can do it. That's the heart of this: a kid who has actually made something people wanted, and earned from it, carries that for life. Being money-savvy is what lets them <b>keep and grow</b> what they build — putting it to work so it compounds instead of slipping away. And learned this young, it shapes who they become. A kid who builds something real practices initiative and grit; one who lives with a choice — a splurge that set back a goal, an emergency that tested their cushion — builds responsibility and resilience. Because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who understands it can talk about it plainly — needs, trade-offs, even mistakes — without shame. That candor carries into everything: they ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear. The point was never a credential — it's a young person who can build, knows how to grow and protect what they make, and knows what to do with what they earn.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, marginTop: 24 }}>
             {[
@@ -837,8 +837,8 @@ function Landing({ onEnroll, onCall, onLegal }) {
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom</div>
               <div style={{ fontSize: 13, color: C.ink2, marginTop: 10, lineHeight: 1.45 }}>
                 {b.track === "High School"
-                  ? "The full 12-week program — build something people pay for, then manage the income it earns. In an AI world, the edge isn't a degree; it's what you can build."
-                  : "The full 12-week program — build something people pay for, then invest, budget, and finance a home and a car with what you earn."}
+                  ? "The full 12-week program — build something people would pay for, then manage the income it earns. In an AI world, the edge isn't a degree; it's what you can build."
+                  : "The full 12-week program — build something people would pay for, then invest, budget, and finance a home and a car with what you earn."}
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
@@ -1465,7 +1465,7 @@ function CoursePanel({ s, batch }) {
           </div>
         )}
       </Card>
-      {[1, 2, 3].map((act) => (
+      {Object.keys(ACTS).map(Number).map((act) => (
         <div key={act}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "14px 2px 8px" }}>
             <Pill bg={act === 1 ? C.green : act === 2 ? C.pink : C.turq}>Act {act}</Pill>
@@ -1753,7 +1753,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "hustle" && (
-        <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a build you own creates value while you sleep. Use a skill (with AI as a tool) to make something people would actually pay for — and watch it earn on top of your paycheck.">
+        <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a build you own creates value while you sleep. Make a small product, app, or service — with AI as your tool — that people would actually pay for, and watch it earn.">
           {!s.hustle
             ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your build (−{fmt(HUSTLE_START)} to start)</button>
             : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your build is live — people are paying for the value it creates, so it earns every time you advance. That's building economic value: solve a real problem, own the upside.</div>}
