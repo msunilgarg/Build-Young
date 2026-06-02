@@ -21,7 +21,7 @@ describe("FounderDashboard (account-gated)", () => {
       return { status: 200, json: async () => ({ events: [] }) }; // /api/funnel
     }));
     render(<FounderDashboard onHome={() => {}} />);
-    await waitFor(() => expect(screen.getByText(/Stage-to-stage conversion/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Drop-off — where you lose people/i)).toBeInTheDocument());
     expect(screen.getByText("Segment")).toBeInTheDocument();
     expect(screen.getByText(/Cohorts & schedule/i)).toBeInTheDocument();
     expect(await screen.findByDisplayValue("fall-mw")).toBeInTheDocument();
