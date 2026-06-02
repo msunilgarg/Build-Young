@@ -675,7 +675,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 6vw" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 26px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works</h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>First your student builds something they believe people will pay for — and in the simulation, that's where the income starts. Then they learn to manage it: invest it, make the big calls, and watch it compound.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs in one live, hands-on simulation — your student makes the real calls each week and lives with what happens, no quizzes or worksheets. Here's what that looks like.</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
@@ -699,7 +699,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">two acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks: first a hands-on build arc where your student creates something they believe people would pay for — the source of their income in the simulation — then the finance act, learning to manage and grow what that build earns.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, two acts: <b>Build</b> (Weeks 1–6) and <b>Manage what you've earned</b> (Weeks 7–12), then a follow-up check-in a month later. Here's every week.</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => (
           <div key={act} style={{ marginTop: 26 }}>
@@ -750,7 +750,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
             <div style={{ width: 64, height: 4, borderRadius: 2, margin: "12px auto 0", background: `linear-gradient(90deg, ${C.green}, ${C.turq}, ${C.pink})` }} />
           </div>
           <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 24, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
-            <b className="disp">Raising builders, not consumers.</b> The skill that matters most in an AI world isn't on any test: building something people value. We teach it by letting kids live it — they build, they earn, then they learn to grow and protect what they've made — because their future rests on what they can build, not just what they were credentialed to do.
+            <b className="disp">Raising builders, not consumers.</b> Building something people value has always mattered — but AI just made it radically easier, so a motivated teenager can now create what used to take a team. That changes everything: the edge goes to the kids who build, not the ones who only consume. We teach it by letting them live it — they build, they earn, then they learn to grow and protect what they've made — because their future rests on what they can make, not just what they were credentialed to do.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
             It's not only about the money — it's who a kid becomes in the doing. Making something real, putting it in front of people, living with the wins and the flops — that shapes a person in ways no lecture can. And because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who has actually earned and managed it can talk about it plainly — needs, trade-offs, even mistakes — without shame. They ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear.
@@ -775,7 +775,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
               <CompoundGraphic />
             </Card>
             <p style={{ color: C.ink2, fontSize: 16.5, lineHeight: 1.6 }}>
-              And the earlier they start, the more time is on their side. A few dollars earned and invested as a teenager have decades to compound — the same habit started at 30 never catches up. That head start is the one advantage no one can buy back later: <b style={{ color: C.ink }}>start building young, and time does the rest.</b>
+              Money compounds with time — but so does the skill of building. A teenager who learns to make things people value, in the era when AI is rewriting every career, isn't just getting a financial head start; they're learning the survival skill of the next decade while their peers are still memorizing for tests. That's the real compounding: <b style={{ color: C.ink }}>start building young, and time does the rest.</b>
             </p>
           </div>
 
@@ -785,7 +785,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
             <div style={{ flex: 1, minWidth: 260 }}>
               <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 8 }}>
-                I came to the United States with almost nothing — and with family back home depending on me to provide. I built my life from zero, supporting them while finding my own footing, and made it my own country. Two decades as a product leader at Microsoft later, I'd reached financial independence and was able to step away at 51. But here's the truth I can't stop thinking about: if I'd understood how money really works as a teenager, I'd have gotten there years sooner. That lost time is the whole reason this exists. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. I wanted them to understand how money really works before the world started making those decisions for them — so I built this for them. The two tracks grew out of watching them learn at different ages, and the simulation starts exactly where every builder does: at zero, with nothing but an idea and the will to make it real. These days I build AI products for a living, and I'm certain of one thing: in a world being rewritten by AI, the kids who learn to build — not just consume — will own their futures. That's why I called it Build Young: the one advantage these kids have that no one can buy is time. Habits, character, and even a few invested dollars all compound.
+                I came to the United States with almost nothing — and with family back home depending on me to provide. I built my life from zero, supporting them while finding my own footing, and made it my own country. Two decades as a product leader at Microsoft later, I'd reached financial independence and was able to step away at 51. But here's the truth I can't stop thinking about: if I'd understood how money really works as a teenager, I'd have gotten there years sooner. That lost time is the whole reason this exists. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. I wanted them to understand how money really works before the world started making those decisions for them — so I built this for them. The two tracks grew out of watching them learn at different ages, and the simulation starts exactly where every builder does: at zero, with nothing but an idea and the will to make it real. These days I build AI products for a living, and here's what I keep seeing: AI has made building things astonishingly easy — a kid with the right instincts can now make what used to take a whole team. So the kids who learn to build — not just consume — will own their futures. That's why I called it Build Young: the one advantage these kids have that no one can buy is time. Habits, character, and even a few invested dollars all compound.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 Here's what I noticed when I went looking for something like this for my own kids. There's plenty of free material out there — banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. And the paid classes that are live? They mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life.

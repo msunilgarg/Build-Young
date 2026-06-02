@@ -155,13 +155,16 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
 ## House style (from the build so far)
 - **Tagline / mission:** "**Raising builders, not consumers.**" This is the canonical line —
   it appears as the hero headline, in the footer, and in the SEO/JSON-LD. The full mission
-  paragraph lives in the "More than money" section: *"Raising builders, not consumers. The
-  skill that matters most in an AI world isn't on any test: building something people value.
-  We teach it by letting kids live it — they build, they earn, then they learn to grow and
-  protect what they've made — because their future rests on what they can build, not just what
-  they were credentialed to do."* It is BUILD-LED (building first; money-savvy is how you grow
-  and protect what you build, not the headline). If you reword it, keep all instances in sync.
-  Tone is confident and forward, never fearful; the AI/credential shift is stated plainly now.
+  paragraph lives in the "More than money" section: *"Raising builders, not consumers. Building
+  something people value has always mattered — but AI just made it radically easier, so a
+  motivated teenager can now create what used to take a team. That changes everything: the edge
+  goes to the kids who build, not the ones who only consume. We teach it by letting them live it
+  — they build, they earn, then they learn to grow and protect what they've made — because their
+  future rests on what they can make, not just what they were credentialed to do."* It is
+  BUILD-LED, and the KEY ARGUMENT is that **AI lowered the cost of building** (not just "building
+  matters in an AI world") — keep that "always mattered, but now it's easy" framing. Money-savvy
+  is how you grow/protect what you build, not the headline. Keep all instances in sync. Tone is
+  confident and forward, never fearful.
 - Tone is first-person from Sunil where the parent is deciding ("…taught by me", "ask me
   about…"). CTAs say "Talk to Sunil", not "the founder". Keep it warm and grounded — avoid
   overclaiming/boastful phrasing (e.g. don't promise to "answer anything").
