@@ -3,7 +3,7 @@ import {
   validEmail, newState, advance, netWorth, holdingsTotal,
   takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, PAY,
   nextClassLabel, checkinDateLabel, classDateLabel, withdrawalEmail, refundFor,
-  canWithdrawNow, REFUND_WEEKS,
+  canWithdrawNow, REFUND_WEEKS, cohortStartInfo,
 } from "../src/App.jsx";
 // The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
 // module so the future schedule never ships in the client bundle (anti-gaming). These engine
@@ -83,6 +83,29 @@ describe("canWithdrawNow (cancellation window)", () => {
   it("is never available once the course is over (check-in / graduated)", () => {
     const s = newState(STUDENT); s.started = true; s.phase = "checkin"; s.week = 2; s.checkin = 0;
     expect(canWithdrawNow(s)).toBe(false);
+  });
+});
+
+describe("cohortStartInfo (pre-start awareness)", () => {
+  const batch = BATCHES.find((b) => b.id === "fall-ms-mon"); // starts Sep 7, 2026
+  it("counts down weeks/days when the cohort hasn't started", () => {
+    const aMonthBefore = cohortStartInfo(batch, new Date("2026-08-07T12:00:00Z"));
+    expect(aMonthBefore.beforeStart).toBe(true);
+    expect(aMonthBefore.phrase).toMatch(/starts in \d+ weeks/);
+    expect(aMonthBefore.shortDate).toMatch(/Sep/);
+
+    const daysBefore = cohortStartInfo(batch, new Date("2026-09-04T12:00:00Z"));
+    expect(daysBefore.beforeStart).toBe(true);
+    expect(daysBefore.phrase).toMatch(/starts in \d+ days/);
+  });
+  it("is no longer before-start once the start date passes", () => {
+    const after = cohortStartInfo(batch, new Date("2026-09-20T12:00:00Z"));
+    expect(after.beforeStart).toBe(false);
+    expect(after.phrase).toBe("in progress");
+  });
+  it("handles an unparseable start date gracefully", () => {
+    expect(cohortStartInfo({ start: "nope" }).beforeStart).toBe(false);
+    expect(cohortStartInfo(null).days).toBe(null);
   });
 });
 

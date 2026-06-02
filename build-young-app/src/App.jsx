@@ -322,6 +322,23 @@ export function classDateLabel(batch, week) {
   const d = new Date(start.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
 }
+// Real-world timing of the cohort's FIRST class vs. today — so a student who enrolls weeks early
+// sees "starts in 5 weeks · Mon, Sep 7, 2026" instead of a misleading "Week 1 of 12". `beforeStart`
+// drives the pre-start Overview landing + the header pill. `now` is injectable for tests.
+export function cohortStartInfo(batch, now = new Date()) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime())) return { days: null, beforeStart: false, shortDate: "", longDate: "", phrase: "" };
+  const days = Math.ceil((start.getTime() - now.getTime()) / 86400000);
+  const shortDate = start.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const longDate = start.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  let phrase;
+  if (days > 13) phrase = `starts in ${Math.round(days / 7)} weeks`;
+  else if (days > 1) phrase = `starts in ${days} days`;
+  else if (days === 1) phrase = "starts tomorrow";
+  else if (days === 0) phrase = "starts today";
+  else phrase = "in progress";
+  return { days, beforeStart: days > 0, shortDate, longDate, phrase };
+}
 // income for a given period: the build's revenue curve in the course, steady once established
 export function incomeFor(phase, week) {
   if (phase !== "course") return STEADY_INCOME; // check-ins: the build is established
@@ -1308,14 +1325,100 @@ function BookCall({ onBack, onHome, onEnroll }) {
   );
 }
 
+/* ============================ OVERVIEW (first-login landing) ============================
+ * The welcome / orientation tab. It's the DEFAULT tab until the student has started the course
+ * (s.started), so someone who enrolls weeks early sees the plan, what to expect, instructions,
+ * and the real start date/countdown — not a misleading "Week 1 of 12". */
+function OverviewPanel({ s, batch, onTab }) {
+  const info = cohortStartInfo(batch);
+  const first = (s.student.name || "").split(" ")[0] || "there";
+  const dayName = (batch.day.split("·")[0] || "").trim();
+  const time = (batch.day.split("·")[1] || "").trim();
+  const sectionTitle = { fontSize: 16, fontWeight: 800, color: C.ink, margin: "0 0 8px" };
+  const li = { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: C.ink2, lineHeight: 1.5, padding: "7px 0" };
+  const infoLabel = { fontSize: 11, color: C.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em" };
+  const infoVal = { fontSize: 14, color: C.ink, fontWeight: 600, marginTop: 2 };
+  const num = (n) => (<span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.emerald, color: "#fff", fontSize: 12, fontWeight: 800, display: "grid", placeItems: "center" }}>{n}</span>);
+  const chip = (numv, label) => (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,.12)", borderRadius: 8, padding: "10px 16px" }}>
+      <span className="disp" style={{ fontSize: 28, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{numv}</span>
+      <span style={{ fontSize: 12.5, color: "rgba(255,255,255,.82)", lineHeight: 1.25, maxWidth: 96 }}>{label}</span>
+    </div>
+  );
+
+  return (
+    <div className="rise">
+      <Card style={{ padding: 22, marginBottom: 14, background: C.ink, border: "none" }}>
+        <div style={{ fontSize: 12, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>WELCOME TO BUILD YOUNG</div>
+        <div className="disp" style={{ fontSize: 26, fontWeight: 800, marginTop: 4, color: "#fff" }}>You're in, {first}! 🎉</div>
+        <p style={{ color: "rgba(255,255,255,.78)", fontSize: 14.5, lineHeight: 1.6, marginTop: 8, maxWidth: 640 }}>
+          Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} Over 12 live weeks you'll <b style={{ color: "#fff" }}>build something people pay for</b>, then learn to <b style={{ color: "#fff" }}>manage what you earn</b> — graduating with a business and a net worth grown from zero. Every dollar here is <b style={{ color: "#fff" }}>simulated</b>.
+        </p>
+        <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
+          {info.beforeStart && chip(info.days, `${info.days === 1 ? "day" : "days"} until your first class`)}
+          {chip(12, "live weekly classes")}
+          {chip(CHECKINS, "monthly check-ins after")}
+        </div>
+        <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
+          <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+            <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}><Video size={16} /> Join class on Zoom</button>
+          </a>
+          <button className="btn" onClick={() => onTab("dash")} style={{ background: "rgba(255,255,255,.14)", color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14 }}>Go to my dashboard →</button>
+        </div>
+      </Card>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="enroll-grid">
+        <Card style={{ padding: 20 }}>
+          <h3 style={sectionTitle}>What to expect</h3>
+          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — Build.</b> Find a problem worth solving and build a product, app, or service (AI is your tool). Your income comes from what you build.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–12 — Manage the money.</b> Taxes, saving, investing through real market swings, big purchases, and watching it compound.</span></div>
+          <div style={li}><Sparkles size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>6 monthly check-ins.</b> After graduation, keep investing on your own and see how a year of decisions plays out.</span></div>
+        </Card>
+        <Card style={{ padding: 20 }}>
+          <h3 style={sectionTitle}>How each week works</h3>
+          <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> ({dayName}) — the same link works every week.</span></div>
+          <div style={li}>{num(2)}<span>Open <b>This Week</b> to do that week's activity, then <b>advance your simulation</b>.</span></div>
+          <div style={li}>{num(3)}<span>Rebalance your <b>Portfolio</b> as new events unfold in <b>Markets</b>.</span></div>
+          <div style={li}>{num(4)}<span>Watch your <b>net worth</b> grow on the <b>Dashboard</b>.</span></div>
+        </Card>
+      </div>
+
+      <Card style={{ padding: 20, marginTop: 14 }}>
+        <h3 style={sectionTitle}>Your dashboard, tab by tab</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 24px" }} className="enroll-grid">
+          {[["Dashboard", "Net worth, your next class, and this week at a glance."], ["This Week", "The current week's activity — and the button to advance."], ["Course", "All 12 weeks of material; weeks unlock as you reach them."], ["Portfolio", "Your simulated cash, savings, and investments."], ["Markets", "The economic events moving your money each week."]].map(([t, d]) => (
+            <div key={t} style={{ padding: "7px 0", fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}><b style={{ color: C.ink }}>{t}</b> — {d}</div>
+          ))}
+        </div>
+      </Card>
+
+      <Card style={{ padding: 20, marginTop: 14 }}>
+        <h3 style={sectionTitle}>Your cohort</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 14 }}>
+          <div><div style={infoLabel}>Cohort</div><div style={infoVal}>{batch.track}{dayName ? ` · ${dayName}` : ""}</div></div>
+          <div><div style={infoLabel}>First class</div><div style={infoVal}>{info.longDate || batch.day}</div></div>
+          <div><div style={infoLabel}>Time</div><div style={infoVal}>{time || "—"}</div></div>
+          <div><div style={infoLabel}>Format</div><div style={infoVal}>12 weekly classes + 6 monthly check-ins</div></div>
+        </div>
+        <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted, lineHeight: 1.5, borderTop: `1px solid ${C.line}`, paddingTop: 12 }}>
+          All money in the program is <b>simulated</b> — this is financial education, not licensed advice. Full refund any time before your cohort starts; prorated through the first {REFUND_WEEKS} weeks.
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 /* ============================ PLATFORM ============================ */
 function Platform({ state, setState, onExit }) {
-  const [tab, setTab] = useState("dash");
+  // Default to Overview until the course has begun (first session attended), so early enrollees
+  // land on the welcome/plan rather than a misleading live "Week 1".
+  const [tab, setTab] = useState(state && state.started ? "dash" : "overview");
   const [toast, setToast] = useState(null);
   const [withdraw, setWithdraw] = useState(false); // false | 'confirm' | 'done'
   const ping = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3600); };
   const s = state;
   const batch = BATCHES.find((b) => b.id === s.student.batch) || BATCHES[0];
+  const startInfo = cohortStartInfo(batch);
   const notStarted = !s.started; // before the first session → full refund
   const canWithdraw = canWithdrawNow(s); // pre-start, or within the first REFUND_WEEKS weeks
   // `week` increments on each advance (attending session 1 moves you to "Week 2"), so sessions
@@ -1429,6 +1532,7 @@ function Platform({ state, setState, onExit }) {
   };
 
   const tabs = [
+    { id: "overview", label: "Overview", icon: Sparkles },
     { id: "dash", label: "Dashboard", icon: LineIcon },
     { id: "week", label: s.phase === "course" ? "This Week" : "Check-in", icon: GraduationCap },
     { id: "course", label: "Course", icon: BookOpen },
@@ -1479,7 +1583,9 @@ function Platform({ state, setState, onExit }) {
           <div style={{ fontSize: 13, color: C.muted }}>{s.student.name} · {s.student.track} cohort</div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <Pill bg={C.turq}>{s.phase === "course" ? `Week ${s.week} of 12` : s.done ? "Graduated" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Check-in")}</Pill>
+          <Pill bg={C.turq}>{s.phase === "course"
+            ? (s.started || !startInfo.beforeStart ? `Week ${s.week} of 12` : `Starts ${startInfo.shortDate}`)
+            : s.done ? "Graduated" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Check-in")}</Pill>
           <button className="btn" onClick={onExit} style={{ background: "transparent", border: `1.5px solid ${C.line}`, color: C.muted, padding: "7px 12px", borderRadius: 4, fontSize: 13 }}>Exit</button>
         </div>
       </div>
@@ -1492,6 +1598,8 @@ function Platform({ state, setState, onExit }) {
           </button>
         ))}
       </div>
+
+      {tab === "overview" && <OverviewPanel s={s} batch={batch} onTab={setTab} />}
 
       {tab === "dash" && (
         <div className="rise">
