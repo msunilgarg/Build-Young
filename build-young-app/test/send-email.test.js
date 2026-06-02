@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import handler from "../api/send-email.js";
+import { bodyToHtml } from "../api/_lib/sendEmail.js";
 
 // Minimal Vercel-style req/res mocks.
 function makeReq({ method = "POST", body = {}, ip = "1.2.3.4" } = {}) {
@@ -97,5 +98,34 @@ describe("/api/send-email handler", () => {
       await handler(makeReq({ ip, body: { to: "a@b.com", subject: "s", body: "b" } }), last);
     }
     expect(last.statusCode).toBe(429); // requests past the window cap (10) are blocked
+  });
+});
+
+describe("bodyToHtml (branded HTML email)", () => {
+  it("renders blank-line blocks as <p> and a bullet block as <ul>/<li>", () => {
+    const html = bodyToHtml("Hi Jordan,\n\n  •  When: Mondays\n  •  Where: Zoom");
+    expect(html).toContain("<p");
+    expect(html).toContain("Hi Jordan,");
+    expect(html).toContain("<ul");
+    expect(html.match(/<li/g)).toHaveLength(2);
+  });
+  it("bolds a 'Label: value' bullet's label", () => {
+    expect(bodyToHtml("  •  When: Mondays")).toContain("<strong>When:</strong> Mondays");
+  });
+  it("linkifies a bare URL (and does not mistake the scheme for a label)", () => {
+    const html = bodyToHtml("  •  Zoom: https://zoom.us/j/8801000001");
+    expect(html).toContain('<a href="https://zoom.us/j/8801000001"');
+    expect(html).toContain("<strong>Zoom:</strong>");
+  });
+  it("carries the brand wordmark, tagline, and simulated-money disclaimer", () => {
+    const html = bodyToHtml("Hello");
+    expect(html).toContain("Build <span");
+    expect(html).toContain("Raising builders, not consumers.");
+    expect(html).toContain("simulated");
+  });
+  it("escapes HTML in the body (no injection)", () => {
+    const html = bodyToHtml("<script>alert(1)</script>");
+    expect(html).toContain("&lt;script&gt;");
+    expect(html).not.toContain("<script>");
   });
 });
