@@ -75,6 +75,8 @@ describe("/api/send-email handler", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
     const sent = JSON.parse(fetch.mock.calls[0][1].body);
     expect(sent.to).toEqual(["jordan@example.com"]);
+    // Replies route to a monitored inbox, not the verified-domain from-address.
+    expect(sent.reply_to).toBe("sunilgarg@outlook.com");
   });
 
   it("HTML-escapes the body to prevent injection into the HTML part", async () => {

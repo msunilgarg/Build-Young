@@ -8,6 +8,9 @@
 // Callers are responsible for their own auth / validation BEFORE calling this.
 
 export const FROM_ADDRESS = "Build Young <team@build-young.com>";
+// Where replies land. From-address stays on the verified domain (Resend requires it), but a
+// parent who hits "reply" reaches a monitored inbox. Override per-send via the `replyTo` arg.
+export const REPLY_TO_ADDRESS = "sunilgarg@outlook.com";
 
 // Escape a plain-text body for safe embedding in the HTML part (no innerHTML/eval anywhere).
 export function escapeHtml(s) {
@@ -23,7 +26,8 @@ export function bodyToHtml(body) {
 // Throws only on a thrown fetch/network error — callers decide how to surface failures.
 //
 // `fromEmail` lets the cron use a "Newsroom" display name; defaults to FROM_ADDRESS.
-export async function sendEmail({ to, subject, body, from = FROM_ADDRESS }) {
+// `replyTo` sets the Reply-To header (defaults to REPLY_TO_ADDRESS, a monitored inbox).
+export async function sendEmail({ to, subject, body, from = FROM_ADDRESS, replyTo = REPLY_TO_ADDRESS }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return { ok: false, status: 500, detail: "missing RESEND_API_KEY" };
 
@@ -36,6 +40,7 @@ export async function sendEmail({ to, subject, body, from = FROM_ADDRESS }) {
     body: JSON.stringify({
       from,
       to: [to],
+      reply_to: replyTo,
       subject,
       text: body,
       html: bodyToHtml(body),

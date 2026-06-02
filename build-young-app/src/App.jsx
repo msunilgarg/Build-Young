@@ -103,7 +103,7 @@ const CONFIG = {
   // https://YOURDOMAIN/?enrolled={batchId}). Filled per id below; empty = demo flow.
   stripeLinks: Object.fromEntries(BATCHES.map((b) => [b.id, ""])),
   // Email: set emailEnabled true once the /api/send-email function + provider key are live.
-  emailEnabled: false,
+  emailEnabled: true,
   emailEndpoint: "/api/send-email",
 };
 // Fire-and-forget email send. No-ops gracefully in demo/local; UI toast still shows.
