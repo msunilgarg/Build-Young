@@ -91,6 +91,40 @@ App.jsx — that would undo it. `npm run build` (Vite) preserves this split auto
 - **Income model (BUILD-EARNED, not a paycheck):** income comes from the student's *build*, not employment. `INCOME[]` in `App.jsx` is the per-course-week revenue curve — **$0 in the early build weeks**, ramping to a steady `STEADY_INCOME` (= `PAY` = **$10,000**) once the build lands customers (≈week 6) and through the finance act + check-ins. `incomeFor(phase, week)` is the single source; `advance()` uses it. **There is NO employer 401(k) match** (self-employed builder — `advance` adds only the student's own retirement set-aside, no match). **Taxes stay** (15%, framed as self-employment/business tax). **Living costs** (`LIVING`) apply only once independent (finance act, week ≥ `FINANCE_FIRST_WEEK`=7). Other dollar constants (`HOME`/`CAR`/`EMERGENCY`/`SPREE`/`INSURANCE`/`ALT_BUY`/`PE_BUY`) unchanged. All income/cost COPY derives from these; the batch-sim harness imports them. Tests assert relationships, not literals.
 - **Tuition prize:** each cohort, the student with the **highest simulated portfolio value at the final (6th) monthly check-in** — i.e. the close of the full program (12 weeks + 6 check-ins) — wins their **tuition refunded**. Criterion is deliberately *highest value* (the real-world objective) — we welcome diverse investing beliefs, not a diversification gate. Surfaced in three places that must stay in sync: the landing **pricing** intro ("Win your tuition back"), the dashboard **capstone** ("you're in the running"), and the **Terms** "Tuition prize" section in `LEGAL`. The winner is **instructor-confirmed** (the app has no server-side cross-student comparison). It's a contest involving minors → keep the attorney-review flag in the Terms copy. **Anti-gaming (layer 1 — done):** the market schedule (`FLAT_MACRO`/`MACRO`/`CHECKIN_MACRO`/`marketEventFor` + the `MEDIA` map) now lives **server-only** in `api/_lib/marketSchedule.js` and NO LONGER ships in the client bundle, so students can't read future events from devtools. The client learns the **single current** event by fetching `/api/market-event` (server-only schedule lookup; never the full array); offline/demo/tests fall back to a **non-revealing placeholder** ("Markets are moving", neutral effects) so the demo still runs without leaking the schedule. Per-student randomization is intentionally NOT used — a fair cohort prize requires everyone face the same market. **Remaining gap (layer 2):** the simulation state still lives in client localStorage and is user-editable, so true tamper-proof scoring needs **server-authoritative state + auth** (a separate follow-up). The schedule modules `src/marketMedia.js` (client-safe builders/metadata) and `api/_lib/marketSchedule.js` (server-only schedule) MUST stay separate — never import the latter from anything under `src/`.
 
+## Founder funnel analytics (hidden `?founder=<token>` route)
+
+A connected acquisition→engagement funnel for the founder/investors. **All stage definitions and
+conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependency-free; imported by
+`App.jsx`, the read endpoint, and tests so they can't drift).
+
+- **Ordered stages (the linear spine):** `visited` → `enroll_started` → `enrolled` →
+  `class_started` → `graduated`. Non-spine signals feed their own charts: `call_booked` (parallel
+  "Talk to Sunil" assist path — enrollments split call→enroll vs. direct via a `fromCall` prop), and
+  the progression curves `week_advanced` (weeks 2–12) + `checkin_completed` (months 1–6 retention).
+  `withdrawn` is the exit branch, tagged with a `refundTier` (`full`/`prorated`/`none`).
+- **`track(event, props)`** (App.jsx): fire-and-forget `sendBeacon`/fetch to `/api/track`, no-op in
+  tests, never throws. Fired at each stage — `visited` (once/session), `enroll_started`
+  (startEnroll), `call_booked` (BookCall), `enrolled` (finishEnroll + the `?enrolled=` Stripe
+  return), `class_started`/`week_advanced`/`graduated`/`checkin_completed` (doAdvance), `withdrawn`
+  (doWithdraw). **Aggregate-only — NO PII** (season, track, batch id, week/check-in, refund tier,
+  cents; a server allowlist drops anything else).
+- **Conversion rates:** each consecutive pair (`enroll_started/visited`, `enrolled/enroll_started`,
+  `class_started/enrolled`, `graduated/class_started`) plus overall `enrolled/visited` — via
+  `conversionRate(numer, denom)` (0 when denom is 0). `summarize(events, filter)` →
+  `{counts, steps, overall, calls, weekCurve, checkinCurve, withdrawals, revenue}`.
+- **Segmentation:** `segments(events)` → per-season (Fall/Winter/Spring) and per-track (Middle/High
+  School). Meaningful from `enrolled` onward (top-of-funnel events carry no cohort → excluded under a
+  filter).
+- **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net).
+- **Route:** hidden, not in nav — `?founder=<token>` renders `FounderDashboard`. Data from
+  **`/api/funnel`**, gated by the **`FOUNDER_TOKEN`** env var (timing-safe; 404 when unset, 403 on
+  mismatch). Events are stored by **`/api/track`** in a KV list (`funnel:events`, capped). Charts
+  reuse the lazy `Charts.jsx` (`kind="funnel"` bars + `kind="countline"` curves).
+- **Exports:** "Download CSV/JSON" → `toCSV(events)` / `toDataRoom(events)` for an investor data room.
+- **Env to enable:** `FOUNDER_TOKEN` (+ the KV vars auth already uses). Tests: `test/funnel.test.js`
+  (full lifecycle + aggregate counts/conversions/segments/revenue) and `test/founder-ui.test.jsx`
+  (route gating).
+
 ## Business & legal setup (do first — not legal advice; consult professionals)
 These precede the technical go-live items below and some gate them (e.g. Stripe wants a
 business bank account). Founder is in Washington State (Sammamish area). A short paid consult
