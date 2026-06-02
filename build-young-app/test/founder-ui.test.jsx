@@ -27,4 +27,18 @@ describe("FounderDashboard gating", () => {
     expect(screen.getByText("Segment")).toBeInTheDocument();
     expect(screen.getByText(/No events recorded yet/i)).toBeInTheDocument();
   });
+
+  it("loads the cohort editor rows from /api/cohorts", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) {
+        return { status: 200, ok: true, json: async () => ({ batches: [{ id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mon & Wed", price: 999, seats: 12, zoom: "", stripeLink: "" }], checkins: 1 }) };
+      }
+      return { status: 200, json: async () => ({ events: [] }) };
+    }));
+    render(<FounderDashboard token="ok" onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText(/Cohorts & schedule/i)).toBeInTheDocument());
+    expect(await screen.findByDisplayValue("fall-mw")).toBeInTheDocument();
+    expect(screen.getByText(/\+ Add cohort/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reset a test account/i)).toBeInTheDocument();
+  });
 });
