@@ -2154,12 +2154,12 @@ export function SetPassword({ token, onSetPassword, onHome }) {
 
 // Shown after enrollment (Stripe return or demo) when auth is on: the account was provisioned
 // server-side and a set-password link was emailed.
-function CheckEmail({ track, onHome, onLogin }) {
+function CheckEmail({ track, email, onHome, onLogin }) {
   return (
     <AuthShell title="You're enrolled! 🎉" sub={`Your seat${track ? ` in the ${track} cohort` : ""} is reserved.`} onHome={onHome}>
       <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "12px 14px", marginTop: 16 }}>
         <Mail size={16} color={C.emerald} style={{ marginTop: 2, flexShrink: 0 }} />
-        <span style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>Check your email for a link to <b>set your password</b>. Once it's set, you can log in to your dashboard from any device. The link is good for 24 hours.</span>
+        <span style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>We’ve sent a link to <b>set your password</b>{email ? <> to <b style={{ color: C.ink }}>{email}</b></> : ""}. Once it’s set, you can log in to your dashboard from any device. The link is good for 24 hours.</span>
       </div>
       <button className="btn" onClick={onLogin} style={{ width: "100%", marginTop: 20, background: C.ink, color: C.paper2, padding: 12, borderRadius: 4, fontSize: 14 }}>Go to login</button>
     </AuthShell>
@@ -2327,6 +2327,7 @@ export default function App() {
   const [legal, setLegal] = useState(null); // null | "privacy" | "terms"
   const [setpwToken, setSetpwToken] = useState(null);   // token from a ?setpw= link (auth mode)
   const [enrolledTrack, setEnrolledTrack] = useState(""); // cohort track for the check-email screen
+  const [enrolledEmail, setEnrolledEmail] = useState(""); // recipient of the set-password email (shown on check-email)
   const [founderToken, setFounderToken] = useState(null); // token from a ?founder= link (hidden analytics route)
   // remember scroll position per route so Back lands where you left off
   const pendingScroll = useRef(null); // px to restore after next render (null = scroll to top)
@@ -2401,9 +2402,12 @@ export default function App() {
             // The Stripe webhook provisioned the account + emailed the set-password link.
             track("enrolled", { ...cohortMeta(paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
             const b = BATCHES.find((x) => x.id === paidBatch);
+            // Recover the email they entered at enroll (prefilled into Stripe) to show on the screen.
+            let pendingEmail = "";
+            try { const p = JSON.parse(window.localStorage.getItem(PENDING_KEY) || "null"); if (p && p.batch === paidBatch) pendingEmail = p.email || ""; } catch (e) {}
             try { window.localStorage.removeItem(PENDING_KEY); } catch (e) {}
             window.history.replaceState({}, "", window.location.pathname);
-            setEnrolledTrack(b ? b.track : ""); setRoute("checkemail"); setLoaded(true); return;
+            setEnrolledTrack(b ? b.track : ""); setEnrolledEmail(pendingEmail); setRoute("checkemail"); setLoaded(true); return;
           }
           const user = await AUTH.me();
           if (user) { await hydrateFromServer(user); }
@@ -2460,7 +2464,7 @@ export default function App() {
     if (CONFIG.authEnabled) {
       // Account creation happens server-side (Stripe webhook → set-password email); send the
       // student to the check-email screen rather than straight into the dashboard.
-      pendingScroll.current = 0; setHistory([]); setEnrolledTrack(student.track || ""); setRoute("checkemail");
+      pendingScroll.current = 0; setHistory([]); setEnrolledTrack(student.track || ""); setEnrolledEmail(student.email || ""); setRoute("checkemail");
       return;
     }
     const w = welcomeEmail(student);
@@ -2498,7 +2502,7 @@ export default function App() {
       {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} />}
       {route === "login" && <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "setpw" && <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} />}
-      {route === "checkemail" && <CheckEmail track={enrolledTrack} onHome={goHome} onLogin={goLogin} />}
+      {route === "checkemail" && <CheckEmail track={enrolledTrack} email={enrolledEmail} onHome={goHome} onLogin={goLogin} />}
       {route === "founder" && <FounderDashboard token={founderToken} onHome={goHome} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
     </div>
