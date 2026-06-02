@@ -29,11 +29,11 @@ records their stage progression, and `discoverySource` / `bookedCall` capture th
 ```
 simulation-output/
   README.md                 ← this file
-  fall-ms-mon/
+  fall-mw/
     cohort-summary.json     ← roster, prize ranking, averages/min/max, risk breakdown, notable outcomes
     cohort.csv              ← one row per student for spreadsheet review
     <student-slug>.json     ← full per-student journey (15 files)
-  fall-hs-wed/
+  fall-tt/
     cohort-summary.json     ← roster, prize ranking, averages/min/max, risk breakdown, notable outcomes
     cohort.csv              ← one row per student for spreadsheet review
     <student-slug>.json     ← full per-student journey (15 files)
@@ -84,14 +84,14 @@ trade-off worth showing students.
 
 ## Headline results
 
-### fall-ms-mon — Middle School (Mondays · 5:00–6:30 PM PST)
+### fall-mw — Builders (Mondays & Wednesdays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $899
 - Average final net worth: **$49,285** (min $44,951, max $58,398)
 - Tuition-prize winner (highest portfolio value): **Isabella Davis** at $58,398
 - By risk style: aggressive 5 (avg $49,279), balanced 6 (avg $46,356), conservative 4 (avg $53,686)
 
-### fall-hs-wed — High School (Wednesdays · 5:00–6:30 PM PST)
+### fall-tt — Builders (Tuesdays & Thursdays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $899
 - Average final net worth: **$49,285** (min $44,951, max $58,398)

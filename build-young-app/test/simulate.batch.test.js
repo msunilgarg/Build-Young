@@ -1,4 +1,4 @@
-// Runs the offline batch-simulation harness for a Middle School and a High School cohort,
+// Runs the offline batch-simulation harness for two Builders cohorts (alternating day-pairs),
 // writes the per-student + per-cohort output files to simulation-output/, and asserts the
 // core invariants. This is the supported way to RUN the harness (App.jsx imports React/JSX,
 // so the harness must execute under Vitest's transform pipeline).
@@ -15,7 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // simulation-output lives at the build-young-app/ root, next to src/ and scripts/.
 const OUT_ROOT = path.resolve(__dirname, "..", "simulation-output");
 
-const COHORTS = ["fall-ms-mon", "fall-hs-wed"]; // a Middle School + a High School batch
+const COHORTS = ["fall-mw", "fall-tt"]; // two Builders cohorts (Mon&Wed, Tue&Thu)
 const results = {};
 
 beforeAll(() => {
@@ -101,21 +101,21 @@ describe.each(COHORTS)("cohort %s", (batchId) => {
 
 describe("reproducibility & wiring", () => {
   it("is deterministic: re-running a cohort yields identical net worths", () => {
-    const a = runCohort("fall-hs-wed").students.map((s) => s.final.finalNetWorth);
-    const b = runCohort("fall-hs-wed").students.map((s) => s.final.finalNetWorth);
+    const a = runCohort("fall-mw").students.map((s) => s.final.finalNetWorth);
+    const b = runCohort("fall-mw").students.map((s) => s.final.finalNetWorth);
     expect(a).toEqual(b);
   });
 
   it("does not leak the seeded PRNG: Math.random is restored after a run", () => {
     const before = Math.random;
-    runCohort("fall-ms-mon");
+    runCohort("fall-mw");
     expect(Math.random).toBe(before);
   });
 
-  it("ships 15 distinct personas with the right tracks per batch", () => {
+  it("ships 15 distinct personas, all on the combined Builders track", () => {
     expect(PERSONAS).toHaveLength(15);
-    expect(results["fall-ms-mon"].students.every((s) => s.profile.track === "Middle School")).toBe(true);
-    expect(results["fall-hs-wed"].students.every((s) => s.profile.track === "High School")).toBe(true);
+    expect(results["fall-mw"].students.every((s) => s.profile.track === "Builders")).toBe(true);
+    expect(results["fall-tt"].students.every((s) => s.profile.track === "Builders")).toBe(true);
   });
 
   it("wrote the top-level README", () => {

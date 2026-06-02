@@ -3,12 +3,11 @@
 > A live, hands-on program for teenagers (ages 13–18) that teaches them to build economic value. Tagline: "Raising builders, not consumers." Students first build something they believe people would pay for — that becomes their income — then learn to manage what they earn. In an AI world, the edge isn't a degree; it's what you can build.
 
 ## About
-Build Young is an online program founded by Sunil Garg that teaches teens to build economic value. First they build something they believe people would pay for (a small product, app, or service made with AI) — and that becomes their income; then they learn to manage what they earn: business taxes, saving, investing so it compounds, big purchases, and budgeting. It runs as a 12-week course (90-minute weekly sessions) plus a follow-up check-in a month after the course, delivered live over Zoom, inside an interactive simulation where income is earned by the student's build. The program is financial education, not licensed financial advice; all money in the simulation is simulated.
+Build Young is an online program founded by Sunil Garg that teaches teens to build economic value. First they build something they believe people would pay for (a small product, app, or service made with AI) — and that becomes their income; then they learn to manage what they earn: business taxes, saving, investing so it compounds, big purchases, and budgeting. It runs as a 12-week course meeting twice a week (~3 hours/week) plus a follow-up check-in a month after the course, delivered live over Zoom, inside an interactive simulation where income is earned by the student's build. The program is financial education, not licensed financial advice; all money in the simulation is simulated.
 
 ## Who it's for
-Teens ages 13 and up, in two tracks:
-- Middle School cohort — $899
-- High School cohort — $899
+Teens ages 13–18, in one combined "Builders" cohort. Two cohorts run each season on alternating day-pairs (Mondays & Wednesdays, or Tuesdays & Thursdays):
+- Builders cohort (ages 13–18) — $899
 
 ## What students learn
 Act 1 — Build (Weeks 1–6):

@@ -1,0 +1,725 @@
+{
+  "profile": {
+    "name": "Maya Robinson",
+    "slug": "maya-robinson",
+    "email": "maya.robinson@example.com",
+    "batchId": "fall-mw",
+    "track": "Builders",
+    "discoverySource": "Instagram",
+    "bookedCall": true,
+    "enrolledOn": "Sep 7, 2026",
+    "persona": "Aggressive and engaged. Rebalances to aggressive mid-course to ride the tech rally, hustles. Invests heavily, skips big purchases.",
+    "riskStyle": "aggressive",
+    "settings": {
+      "retire401k": 0.08,
+      "savingsRate": 0.15,
+      "brokerageRate": 0.4,
+      "finalRisk": "aggressive"
+    },
+    "prizeRank": 4
+  },
+  "funnel": [
+    "discovered (Instagram)",
+    "booked a free 15-min call with Sunil",
+    "enrolled (Sep 7, 2026)",
+    "started weekly engagement",
+    "completed the 12-week course",
+    "completed 6 monthly check-ins",
+    "graduated"
+  ],
+  "weekByWeek": [
+    {
+      "period": "Week 1: Build: Find a Problem Worth Solving",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Markets are quiet",
+        "detail": "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.",
+        "effects": {
+          "stocks": 0,
+          "bonds": 0,
+          "reits": 0,
+          "bullion": 0,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 0,
+      "cash": 0,
+      "savings": 0,
+      "retirement": 0,
+      "holdings": {
+        "stocks": 0,
+        "bonds": 0,
+        "reits": 0,
+        "bullion": 0
+      },
+      "privateEquity": 0,
+      "creditScore": 668,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 2: Build: Shape the Idea",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Markets are quiet",
+        "detail": "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.",
+        "effects": {
+          "stocks": 0,
+          "bonds": 0,
+          "reits": 0,
+          "bullion": 0,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 0,
+      "cash": 0,
+      "savings": 0,
+      "retirement": 0,
+      "holdings": {
+        "stocks": 0,
+        "bonds": 0,
+        "reits": 0,
+        "bullion": 0
+      },
+      "privateEquity": 0,
+      "creditScore": 676,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 3: Build: Make It (with AI)",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Markets are quiet",
+        "detail": "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.",
+        "effects": {
+          "stocks": 0,
+          "bonds": 0,
+          "reits": 0,
+          "bullion": 0,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 0,
+      "cash": 0,
+      "savings": 0,
+      "retirement": 0,
+      "holdings": {
+        "stocks": 0,
+        "bonds": 0,
+        "reits": 0,
+        "bullion": 0
+      },
+      "privateEquity": 0,
+      "creditScore": 684,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 4: Build: Launch & First Customers",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Markets are quiet",
+        "detail": "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.",
+        "effects": {
+          "stocks": 0,
+          "bonds": 0,
+          "reits": 0,
+          "bullion": 0,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 2556,
+      "cash": 1320,
+      "savings": 606,
+      "retirement": 150,
+      "holdings": {
+        "stocks": 264,
+        "bonds": 120,
+        "reits": 57.6,
+        "bullion": 38.4
+      },
+      "privateEquity": 0,
+      "creditScore": 692,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 5: Build: Price It & Get Paid",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Markets are quiet",
+        "detail": "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.",
+        "effects": {
+          "stocks": 0,
+          "bonds": 0,
+          "reits": 0,
+          "bullion": 0,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 7674.06,
+      "cash": 3960,
+      "savings": 1824.06,
+      "retirement": 450,
+      "holdings": {
+        "stocks": 792,
+        "bonds": 360,
+        "reits": 172.8,
+        "bullion": 115.2
+      },
+      "privateEquity": 0,
+      "creditScore": 700,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 6: Build: Grow What's Working",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Markets are quiet",
+        "detail": "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.",
+        "effects": {
+          "stocks": 0,
+          "bonds": 0,
+          "reits": 0,
+          "bullion": 0,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 15360.3,
+      "cash": 7920,
+      "savings": 3660.3,
+      "retirement": 900,
+      "holdings": {
+        "stocks": 1584,
+        "bonds": 720,
+        "reits": 345.6,
+        "bullion": 230.4
+      },
+      "privateEquity": 0,
+      "creditScore": 708,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 7: Set Up Your Business Finances",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Markets are quiet",
+        "detail": "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.",
+        "effects": {
+          "stocks": 0,
+          "bonds": 0,
+          "reits": 0,
+          "bullion": 0,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "set retirement set-aside to 8% of business income (self-employed — no employer match)"
+      ],
+      "netWorth": 20416.15,
+      "cash": 8655,
+      "savings": 5641.15,
+      "retirement": 1700,
+      "holdings": {
+        "stocks": 2431,
+        "bonds": 1105,
+        "reits": 530.4,
+        "bullion": 353.6
+      },
+      "privateEquity": 0,
+      "creditScore": 716,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 8: Savings & Investing + Compounding",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "The Fed hikes rates",
+        "detail": "Borrowing gets pricier. Bonds slip, gold catches a bid, savings yields rise.",
+        "effects": {
+          "stocks": -0.03,
+          "bonds": -0.02,
+          "reits": -0.025,
+          "bullion": 0.04,
+          "sav": 0.015
+        }
+      },
+      "decisionsMade": [
+        "auto-save 15% of net pay; auto-invest 40% of net pay to brokerage",
+        "chose a aggressive investing style"
+      ],
+      "netWorth": 25279.14,
+      "cash": 8620,
+      "savings": 6898.1,
+      "retirement": 2432.5,
+      "holdings": {
+        "stocks": 4598.77,
+        "bonds": 1324.37,
+        "reits": 877.5,
+        "bullion": 527.9
+      },
+      "privateEquity": 0,
+      "creditScore": 724,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 9: Macro Forces on Investments",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Inflation runs hot",
+        "detail": "Prices jump. Hard assets shine while bonds lag.",
+        "effects": {
+          "stocks": -0.015,
+          "bonds": -0.03,
+          "reits": 0.03,
+          "bullion": 0.06,
+          "sav": 0.015
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 30264.48,
+      "cash": 8585,
+      "savings": 8173.89,
+      "retirement": 3169.47,
+      "holdings": {
+        "stocks": 6805.14,
+        "bonds": 1523.65,
+        "reits": 1284.51,
+        "bullion": 722.82
+      },
+      "privateEquity": 0,
+      "creditScore": 732,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 10: Big Purchases: Buy, Finance & Live With It",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Housing boom",
+        "detail": "Property values climb across the board.",
+        "effects": {
+          "stocks": 0.015,
+          "bonds": 0.005,
+          "reits": 0.055,
+          "bullion": 0.005,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 35646.34,
+      "cash": 8550,
+      "savings": 9422.18,
+      "retirement": 4017.1,
+      "holdings": {
+        "stocks": 9251.87,
+        "bonds": 1778.9,
+        "reits": 1745.09,
+        "bullion": 881.2
+      },
+      "privateEquity": 0,
+      "creditScore": 740,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 11: Budgeting: Surprises & Temptations",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Recession fears spike",
+        "detail": "Investors flee to safety. Stocks fall, bonds and gold rise.",
+        "effects": {
+          "stocks": -0.06,
+          "bonds": 0.03,
+          "reits": -0.03,
+          "bullion": 0.035,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "covered the $2,500 emergency car repair from savings",
+        "invested the $1,500 instead of spending it"
+      ],
+      "netWorth": 37341.31,
+      "cash": 7015,
+      "savings": 8157.95,
+      "retirement": 4658.14,
+      "holdings": {
+        "stocks": 11925.65,
+        "bonds": 2209.66,
+        "reits": 2225.85,
+        "bullion": 1149.06
+      },
+      "privateEquity": 0,
+      "creditScore": 748,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Week 12: Capstone: What You Built & What It's Worth",
+      "phase": "course",
+      "marketEvent": {
+        "headline": "Soft landing hopes",
+        "detail": "Cooling inflation without a crash. A relief rally.",
+        "effects": {
+          "stocks": 0.045,
+          "bonds": 0.02,
+          "reits": 0.02,
+          "bullion": -0.01,
+          "sav": 0.01
+        }
+      },
+      "decisionsMade": [
+        "attended class; no portfolio changes this week"
+      ],
+      "netWorth": 43367.72,
+      "cash": 6980,
+      "savings": 9406.08,
+      "retirement": 5662.82,
+      "holdings": {
+        "stocks": 14876.26,
+        "bonds": 2505.18,
+        "reits": 2647.36,
+        "bullion": 1290.03
+      },
+      "privateEquity": 0,
+      "creditScore": 756,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    },
+    {
+      "period": "Monthly check-in",
+      "phase": "checkin",
+      "marketEvent": {
+        "headline": "Q1 — Inflation cools",
+        "detail": "Bonds recover; gold gives back gains.",
+        "effects": {
+          "stocks": 0.03,
+          "bonds": 0.025,
+          "reits": 0.02,
+          "bullion": -0.02,
+          "sav": 0.012
+        }
+      },
+      "decisionsMade": [
+        "showed up, collected salary, let the portfolio ride"
+      ],
+      "netWorth": 49294.48,
+      "cash": 6945,
+      "savings": 10687.82,
+      "retirement": 6647.01,
+      "holdings": {
+        "stocks": 17701.85,
+        "bonds": 2820.37,
+        "reits": 3077.3,
+        "bullion": 1415.15
+      },
+      "privateEquity": 0,
+      "creditScore": 764,
+      "home": null,
+      "car": null,
+      "creditCard": {
+        "open": false,
+        "balance": 0
+      },
+      "insured": false,
+      "hustleActive": false
+    }
+  ],
+  "emailsReceived": [
+    {
+      "type": "followup",
+      "subject": "Your monthly check-in recap",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "followup",
+      "subject": "Course complete — your check-ins are coming",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "media",
+      "subject": "Class tomorrow — come with your own view",
+      "when": "1 day before class",
+      "event": "Soft landing hopes"
+    },
+    {
+      "type": "media",
+      "subject": "What \"Soft landing hopes\" means for your money",
+      "when": "2 days before class",
+      "event": "Soft landing hopes"
+    },
+    {
+      "type": "media",
+      "subject": "📰 Breaking: Soft landing hopes",
+      "when": "3 days before class",
+      "event": "Soft landing hopes"
+    },
+    {
+      "type": "followup",
+      "subject": "Week 11 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "media",
+      "subject": "Class tomorrow — come with your own view",
+      "when": "1 day before class",
+      "event": "Recession fears spike"
+    },
+    {
+      "type": "media",
+      "subject": "What \"Recession fears spike\" means for your money",
+      "when": "2 days before class",
+      "event": "Recession fears spike"
+    },
+    {
+      "type": "media",
+      "subject": "📰 Breaking: Recession fears spike",
+      "when": "3 days before class",
+      "event": "Recession fears spike"
+    },
+    {
+      "type": "followup",
+      "subject": "Week 10 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "media",
+      "subject": "Class tomorrow — come with your own view",
+      "when": "1 day before class",
+      "event": "Housing boom"
+    },
+    {
+      "type": "media",
+      "subject": "What \"Housing boom\" means for your money",
+      "when": "2 days before class",
+      "event": "Housing boom"
+    },
+    {
+      "type": "media",
+      "subject": "📰 Breaking: Housing boom",
+      "when": "3 days before class",
+      "event": "Housing boom"
+    },
+    {
+      "type": "followup",
+      "subject": "Week 9 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "media",
+      "subject": "Class tomorrow — come with your own view",
+      "when": "1 day before class",
+      "event": "Inflation runs hot"
+    },
+    {
+      "type": "media",
+      "subject": "What \"Inflation runs hot\" means for your money",
+      "when": "2 days before class",
+      "event": "Inflation runs hot"
+    },
+    {
+      "type": "media",
+      "subject": "📰 Breaking: Inflation runs hot",
+      "when": "3 days before class",
+      "event": "Inflation runs hot"
+    },
+    {
+      "type": "followup",
+      "subject": "Week 8 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "media",
+      "subject": "Class tomorrow — come with your own view",
+      "when": "1 day before class",
+      "event": "The Fed hikes rates"
+    },
+    {
+      "type": "media",
+      "subject": "What \"The Fed hikes rates\" means for your money",
+      "when": "2 days before class",
+      "event": "The Fed hikes rates"
+    },
+    {
+      "type": "media",
+      "subject": "📰 Breaking: The Fed hikes rates",
+      "when": "3 days before class",
+      "event": "The Fed hikes rates"
+    },
+    {
+      "type": "followup",
+      "subject": "Week 7 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "followup",
+      "subject": "Week 6 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "followup",
+      "subject": "Week 5 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "followup",
+      "subject": "Week 4 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "followup",
+      "subject": "Week 3 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "followup",
+      "subject": "Week 2 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "followup",
+      "subject": "Week 1 recap + your next class",
+      "when": "Just now",
+      "event": null
+    },
+    {
+      "type": "welcome",
+      "subject": "Welcome to Build Young — your class details inside",
+      "when": "Just now",
+      "event": null
+    }
+  ],
+  "final": {
+    "finalNetWorth": 49294.48,
+    "totalPaychecksReceived": 180000,
+    "breakdown": {
+      "cash": 6945,
+      "savings": 10687.82,
+      "retirement": 6647.01,
+      "brokerageHoldings": 25014.66,
+      "privateEquity": 0,
+      "homeEquity": 0,
+      "carEquity": 0,
+      "creditCardDebt": 0
+    },
+    "creditScore": 764,
+    "boughtHome": false,
+    "boughtCar": false,
+    "carriedCardDebt": false,
+    "insured": false,
+    "hustled": false,
+    "narrative": "Maya ran a aggressive strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $49,294 and a credit score of 764. All figures simulated."
+  }
+}

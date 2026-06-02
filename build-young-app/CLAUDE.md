@@ -53,11 +53,13 @@ Top-to-bottom, the major pieces:
 - **`act(fn)`** — accessibility helper: makes a non-button element keyboard-operable
   (role=button, tabIndex, Enter/Space). Use it on any clickable `<span>`/`<div>`.
 - **`SEASONS` + `BATCHES`** — cohorts run in 3 seasonal intakes (Fall 2026, Winter 2027,
-  Spring 2027). `BATCHES` has 12 entries = 3 seasons × {MS Mon, MS Tue, HS Wed, HS Thu};
-  each has a `season` key. Ids look like `fall-hs-wed`. `CONFIG.stripeLinks` auto-derives one
-  empty slot per batch id from `BATCHES`. The landing "Upcoming batches" section has a season
-  pill selector (Fall shown first) and shows that season's 4 cards; the enroll dropdown groups
-  options by season via `<optgroup>`. To add a season, append to `SEASONS` + 4 `BATCHES` rows.
+  Spring 2027). ONE combined **"Builders"** track (ages 13–18; no MS/HS split). `BATCHES` has 6
+  entries = 3 seasons × 2 cohorts on alternating day-pairs (**Mon & Wed**, **Tue & Thu**); each
+  meets **twice a week (~3 hrs)** over the 12-week course. `track` is `"Builders"` for all. Ids
+  look like `fall-mw` / `fall-tt`. `CHECKINS` (= **1**) lives in cohorts.js too (imported by
+  App.jsx + funnel.js). `CONFIG.stripeLinks` auto-derives one empty slot per batch id. The landing
+  “Upcoming batches” section shows that season’s 2 cards; the enroll dropdown groups options by
+  season via `<optgroup>`. To add a season, append to `SEASONS` + 2 `BATCHES` rows.
 - **`HeroPreview`** — animated dashboard mock that cycles weeks 5→8→12 on the landing page.
 - **`LEGAL` + `LegalModal`** — in-app Privacy/Terms popup (works without separate files).
 - **`WHY_STATS` + `WhyStrip`** — the "Why this matters" social-proof stat cards shown on the
@@ -100,7 +102,7 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
 - **Ordered stages (the linear spine):** `visited` → `enroll_started` → `enrolled` →
   `class_started` → `graduated`. Non-spine signals feed their own charts: `call_booked` (parallel
   "Talk to Sunil" assist path — enrollments split call→enroll vs. direct via a `fromCall` prop), and
-  the progression curves `week_advanced` (weeks 2–12) + `checkin_completed` (months 1–6 retention).
+  the progression curves `week_advanced` (weeks 2–12) + `checkin_completed` (the post-grad check-in — `CHECKINS`, currently 1).
   `withdrawn` is the exit branch, tagged with a `refundTier` (`full`/`prorated`/`none`).
 - **`track(event, props)`** (App.jsx): fire-and-forget `sendBeacon`/fetch to `/api/funnel` (POST), no-op in
   tests, never throws. Fired at each stage — `visited` (once/session), `enroll_started`
@@ -112,8 +114,8 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   `class_started/enrolled`, `graduated/class_started`) plus overall `enrolled/visited` — via
   `conversionRate(numer, denom)` (0 when denom is 0). `summarize(events, filter)` →
   `{counts, steps, overall, calls, weekCurve, checkinCurve, withdrawals, revenue}`.
-- **Segmentation:** `segments(events)` → per-season (Fall/Winter/Spring) and per-track (Middle/High
-  School). Meaningful from `enrolled` onward (top-of-funnel events carry no cohort → excluded under a
+- **Segmentation:** `segments(events)` → per-season (Fall/Winter/Spring) and per-track (one combined
+  `Builders` track now). Meaningful from `enrolled` onward (top-of-funnel events carry no cohort → excluded under a
   filter).
 - **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net).
 - **Route:** hidden, not in nav — `?founder=<token>` renders `FounderDashboard`. Data from

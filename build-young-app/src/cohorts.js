@@ -1,17 +1,24 @@
 // ============================ COHORTS (dependency-free) ============================
 //
-// The cohort catalog (SEASONS + BATCHES). Kept React/lucide-free so the serverless cron
-// scheduler (api/cron/market-news.js) can import the SAME source of truth for class dates,
-// rather than duplicating the schedule. App.jsx imports + re-exports these unchanged.
+// The cohort catalog (SEASONS + BATCHES + CHECKINS). Kept React/lucide-free so the serverless
+// cron scheduler (api/cron/market-news.js) and the funnel module can import the SAME source of
+// truth. App.jsx imports + re-exports these unchanged.
+//
+// Build Young runs ONE combined teen track — "Builders" (ages 13–18). Each cohort meets TWICE a
+// week (~3 hrs/week, two 90-min sessions) over the 12-week course; we run two cohorts per season
+// on alternating day-pairs (Mon & Wed, Tue & Thu) so families can self-select a schedule.
 //
 // Each BATCH:
-//   - id      — stable cohort id used in URLs + the roster (e.g. "fall-hs-wed")
+//   - id      — stable cohort id used in URLs + the roster (e.g. "fall-mw")
 //   - season  — SEASONS key (groups the enroll dropdown + landing pills)
-//   - track   — "Middle School" | "High School"
-//   - start   — WEEK 1 class date, e.g. "Sep 9, 2026" (Date-parseable). Week N class is
-//               start + (N-1)*7 days. The weekday is implied by `start` and echoed in `day`.
-//   - day     — human label, e.g. "Wednesdays · 5:00–6:30 PM PST"
+//   - track   — cohort label; "Builders" for all (single combined track)
+//   - start   — WEEK 1 class date, e.g. "Sep 7, 2026" (Date-parseable). Week N's anchor is
+//               start + (N-1)*7 days. The weekdays are echoed in `day`.
+//   - day     — human label, e.g. "Mondays & Wednesdays · 5:00–6:30 PM PST"
 //   - seats / price / zoom — enrollment + class details
+
+// Monthly check-ins after the 12-week course (the prize is decided at the last one).
+export const CHECKINS = 1;
 
 export const SEASONS = [
   { key: "fall", label: "Fall 2026", note: "Enrolling now" },
@@ -21,20 +28,14 @@ export const SEASONS = [
 
 export const BATCHES = [
   // Fall 2026
-  { id: "fall-ms-mon", season: "fall", track: "Middle School", start: "Sep 7, 2026", day: "Mondays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000001" },
-  { id: "fall-ms-tue", season: "fall", track: "Middle School", start: "Sep 8, 2026", day: "Tuesdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000002" },
-  { id: "fall-hs-wed", season: "fall", track: "High School", start: "Sep 9, 2026", day: "Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000003" },
-  { id: "fall-hs-thu", season: "fall", track: "High School", start: "Sep 10, 2026", day: "Thursdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000004" },
+  { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000001" },
+  { id: "fall-tt", season: "fall", track: "Builders", start: "Sep 8, 2026", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000002" },
   // Winter 2027
-  { id: "winter-ms-mon", season: "winter", track: "Middle School", start: "Jan 11, 2027", day: "Mondays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000005" },
-  { id: "winter-ms-tue", season: "winter", track: "Middle School", start: "Jan 12, 2027", day: "Tuesdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000006" },
-  { id: "winter-hs-wed", season: "winter", track: "High School", start: "Jan 13, 2027", day: "Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000007" },
-  { id: "winter-hs-thu", season: "winter", track: "High School", start: "Jan 14, 2027", day: "Thursdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000008" },
+  { id: "winter-mw", season: "winter", track: "Builders", start: "Jan 11, 2027", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000003" },
+  { id: "winter-tt", season: "winter", track: "Builders", start: "Jan 12, 2027", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000004" },
   // Spring 2027
-  { id: "spring-ms-mon", season: "spring", track: "Middle School", start: "Apr 5, 2027", day: "Mondays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000009" },
-  { id: "spring-ms-tue", season: "spring", track: "Middle School", start: "Apr 6, 2027", day: "Tuesdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000010" },
-  { id: "spring-hs-wed", season: "spring", track: "High School", start: "Apr 7, 2027", day: "Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000011" },
-  { id: "spring-hs-thu", season: "spring", track: "High School", start: "Apr 8, 2027", day: "Thursdays · 5:00–6:30 PM PST", seats: 10, price: 899, zoom: "https://zoom.us/j/8801000012" },
+  { id: "spring-mw", season: "spring", track: "Builders", start: "Apr 6, 2027", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000005" },
+  { id: "spring-tt", season: "spring", track: "Builders", start: "Apr 7, 2027", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000006" },
 ];
 
 export const seasonLabel = (key) => (SEASONS.find((s) => s.key === key) || {}).label || "";

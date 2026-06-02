@@ -83,8 +83,8 @@ export const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e || "").tri
 /* ============================ DATA ============================ */
 // Cohorts (SEASONS + BATCHES + seasonLabel) live in ./cohorts.js — a dependency-free
 // module shared with the cron scheduler — and are imported here + re-exported below.
-import { SEASONS, BATCHES, seasonLabel } from "./cohorts.js";
-export { BATCHES } from "./cohorts.js";
+import { SEASONS, BATCHES, seasonLabel, CHECKINS } from "./cohorts.js";
+export { BATCHES, CHECKINS } from "./cohorts.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
 import { STAGES, cohortMeta, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS } from "./funnel.js";
 
@@ -105,7 +105,8 @@ export const CONFIG = {
   // https://YOURDOMAIN/?enrolled={batchId}). Filled per id below; empty = demo flow.
   stripeLinks: {
     ...Object.fromEntries(BATCHES.map((b) => [b.id, ""])),
-    "fall-ms-mon": "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00",
+    // NOTE: this test link's Stripe-side metadata/redirect must be updated to batchId=fall-mw.
+    "fall-mw": "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00",
   },
   // Email: set emailEnabled true once the /api/send-email function + provider key are live.
   emailEnabled: true,
@@ -281,7 +282,7 @@ export const STEADY_INCOME = 10000;  // per-period business income in the financ
 export const PAY = STEADY_INCOME;    // back-comat alias (steady business income, not a paycheck)
 const TAX_RATE = 0.15;               // tax on business income (self-employment / business tax)
 const FINANCE_FIRST_WEEK = 7;        // weeks 1–6 = Build act; 7–12 = Finance act
-export const CHECKINS = 1;           // monthly check-ins after the 12-week course (the prize is decided at the last one)
+// CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
 export const CHECKIN_TIME = "5:00–6:00 PM PST"; // 60-minute monthly check-in
 // The check-in is ONE MONTH after the cohort's final (Week 12) class, kept on the cohort's
 // usual weekday (the same weekday it started/meets). Returns a label like
@@ -945,7 +946,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin }) {
             <div style={{ flex: 1, minWidth: 260 }}>
               <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 8 }}>
-                I came to the United States with almost nothing — and with family back home depending on me to provide. I built my life from zero, supporting them while finding my own footing, and made it my own country. Two decades as a product leader at Microsoft later, I'd reached financial independence and was able to step away at 51. But here's the truth I can't stop thinking about: if I'd understood how money really works as a teenager, I'd have gotten there years sooner. That lost time is the whole reason this exists. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. I wanted them to understand how money really works before the world started making those decisions for them — so I built this for them. The two tracks grew out of watching them learn at different ages, and the simulation starts exactly where every builder does: at zero, with nothing but an idea and the will to make it real. These days I build AI products for a living, and here's what I keep seeing: AI has made building things astonishingly easy — a kid with the right instincts can now make what used to take a whole team. So the kids who learn to build — not just consume — will own their futures. That's why I called it Build Young: the one advantage these kids have that no one can buy is time. Habits, character, and even a few invested dollars all compound.
+                I came to the United States with almost nothing — and with family back home depending on me to provide. I built my life from zero, supporting them while finding my own footing, and made it my own country. Two decades as a product leader at Microsoft later, I'd reached financial independence and was able to step away at 51. But here's the truth I can't stop thinking about: if I'd understood how money really works as a teenager, I'd have gotten there years sooner. That lost time is the whole reason this exists. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. I wanted them to understand how money really works before the world started making those decisions for them — so I built this for them. I built it for teens 13–18 to learn side by side, and the simulation starts exactly where every builder does: at zero, with nothing but an idea and the will to make it real. These days I build AI products for a living, and here's what I keep seeing: AI has made building things astonishingly easy — a kid with the right instincts can now make what used to take a whole team. So the kids who learn to build — not just consume — will own their futures. That's why I called it Build Young: the one advantage these kids have that no one can buy is time. Habits, character, and even a few invested dollars all compound.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 Here's what I noticed when I went looking for something like this for my own kids. There's plenty of free material out there — banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. And the paid classes that are live? They mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life.
@@ -987,18 +988,16 @@ function Landing({ onEnroll, onCall, onLegal, onLogin }) {
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16, marginTop: 20 }}>
           {BATCHES.filter((b) => b.season === season).map((b) => {
-            const acc = b.track === "High School" ? C.emerald : C.green;
+            const acc = b.id.includes("mw") ? C.emerald : C.green;
             return (
             <Card key={b.id} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", height: "100%" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: acc }} />
-              <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track}</Pill></div>
+              <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track} · ages 13–18</Pill></div>
               <div className="disp" style={{ fontSize: 24, fontWeight: 800, marginTop: 12 }}>Starts {b.start}</div>
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom · ~3 hrs/week</div>
               <div style={{ fontSize: 13, color: C.ink2, marginTop: 10, lineHeight: 1.45 }}>
-                {b.track === "High School"
-                  ? "The full 12-week program — build something people would pay for, then manage the income it earns. In an AI world, the edge isn't a degree; it's what you can build."
-                  : "The full 12-week program — build something people would pay for, then invest, budget, and finance a home and a car with what you earn."}
+                The full 12-week program — build something people would pay for, then manage what you earn: taxes, saving, investing through real markets, and big purchases. In an AI world, the edge isn't a degree; it's what you can build.
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
@@ -1064,7 +1063,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const [batch, setBatch] = useState(preselect || BATCHES[0].id);
   const b = BATCHES.find((x) => x.id === batch);
   const canContinue = name.trim() && validEmail(email) && age13;
-  const acc = b.track === "High School" ? C.emerald : C.green;
+  const acc = b.id.includes("mw") ? C.emerald : C.green;
   const inputS = { width: "100%", padding: "12px 14px", borderRadius: 4, border: `1.5px solid ${C.line}`, background: C.paper2, fontSize: 15, marginTop: 6 };
   const label = { fontSize: 13, fontWeight: 700, color: C.ink2 };
   return (
@@ -1097,7 +1096,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     {SEASONS.map((s) => (
                       <optgroup key={s.key} label={s.label}>
                         {BATCHES.filter((x) => x.season === s.key).map((x) => (
-                          <option key={x.id} value={x.id}>{x.track} — {x.day.split(" · ")[0]} (starts {x.start})</option>
+                          <option key={x.id} value={x.id}>{x.day.split(" · ")[0]} (starts {x.start})</option>
                         ))}
                       </optgroup>
                     ))}
@@ -1132,7 +1131,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 8, fontWeight: 700, letterSpacing: ".04em" }}>WHAT YOU GET FROM ME</div>
                   <div style={{ marginTop: 8, display: "grid", gap: 7 }}>
                     {[
-                      "12 live 90-min classes, taught by me",
+                      "12 weeks of live classes — 2 sessions a week (~3 hrs), taught by me",
                       "A follow-up check-in a month after the course",
                       "Your own student dashboard",
                       "Build a real product, then manage what it earns",
@@ -1356,8 +1355,8 @@ function OverviewPanel({ s, batch, onTab }) {
         </p>
         <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
           {info.beforeStart && chip(info.days, `${info.days === 1 ? "day" : "days"} until your first class`)}
-          {chip(12, "live weekly classes")}
-          {chip(CHECKINS, "monthly check-ins after")}
+          {chip(12, "weeks · 2 sessions/week")}
+          {chip(CHECKINS, CHECKINS === 1 ? "monthly check-in after" : "monthly check-ins after")}
         </div>
         <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
           <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
@@ -1372,7 +1371,7 @@ function OverviewPanel({ s, batch, onTab }) {
           <h3 style={sectionTitle}>What to expect</h3>
           <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — Build.</b> Find a problem worth solving and build a product, app, or service (AI is your tool). Your income comes from what you build.</span></div>
           <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–12 — Manage the money.</b> Taxes, saving, investing through real market swings, big purchases, and watching it compound.</span></div>
-          <div style={li}><Sparkles size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>6 monthly check-ins.</b> After graduation, keep investing on your own and see how a year of decisions plays out.</span></div>
+          <div style={li}><Sparkles size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A follow-up check-in.</b> A month after graduation you'll reconvene to see how your independent investing decisions played out.</span></div>
         </Card>
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>How each week works</h3>
@@ -1398,7 +1397,7 @@ function OverviewPanel({ s, batch, onTab }) {
           <div><div style={infoLabel}>Cohort</div><div style={infoVal}>{batch.track}{dayName ? ` · ${dayName}` : ""}</div></div>
           <div><div style={infoLabel}>First class</div><div style={infoVal}>{info.longDate || batch.day}</div></div>
           <div><div style={infoLabel}>Time</div><div style={infoVal}>{time || "—"}</div></div>
-          <div><div style={infoLabel}>Format</div><div style={infoVal}>12 weekly classes + 6 monthly check-ins</div></div>
+          <div><div style={infoLabel}>Format</div><div style={infoVal}>12 weeks · 2 sessions/week + a follow-up check-in</div></div>
         </div>
         <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted, lineHeight: 1.5, borderTop: `1px solid ${C.line}`, paddingTop: 12 }}>
           All money in the program is <b>simulated</b> — this is financial education, not licensed advice. Full refund any time before your cohort starts; prorated through the first {REFUND_WEEKS} weeks.
