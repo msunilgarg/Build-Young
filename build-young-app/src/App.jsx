@@ -359,6 +359,10 @@ The Team`,
 // the cohort hasn't started; prorated (for the unattended sessions) within the first 3 weeks.
 export function withdrawalEmail(s, batch, refund, notStarted) {
   const first = s.student.name.split(" ")[0] || "there";
+  // week increments on each advance, so sessions held = week − 1 once started; the rest are
+  // "not yet held" (the prorated refund basis — matches the Terms).
+  const attended = notStarted ? 0 : s.week - 1;
+  const unheld = 12 - attended;
   return {
     id: "x" + Date.now(), from: MAIL_FROM, when: "Just now", type: "withdrawal",
     subject: notStarted ? "Your Build Young enrollment is canceled" : "Your Build Young withdrawal is confirmed",
@@ -376,10 +380,10 @@ Take care,
 The Build Young Team`
       : `Hi ${first},
 
-We've processed your withdrawal from the ${batch.track} cohort. A prorated refund of ${fmt(refund)} — covering the ${12 - s.week} sessions you haven't attended — is on its way back to your original payment method, typically within 5–10 business days.
+We've processed your withdrawal from the ${batch.track} cohort. A prorated refund of ${fmt(refund)} — covering the ${unheld} sessions not yet held — is on its way back to your original payment method, typically within 5–10 business days.
 
   •  Cohort: ${batch.track} — ${batch.day}
-  •  Attended: ${s.week} of 12 sessions
+  •  Attended: ${attended} of 12 sessions
   •  Refund: ${fmt(refund)} (prorated)
 
 Thanks for giving it a try — you're welcome back anytime. Just reply to this email if anything looks off.
@@ -387,6 +391,15 @@ Thanks for giving it a try — you're welcome back anytime. Just reply to this e
 Take care,
 The Build Young Team`,
   };
+}
+// The refund a student gets if they cancel now. Full price before the cohort starts; otherwise
+// prorated by SESSIONS NOT YET HELD (the Terms basis). `week` increments on each advance, so
+// sessions held = week − 1 once started. The 3-week eligibility window is enforced separately
+// by `canWithdraw` in Platform — this just computes the amount.
+export function refundFor(batch, started, week) {
+  if (!started) return batch.price;
+  const unheld = 12 - (week - 1); // sessions not yet held
+  return Math.round((batch.price * unheld) / 12);
 }
 
 // The MEDIA map (per-event analog/watch/question/resources) is SERVER-ONLY
@@ -1239,7 +1252,12 @@ function Platform({ state, setState, onExit }) {
   const batch = BATCHES.find((b) => b.id === s.student.batch) || BATCHES[0];
   const notStarted = !s.started; // before the first session → full refund
   const canWithdraw = notStarted || (s.phase === "course" && s.week <= 3); // pre-start, or within the first 3 weeks
-  const refund = notStarted ? batch.price : Math.round((batch.price * (12 - s.week)) / 12);
+  // `week` increments on each advance (attending session 1 moves you to "Week 2"), so sessions
+  // actually held = week − 1 once started. Refund covers every session NOT yet held — matching
+  // the Terms ("the fraction of sessions not yet held").
+  const attended = notStarted ? 0 : s.week - 1;
+  const unheld = 12 - attended;
+  const refund = refundFor(batch, s.started, s.week);
   // Confirm a withdrawal: email the refund/cancellation confirmation (once — a ref guards
   // against a double-click), drop it in the in-app inbox, and show the done state. The send is
   // a side effect, so it lives OUTSIDE the setState updater (updaters must stay pure).
@@ -1354,7 +1372,7 @@ function Platform({ state, setState, onExit }) {
                 <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>
                   {notStarted
                     ? <>Your cohort hasn't started yet, so you'll receive a <b>full refund of {fmt(refund)}</b> — no questions asked. This frees up your seat for someone else.</>
-                    : <>You've attended {s.week} of 12 sessions. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {12 - s.week} sessions remaining. Refunds are available only through the first 3 weeks, so this can't be reversed.</>}
+                    : <>You've attended {attended} of 12 sessions. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {unheld} sessions not yet held. Refunds are available only through the first 3 weeks, so this can't be reversed.</>}
                 </p>
                 <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
                   <button className="btn" onClick={() => setWithdraw(false)} style={{ flex: 1, background: C.paper2, color: C.ink, border: `1px solid ${C.line}`, padding: 12, borderRadius: 4, fontSize: 14 }}>Cancel</button>
@@ -1443,7 +1461,7 @@ function Platform({ state, setState, onExit }) {
               <div style={{ fontSize: 13, color: C.muted, maxWidth: 560 }}>
                 {notStarted
                   ? <>Changed your mind before the first class? Cancel any time before your cohort starts on <b style={{ color: C.ink }}>{classDateLabel(batch, 1)}</b> for a <b style={{ color: C.ink }}>full refund of {fmt(refund)}</b> — no questions asked.</>
-                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> through the end of the first 3 weeks — up until your Week 4 session on <b style={{ color: C.ink }}>{classDateLabel(batch, 4)}</b>. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {12 - s.week} sessions you haven't attended.</>}
+                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> through the end of the first 3 weeks — up until your Week 4 session on <b style={{ color: C.ink }}>{classDateLabel(batch, 4)}</b>. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {unheld} sessions you haven't attended.</>}
               </div>
               <button className="btn" onClick={() => setWithdraw("confirm")} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "9px 14px", borderRadius: 4, fontSize: 13 }}>{notStarted ? "Cancel enrollment" : "Withdraw"}</button>
             </Card>
