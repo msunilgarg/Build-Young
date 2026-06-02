@@ -106,16 +106,22 @@ const CONFIG = {
   emailEnabled: true,
   emailEndpoint: "/api/send-email",
 };
-// Fire-and-forget email send. No-ops gracefully in demo/local; UI toast still shows.
+// Fire-and-forget email send. No-ops gracefully in demo/local; UI toast still shows. On any
+// failure it logs the exact reason to the console (`[email] …`) instead of swallowing it — so a
+// silent non-delivery (missing key, bad recipient, provider rejection) is diagnosable, not a
+// mystery.
 function sendEmail(to, subject, body) {
-  if (!CONFIG.emailEnabled || !to) return;
+  if (!CONFIG.emailEnabled) { console.warn("[email] not sent — CONFIG.emailEnabled is false"); return; }
+  if (!to) { console.warn("[email] not sent — no recipient (student.email is empty)"); return; }
   try {
     fetch(CONFIG.emailEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ to, subject, body }),
-    }).catch(() => {});
-  } catch (e) { /* ignore */ }
+    }).then(async (r) => {
+      if (!r.ok) console.warn(`[email] send failed (HTTP ${r.status}) to ${to}:`, await r.text().catch(() => ""));
+    }).catch((e) => { console.warn("[email] network error:", e); });
+  } catch (e) { console.warn("[email] error:", e); }
 }
 const PENDING_KEY = "by:pending-enroll";
 
