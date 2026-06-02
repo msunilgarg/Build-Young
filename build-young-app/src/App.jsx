@@ -101,7 +101,10 @@ export const CONFIG = {
   calendlyUrl: "", // e.g. "https://calendly.com/sunil-build-young/15min"
   // One Stripe Payment Link per batch id (set each link's success URL to
   // https://YOURDOMAIN/?enrolled={batchId}). Filled per id below; empty = demo flow.
-  stripeLinks: Object.fromEntries(BATCHES.map((b) => [b.id, ""])),
+  stripeLinks: {
+    ...Object.fromEntries(BATCHES.map((b) => [b.id, ""])),
+    "fall-ms-mon": "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00",
+  },
   // Email: set emailEnabled true once the /api/send-email function + provider key are live.
   emailEnabled: true,
   emailEndpoint: "/api/send-email",

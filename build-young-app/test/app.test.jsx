@@ -5,9 +5,9 @@ import { axe } from "jest-axe";
 import App, { CONFIG } from "../src/App.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
-// regardless of the production default for CONFIG.authEnabled. The login flow is covered separately
-// in auth-ui.test.jsx / auth-endpoints.test.js.
-beforeEach(() => { CONFIG.authEnabled = false; });
+// AND no Stripe links (an empty link = demo checkout) regardless of the production CONFIG. The auth
+// + Stripe paths are covered separately in auth-ui.test.jsx / auth-endpoints.test.js.
+beforeEach(() => { CONFIG.authEnabled = false; CONFIG.stripeLinks = {}; });
 
 // Only fail on the impact levels CLAUDE.md commits to (serious/critical).
 async function expectNoSeriousA11y(container) {
