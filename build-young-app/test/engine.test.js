@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   validEmail, newState, advance, netWorth, holdingsTotal,
   takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, PAY,
+  nextClassLabel, checkinDateLabel, classDateLabel, withdrawalEmail, refundFor,
+  canWithdrawNow, REFUND_WEEKS,
 } from "../src/App.jsx";
 // The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
 // module so the future schedule never ships in the client bundle (anti-gaming). These engine
@@ -10,6 +12,98 @@ import { marketEventFor, mediaDrip } from "../api/_lib/marketSchedule.js";
 
 const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-hs-wed", track: "High School" };
 const CALM = { h: "Markets open calm", d: "Quiet.", e: { stocks: 0.02, bonds: 0.005, reits: 0.01, bullion: 0, sav: 0.01 } };
+
+describe("nextClassLabel", () => {
+  // fall-hs-wed starts "Sep 9, 2026" (a Wednesday), day "Wednesdays · 5:00–6:30 PM PST".
+  const batch = BATCHES.find((b) => b.id === "fall-hs-wed");
+  it("shows the concrete date + time for the current course week (not just the weekday)", () => {
+    expect(nextClassLabel(batch, "course", 1)).toBe("Wed, Sep 9, 2026 · 5:00–6:30 PM PST");
+    // Week N is start + (N-1)*7 days.
+    expect(nextClassLabel(batch, "course", 3)).toBe("Wed, Sep 23, 2026 · 5:00–6:30 PM PST");
+  });
+  it("uses the follow-up check-in date once the course is over", () => {
+    expect(nextClassLabel(batch, "checkin", 0)).toBe(checkinDateLabel(batch));
+  });
+  it("falls back to the recurring day label when start is unparseable", () => {
+    const bad = { ...batch, start: "not-a-date" };
+    expect(nextClassLabel(bad, "course", 1)).toBe(bad.day);
+  });
+});
+
+describe("classDateLabel (refund-deadline dates)", () => {
+  const batch = BATCHES.find((b) => b.id === "fall-hs-wed"); // starts Sep 9, 2026 (Wed)
+  it("returns the date-only label for a given course week (no time)", () => {
+    expect(classDateLabel(batch, 1)).toBe("Wed, Sep 9, 2026");   // full-refund deadline
+    expect(classDateLabel(batch, 4)).toBe("Wed, Sep 30, 2026");  // prorated-window close
+  });
+  it("returns empty string when start is unparseable", () => {
+    expect(classDateLabel({ ...batch, start: "nope" }, 1)).toBe("");
+  });
+});
+
+describe("withdrawalEmail (refund confirmation)", () => {
+  const batch = BATCHES.find((b) => b.id === "fall-hs-wed");
+  it("confirms a full refund when the cohort hasn't started", () => {
+    const s = newState(STUDENT);
+    const mail = withdrawalEmail(s, batch, batch.price, true);
+    expect(mail.type).toBe("withdrawal");
+    expect(mail.subject).toMatch(/canceled/i);
+    expect(mail.body).toContain("full refund");
+    expect(mail.body).toContain(`$${batch.price.toLocaleString()}`);
+    expect(mail.body).toContain("Jordan");
+  });
+  it("confirms a prorated refund mid-course (counts sessions not yet held)", () => {
+    // Dashboard "Week 3" = 2 sessions attended (week increments on each advance).
+    const s = newState(STUDENT); s.week = 3; s.started = true;
+    const refund = refundFor(batch, true, 3);
+    const mail = withdrawalEmail(s, batch, refund, false);
+    expect(mail.subject).toMatch(/withdrawal is confirmed/i);
+    expect(mail.body).toContain("prorated refund");
+    expect(mail.body).toContain("10 sessions not yet held"); // 12 - (3 - 1)
+    expect(mail.body).toContain("Attended: 2 of 12");        // not 3
+    expect(mail.body).toContain(`$${refund.toLocaleString()}`);
+  });
+});
+
+describe("canWithdrawNow (cancellation window)", () => {
+  it("is the first 2 weeks", () => {
+    expect(REFUND_WEEKS).toBe(2);
+  });
+  it("allows cancellation before the cohort starts (full refund window)", () => {
+    const s = newState(STUDENT); // started: false
+    expect(canWithdrawNow(s)).toBe(true);
+  });
+  it("allows it during the first 2 weeks, then NEVER after", () => {
+    for (let wk = 1; wk <= 12; wk++) {
+      const s = newState(STUDENT); s.started = true; s.week = wk;
+      // "Week 2" = 1 attended, "Week 3" = 2 attended → week 3 onward is past the window.
+      expect(canWithdrawNow(s), `week ${wk}`).toBe(wk <= REFUND_WEEKS);
+    }
+  });
+  it("is never available once the course is over (check-in / graduated)", () => {
+    const s = newState(STUDENT); s.started = true; s.phase = "checkin"; s.week = 2; s.checkin = 0;
+    expect(canWithdrawNow(s)).toBe(false);
+  });
+});
+
+describe("refundFor (sessions not yet held)", () => {
+  const batch = BATCHES.find((b) => b.id === "fall-hs-wed"); // $899
+  it("is the full price before the cohort starts", () => {
+    expect(refundFor(batch, false, 1)).toBe(batch.price);
+  });
+  it("refunds for every session not yet held (no off-by-one)", () => {
+    // "Week 2" = 1 attended → 11 unheld; "Week 3" = 2 attended → 10 unheld.
+    expect(refundFor(batch, true, 2)).toBe(Math.round((batch.price * 11) / 12)); // $824, not $749
+    expect(refundFor(batch, true, 3)).toBe(Math.round((batch.price * 10) / 12)); // $749
+  });
+  it("never refunds more than full or less than zero across the course", () => {
+    for (let wk = 1; wk <= 12; wk++) {
+      const r = refundFor(batch, true, wk);
+      expect(r).toBeLessThanOrEqual(batch.price);
+      expect(r).toBeGreaterThanOrEqual(0);
+    }
+  });
+});
 
 describe("validEmail", () => {
   it("accepts well-formed addresses", () => {

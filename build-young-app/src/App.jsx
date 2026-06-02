@@ -130,16 +130,22 @@ const AUTH = {
   async getState() { try { const r = await fetch("/api/state"); return r.ok ? (await r.json()).state : null; } catch { return null; } },
   async putState(state) { try { await fetch("/api/state", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state }) }); } catch { /* ignore */ } },
 };
-// Fire-and-forget email send. No-ops gracefully in demo/local; UI toast still shows.
+// Fire-and-forget email send. No-ops gracefully in demo/local; UI toast still shows. On any
+// failure it logs the exact reason to the console (`[email] …`) instead of swallowing it — so a
+// silent non-delivery (missing key, bad recipient, provider rejection) is diagnosable, not a
+// mystery.
 function sendEmail(to, subject, body) {
-  if (!CONFIG.emailEnabled || !to) return;
+  if (!CONFIG.emailEnabled) { console.warn("[email] not sent — CONFIG.emailEnabled is false"); return; }
+  if (!to) { console.warn("[email] not sent — no recipient (student.email is empty)"); return; }
   try {
     fetch(CONFIG.emailEndpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ to, subject, body }),
-    }).catch(() => {});
-  } catch (e) { /* ignore */ }
+    }).then(async (r) => {
+      if (!r.ok) console.warn(`[email] send failed (HTTP ${r.status}) to ${to}:`, await r.text().catch(() => ""));
+    }).catch((e) => { console.warn("[email] network error:", e); });
+  } catch (e) { console.warn("[email] error:", e); }
 }
 const PENDING_KEY = "by:pending-enroll";
 
@@ -259,6 +265,31 @@ export function checkinDateLabel(batch) {
   d.setDate(d.getDate() + ((weekday - d.getDay() + 7) % 7));
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }) + " · " + CHECKIN_TIME;
 }
+// The student's NEXT live session, as a CONCRETE date, so the dashboard banner reads
+// "Mon, Sep 7, 2026 · 5:00–6:30 PM PST" rather than just the recurring weekday — making it
+// clear it's the upcoming class. During the course, week N's class is start + (N-1)*7 days;
+// once in the follow-up phase we reuse checkinDateLabel. The time-of-day is lifted from the
+// cohort's `day` label ("Mondays · 5:00–6:30 PM PST"). Falls back to batch.day if start is
+// unparseable (mirrors checkinDateLabel's guard).
+export function nextClassLabel(batch, phase, week) {
+  if (!batch) return "";
+  if (phase !== "course") return checkinDateLabel(batch) || batch.day;
+  const start = new Date(batch.start);
+  if (isNaN(start.getTime())) return batch.day;
+  const d = new Date(start.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
+  const time = (batch.day.split("·")[1] || "").trim(); // "5:00–6:30 PM PST"
+  const date = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  return time ? `${date} · ${time}` : date;
+}
+// Date-only label (no time) for a course week's class, e.g. "Wed, Sep 23, 2026". Used by the
+// cancel/withdraw banner to state the EXACT refund deadlines. Week 1 == batch.start; week N is
+// +7 days each. Returns "" if start is unparseable so callers can omit the date gracefully.
+export function classDateLabel(batch, week) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime())) return "";
+  const d = new Date(start.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+}
 // income for a given period: the build's revenue curve in the course, steady once established
 export function incomeFor(phase, week) {
   if (phase !== "course") return STEADY_INCOME; // check-ins: the build is established
@@ -347,6 +378,61 @@ Your 60-minute check-in: ${checkinDateLabel(batch) || batch.day}  ·  Zoom: ${ba
 
 The Team`,
   };
+}
+// Refund/cancellation confirmation — sent when a student confirms a withdrawal. Full refund if
+// the cohort hasn't started; prorated (for the unattended sessions) within the first 2 weeks.
+export function withdrawalEmail(s, batch, refund, notStarted) {
+  const first = s.student.name.split(" ")[0] || "there";
+  // week increments on each advance, so sessions held = week − 1 once started; the rest are
+  // "not yet held" (the prorated refund basis — matches the Terms).
+  const attended = notStarted ? 0 : s.week - 1;
+  const unheld = 12 - attended;
+  return {
+    id: "x" + Date.now(), from: MAIL_FROM, when: "Just now", type: "withdrawal",
+    subject: notStarted ? "Your Build Young enrollment is canceled" : "Your Build Young withdrawal is confirmed",
+    body: notStarted
+      ? `Hi ${first},
+
+We've canceled your enrollment in the ${batch.track} cohort, as requested. A full refund of ${fmt(refund)} is on its way back to your original payment method — refunds typically land within 5–10 business days.
+
+  •  Cohort: ${batch.track} — ${batch.day}
+  •  Refund: ${fmt(refund)} (full)
+
+No hard feelings — your seat is freed up for someone else, and you're welcome back anytime. Just reply to this email if anything looks off.
+
+Take care,
+The Build Young Team`
+      : `Hi ${first},
+
+We've processed your withdrawal from the ${batch.track} cohort. A prorated refund of ${fmt(refund)} — covering the ${unheld} sessions not yet held — is on its way back to your original payment method, typically within 5–10 business days.
+
+  •  Cohort: ${batch.track} — ${batch.day}
+  •  Attended: ${attended} of 12 sessions
+  •  Refund: ${fmt(refund)} (prorated)
+
+Thanks for giving it a try — you're welcome back anytime. Just reply to this email if anything looks off.
+
+Take care,
+The Build Young Team`,
+  };
+}
+// The refund a student gets if they cancel now. Full price before the cohort starts; otherwise
+// prorated by SESSIONS NOT YET HELD (the Terms basis). `week` increments on each advance, so
+// sessions held = week − 1 once started. The 3-week eligibility window is enforced separately
+// by `canWithdraw` in Platform — this just computes the amount.
+export function refundFor(batch, started, week) {
+  if (!started) return batch.price;
+  const unheld = 12 - (week - 1); // sessions not yet held
+  return Math.round((batch.price * unheld) / 12);
+}
+// The prorated-refund window: a cancellation is only allowed during the first N weeks of class
+// (plus any time before the cohort starts). Change this one number to move the window.
+export const REFUND_WEEKS = 2;
+// Single source of truth for whether cancellation/withdrawal is offered right now. Pre-start →
+// always (full refund); once started → only through the first REFUND_WEEKS course weeks.
+export function canWithdrawNow(s) {
+  if (!s.started) return true;
+  return s.phase === "course" && s.week <= REFUND_WEEKS;
 }
 
 // The MEDIA map (per-event analog/watch/question/resources) is SERVER-ONLY
@@ -837,7 +923,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin }) {
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>Middle school meets <b>Mondays & Tuesdays</b>, high school <b>Wednesdays & Thursdays</b> — every cohort is <b>100% live online over Zoom</b>. We run three cohorts a year — pick the season and day that fit.</p>
-          <p style={{ color: C.muted, fontSize: 14, marginTop: 8 }}>Not sure it's the right fit? <b>Cancel before your cohort starts for a full refund.</b> After it begins, withdraw through the <b>first 3 weeks</b> for a prorated refund. After that, tuition is non-refundable.</p>
+          <p style={{ color: C.muted, fontSize: 14, marginTop: 8 }}>Not sure it's the right fit? <b>Cancel before your cohort starts for a full refund.</b> After it begins, withdraw through the <b>first 2 weeks</b> for a prorated refund. After that, tuition is non-refundable.</p>
           <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value at the final check-in</b> earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; <span {...act(() => onLegal("terms"))} style={{ textDecoration: "underline", cursor: "pointer" }}>see Terms</span>.)</span></p>
           <p style={{ fontSize: 14, marginTop: 6 }}>Still deciding? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Book a free 15-minute call with Sunil →</span></p>
         </div>
@@ -992,7 +1078,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     <span className="disp" style={{ fontSize: 26, fontWeight: 800 }}>${b.price}</span>
                   </div>
                   <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
-                    <b style={{ color: C.ink2 }}>Full refund</b> if you cancel before {b.start}. After classes begin, a <b style={{ color: C.ink2 }}>prorated refund</b> is available through the first 3 weeks; non-refundable after.
+                    <b style={{ color: C.ink2 }}>Full refund</b> if you cancel before {b.start}. After classes begin, a <b style={{ color: C.ink2 }}>prorated refund</b> is available through the first 2 weeks; non-refundable after.
                   </div>
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 8, fontWeight: 700, letterSpacing: ".04em" }}>WHAT YOU GET FROM ME</div>
                   <div style={{ marginTop: 8, display: "grid", gap: 7 }}>
@@ -1199,8 +1285,25 @@ function Platform({ state, setState, onExit }) {
   const s = state;
   const batch = BATCHES.find((b) => b.id === s.student.batch) || BATCHES[0];
   const notStarted = !s.started; // before the first session → full refund
-  const canWithdraw = notStarted || (s.phase === "course" && s.week <= 3); // pre-start, or within the first 3 weeks
-  const refund = notStarted ? batch.price : Math.round((batch.price * (12 - s.week)) / 12);
+  const canWithdraw = canWithdrawNow(s); // pre-start, or within the first REFUND_WEEKS weeks
+  // `week` increments on each advance (attending session 1 moves you to "Week 2"), so sessions
+  // actually held = week − 1 once started. Refund covers every session NOT yet held — matching
+  // the Terms ("the fraction of sessions not yet held").
+  const attended = notStarted ? 0 : s.week - 1;
+  const unheld = 12 - attended;
+  const refund = refundFor(batch, s.started, s.week);
+  // Confirm a withdrawal: email the refund/cancellation confirmation (once — a ref guards
+  // against a double-click), drop it in the in-app inbox, and show the done state. The send is
+  // a side effect, so it lives OUTSIDE the setState updater (updaters must stay pure).
+  const withdrawingRef = useRef(false);
+  const doWithdraw = () => {
+    if (withdrawingRef.current || !canWithdrawNow(s)) return; // window closed → refuse (defense-in-depth)
+    withdrawingRef.current = true;
+    const mail = withdrawalEmail(s, batch, refund, notStarted);
+    sendEmail(s.student.email, mail.subject, mail.body);
+    setState((p) => ({ ...p, emails: [mail, ...(p.emails || [])] }));
+    setWithdraw("done");
+  };
   const nw = netWorth(s);
   // compare to the PREVIOUS recorded period (the latest entry is the current one)
   const last = s.history.length > 1 ? s.history[s.history.length - 2].nw : 0;
@@ -1303,18 +1406,18 @@ function Platform({ state, setState, onExit }) {
                 <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>
                   {notStarted
                     ? <>Your cohort hasn't started yet, so you'll receive a <b>full refund of {fmt(refund)}</b> — no questions asked. This frees up your seat for someone else.</>
-                    : <>You've attended {s.week} of 12 sessions. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {12 - s.week} sessions remaining. Refunds are available only through the first 3 weeks, so this can't be reversed.</>}
+                    : <>You've attended {attended} of 12 sessions. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {unheld} sessions not yet held. Refunds are available only through the first {REFUND_WEEKS} weeks, so this can't be reversed.</>}
                 </p>
                 <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
                   <button className="btn" onClick={() => setWithdraw(false)} style={{ flex: 1, background: C.paper2, color: C.ink, border: `1px solid ${C.line}`, padding: 12, borderRadius: 4, fontSize: 14 }}>Cancel</button>
-                  <button className="btn" onClick={() => setWithdraw("done")} style={{ flex: 1, background: C.rust, color: "#fff", padding: 12, borderRadius: 4, fontSize: 14 }}>Confirm withdrawal</button>
+                  <button className="btn" onClick={doWithdraw} style={{ flex: 1, background: C.rust, color: "#fff", padding: 12, borderRadius: 4, fontSize: 14 }}>Confirm withdrawal</button>
                 </div>
               </>
             ) : (
               <div style={{ textAlign: "center" }}>
                 <div style={{ width: 56, height: 56, borderRadius: 4, background: C.emerald, display: "grid", placeItems: "center", margin: "4px auto 14px" }}><Check size={28} color="#fff" /></div>
                 <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Withdrawal complete</div>
-                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "prorated"} refund of <b>{fmt(refund)}</b> has been issued to {s.student.email} <span style={{ color: C.muted }}>(demo)</span>. We're sorry to see you go.</p>
+                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "prorated"} refund of <b>{fmt(refund)}</b> has been issued to {s.student.email} <span style={{ color: C.muted }}>(demo)</span>, and a confirmation email is on its way. We're sorry to see you go.</p>
                 <button className="btn" onClick={onExit} style={{ width: "100%", marginTop: 18, background: C.ink, color: C.paper2, padding: 12, borderRadius: 4, fontSize: 14 }}>Return home</button>
               </div>
             )}
@@ -1348,8 +1451,8 @@ function Platform({ state, setState, onExit }) {
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ width: 42, height: 42, borderRadius: 4, background: "rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}><Video size={20} color="#fff" /></div>
               <div>
-                <div style={{ fontSize: 11, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>YOUR LIVE CLASS · {batch.track.toUpperCase()}</div>
-                <div style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{batch.day}</div>
+                <div style={{ fontSize: 11, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>NEXT LIVE CLASS · {batch.track.toUpperCase()}</div>
+                <div style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{nextClassLabel(batch, s.phase, s.week)}</div>
                 <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12.5 }}>Same Zoom link for every class & check-in</div>
               </div>
             </div>
@@ -1391,16 +1494,16 @@ function Platform({ state, setState, onExit }) {
             <Card style={{ padding: 16, marginTop: 14, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
               <div style={{ fontSize: 13, color: C.muted, maxWidth: 560 }}>
                 {notStarted
-                  ? <>Changed your mind before the first class? Cancel any time before your cohort starts for a <b style={{ color: C.ink }}>full refund of {fmt(refund)}</b> — no questions asked.</>
-                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> any time through the end of the first 3 weeks. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {12 - s.week} sessions you haven't attended.</>}
+                  ? <>Changed your mind before the first class? Cancel any time before your cohort starts on <b style={{ color: C.ink }}>{classDateLabel(batch, 1)}</b> for a <b style={{ color: C.ink }}>full refund of {fmt(refund)}</b> — no questions asked.</>
+                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> through the end of the first {REFUND_WEEKS} weeks — up until your Week {REFUND_WEEKS + 1} session on <b style={{ color: C.ink }}>{classDateLabel(batch, REFUND_WEEKS + 1)}</b>. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {unheld} sessions you haven't attended.</>}
               </div>
               <button className="btn" onClick={() => setWithdraw("confirm")} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "9px 14px", borderRadius: 4, fontSize: 13 }}>{notStarted ? "Cancel enrollment" : "Withdraw"}</button>
             </Card>
           )}
-          {!canWithdraw && s.started && s.phase === "course" && s.week > 3 && (
+          {!canWithdraw && s.started && s.phase === "course" && s.week > REFUND_WEEKS && (
             <Card style={{ padding: 14, marginTop: 14 }}>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                The refund window closed at the end of the first 3 weeks. Past that point, tuition is non-refundable — but you keep full access through all 12 weeks and the follow-up check-in.
+                The refund window closed at the end of the first {REFUND_WEEKS} weeks. Past that point, tuition is non-refundable — but you keep full access through all 12 weeks and the follow-up check-in.
               </div>
             </Card>
           )}
@@ -1882,7 +1985,7 @@ const LEGAL = {
       ["Eligibility", "Students must be at least 13 years old. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
       ["Education, not financial advice", "Build Young is financial education. It is not licensed financial, investment, tax, or legal advice. All money, accounts, prices, and returns shown in the simulation are simulated; no real funds are ever involved."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
-      ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first three weeks — the refund equals the tuition multiplied by the fraction of sessions not yet held. After the first three weeks, tuition is non-refundable."],
+      ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first two weeks — the refund equals the tuition multiplied by the fraction of sessions not yet held. After the first two weeks, tuition is non-refundable."],
       ["Tuition prize", "Each cohort, the enrolled student whose simulated portfolio has the highest value at the follow-up check-in (a month after the course) — i.e. at the close of the full program — is awarded a refund of their tuition. Standings are based solely on the in-program simulation; all figures are simulated and no real investing occurs. One award per cohort; in the event of a tie or a data discrepancy, Build Young determines the winner in good faith, and its decision is final. The award is the tuition amount paid for that cohort and is issued after the program concludes. No advantage is conferred by investing style — every student faces the same simulated market. Build Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; the prize is a contest involving minors and must be reviewed by counsel for applicable contest/sweepstakes rules before launch.)"],
       ["Conduct", "We ask students and families to be respectful in live sessions. We may remove anyone whose conduct disrupts the class, consistent with the refund policy above."],
       ["Changes & contact", `We may update these terms and will post the new date above. Questions: ${CONFIG.contactEmail}.`],
