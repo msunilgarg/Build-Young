@@ -63,11 +63,14 @@ export function verifyStripeSignature(rawBody, header, secret, nowSec = Math.flo
 }
 
 // Pull the cohort id off a completed Checkout Session: metadata.batchId → client_reference_id
-// → an `?enrolled=<id>` param on the success/return URL.
+// → an `?enrolled=<id>` param on the redirect/return URL. Payment Links put the redirect in
+// `after_completion.redirect.url` (NOT success_url), so check that too.
 function batchIdFromSession(session) {
   if (session?.metadata?.batchId) return session.metadata.batchId;
   if (session?.client_reference_id) return session.client_reference_id;
-  const url = session?.success_url || session?.url || "";
+  const url = session?.success_url
+    || session?.after_completion?.redirect?.url
+    || session?.url || "";
   const m = /[?&]enrolled=([^&]+)/.exec(url);
   return m ? decodeURIComponent(m[1]) : null;
 }
