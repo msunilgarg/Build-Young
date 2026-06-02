@@ -21,7 +21,7 @@
 import crypto from "node:crypto";
 import { addEnrollment } from "./_lib/store.js";
 import { kvConfigured } from "./_lib/kv.js";
-import { putUser } from "./_lib/auth.js";
+import { putUser, getUser } from "./_lib/auth.js";
 import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
 
 // Vercel: give us the raw body (needed to verify the Stripe signature).
@@ -130,12 +130,20 @@ export default async function handler(req, res) {
   // Provision the student's account and email them a set-password link (server-side, after a
   // verified payment — this is where account creation belongs). No-op when KV isn't configured,
   // so the webhook still acknowledges cleanly in a store-less/test setup.
+  //
+  // IDEMPOTENT INVITE: only email the set-password link the FIRST time we see this email. Stripe
+  // retries failed deliveries (and students may re-enroll), and the webhook is idempotent — without
+  // this guard, every retry/re-enroll would re-send a "set your password" email. Returning students
+  // who lose the link use the password-reset flow instead.
   let invited = false;
   if (kvConfigured()) {
     try {
+      const existing = await getUser(email);
       await putUser(email, { name, batchId });
-      const sent = await sendSetPasswordEmail({ email, name });
-      invited = Boolean(sent && sent.ok);
+      if (!existing) {
+        const sent = await sendSetPasswordEmail({ email, name });
+        invited = Boolean(sent && sent.ok);
+      }
     } catch {
       /* enrollment is already stored; a failed invite can be retried via request-reset */
     }
