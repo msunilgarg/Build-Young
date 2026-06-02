@@ -110,14 +110,14 @@ describe("cohortStartInfo (pre-start awareness)", () => {
 });
 
 describe("refundFor (sessions not yet held)", () => {
-  const batch = BATCHES.find((b) => b.id === "fall-mw"); // $899
+  const batch = BATCHES.find((b) => b.id === "fall-mw"); // $999
   it("is the full price before the cohort starts", () => {
     expect(refundFor(batch, false, 1)).toBe(batch.price);
   });
   it("refunds for every session not yet held (no off-by-one)", () => {
     // "Week 2" = 1 attended → 11 unheld; "Week 3" = 2 attended → 10 unheld.
-    expect(refundFor(batch, true, 2)).toBe(Math.round((batch.price * 11) / 12)); // $824, not $749
-    expect(refundFor(batch, true, 3)).toBe(Math.round((batch.price * 10) / 12)); // $749
+    expect(refundFor(batch, true, 2)).toBe(Math.round((batch.price * 11) / 12)); // $916, not $833
+    expect(refundFor(batch, true, 3)).toBe(Math.round((batch.price * 10) / 12)); // $833
   });
   it("never refunds more than full or less than zero across the course", () => {
     for (let wk = 1; wk <= 12; wk++) {
