@@ -86,7 +86,20 @@ export const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e || "").tri
 import { SEASONS, BATCHES, seasonLabel, CHECKINS } from "./cohorts.js";
 export { BATCHES, CHECKINS } from "./cohorts.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
-import { STAGES, cohortMeta, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS } from "./funnel.js";
+import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS } from "./funnel.js";
+
+// Live cohort catalog: the public site hydrates this from /api/cohorts on load (founder-editable
+// in the dashboard), defaulting to the code `BATCHES`. Components read it via useCohorts(); App
+// owns the fetch. Keeping the code list as the default means tests/demo work with zero config.
+const CohortsContext = React.createContext(BATCHES);
+const useCohorts = () => React.useContext(CohortsContext);
+// Funnel event props for a cohort, resolved against the LIVE catalog (no PII).
+const cohortMetaFrom = (batches, batchId) => {
+  const b = (batches || []).find((x) => x.id === batchId);
+  return b
+    ? { batchId: b.id, season: b.season, track: b.track, priceCents: Math.round((b.price || 0) * 100) }
+    : { batchId: batchId || null, season: null, track: null, priceCents: 0 };
+};
 
 /* ============================ PRODUCTION CONFIG ============================
  * Fill these in to go live. Empty values fall back to the safe demo flow,

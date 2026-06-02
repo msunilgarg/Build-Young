@@ -12,7 +12,9 @@
 // endpoint is just gated storage.
 
 import crypto from "node:crypto";
-import { kvConfigured, kvCommand } from "./_lib/kv.js";
+import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
+import { saveCatalog } from "./_lib/cohortStore.js";
+import { normalizeEmail } from "./_lib/auth.js";
 
 const KEY = "funnel:events";
 const CAP = 100000; // keep only the most recent N events (LTRIM after each push)
@@ -72,8 +74,42 @@ async function read(req, res) {
   res.status(200).json({ events });
 }
 
+// Founder-gated admin actions share the read() gate. Returns true if authorized (else responds).
+function founderGate(req, res) {
+  const secret = process.env.FOUNDER_TOKEN;
+  if (!secret) { res.status(404).json({ error: "Not found" }); return false; }
+  const token = (req.query && req.query.token) || (req.headers && req.headers["x-founder-token"]) || "";
+  if (!timingSafeEq(token, secret)) { res.status(403).json({ error: "Forbidden" }); return false; }
+  return true;
+}
+
+// --- PUT: founder saves the cohort catalog ---
+async function saveCohorts(req, res) {
+  if (!founderGate(req, res)) return;
+  let body = req.body;
+  if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = null; } }
+  if (!body || typeof body !== "object") { try { body = JSON.parse(await readRaw(req)); } catch { body = null; } }
+  const result = await saveCatalog(body || {});
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
+// --- DELETE: founder resets a test account (user record + sim state) by email ---
+async function resetAccount(req, res) {
+  if (!founderGate(req, res)) return;
+  if (!kvConfigured()) { res.status(200).json({ ok: false, reason: "store not configured" }); return; }
+  const email = normalizeEmail((req.query && req.query.email) || "");
+  if (!email || !email.includes("@")) { res.status(400).json({ error: "Provide ?email=<address>" }); return; }
+  try {
+    await kvDel(`user:${email}`);
+    await kvDel(`state:${email}`);
+  } catch { res.status(200).json({ ok: false }); return; }
+  res.status(200).json({ ok: true, deleted: [`user:${email}`, `state:${email}`] });
+}
+
 export default async function handler(req, res) {
-  if (req.method === "POST") return ingest(req, res);
-  if (req.method === "GET") return read(req, res);
+  if (req.method === "POST") return ingest(req, res);     // public: track an event
+  if (req.method === "GET") return read(req, res);        // founder: read funnel events
+  if (req.method === "PUT") return saveCohorts(req, res); // founder: save cohort catalog
+  if (req.method === "DELETE") return resetAccount(req, res); // founder: reset a test account
   res.status(405).json({ error: "Method not allowed" });
 }
