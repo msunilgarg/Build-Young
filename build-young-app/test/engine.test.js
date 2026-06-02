@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   validEmail, newState, advance, netWorth, holdingsTotal,
   takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, PAY,
-  nextClassLabel, checkinDateLabel, classDateLabel,
+  nextClassLabel, checkinDateLabel, classDateLabel, withdrawalEmail,
 } from "../src/App.jsx";
 // The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
 // module so the future schedule never ships in the client bundle (anti-gaming). These engine
@@ -37,6 +37,28 @@ describe("classDateLabel (refund-deadline dates)", () => {
   });
   it("returns empty string when start is unparseable", () => {
     expect(classDateLabel({ ...batch, start: "nope" }, 1)).toBe("");
+  });
+});
+
+describe("withdrawalEmail (refund confirmation)", () => {
+  const batch = BATCHES.find((b) => b.id === "fall-hs-wed");
+  it("confirms a full refund when the cohort hasn't started", () => {
+    const s = newState(STUDENT);
+    const mail = withdrawalEmail(s, batch, batch.price, true);
+    expect(mail.type).toBe("withdrawal");
+    expect(mail.subject).toMatch(/canceled/i);
+    expect(mail.body).toContain("full refund");
+    expect(mail.body).toContain(`$${batch.price.toLocaleString()}`);
+    expect(mail.body).toContain("Jordan");
+  });
+  it("confirms a prorated refund mid-course (names the unattended sessions)", () => {
+    const s = newState(STUDENT); s.week = 3; s.started = true;
+    const refund = Math.round((batch.price * (12 - 3)) / 12);
+    const mail = withdrawalEmail(s, batch, refund, false);
+    expect(mail.subject).toMatch(/withdrawal is confirmed/i);
+    expect(mail.body).toContain("prorated refund");
+    expect(mail.body).toContain("9 sessions"); // 12 - 3 unattended
+    expect(mail.body).toContain(`$${refund.toLocaleString()}`);
   });
 });
 

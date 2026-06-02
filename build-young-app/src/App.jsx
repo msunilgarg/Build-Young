@@ -349,6 +349,39 @@ Your 60-minute check-in: ${checkinDateLabel(batch) || batch.day}  ·  Zoom: ${ba
 The Team`,
   };
 }
+// Refund/cancellation confirmation — sent when a student confirms a withdrawal. Full refund if
+// the cohort hasn't started; prorated (for the unattended sessions) within the first 3 weeks.
+export function withdrawalEmail(s, batch, refund, notStarted) {
+  const first = s.student.name.split(" ")[0] || "there";
+  return {
+    id: "x" + Date.now(), from: MAIL_FROM, when: "Just now", type: "withdrawal",
+    subject: notStarted ? "Your Build Young enrollment is canceled" : "Your Build Young withdrawal is confirmed",
+    body: notStarted
+      ? `Hi ${first},
+
+We've canceled your enrollment in the ${batch.track} cohort, as requested. A full refund of ${fmt(refund)} is on its way back to your original payment method — refunds typically land within 5–10 business days.
+
+  •  Cohort: ${batch.track} — ${batch.day}
+  •  Refund: ${fmt(refund)} (full)
+
+No hard feelings — your seat is freed up for someone else, and you're welcome back anytime. Just reply to this email if anything looks off.
+
+Take care,
+The Build Young Team`
+      : `Hi ${first},
+
+We've processed your withdrawal from the ${batch.track} cohort. A prorated refund of ${fmt(refund)} — covering the ${12 - s.week} sessions you haven't attended — is on its way back to your original payment method, typically within 5–10 business days.
+
+  •  Cohort: ${batch.track} — ${batch.day}
+  •  Attended: ${s.week} of 12 sessions
+  •  Refund: ${fmt(refund)} (prorated)
+
+Thanks for giving it a try — you're welcome back anytime. Just reply to this email if anything looks off.
+
+Take care,
+The Build Young Team`,
+  };
+}
 
 // The MEDIA map (per-event analog/watch/question/resources) is SERVER-ONLY
 // (api/_lib/marketSchedule.js). The client receives the current event's media inline from
@@ -1201,6 +1234,17 @@ function Platform({ state, setState, onExit }) {
   const notStarted = !s.started; // before the first session → full refund
   const canWithdraw = notStarted || (s.phase === "course" && s.week <= 3); // pre-start, or within the first 3 weeks
   const refund = notStarted ? batch.price : Math.round((batch.price * (12 - s.week)) / 12);
+  // Confirm a withdrawal: email the refund/cancellation confirmation, drop it in the inbox, and
+  // show the done state. Functional updater so a double-click can't fire two sends.
+  const doWithdraw = () => {
+    setState((p) => {
+      if (p.withdrawn) return p; // already done
+      const mail = withdrawalEmail(p, batch, refund, !p.started);
+      sendEmail(p.student.email, mail.subject, mail.body);
+      return { ...p, withdrawn: true, emails: [mail, ...(p.emails || [])] };
+    });
+    setWithdraw("done");
+  };
   const nw = netWorth(s);
   // compare to the PREVIOUS recorded period (the latest entry is the current one)
   const last = s.history.length > 1 ? s.history[s.history.length - 2].nw : 0;
@@ -1307,14 +1351,14 @@ function Platform({ state, setState, onExit }) {
                 </p>
                 <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
                   <button className="btn" onClick={() => setWithdraw(false)} style={{ flex: 1, background: C.paper2, color: C.ink, border: `1px solid ${C.line}`, padding: 12, borderRadius: 4, fontSize: 14 }}>Cancel</button>
-                  <button className="btn" onClick={() => setWithdraw("done")} style={{ flex: 1, background: C.rust, color: "#fff", padding: 12, borderRadius: 4, fontSize: 14 }}>Confirm withdrawal</button>
+                  <button className="btn" onClick={doWithdraw} style={{ flex: 1, background: C.rust, color: "#fff", padding: 12, borderRadius: 4, fontSize: 14 }}>Confirm withdrawal</button>
                 </div>
               </>
             ) : (
               <div style={{ textAlign: "center" }}>
                 <div style={{ width: 56, height: 56, borderRadius: 4, background: C.emerald, display: "grid", placeItems: "center", margin: "4px auto 14px" }}><Check size={28} color="#fff" /></div>
                 <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Withdrawal complete</div>
-                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "prorated"} refund of <b>{fmt(refund)}</b> has been issued to {s.student.email} <span style={{ color: C.muted }}>(demo)</span>. We're sorry to see you go.</p>
+                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "prorated"} refund of <b>{fmt(refund)}</b> has been issued to {s.student.email} <span style={{ color: C.muted }}>(demo)</span>, and a confirmation email is on its way. We're sorry to see you go.</p>
                 <button className="btn" onClick={onExit} style={{ width: "100%", marginTop: 18, background: C.ink, color: C.paper2, padding: 12, borderRadius: 4, fontSize: 14 }}>Return home</button>
               </div>
             )}
