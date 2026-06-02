@@ -3,6 +3,7 @@ import {
   validEmail, newState, advance, netWorth, holdingsTotal,
   takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, PAY,
   nextClassLabel, checkinDateLabel, classDateLabel, withdrawalEmail, refundFor,
+  canWithdrawNow, REFUND_WEEKS,
 } from "../src/App.jsx";
 // The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
 // module so the future schedule never ships in the client bundle (anti-gaming). These engine
@@ -61,6 +62,27 @@ describe("withdrawalEmail (refund confirmation)", () => {
     expect(mail.body).toContain("10 sessions not yet held"); // 12 - (3 - 1)
     expect(mail.body).toContain("Attended: 2 of 12");        // not 3
     expect(mail.body).toContain(`$${refund.toLocaleString()}`);
+  });
+});
+
+describe("canWithdrawNow (cancellation window)", () => {
+  it("is the first 2 weeks", () => {
+    expect(REFUND_WEEKS).toBe(2);
+  });
+  it("allows cancellation before the cohort starts (full refund window)", () => {
+    const s = newState(STUDENT); // started: false
+    expect(canWithdrawNow(s)).toBe(true);
+  });
+  it("allows it during the first 2 weeks, then NEVER after", () => {
+    for (let wk = 1; wk <= 12; wk++) {
+      const s = newState(STUDENT); s.started = true; s.week = wk;
+      // "Week 2" = 1 attended, "Week 3" = 2 attended → week 3 onward is past the window.
+      expect(canWithdrawNow(s), `week ${wk}`).toBe(wk <= REFUND_WEEKS);
+    }
+  });
+  it("is never available once the course is over (check-in / graduated)", () => {
+    const s = newState(STUDENT); s.started = true; s.phase = "checkin"; s.week = 2; s.checkin = 0;
+    expect(canWithdrawNow(s)).toBe(false);
   });
 });
 
