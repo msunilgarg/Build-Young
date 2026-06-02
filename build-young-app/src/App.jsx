@@ -1384,19 +1384,33 @@ function BookCall({ onBack, onHome, onEnroll }) {
   );
 }
 
+// Pre-class setup checklist. In Act 1 (Weeks 1–6) the student builds their OWN app with AI as the
+// tool, so they need the same builder's "workshop" set up first — the same accounts/tools used to
+// build Build Young itself. Each item says WHEN it's needed so nothing's a surprise; a parent can
+// help with sign-ups (several services require an adult under 18). Students tick these off and the
+// state persists (s.prereqs). Edit here to change the list.
+const PREREQS = [
+  { id: "computer", title: "A laptop or desktop + Chrome", when: "Day one", why: "You'll install a couple of free tools, so a phone or tablet won't cut it. A steady internet connection too." },
+  { id: "claude", title: "A free Claude account", when: "Week 1", why: "Your AI build partner — you describe what you want and build it together, the same way this site was made.", link: "https://claude.ai" },
+  { id: "github", title: "A free GitHub account", when: "Week 2", why: "Where your code lives, with every version saved — so nothing ever gets lost.", link: "https://github.com" },
+  { id: "node", title: "Install Node.js (LTS) + VS Code", when: "Week 2", why: "The tools that run your app on your own computer. We'll set these up together in class if you get stuck.", link: "https://nodejs.org" },
+  { id: "vercel", title: "A free Vercel account", when: "Week 4", why: "Sign in with GitHub. This is how you put your app on the internet for real people to use.", link: "https://vercel.com" },
+  { id: "ship", title: "Optional — with a parent: a domain + Stripe", when: "Later", why: "Only when you're ready to give your app its own web address or accept real payments. An adult must set up payments since you're under 18." },
+];
+
 /* ============================ OVERVIEW (first-login landing) ============================
  * The welcome / orientation tab. It's the DEFAULT tab until the student has started the course
  * (s.started), so someone who enrolls weeks early sees the plan, what to expect, instructions,
  * and the real start date/countdown — not a misleading "Week 1 of 12". */
-function OverviewPanel({ s, batch, onTab }) {
+function OverviewPanel({ s, batch, onTab, setS }) {
+  const prereqs = (s && s.prereqs) || {};
+  const doneCount = PREREQS.filter((p) => prereqs[p.id]).length;
+  const togglePrereq = (id) => setS && setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
   const info = cohortStartInfo(batch);
   const first = (s.student.name || "").split(" ")[0] || "there";
   const dayName = (batch.day.split("·")[0] || "").trim();
-  const time = (batch.day.split("·")[1] || "").trim();
   const sectionTitle = { fontSize: 16, fontWeight: 800, color: C.ink, margin: "0 0 8px" };
   const li = { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: C.ink2, lineHeight: 1.5, padding: "7px 0" };
-  const infoLabel = { fontSize: 11, color: C.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em" };
-  const infoVal = { fontSize: 14, color: C.ink, fontWeight: 600, marginTop: 2 };
   const num = (n) => (<span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.emerald, color: "#fff", fontSize: 12, fontWeight: 800, display: "grid", placeItems: "center" }}>{n}</span>);
   const chip = (numv, label) => (
     <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,.12)", borderRadius: 8, padding: "10px 16px" }}>
@@ -1415,6 +1429,7 @@ function OverviewPanel({ s, batch, onTab }) {
           <div style={{ flex: "1 1 440px", minWidth: 0 }}>
             <div style={{ fontSize: 12, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>WELCOME TO BUILD YOUNG</div>
             <div className="disp" style={{ fontSize: 26, fontWeight: 800, marginTop: 4, color: "#fff" }}>You're in, {first}! 🎉</div>
+            <div style={{ color: "rgba(255,255,255,.62)", fontSize: 13, fontWeight: 600, marginTop: 6 }}>{batch.track} · {batch.day}</div>
             <p style={{ color: "rgba(255,255,255,.78)", fontSize: 14.5, lineHeight: 1.6, marginTop: 8 }}>
               Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} Over 12 live weeks you'll <b style={{ color: "#fff" }}>build a product you believe people would pay for</b>, then learn to <b style={{ color: "#fff" }}>manage what you earn</b> — thinking like a founder, graduating with a business and a net worth grown from zero. Every dollar here is <b style={{ color: "#fff" }}>simulated</b>.
             </p>
@@ -1459,17 +1474,41 @@ function OverviewPanel({ s, batch, onTab }) {
       </Card>
 
       <Card style={{ padding: 20, marginTop: 14 }}>
-        <h3 style={sectionTitle}>Your cohort</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 14 }}>
-          <div><div style={infoLabel}>Cohort</div><div style={infoVal}>{batch.track}{dayName ? ` · ${dayName}` : ""}</div></div>
-          <div><div style={infoLabel}>First class</div><div style={infoVal}>{info.longDate || batch.day}</div></div>
-          <div><div style={infoLabel}>Time</div><div style={infoVal}>{time || "—"}</div></div>
-          <div><div style={infoLabel}>Format</div><div style={infoVal}>12 weeks · 2 sessions/week + a follow-up check-in</div></div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+          <h3 style={{ ...sectionTitle, margin: 0 }}>Get your workshop set up before you build</h3>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: doneCount === PREREQS.length ? C.green : C.muted }}>{doneCount} of {PREREQS.length} done</span>
         </div>
-        <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted, lineHeight: 1.5, borderTop: `1px solid ${C.line}`, paddingTop: 12 }}>
-          All money in the program is <b>simulated</b> — this is financial education, not licensed advice. Full refund any time before your cohort starts; prorated through the {REFUND_WINDOW}.
+        <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 8px" }}>
+          In your first weeks you'll build your <b>own</b> app with AI — so you need the same free tools we used to build this one. Tick each off as you set it up, and bring them to the class where they're needed. <span style={{ color: C.muted }}>A parent can help with sign-ups.</span>
+        </p>
+        {PREREQS.map((p) => {
+          const checked = !!prereqs[p.id];
+          return (
+            <div key={p.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: "10px 0", borderTop: `1px solid ${C.line}` }}>
+              {/* Explicit checkbox (its own aria-label) rather than a wrapping <label>, so the help
+                  link in the description stays independently clickable without toggling the box. */}
+              <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 18, height: 18, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                  <b {...act(() => togglePrereq(p.id))} style={{ fontSize: 14, cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
+                  <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: C.turq, background: "#e6f2f3", borderRadius: 999, padding: "2px 8px" }}>Needed by {p.when}</span>
+                </div>
+                <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, marginTop: 3 }}>
+                  {p.why}
+                  {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        <div style={{ marginTop: 14, fontSize: 13, fontWeight: 600, color: C.emerald, background: "#eef3f0", borderRadius: 6, padding: "10px 14px" }}>
+          New to all this? Perfect — that's the whole point. You'll set up every one of these yourself, and by the end you'll have built and shipped a real app. 🚀
         </div>
       </Card>
+
+      <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
+        All money in the program is <b>simulated</b> — this is financial education, not licensed advice. Full refund any time before your cohort starts; prorated through the {REFUND_WINDOW}.
+      </div>
     </div>
   );
 }
@@ -1667,7 +1706,7 @@ function Platform({ state, setState, onExit, onFounder }) {
         ))}
       </div>
 
-      {tab === "overview" && <OverviewPanel s={s} batch={batch} onTab={setTab} />}
+      {tab === "overview" && <OverviewPanel s={s} batch={batch} onTab={setTab} setS={setState} />}
 
       {tab === "dash" && (
         <div className="rise">
