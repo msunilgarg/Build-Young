@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import setPasswordHandler from "../api/auth/set-password.js";
 import loginHandler from "../api/auth/login.js";
 import meHandler from "../api/auth/me.js";
+import requestResetHandler from "../api/auth/request-reset.js";
 import stateHandler from "../api/state.js";
 import { createPasswordToken, putUser, SESSION_COOKIE } from "../api/_lib/auth.js";
 
@@ -51,6 +52,22 @@ describe("auth endpoints (with fake KV)", () => {
     delete process.env.AUTH_SECRET;
     delete process.env.KV_REST_API_URL;
     delete process.env.KV_REST_API_TOKEN;
+  });
+
+  it("request-reset: a founder email self-provisions a login (no enrollment needed)", async () => {
+    process.env.FOUNDER_EMAILS = "founder@x.com";
+    const store = fetch._store; // the fake KV's backing map
+
+    let res = makeRes();
+    await requestResetHandler(post({ email: "founder@x.com" }), res);
+    expect(res.statusCode).toBe(200);
+    expect(store.has("user:founder@x.com")).toBe(true); // provisioned
+
+    res = makeRes();
+    await requestResetHandler(post({ email: "stranger@x.com" }), res);
+    expect(res.statusCode).toBe(200);
+    expect(store.has("user:stranger@x.com")).toBe(false); // non-founders are NOT provisioned
+    delete process.env.FOUNDER_EMAILS;
   });
 
   it("set-password: a valid token sets the password and signs the student in", async () => {
