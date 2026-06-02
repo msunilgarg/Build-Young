@@ -98,6 +98,17 @@ App.jsx — that would undo it. `npm run build` (Vite) preserves this split auto
 
 - **Refund policy (in code):** full refund before the cohort starts (state flag `started:false`, flips true on first `doAdvance`); prorated refund through the first **`REFUND_WEEKS`** (= **2**) course weeks; non-refundable after (shown explicitly once that window passes). Eligibility is the single helper **`canWithdrawNow(s)`** (gates the Cancel/Withdraw button AND `doWithdraw` itself) — change `REFUND_WEEKS` to move the window; copy uses `REFUND_WEEKS`/`REFUND_WEEKS+1` so it follows. **Proration basis = "sessions not yet held"** (matches the Terms): `week` increments on each advance (attending session 1 → "Week 2"), so sessions held = `week−1` and `refund = refundFor(batch, started, week) = price × (12 − (week−1)) / 12`. Don't reintroduce `price×(12−week)/12` — that's the old off-by-one that under-refunded one session and overstated attendance. Logic lives in `Platform` + `withdrawalEmail`; Terms copy in `LEGAL` (in-app) and `public/terms.html` must stay in sync.
 
+## Auth & server state (`CONFIG.authEnabled`, off by default)
+
+Real accounts + cross-device dashboard, built on the existing KV store (`api/_lib/kv.js` — Upstash/Vercel KV over REST) and Node's built-in `crypto` — **no new npm deps, no new vendor.**
+
+- **Gated by `CONFIG.authEnabled`.** **False (default):** the original self-contained demo — no login, sim state in `localStorage` via `window.storage`. **True:** the dashboard requires login and the sim state lives server-side (`/api/state`, keyed by the session email), so it follows the student across devices. Existing tests run in demo mode, so they're unaffected; keep that branch working.
+- **Core:** `api/_lib/auth.js` — scrypt password hashing (per-user salt, constant-time verify); **stateless** HMAC-signed session in an HttpOnly/Secure/SameSite=Lax cookie (`AUTH_SECRET` signs it; logout clears it); user records + one-time set-password tokens (random 256-bit, KV-stored with TTL, consumed via GETDEL).
+- **No passwords on the enroll form.** Account creation is server-side: the **Stripe webhook** (`api/stripe-webhook.js`), after a verified payment, provisions the user record and emails a `?setpw=<token>` link (`api/_lib/sendSetPassword.js` → Resend). The SPA reads `?setpw=` → **SetPassword** screen → sets the hash + signs in. Returning students use the **Login** screen (`?enrolled=` return → **CheckEmail** screen). All three auth screens + the client (`AUTH`, `postJson`) live in `App.jsx`.
+- **Endpoints:** `api/auth/{set-password,login,logout,me,request-reset}.js` + `api/state.js`. Login/reset give **generic, non-enumerating** errors and are rate-limited (`api/_lib/rateLimit.js`). Reset always returns 200.
+- **Serves minors:** stores only what enrollment already collects (email, name, cohort) + a password hash; no password is ever logged or returned. Get counsel's eyes on auth/data handling alongside the other minors-related items.
+- **Env when enabling:** `KV_REST_API_URL`+`KV_REST_API_TOKEN` (or the Upstash pair), `AUTH_SECRET`, `PUBLIC_BASE_URL`. Tested via an in-memory KV fake (`test/auth-endpoints.test.js`) + crypto-core (`test/auth.test.js`) + UI (`test/auth-ui.test.jsx`).
+
 ## Business & legal setup (do first — not legal advice; consult professionals)
 
 These precede the technical go-live items below and some gate them (e.g. Stripe wants a
@@ -129,6 +140,11 @@ with a WA small-business attorney + a CPA is the recommended way to settle all o
 1. **Payments:** create Stripe Payment Links and fill `CONFIG.stripeLinks` per batch id.
    The enroll flow round-trips via `?enrolled=<batchId>`.
 1. **Cohorts:** update `BATCHES` (dates, real Zoom links, seats, prices).
+1. **Accounts/login (optional, off by default):** to require login + sync the dashboard across
+   devices, provision a KV store (`KV_REST_API_URL`/`KV_REST_API_TOKEN`, or the Upstash pair),
+   set `AUTH_SECRET` (a long random string — signs session cookies) and `PUBLIC_BASE_URL` (for
+   the set-password links), then flip `CONFIG.authEnabled = true`. Stripe must be wired first:
+   real enrollments are what provision accounts. See **Auth** below.
 1. **Legal:** have an attorney review `public/privacy.html`, `public/terms.html`, and the
    in-app `LEGAL` copy before launch (they’re solid drafts, marked as such).
 1. **SEO:** after deploy, submit to Google Search Console + Bing. The site is an SPA — for

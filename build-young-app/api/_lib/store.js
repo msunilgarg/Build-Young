@@ -1,48 +1,21 @@
 // ============================ ENROLLMENT STORE (durable) ============================
 //
-// A tiny, dependency-free durable store for cohort enrollments, backed by Upstash Redis /
-// Vercel KV over their REST API (just `fetch` + two env vars — no npm SDK, works in any
-// serverless runtime). This is what makes the market-news scheduler able to email REAL
-// enrolled students: the Stripe webhook (api/stripe-webhook.js) writes here, and
-// api/_lib/roster.js reads here.
-//
-// Why Redis-over-REST: serverless instances are ephemeral, so in-memory won't survive.
-// Upstash/Vercel KV is durable, has a free tier, and needs no connection pooling.
-//
-// Env (set EITHER pair — Vercel KV and Upstash use the same shape):
-//   KV_REST_API_URL    / KV_REST_API_TOKEN          (Vercel KV)
-//   UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN (Upstash)
+// A tiny, dependency-free durable store for cohort enrollments, backed by the shared KV client
+// (api/_lib/kv.js — Upstash Redis / Vercel KV over REST). This is what makes the market-news
+// scheduler able to email REAL enrolled students: the Stripe webhook (api/stripe-webhook.js)
+// writes here, and api/_lib/roster.js reads here.
 //
 // Data model: one Redis hash per cohort, `enroll:<batchId>`, field = student email,
 // value = JSON { email, name, batchId, ts }. Keying by email makes writes idempotent —
 // Stripe retries just overwrite the same field.
 
-const REST_URL = () => process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "";
-const REST_TOKEN = () => process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
+import { kvConfigured, kvCommand } from "./kv.js";
 
-export function storeConfigured() {
-  return Boolean(REST_URL() && REST_TOKEN());
-}
+// Back-compat alias — callers (and tests) still import storeConfigured from here.
+export const storeConfigured = kvConfigured;
 
 const keyFor = (batchId) => `enroll:${batchId}`;
-
-// Run one Redis command via the REST API. Returns the `result` field, or null on any error
-// (callers degrade gracefully rather than crash a webhook or cron run).
-async function command(args) {
-  if (!storeConfigured()) return null;
-  try {
-    const r = await fetch(REST_URL(), {
-      method: "POST",
-      headers: { Authorization: `Bearer ${REST_TOKEN()}`, "Content-Type": "application/json" },
-      body: JSON.stringify(args),
-    });
-    if (!r.ok) return null;
-    const data = await r.json();
-    return data && "result" in data ? data.result : null;
-  } catch {
-    return null;
-  }
-}
+const command = kvCommand;
 
 // Persist (or update) one enrollment. Idempotent: re-running with the same email overwrites.
 // Returns { ok } — ok:false when the store isn't configured or the write failed.
