@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import App, { CONFIG } from "../src/App.jsx";
+import App, { CONFIG, BATCHES } from "../src/App.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
-// AND no Stripe links (an empty link = demo checkout) regardless of the production CONFIG. The auth
-// + Stripe paths are covered separately in auth-ui.test.jsx / auth-endpoints.test.js.
-beforeEach(() => { CONFIG.authEnabled = false; CONFIG.stripeLinks = {}; });
+// AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production
+// catalog. The auth + Stripe paths are covered separately in auth-ui.test.jsx / auth-endpoints.test.js.
+beforeEach(() => { CONFIG.authEnabled = false; BATCHES.forEach((b) => { b.stripeLink = ""; }); });
 
 // Only fail on the impact levels CLAUDE.md commits to (serious/critical).
 async function expectNoSeriousA11y(container) {

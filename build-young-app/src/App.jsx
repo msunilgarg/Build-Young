@@ -86,13 +86,26 @@ export const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e || "").tri
 import { SEASONS, BATCHES, seasonLabel, CHECKINS } from "./cohorts.js";
 export { BATCHES, CHECKINS } from "./cohorts.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
-import { STAGES, cohortMeta, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS } from "./funnel.js";
+import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS } from "./funnel.js";
+
+// Live cohort catalog: the public site hydrates this from /api/cohorts on load (founder-editable
+// in the dashboard), defaulting to the code `BATCHES`. Components read it via useCohorts(); App
+// owns the fetch. Keeping the code list as the default means tests/demo work with zero config.
+const CohortsContext = React.createContext(BATCHES);
+const useCohorts = () => React.useContext(CohortsContext);
+// Funnel event props for a cohort, resolved against the LIVE catalog (no PII).
+const cohortMetaFrom = (batches, batchId) => {
+  const b = (batches || []).find((x) => x.id === batchId);
+  return b
+    ? { batchId: b.id, season: b.season, track: b.track, priceCents: Math.round((b.price || 0) * 100) }
+    : { batchId: batchId || null, season: null, track: null, priceCents: 0 };
+};
 
 /* ============================ PRODUCTION CONFIG ============================
  * Fill these in to go live. Empty values fall back to the safe demo flow,
  * so the app keeps working for testing before any accounts are connected.
- *   - stripeLinks: a Stripe Payment Link URL per batch id (Dashboard → Payment Links).
- *       Set each link's success URL to:  https://YOURDOMAIN/?enrolled={batchId}
+ *   - Stripe Payment Links now live PER COHORT (`stripeLink` in the catalog, editable in the
+ *       founder dashboard). Each link's success URL is  https://YOURDOMAIN/?enrolled={batchId}.
  *   - calendlyUrl: your 15-min event link, e.g. https://calendly.com/you/intro
  *   - contactEmail / brandDomain: shown in the UI and emails.
  */
@@ -101,13 +114,6 @@ export const CONFIG = {
   contactEmail: "team@build-young.com",
   linkedinUrl: "https://www.linkedin.com/in/msunilgarg",
   calendlyUrl: "", // e.g. "https://calendly.com/sunil-build-young/15min"
-  // One Stripe Payment Link per batch id (set each link's success URL to
-  // https://YOURDOMAIN/?enrolled={batchId}). Filled per id below; empty = demo flow.
-  stripeLinks: {
-    ...Object.fromEntries(BATCHES.map((b) => [b.id, ""])),
-    // NOTE: this test link's Stripe-side metadata/redirect must be updated to batchId=fall-mw.
-    "fall-mw": "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00",
-  },
   // Email: set emailEnabled true once the /api/send-email function + provider key are live.
   emailEnabled: true,
   emailEndpoint: "/api/send-email",
@@ -782,6 +788,7 @@ const HeroPreview = () => {
 };
 
 function Landing({ onEnroll, onCall, onLegal, onLogin }) {
+  const BATCHES = useCohorts(); // live catalog (hydrated from /api/cohorts; defaults to code)
   const [season, setSeason] = useState(SEASONS[0].key);
   return (
     <div style={{ position: "relative", zIndex: 2 }}>
@@ -1056,6 +1063,7 @@ function WhyStrip() {
 }
 
 function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
+  const BATCHES = useCohorts(); // live catalog
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -1160,7 +1168,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
         )}
 
         {step === 2 && (() => {
-          const stripeLink = CONFIG.stripeLinks[batch];
+          const stripeLink = b && b.stripeLink;
           if (stripeLink) {
             return (
               <div className="rise">
@@ -1409,6 +1417,7 @@ function OverviewPanel({ s, batch, onTab }) {
 
 /* ============================ PLATFORM ============================ */
 function Platform({ state, setState, onExit }) {
+  const BATCHES = useCohorts(); // live catalog
   // Default to Overview until the course has begun (first session attended), so early enrollees
   // land on the welcome/plan rather than a misleading live "Week 1".
   const [tab, setTab] = useState(state && state.started ? "dash" : "overview");
@@ -2420,8 +2429,116 @@ export function FounderDashboard({ token, onHome }) {
             <Stat label="No refund" value={summary.withdrawals.byTier.none.toLocaleString()} sub="after the window" color={C.ink} />
           </div>
         </>)}
+
+        {!error && events !== null && (<>
+          <h2 style={h2s}>Cohorts &amp; schedule</h2>
+          <CohortEditor token={token} />
+          <h2 style={h2s}>Reset a test account</h2>
+          <AccountReset token={token} />
+        </>)}
       </div>
     </div>
+  );
+}
+
+// Live cohort editor — add / edit / remove batches (dates, days, seats, price, Zoom, Stripe link)
+// and the check-in count. Reads the current catalog from /api/cohorts and saves via the
+// founder-gated PUT /api/funnel. Changes show on the public site without a redeploy.
+function CohortEditor({ token }) {
+  const [rows, setRows] = useState(null);
+  const [checkins, setCheckins] = useState(1);
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/cohorts");
+        const cat = await r.json();
+        if (live) { setRows(Array.isArray(cat.batches) ? cat.batches : []); setCheckins(cat.checkins ?? 1); }
+      } catch { if (live) setRows([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+
+  if (rows === null) return <Card style={{ padding: 18, color: C.muted }}>Loading cohorts…</Card>;
+
+  const update = (i, key, val) => setRows((rs) => rs.map((r, j) => (j === i ? { ...r, [key]: val } : r)));
+  const remove = (i) => setRows((rs) => rs.filter((_, j) => j !== i));
+  const add = () => setRows((rs) => [...rs, { id: "", season: "fall", track: "Builders", start: "", day: "", seats: 12, price: 999, zoom: "", stripeLink: "" }]);
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch(`/api/funnel?token=${encodeURIComponent(token || "")}`, {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ batches: rows, checkins: Number(checkins) }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (r.ok && data.ok) { setRows(data.catalog.batches); setCheckins(data.catalog.checkins); setStatus("Saved — live now ✓"); }
+      else setStatus(`Error: ${data.error || r.status}`);
+    } catch { setStatus("Error: network"); }
+  };
+
+  const inp = { fontSize: 12.5, padding: "6px 8px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", boxSizing: "border-box" };
+  const lab = { fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 3 };
+  const field = (i, key, label, type = "text", w = "1fr") => (
+    <label style={{ gridColumn: `span 1`, minWidth: 0 }}><span style={lab}>{label}</span>
+      <input aria-label={`${label} for cohort ${i + 1}`} type={type} value={rows[i][key] ?? ""} onChange={(e) => update(i, key, type === "number" ? e.target.value : e.target.value)} style={inp} /></label>
+  );
+
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Edits go live on the public site immediately (no redeploy). Each cohort's <b>id</b> must be unique and stable; its Stripe link's metadata/redirect should use that id.</div>
+      {rows.map((b, i) => (
+        <div key={i} style={{ border: `1px solid ${C.line}`, borderRadius: 6, padding: 12, marginBottom: 10, background: C.paper }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }} className="enroll-grid">
+            {field(i, "id", "Cohort id")}
+            {field(i, "season", "Season key")}
+            {field(i, "track", "Track")}
+            {field(i, "start", "Start (e.g. Sep 7, 2026)")}
+            {field(i, "day", "Day label")}
+            {field(i, "price", "Price ($)", "number")}
+            {field(i, "seats", "Seats", "number")}
+            {field(i, "zoom", "Zoom URL")}
+            {field(i, "stripeLink", "Stripe Payment Link")}
+          </div>
+          <div style={{ textAlign: "right", marginTop: 8 }}>
+            <span {...act(() => remove(i))} style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.rust }}>Remove cohort</span>
+          </div>
+        </div>
+      ))}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 6 }}>
+        <span {...act(add)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.emerald, border: `1px solid ${C.emerald}`, borderRadius: 4, padding: "8px 14px" }}>+ Add cohort</span>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.ink2 }}>Monthly check-ins
+          <input aria-label="number of monthly check-ins" type="number" value={checkins} onChange={(e) => setCheckins(e.target.value)} style={{ ...inp, width: 64 }} /></label>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700, marginLeft: "auto" }}>Save changes</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: status.startsWith("Error") ? C.rust : C.green }}>{status}</span>}
+      </div>
+    </Card>
+  );
+}
+
+// Founder tool: wipe a test account (user record + sim state) so an email can re-run enrollment.
+function AccountReset({ token }) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+  const reset = async () => {
+    if (!validEmail(email)) { setStatus("Enter a valid email"); return; }
+    setStatus("Resetting…");
+    try {
+      const r = await fetch(`/api/funnel?token=${encodeURIComponent(token || "")}&email=${encodeURIComponent(email)}`, { method: "DELETE" });
+      const d = await r.json().catch(() => ({}));
+      setStatus(r.ok && d.ok ? `Cleared ${email} ✓ (they can re-enroll fresh)` : `Error: ${d.error || r.status}`);
+    } catch { setStatus("Error: network"); }
+  };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <input aria-label="email to reset" type="email" placeholder="student@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, flex: 1, minWidth: 220 }} />
+        <button className="btn" onClick={reset} style={{ background: C.rust, color: "#fff", padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Reset account</button>
+      </div>
+      {status && <div style={{ fontSize: 13, fontWeight: 600, color: status.startsWith("Error") ? C.rust : C.green, marginTop: 8 }}>{status}</div>}
+    </Card>
   );
 }
 
@@ -2436,6 +2553,21 @@ export default function App() {
   const [enrolledTrack, setEnrolledTrack] = useState(""); // cohort track for the check-email screen
   const [enrolledEmail, setEnrolledEmail] = useState(""); // recipient of the set-password email (shown on check-email)
   const [founderToken, setFounderToken] = useState(null); // token from a ?founder= link (hidden analytics route)
+  const [batches, setBatches] = useState(BATCHES); // live cohort catalog (hydrated from /api/cohorts)
+  // Hydrate the cohort catalog once on mount; founder edits show without a redeploy. Falls back to
+  // the code defaults on any failure (offline/demo/tests), so the app always has a valid catalog.
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/cohorts");
+        if (!r.ok) return;
+        const cat = await r.json();
+        if (live && cat && Array.isArray(cat.batches) && cat.batches.length) setBatches(cat.batches);
+      } catch (e) { /* keep code defaults */ }
+    })();
+    return () => { live = false; };
+  }, []);
   // remember scroll position per route so Back lands where you left off
   const pendingScroll = useRef(null); // px to restore after next render (null = scroll to top)
   const scrollTo = (y) => { try { window.scrollTo(0, y); } catch (e) {} };
@@ -2475,7 +2607,7 @@ export default function App() {
   const hydrateFromServer = async (user) => {
     let srv = await AUTH.getState();
     if (!srv) {
-      const b = BATCHES.find((x) => x.id === user.batchId) || BATCHES[0];
+      const b = batches.find((x) => x.id === user.batchId) || batches[0];
       srv = newState({ name: user.name || "", email: user.email, batch: b.id, track: b.track });
       AUTH.putState(srv);
     }
@@ -2507,8 +2639,8 @@ export default function App() {
           }
           if (paidBatch) {
             // The Stripe webhook provisioned the account + emailed the set-password link.
-            track("enrolled", { ...cohortMeta(paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
-            const b = BATCHES.find((x) => x.id === paidBatch);
+            track("enrolled", { ...cohortMetaFrom(batches, paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
+            const b = batches.find((x) => x.id === paidBatch);
             // Recover the email they entered at enroll (prefilled into Stripe) to show on the screen.
             let pendingEmail = "";
             try { const p = JSON.parse(window.localStorage.getItem(PENDING_KEY) || "null"); if (p && p.batch === paidBatch) pendingEmail = p.email || ""; } catch (e) {}
@@ -2525,14 +2657,14 @@ export default function App() {
         if (paidBatch) {
           let pending = null;
           try { pending = JSON.parse(window.localStorage.getItem(PENDING_KEY) || "null"); } catch (e) {}
-          const b = BATCHES.find((x) => x.id === paidBatch);
+          const b = batches.find((x) => x.id === paidBatch);
           if (b) {
             const student = pending && pending.batch === paidBatch
               ? pending
               : { name: "", email: "", batch: paidBatch, track: b.track };
             try { window.localStorage.removeItem(PENDING_KEY); } catch (e) {}
             window.history.replaceState({}, "", window.location.pathname);
-            track("enrolled", { ...cohortMeta(paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
+            track("enrolled", { ...cohortMetaFrom(batches, paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
             // mirror the demo flow: send the welcome email on a real (Stripe) enrollment too
             const w = welcomeEmail(student);
             sendEmail(student.email, w.subject, w.body);
@@ -2561,13 +2693,13 @@ export default function App() {
 
   const startEnroll = (batchId) => {
     const id = typeof batchId === "string" ? batchId : null;
-    track("enroll_started", { ...(id ? cohortMeta(id) : {}), fromCall: _callBookedThisSession });
+    track("enroll_started", { ...(id ? cohortMetaFrom(batches, id) : {}), fromCall: _callBookedThisSession });
     setPreselect(id); nav("enroll");
   };
   const startCall = () => nav("call");
   const finishEnroll = (student) => guard(() => {
     // Funnel: payment completed (demo path — the Stripe path fires `enrolled` on the ?enrolled= return).
-    track("enrolled", { ...cohortMeta(student.batch), fromCall: _callBookedThisSession });
+    track("enrolled", { ...cohortMetaFrom(batches, student.batch), fromCall: _callBookedThisSession });
     if (CONFIG.authEnabled) {
       // Account creation happens server-side (Stripe webhook → set-password email); send the
       // student to the check-email screen rather than straight into the dashboard.
@@ -2598,6 +2730,7 @@ export default function App() {
   const goLogin = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("login"); });
 
   return (
+    <CohortsContext.Provider value={batches}>
     <div className="flp" style={{ minHeight: "100vh", background: C.paper }}>
       <style>{FONTS}</style>
       <div style={{ background: C.ink, color: C.paper2, textAlign: "center", fontSize: 12.5, fontWeight: 600, lineHeight: 1.5, padding: "8px 16px", position: "relative", zIndex: 3 }}>
@@ -2613,5 +2746,6 @@ export default function App() {
       {route === "founder" && <FounderDashboard token={founderToken} onHome={goHome} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
     </div>
+    </CohortsContext.Provider>
   );
 }

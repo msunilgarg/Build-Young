@@ -5,6 +5,11 @@ import { toHaveNoViolations } from "jest-axe";
 
 expect.extend(toHaveNoViolations);
 
+// jsdom has no ResizeObserver; recharts uses it, so polyfill a no-op (lets charts mount in tests).
+if (!global.ResizeObserver) {
+  global.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
+}
+
 // jsdom ships a throwing stub for scrollTo and no matchMedia; replace both.
 window.scrollTo = () => {};
 if (!window.matchMedia) {

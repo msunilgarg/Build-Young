@@ -57,7 +57,7 @@ Top-to-bottom, the major pieces:
   entries = 3 seasons × 2 cohorts on alternating day-pairs (**Mon & Wed**, **Tue & Thu**); each
   meets **twice a week (~3 hrs)** over the 12-week course. `track` is `"Builders"` for all. Ids
   look like `fall-mw` / `fall-tt`. `CHECKINS` (= **1**) lives in cohorts.js too (imported by
-  App.jsx + funnel.js). `CONFIG.stripeLinks` auto-derives one empty slot per batch id. The landing
+  App.jsx + funnel.js). The cohort catalog is **KV-backed + live-editable in the founder dashboard** (code `BATCHES` = seed/fallback; public read at `/api/cohorts`; each cohort carries its own `stripeLink`; clients hydrate via `CohortsContext`). The landing
   “Upcoming batches” section shows that season’s 2 cards; the enroll dropdown groups options by
   season via `<optgroup>`. To add a season, append to `SEASONS` + 2 `BATCHES` rows.
 - **`HeroPreview`** — animated dashboard mock that cycles weeks 5→8→12 on the landing page.
@@ -153,7 +153,7 @@ with a WA small-business attorney + a CPA is the recommended way to settle all o
 1. **Domain/email:** set `CONFIG.brandDomain`, `CONFIG.contactEmail`. Verify the domain in
    Resend, set `RESEND_API_KEY` as a host env var, then flip `CONFIG.emailEnabled = true`.
 2. **Scheduling:** set `CONFIG.calendlyUrl` (BookCall switches to it automatically).
-3. **Payments:** create Stripe Payment Links and fill `CONFIG.stripeLinks` per batch id.
+3. **Payments:** create Stripe Payment Links and paste each into its cohort’s `stripeLink` (live-editable in the founder dashboard, or in `cohorts.js`).
    The enroll flow round-trips via `?enrolled=<batchId>`.
 4. **Cohorts:** update `BATCHES` (dates, real Zoom links, seats, prices).
 5. **Legal:** have an attorney review `public/privacy.html`, `public/terms.html`, and the
