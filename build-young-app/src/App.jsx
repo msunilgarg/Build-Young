@@ -1390,10 +1390,10 @@ function BookCall({ onBack, onHome, onEnroll }) {
 // help with sign-ups (several services require an adult under 18). Students tick these off and the
 // state persists (s.prereqs). Edit here to change the list.
 const PREREQS = [
-  { id: "computer", title: "A laptop or desktop + Chrome", when: "Day one", why: "You'll install a couple of free tools, so a phone or tablet won't cut it. A steady internet connection too." },
+  { id: "computer", title: "A laptop or desktop", when: "Day one", why: "You'll install a couple of free tools, so a phone or tablet won't cut it. A modern web browser and a steady internet connection too." },
   { id: "claude", title: "A free Claude account", when: "Week 1", why: "Your AI build partner — you describe what you want and build it together, the same way this site was made.", link: "https://claude.ai" },
   { id: "github", title: "A free GitHub account", when: "Week 2", why: "Where your code lives, with every version saved — so nothing ever gets lost.", link: "https://github.com" },
-  { id: "node", title: "Install Node.js (LTS) + VS Code", when: "Week 2", why: "The tools that run your app on your own computer. We'll set these up together in class if you get stuck.", link: "https://nodejs.org" },
+  { id: "node", title: "Install Node.js + VS Code — we'll do this together", when: "Week 2", why: "The tools that run your app on your own computer. No need to set them up alone — we'll install them together in class when you get there. (Curious early? Peek at nodejs.org.)", link: "https://nodejs.org" },
   { id: "vercel", title: "A free Vercel account", when: "Week 4", why: "Sign in with GitHub. This is how you put your app on the internet for real people to use.", link: "https://vercel.com" },
   { id: "ship", title: "Optional — with a parent: a domain + Stripe", when: "Later", why: "Only when you're ready to give your app its own web address or accept real payments. An adult must set up payments since you're under 18." },
 ];
