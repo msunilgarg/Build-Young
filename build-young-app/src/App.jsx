@@ -386,7 +386,7 @@ Welcome aboard! Your seat in the ${b.track} cohort is confirmed.
 
 Your username is your email (${student.email}) — use it to log in to your student portal anytime.
 
-Week 1 is "Find a Problem Worth Solving" — the start of building something people will actually pay for. That build is what earns your income in the weeks ahead, and then you'll learn to make it grow. Everything runs inside your student dashboard.
+Week 1 is "Find a Problem Worth Solving" — the start of building a product you believe people would pay for. In the simulation, that product is what earns your income in the weeks ahead, and then you'll learn to make it grow. Everything runs inside your student dashboard.
 
 See you in class,
 The Build Young Team`,
@@ -818,7 +818,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
         </h1>
         <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — financial literacy, learned by living it.</p>
         <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
-          Build Young is a <b>live, instructor-led course</b> where teens become <b>founders</b>: they build something people will actually pay for — a small product, app, or service, with AI as their tool — and in the simulation, <b>that build is their income</b>. Then they learn to <b>manage what they earn</b>: taxes, saving, investing through real market swings, big purchases, and watching it compound — graduating as the <b>founder of a real business</b>, with a net worth built from zero. <b>You create the value first; the money follows.</b> It's a hands-on sandbox — <b>no real money is ever involved</b> — just the real skills, practiced somewhere safe before the stakes are real.
+          Build Young is a <b>live, instructor-led course</b> where teens <b>build a product they believe people would pay for</b> — a small app, tool, or service, made with AI — and in the simulation, <b>that product is where their income comes from</b>. They learn to think like <b>founders</b>: create value first, then <b>manage what they earn</b> — taxes, saving, investing through real market swings, big purchases, and watching it compound — graduating having built both a business and a net worth from zero. <b>You create the value first; the money follows.</b> It's a hands-on sandbox — <b>no real money is ever involved</b> — just the real skills, practiced somewhere safe before the stakes are real.
         </p>
         <HeroPreview />
         <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
@@ -922,7 +922,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
             <div style={{ width: 64, height: 4, borderRadius: 2, margin: "12px auto 0", background: `linear-gradient(90deg, ${C.green}, ${C.turq}, ${C.pink})` }} />
           </div>
           <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 24, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
-            <b className="disp">Raising builders, not consumers.</b> Founding something people value has always mattered — but AI just collapsed the barrier to entry: what used to take a team, a budget, and years of permission, a motivated teenager can now do alone. When the cost of building falls to almost nothing, the edge isn't talent or a credential — it's starting early, while everyone else is still waiting to be ready. We teach it by letting them live it — they found something, they earn from it, then they learn to grow and protect what they've made. Every teen leaves having been a <b>founder</b> — because their future rests on what they can make, not just what they were credentialed to do.
+            <b className="disp">Raising builders, not consumers.</b> Building something people value has always mattered — but AI just collapsed the barrier to entry: what used to take a team, a budget, and years of permission, a motivated teenager can now do alone. When the cost of building falls to almost nothing, the edge isn't talent or a credential — it's starting early, while everyone else is still waiting to be ready. We teach it by letting them live it — they build, they earn, then they learn to grow and protect what they've made, learning to think like a <b>founder</b> instead of waiting for permission — because their future rests on what they can make, not just what they were credentialed to do.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
             It's not only about the money — it's who a kid becomes in the doing. Making something real, putting it in front of people, living with the wins and the flops — that shapes a person in ways no lecture can. And because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who has actually earned and managed it can talk about it plainly — needs, trade-offs, even mistakes — without shame. They ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear.
@@ -1008,7 +1008,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom · ~3 hrs/week</div>
               <div style={{ fontSize: 13, color: C.ink2, marginTop: 10, lineHeight: 1.45 }}>
-                The full 12-week program — become the founder of something people would pay for, then manage what you earn: taxes, saving, investing through real markets, and big purchases. In an AI world, the edge isn't a degree; it's what you can build.
+                The full 12-week program — build a product you believe people would pay for, then manage what you earn: taxes, saving, investing through real markets, and big purchases. In an AI world, the edge isn't a degree; it's what you can build.
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
@@ -1363,7 +1363,7 @@ function OverviewPanel({ s, batch, onTab }) {
         <div style={{ fontSize: 12, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>WELCOME TO BUILD YOUNG</div>
         <div className="disp" style={{ fontSize: 26, fontWeight: 800, marginTop: 4, color: "#fff" }}>You're in, {first}! 🎉</div>
         <p style={{ color: "rgba(255,255,255,.78)", fontSize: 14.5, lineHeight: 1.6, marginTop: 8, maxWidth: 640 }}>
-          Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} Over 12 live weeks you'll <b style={{ color: "#fff" }}>become the founder of something people pay for</b>, then learn to <b style={{ color: "#fff" }}>manage what you earn</b> — graduating a founder, with a business and a net worth grown from zero. Every dollar here is <b style={{ color: "#fff" }}>simulated</b>.
+          Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} Over 12 live weeks you'll <b style={{ color: "#fff" }}>build a product you believe people would pay for</b>, then learn to <b style={{ color: "#fff" }}>manage what you earn</b> — thinking like a founder, graduating with a business and a net worth grown from zero. Every dollar here is <b style={{ color: "#fff" }}>simulated</b>.
         </p>
         <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
           {info.beforeStart && chip(info.days, `${info.days === 1 ? "day" : "days"} until your first class`)}
@@ -2050,7 +2050,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
       )}
 
       {action === "hustle" && (
-        <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a build you own creates value while you sleep. Make a small product, app, or service — with AI as your tool — that people would actually pay for, and watch it earn.">
+        <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a build you own creates value while you sleep. Make a small product, app, or service — with AI as your tool — that you believe people would pay for, and watch it earn in the simulation.">
           {!s.hustle
             ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your build (−{fmt(HUSTLE_START)} to start)</button>
             : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your build is live — people are paying for the value it creates, so it earns every time you advance. That's building economic value: solve a real problem, own the upside.</div>}
