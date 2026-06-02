@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   validEmail, newState, advance, netWorth, holdingsTotal,
   takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, PAY,
+  nextClassLabel, checkinDateLabel, classDateLabel,
 } from "../src/App.jsx";
 // The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
 // module so the future schedule never ships in the client bundle (anti-gaming). These engine
@@ -10,6 +11,34 @@ import { marketEventFor, mediaDrip } from "../api/_lib/marketSchedule.js";
 
 const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-hs-wed", track: "High School" };
 const CALM = { h: "Markets open calm", d: "Quiet.", e: { stocks: 0.02, bonds: 0.005, reits: 0.01, bullion: 0, sav: 0.01 } };
+
+describe("nextClassLabel", () => {
+  // fall-hs-wed starts "Sep 9, 2026" (a Wednesday), day "Wednesdays · 5:00–6:30 PM PST".
+  const batch = BATCHES.find((b) => b.id === "fall-hs-wed");
+  it("shows the concrete date + time for the current course week (not just the weekday)", () => {
+    expect(nextClassLabel(batch, "course", 1)).toBe("Wed, Sep 9, 2026 · 5:00–6:30 PM PST");
+    // Week N is start + (N-1)*7 days.
+    expect(nextClassLabel(batch, "course", 3)).toBe("Wed, Sep 23, 2026 · 5:00–6:30 PM PST");
+  });
+  it("uses the follow-up check-in date once the course is over", () => {
+    expect(nextClassLabel(batch, "checkin", 0)).toBe(checkinDateLabel(batch));
+  });
+  it("falls back to the recurring day label when start is unparseable", () => {
+    const bad = { ...batch, start: "not-a-date" };
+    expect(nextClassLabel(bad, "course", 1)).toBe(bad.day);
+  });
+});
+
+describe("classDateLabel (refund-deadline dates)", () => {
+  const batch = BATCHES.find((b) => b.id === "fall-hs-wed"); // starts Sep 9, 2026 (Wed)
+  it("returns the date-only label for a given course week (no time)", () => {
+    expect(classDateLabel(batch, 1)).toBe("Wed, Sep 9, 2026");   // full-refund deadline
+    expect(classDateLabel(batch, 4)).toBe("Wed, Sep 30, 2026");  // prorated-window close
+  });
+  it("returns empty string when start is unparseable", () => {
+    expect(classDateLabel({ ...batch, start: "nope" }, 1)).toBe("");
+  });
+});
 
 describe("validEmail", () => {
   it("accepts well-formed addresses", () => {

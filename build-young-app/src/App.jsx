@@ -235,6 +235,31 @@ export function checkinDateLabel(batch) {
   d.setDate(d.getDate() + ((weekday - d.getDay() + 7) % 7));
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }) + " · " + CHECKIN_TIME;
 }
+// The student's NEXT live session, as a CONCRETE date, so the dashboard banner reads
+// "Mon, Sep 7, 2026 · 5:00–6:30 PM PST" rather than just the recurring weekday — making it
+// clear it's the upcoming class. During the course, week N's class is start + (N-1)*7 days;
+// once in the follow-up phase we reuse checkinDateLabel. The time-of-day is lifted from the
+// cohort's `day` label ("Mondays · 5:00–6:30 PM PST"). Falls back to batch.day if start is
+// unparseable (mirrors checkinDateLabel's guard).
+export function nextClassLabel(batch, phase, week) {
+  if (!batch) return "";
+  if (phase !== "course") return checkinDateLabel(batch) || batch.day;
+  const start = new Date(batch.start);
+  if (isNaN(start.getTime())) return batch.day;
+  const d = new Date(start.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
+  const time = (batch.day.split("·")[1] || "").trim(); // "5:00–6:30 PM PST"
+  const date = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  return time ? `${date} · ${time}` : date;
+}
+// Date-only label (no time) for a course week's class, e.g. "Wed, Sep 23, 2026". Used by the
+// cancel/withdraw banner to state the EXACT refund deadlines. Week 1 == batch.start; week N is
+// +7 days each. Returns "" if start is unparseable so callers can omit the date gracefully.
+export function classDateLabel(batch, week) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime())) return "";
+  const d = new Date(start.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+}
 // income for a given period: the build's revenue curve in the course, steady once established
 export function incomeFor(phase, week) {
   if (phase !== "course") return STEADY_INCOME; // check-ins: the build is established
@@ -1323,8 +1348,8 @@ function Platform({ state, setState, onExit }) {
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ width: 42, height: 42, borderRadius: 4, background: "rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}><Video size={20} color="#fff" /></div>
               <div>
-                <div style={{ fontSize: 11, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>YOUR LIVE CLASS · {batch.track.toUpperCase()}</div>
-                <div style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{batch.day}</div>
+                <div style={{ fontSize: 11, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>NEXT LIVE CLASS · {batch.track.toUpperCase()}</div>
+                <div style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{nextClassLabel(batch, s.phase, s.week)}</div>
                 <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12.5 }}>Same Zoom link for every class & check-in</div>
               </div>
             </div>
@@ -1366,8 +1391,8 @@ function Platform({ state, setState, onExit }) {
             <Card style={{ padding: 16, marginTop: 14, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
               <div style={{ fontSize: 13, color: C.muted, maxWidth: 560 }}>
                 {notStarted
-                  ? <>Changed your mind before the first class? Cancel any time before your cohort starts for a <b style={{ color: C.ink }}>full refund of {fmt(refund)}</b> — no questions asked.</>
-                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> any time through the end of the first 3 weeks. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {12 - s.week} sessions you haven't attended.</>}
+                  ? <>Changed your mind before the first class? Cancel any time before your cohort starts on <b style={{ color: C.ink }}>{classDateLabel(batch, 1)}</b> for a <b style={{ color: C.ink }}>full refund of {fmt(refund)}</b> — no questions asked.</>
+                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> through the end of the first 3 weeks — up until your Week 4 session on <b style={{ color: C.ink }}>{classDateLabel(batch, 4)}</b>. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {12 - s.week} sessions you haven't attended.</>}
               </div>
               <button className="btn" onClick={() => setWithdraw("confirm")} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "9px 14px", borderRadius: 4, fontSize: 13 }}>{notStarted ? "Cancel enrollment" : "Withdraw"}</button>
             </Card>
