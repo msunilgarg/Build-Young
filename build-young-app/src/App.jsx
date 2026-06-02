@@ -85,8 +85,9 @@ export const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e || "").tri
 // module shared with the cron scheduler — and are imported here + re-exported below.
 import { SEASONS, BATCHES, seasonLabel, CHECKINS } from "./cohorts.js";
 export { BATCHES, CHECKINS } from "./cohorts.js";
+import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
-import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS } from "./funnel.js";
+import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engagement } from "./funnel.js";
 
 // Live cohort catalog: the public site hydrates this from /api/cohorts on load (founder-editable
 // in the dashboard), defaulting to the code `BATCHES`. Components read it via useCohorts(); App
@@ -111,9 +112,10 @@ const cohortMetaFrom = (batches, batchId) => {
  */
 export const CONFIG = {
   brandDomain: "build-young.com",
-  contactEmail: "team@build-young.com",
-  linkedinUrl: "https://www.linkedin.com/in/msunilgarg",
-  calendlyUrl: "", // e.g. "https://calendly.com/sunil-build-young/15min"
+  // Founder-editable RUNTIME settings (booking link, contact email, LinkedIn). These defaults are
+  // single-sourced in src/site.js; on load App hydrates them from /api/cohorts (KV-backed) so a
+  // founder can change them live from the console — no redeploy. See SettingsEditor.
+  ...SITE_DEFAULTS,
   // Email: set emailEnabled true once the /api/send-email function + provider key are live.
   emailEnabled: true,
   emailEndpoint: "/api/send-email",
@@ -175,6 +177,17 @@ function track(event, props = {}) {
     else fetch("/api/funnel", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
   } catch (e) { /* analytics must never break the app */ }
 }
+// The visit's traffic source: the external referrer's host, or "direct" (no referrer / same-site).
+// Aggregate-only — a hostname, never a full URL/path, so no query strings or PII leak through.
+function visitSource() {
+  try {
+    const ref = typeof document !== "undefined" ? document.referrer : "";
+    if (!ref) return "direct";
+    const h = new URL(ref).hostname.replace(/^www\./, "");
+    if (typeof location !== "undefined" && h === location.hostname.replace(/^www\./, "")) return "direct";
+    return h || "direct";
+  } catch (e) { return "direct"; }
+}
 // Fire `visited` once per browser session (top of funnel — don't re-count re-renders/SPA nav).
 function trackVisitOnce() {
   try {
@@ -183,7 +196,7 @@ function trackVisitOnce() {
       window.sessionStorage.setItem("by_visited", "1");
     }
   } catch (e) { /* ignore */ }
-  track("visited");
+  track("visited", { source: visitSource() });
 }
 // Whether a "Talk to Sunil" call was booked earlier this session — tags the call→enroll branch.
 let _callBookedThisSession = false;
@@ -2294,6 +2307,18 @@ function CheckEmail({ track, email, onHome, onLogin }) {
  * the withdrawal exit branch, and CSV/JSON exports for an investor data room. Aggregate data only. */
 const FUNNEL_COLORS = [C.emerald, C.turq, C.gold, C.sky, C.green];
 
+// Friendly names for the internal route keys used as `screen` in engagement events.
+const SCREEN_LABELS = { home: "Landing page", enroll: "Enroll flow", call: "Book a call", app: "Student dashboard", login: "Log in", setpw: "Set password", checkemail: "Check your email", founder: "Founder console" };
+const screenName = (s) => SCREEN_LABELS[s] || s || "—";
+// Human dwell time from milliseconds: "0s" / "45s" / "2m 5s" / "1h 3m".
+function fmtDwell(ms) {
+  const sec = Math.max(0, Math.round((Number(ms) || 0) / 1000));
+  if (sec < 60) return `${sec}s`;
+  const m = Math.floor(sec / 60), s = sec % 60;
+  if (m < 60) return s ? `${m}m ${s}s` : `${m}m`;
+  const h = Math.floor(m / 60); return `${h}h ${m % 60}m`;
+}
+
 function downloadFile(filename, text, type) {
   try {
     const blob = new Blob([text], { type });
@@ -2327,6 +2352,8 @@ export function FounderDashboard({ onHome }) {
 
   const filter = seg.kind === "season" ? { season: seg.key } : seg.kind === "track" ? { track: seg.key } : null;
   const summary = useMemo(() => summarize(events || [], filter), [events, seg.kind, seg.key]);
+  // Traffic & engagement is whole-site (not segmented by cohort) — it's the top-of-funnel picture.
+  const eng = useMemo(() => engagement(events || []), [events]);
 
   const funnelData = STAGES.map((st, i) => {
     const count = summary.counts[st.key];
@@ -2420,6 +2447,54 @@ export function FounderDashboard({ onHome }) {
           </Card>
           <div style={{ ...muted, marginTop: 8 }}><b>Class started</b> and later fill in as each cohort begins — a 0 there is timing, not drop-off.</div>
 
+          {/* traffic & engagement — the "before enrollment" picture: who arrives, what holds
+              attention, where they leave (explains the Visited → Enroll-started drop above). */}
+          <h2 style={h2s}>Traffic &amp; engagement</h2>
+          <div style={{ ...muted, marginBottom: 10 }}>Where visitors come from, which screens hold attention, and where they leave — the “before enrollment” view behind the drop-off above. Anonymous &amp; aggregate.</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 18 }} className="enroll-grid">
+            <Card style={{ padding: 16 }}>
+              <b style={{ fontSize: 13.5 }}>Where visitors come from</b>
+              <div style={{ marginTop: 10 }}>
+                {eng.sources.length === 0 && <div style={muted}>No visits recorded yet.</div>}
+                {eng.sources.slice(0, 8).map((s) => (
+                  <div key={s.source} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+                    <span style={{ color: C.ink2 }}>{s.source === "direct" ? "Direct / typed in" : s.source}</span>
+                    <b>{s.count.toLocaleString()}</b>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <Card style={{ padding: 16 }}>
+              <b style={{ fontSize: 13.5 }}>Which screens hold attention</b>
+              <div style={{ marginTop: 10 }}>
+                {eng.screens.length === 0 && <div style={muted}>No screen views recorded yet.</div>}
+                {eng.screens.length > 0 && (
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", paddingBottom: 4 }}>
+                    <span>Screen</span><span>Views · avg time</span>
+                  </div>
+                )}
+                {eng.screens.slice(0, 8).map((s) => (
+                  <div key={s.screen} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+                    <span style={{ color: C.ink2 }}>{screenName(s.screen)}</span>
+                    <b>{s.views.toLocaleString()} · {fmtDwell(s.avgMs)}</b>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <Card style={{ padding: 16 }}>
+              <b style={{ fontSize: 13.5 }}>Where they leave</b>
+              <div style={{ marginTop: 10 }}>
+                {eng.exits.length === 0 && <div style={muted}>No exits recorded yet.</div>}
+                {eng.exits.slice(0, 8).map((s) => (
+                  <div key={s.screen} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+                    <span style={{ color: C.ink2 }}>{screenName(s.screen)}</span>
+                    <b>{s.count.toLocaleString()} · {ratePct(s.pct)}</b>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+
           {/* curves */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginTop: 8 }} className="enroll-grid">
             <div>
@@ -2453,15 +2528,98 @@ export function FounderDashboard({ onHome }) {
         </>)}
 
         {!error && events !== null && (<>
+          <h2 style={h2s}>Site settings</h2>
+          <SettingsEditor />
           <h2 style={h2s}>Cohorts &amp; schedule</h2>
           <CohortEditor />
           <h2 style={h2s}>Admins</h2>
           <FoundersEditor founders={founders} />
           <h2 style={h2s}>Reset a test account</h2>
           <AccountReset />
+          <h2 style={h2s}>System status</h2>
+          <SystemStatus />
         </>)}
       </div>
     </div>
+  );
+}
+
+// Live site-settings editor — the founder-editable runtime values (booking link, contact email,
+// LinkedIn). Reads the current settings from /api/cohorts and saves via the founder-gated
+// PUT /api/funnel?resource=settings. Changes show on the public site without a redeploy.
+function SettingsEditor() {
+  const [vals, setVals] = useState(null);
+  const [status, setStatus] = useState("");
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/cohorts");
+        const cat = await r.json();
+        if (live) setVals({ ...SITE_DEFAULTS, ...(cat && cat.settings ? cat.settings : {}) });
+      } catch { if (live) setVals({ ...SITE_DEFAULTS }); }
+    })();
+    return () => { live = false; };
+  }, []);
+
+  if (vals === null) return <Card style={{ padding: 18, color: C.muted }}>Loading settings…</Card>;
+
+  const set = (k, v) => setVals((p) => ({ ...p, [k]: v }));
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel?resource=settings", {
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(vals),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) {
+        setVals(d.settings); Object.assign(CONFIG, d.settings); setStatus("Saved — live now ✓");
+      } else setStatus(`Error: ${d.error || r.status}`);
+    } catch { setStatus("Error: network"); }
+  };
+
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>These take effect on the public site immediately (no redeploy). Leave the booking link empty to use the built-in demo scheduler.</div>
+      <div style={{ display: "grid", gap: 14 }}>
+        {SETTINGS_FIELDS.map((f) => (
+          <label key={f.key} style={{ display: "block" }}>
+            <span style={lab}>{f.label}</span>
+            <input aria-label={f.label} type="text" value={vals[f.key] ?? ""} placeholder={f.placeholder}
+              onChange={(e) => set(f.key, e.target.value)}
+              style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", boxSizing: "border-box" }} />
+            {f.hint && <span style={{ fontSize: 12, color: C.muted, display: "block", marginTop: 4 }}>{f.hint}</span>}
+          </label>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save settings</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: status.startsWith("Error") ? C.rust : C.green }}>{status}</span>}
+      </div>
+    </Card>
+  );
+}
+
+// Read-only view of the deploy-time switches that CAN'T live in a web console (they depend on
+// host secrets — Resend key, AUTH_SECRET, the KV vars). Surfaced so the founder sees the full
+// config picture in one place and knows what to flip on the host vs. here.
+function SystemStatus() {
+  const Row = ({ label, on, note }) => (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+      <span style={{ color: C.ink2 }}>{label}<span style={{ color: C.muted, marginLeft: 8, fontSize: 12 }}>{note}</span></span>
+      <b style={{ color: on ? C.green : C.muted }}>{on ? "On" : "Off"}</b>
+    </div>
+  );
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 4 }}>Set on the host (environment variables), not here — they hold secrets. Shown read-only so you can see the whole picture.</div>
+      <Row label="Email delivery" on={CONFIG.emailEnabled} note="needs RESEND_API_KEY" />
+      <Row label="Accounts &amp; login" on={CONFIG.authEnabled} note="needs AUTH_SECRET + KV" />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+        <span style={{ color: C.ink2 }}>Brand domain</span><b>{CONFIG.brandDomain}</b>
+      </div>
+    </Card>
   );
 }
 
@@ -2627,8 +2785,10 @@ export default function App() {
   const [enrolledEmail, setEnrolledEmail] = useState(""); // recipient of the set-password email (shown on check-email)
   const [isFounder, setIsFounder] = useState(false); // signed-in user is an admin/founder (from /api/auth/me)
   const [batches, setBatches] = useState(BATCHES); // live cohort catalog (hydrated from /api/cohorts)
-  // Hydrate the cohort catalog once on mount; founder edits show without a redeploy. Falls back to
-  // the code defaults on any failure (offline/demo/tests), so the app always has a valid catalog.
+  const [, bumpCfg] = useState(0); // bump to re-render after CONFIG hydration (settings are mutated in place)
+  // Hydrate the live, founder-editable config once on mount — the cohort catalog AND the runtime
+  // settings (booking link, contact email, LinkedIn) — so founder edits show without a redeploy.
+  // Falls back to the code defaults on any failure (offline/demo/tests).
   useEffect(() => {
     let live = true;
     (async () => {
@@ -2636,11 +2796,40 @@ export default function App() {
         const r = await fetch("/api/cohorts");
         if (!r.ok) return;
         const cat = await r.json();
-        if (live && cat && Array.isArray(cat.batches) && cat.batches.length) setBatches(cat.batches);
+        if (!live) return;
+        if (cat && Array.isArray(cat.batches) && cat.batches.length) setBatches(cat.batches);
+        if (cat && cat.settings && typeof cat.settings === "object") {
+          Object.assign(CONFIG, cat.settings); // mutate the shared CONFIG, then re-render to pick it up
+          bumpCfg((n) => n + 1);
+        }
       } catch (e) { /* keep code defaults */ }
     })();
     return () => { live = false; };
   }, []);
+  // Traffic & engagement: record dwell time per screen (anonymous, aggregate). On each route
+  // change we log a `screen_view` for the screen just left; on tab-close/hide we flush the current
+  // screen + an `exit`. No-op in tests (track() is). See engagement() in src/funnel.js.
+  const screenRef = useRef(null);
+  useEffect(() => {
+    if (!loaded) return;
+    const now = Date.now();
+    if (screenRef.current) track("screen_view", { screen: screenRef.current.screen, ms: now - screenRef.current.at });
+    screenRef.current = { screen: route, at: now };
+  }, [route, loaded]);
+  useEffect(() => {
+    if (!loaded) return;
+    const flush = () => {
+      if (!screenRef.current) return;
+      const { screen, at } = screenRef.current;
+      track("screen_view", { screen, ms: Date.now() - at });
+      track("exit", { screen });
+      screenRef.current = { screen, at: Date.now() }; // reset so a return visit doesn't double-count
+    };
+    const onVis = () => { if (typeof document !== "undefined" && document.visibilityState === "hidden") flush(); };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVis);
+    return () => { window.removeEventListener("pagehide", flush); document.removeEventListener("visibilitychange", onVis); };
+  }, [loaded]);
   // Reflect the SPA route in the URL so Vercel Web Analytics records a pageview + time-on-page
   // per screen. Uses replaceState (NOT pushState) — no new browser-history entry, so the in-app
   // Back stack + scroll restoration are untouched. Gated on `loaded` so it never strips the

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct,
+  STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement,
 } from "../src/funnel.js";
 
 // Build one timestamped event.
@@ -133,5 +133,43 @@ describe("data-room exports", () => {
     expect(EVENTS).toContain("week_advanced");
     expect(EVENTS).toContain("checkin_completed");
     expect(EVENTS).toContain("withdrawn");
+    expect(EVENTS).toContain("screen_view");
+    expect(EVENTS).toContain("exit");
+  });
+});
+
+describe("traffic & engagement aggregation", () => {
+  const events = [
+    ev("visited", { source: "google.com" }),
+    ev("visited", { source: "google.com" }),
+    ev("visited", { source: "direct" }),
+    ev("screen_view", { screen: "home", ms: 10000 }),
+    ev("screen_view", { screen: "home", ms: 20000 }),
+    ev("screen_view", { screen: "enroll", ms: 5000 }),
+    ev("exit", { screen: "home" }),
+    ev("exit", { screen: "home" }),
+    ev("exit", { screen: "enroll" }),
+  ];
+  const eng = engagement(events);
+
+  it("ranks visit sources by count, busiest first", () => {
+    expect(eng.sources[0]).toEqual({ source: "google.com", count: 2 });
+    expect(eng.sources.find((s) => s.source === "direct").count).toBe(1);
+  });
+  it("computes per-screen views + average dwell (ms)", () => {
+    const home = eng.screens.find((s) => s.screen === "home");
+    expect(home.views).toBe(2);
+    expect(home.avgMs).toBe(15000); // (10000 + 20000) / 2
+    expect(eng.screens[0].screen).toBe("home"); // most-viewed first
+  });
+  it("computes exit screens with count + share of all exits", () => {
+    expect(eng.exitTotal).toBe(3);
+    const home = eng.exits.find((s) => s.screen === "home");
+    expect(home.count).toBe(2);
+    expect(home.pct).toBeCloseTo(2 / 3, 5);
+  });
+  it("is empty + safe on no/garbage input", () => {
+    expect(engagement([])).toEqual({ sources: [], screens: [], exits: [], exitTotal: 0 });
+    expect(engagement(null).sources).toEqual([]);
   });
 });

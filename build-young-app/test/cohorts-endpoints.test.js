@@ -84,6 +84,27 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
     expect(g.payload.checkins).toBe(2);
   });
 
+  it("PUT ?resource=settings saves the site settings (founder-gated) and GET /api/cohorts reflects them", async () => {
+    const body = { calendlyUrl: "https://calendly.com/sunil/15min", contactEmail: "hi@build-young.com", linkedinUrl: "https://linkedin.com/in/x", junk: "drop" };
+
+    // no session → 403
+    let res = makeRes();
+    await funnelHandler(req("PUT", { query: { resource: "settings" }, body }), res);
+    expect(res.statusCode).toBe(403);
+
+    // founder session → saves sanitized settings (junk dropped)
+    res = makeRes();
+    await funnelHandler(req("PUT", { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "settings" }, body }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.ok).toBe(true);
+    expect(res.payload.settings).not.toHaveProperty("junk");
+
+    // GET (public) folds the settings into the catalog response
+    const g = makeRes();
+    await cohortsHandler(req("GET"), g);
+    expect(g.payload.settings).toMatchObject({ calendlyUrl: "https://calendly.com/sunil/15min", contactEmail: "hi@build-young.com" });
+  });
+
   it("a founder adds/removes admins on the allowlist (PUT ?resource=founders)", async () => {
     const asFounder = { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "founders" } };
     // add new@x.com
