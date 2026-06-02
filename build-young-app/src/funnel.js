@@ -17,6 +17,8 @@ import { BATCHES, SEASONS, seasonLabel, CHECKINS } from "./cohorts.js";
 export const EVENTS = [
   "visited", "enroll_started", "call_booked", "enrolled",
   "class_started", "week_advanced", "graduated", "checkin_completed", "withdrawn",
+  // Traffic & engagement signals (not funnel stages): per-screen dwell + the exit screen.
+  "screen_view", "exit",
 ];
 
 // The linear conversion funnel (the spine). `call_booked` is a parallel assist path and the
@@ -118,6 +120,60 @@ export function segments(events) {
     bySeason: SEASONS.map((s) => ({ key: s.key, label: s.label, summary: summarize(events, { season: s.key }) })),
     byTrack: TRACKS.map((t) => ({ key: t, label: t, summary: summarize(events, { track: t }) })),
   };
+}
+
+// ---- Traffic & engagement (the "before enrollment" picture) -------------------------------
+//
+// Aggregates the anonymous engagement stream — `visited` (carries a referrer `source`),
+// `screen_view` (a `screen` + dwell `ms`), and `exit` (the last `screen` before leaving) — into:
+//   • sources — where visits come from (referrer host / "direct"), most common first
+//   • screens — per-screen view count + average time spent (ms), busiest first
+//   • exits   — which screen people leave from, count + share of all exits, most common first
+// Pure aggregate, no PII. Returns empty arrays when there's nothing yet.
+export function engagement(events) {
+  const evs = Array.isArray(events) ? events : [];
+
+  // Visit sources (referrer host or "direct"), from the `visited` event.
+  const srcCount = {};
+  evs.forEach((e) => {
+    if (e && e.event === "visited") {
+      const s = (e.props && e.props.source) || "direct";
+      srcCount[s] = (srcCount[s] || 0) + 1;
+    }
+  });
+  const sources = Object.entries(srcCount)
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // Per-screen attention: count of views + mean dwell (ms), from `screen_view`.
+  const agg = {}; // screen -> { views, totalMs }
+  evs.forEach((e) => {
+    if (e && e.event === "screen_view" && e.props && e.props.screen) {
+      const s = e.props.screen;
+      const ms = Number(e.props.ms) || 0;
+      if (!agg[s]) agg[s] = { views: 0, totalMs: 0 };
+      agg[s].views += 1;
+      agg[s].totalMs += ms;
+    }
+  });
+  const screens = Object.entries(agg)
+    .map(([screen, v]) => ({ screen, views: v.views, avgMs: v.views ? Math.round(v.totalMs / v.views) : 0 }))
+    .sort((a, b) => b.views - a.views);
+
+  // Exit screens: where people leave the site, from `exit`.
+  const exitCount = {};
+  let exitTotal = 0;
+  evs.forEach((e) => {
+    if (e && e.event === "exit" && e.props && e.props.screen) {
+      exitCount[e.props.screen] = (exitCount[e.props.screen] || 0) + 1;
+      exitTotal += 1;
+    }
+  });
+  const exits = Object.entries(exitCount)
+    .map(([screen, count]) => ({ screen, count, pct: exitTotal ? count / exitTotal : 0 }))
+    .sort((a, b) => b.count - a.count);
+
+  return { sources, screens, exits, exitTotal };
 }
 
 // ---- Investor data-room exports -----------------------------------------------------------

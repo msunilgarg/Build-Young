@@ -125,9 +125,28 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   entry for founders; the hidden `?founder` route renders `FounderDashboard`.
 - **One endpoint, method-routed (Hobby 12-function cap):** **`POST /api/funnel`** = public event
   ingest (`funnel:events` KV list, capped); **`GET`** = founder-only funnel read; **`PUT`** = founder
-  saves the cohort catalog; **`DELETE`** = founder resets a test account. All non-POST methods require
-  a founder session (403 otherwise). The dashboard folds in the **funnel** + a **cohort editor** +
-  **account reset**. Charts reuse the lazy `Charts.jsx` (`kind="funnel"` bars + `kind="countline"` curves).
+  saves the cohort catalog (default), the **admin allowlist** (`?resource=founders`), or the **site
+  settings** (`?resource=settings`); **`DELETE`** = founder resets a test account. All non-POST
+  methods require a founder session (403 otherwise). The dashboard folds in the **funnel** +
+  **traffic/engagement** + a **site-settings editor** + a **cohort editor** + an **admin editor** +
+  **account reset** + a read-only **system status**. Charts reuse the lazy `Charts.jsx`
+  (`kind="funnel"` bars + `kind="countline"` curves).
+- **Traffic & engagement ("before enrollment" picture):** two extra anonymous events feed it —
+  `visited` carries a referrer `source` (host or "direct"; hostname only, never a full URL),
+  `screen_view {screen, ms}` (per-route dwell, fired on each route change + on tab hide/close) and
+  `exit {screen}` (last screen before leaving). `engagement(events)` in `src/funnel.js` →
+  `{sources, screens (views + avgMs), exits (count + pct), exitTotal}`; the console renders it as
+  three cards under the drop-off. Explains the Visited → Enroll-started leak.
+- **Founder-editable site settings (NEW):** the runtime, non-secret public values — **booking link
+  (Calendly), contact email, LinkedIn URL** — are now editable live from the console (no redeploy),
+  alongside cohorts/Stripe links. Defaults are single-sourced in **`src/site.js`** (`SITE_DEFAULTS`,
+  imported by `CONFIG` and the server store); stored in KV (`settings:site` via
+  `api/_lib/settingsStore.js`); read publicly folded into **`GET /api/cohorts`** (`{batches, checkins,
+  settings}`) and saved via `PUT /api/funnel?resource=settings`. The client hydrates by
+  `Object.assign(CONFIG, settings)` on load + a re-render. **Secrets/deploy toggles stay env-only**
+  (`emailEnabled`/`authEnabled`/`RESEND_API_KEY`/`AUTH_SECRET`/KV); the console shows them read-only
+  in **System status**. So: every founder go-live config a web console *can* own is in the console;
+  only host secrets remain on the host.
 - **Exports:** "Download CSV/JSON" → `toCSV(events)` / `toDataRoom(events)` for an investor data room.
 - **Env to enable:** `FOUNDER_EMAILS` (comma-separated admin emails) + `AUTH_SECRET` + the KV vars
   auth already uses. Tests: `test/funnel.test.js`
@@ -158,7 +177,8 @@ with a WA small-business attorney + a CPA is the recommended way to settle all o
 ## Go-live checklist (all user-side; values live in `CONFIG` + `BATCHES`)
 1. **Domain/email:** set `CONFIG.brandDomain`, `CONFIG.contactEmail`. Verify the domain in
    Resend, set `RESEND_API_KEY` as a host env var, then flip `CONFIG.emailEnabled = true`.
-2. **Scheduling:** set `CONFIG.calendlyUrl` (BookCall switches to it automatically).
+2. **Scheduling:** set the booking link in the **founder console → Site settings** (or
+   `CONFIG.calendlyUrl` as the code default) — BookCall switches to it automatically.
 3. **Payments:** create Stripe Payment Links and paste each into its cohort’s `stripeLink` (live-editable in the founder dashboard, or in `cohorts.js`).
    The enroll flow round-trips via `?enrolled=<batchId>`.
 4. **Cohorts:** update `BATCHES` (dates, real Zoom links, seats, prices).

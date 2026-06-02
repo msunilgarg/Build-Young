@@ -23,9 +23,15 @@ describe("FounderDashboard (account-gated)", () => {
     render(<FounderDashboard onHome={() => {}} />);
     await waitFor(() => expect(screen.getByText(/Drop-off — where you lose people/i)).toBeInTheDocument());
     expect(screen.getByText("Segment")).toBeInTheDocument();
+    expect(screen.getByText("Traffic & engagement")).toBeInTheDocument();
+    expect(screen.getByText("Where visitors come from")).toBeInTheDocument();
+    expect(screen.getByText(/Site settings/i)).toBeInTheDocument();
     expect(screen.getByText(/Cohorts & schedule/i)).toBeInTheDocument();
     expect(await screen.findByDisplayValue("fall-mw")).toBeInTheDocument();
     expect(screen.getByText(/\+ Add cohort/i)).toBeInTheDocument();
     expect(screen.getByText(/Reset a test account/i)).toBeInTheDocument();
+    expect(screen.getByText(/System status/i)).toBeInTheDocument();
+    // the booking-link field from the settings editor (hydrated from /api/cohorts)
+    expect(await screen.findByLabelText(/Booking link/i)).toBeInTheDocument();
   });
 });

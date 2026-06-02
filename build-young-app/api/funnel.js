@@ -13,6 +13,7 @@
 
 import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog } from "./_lib/cohortStore.js";
+import { saveSettings } from "./_lib/settingsStore.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 
 const KEY = "funnel:events";
@@ -21,8 +22,9 @@ const CAP = 100000; // keep only the most recent N events (LTRIM after each push
 const EVENTS = new Set([
   "visited", "enroll_started", "call_booked", "enrolled",
   "class_started", "week_advanced", "graduated", "checkin_completed", "withdrawn",
+  "screen_view", "exit", // traffic & engagement: per-screen dwell + exit screen
 ]);
-const ALLOWED_PROPS = ["season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall", "stage"];
+const ALLOWED_PROPS = ["season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall", "stage", "source", "screen", "ms"];
 
 // Admin gate: a logged-in founder (session email on the allowlist). 403 otherwise.
 async function founderGate(req, res) {
@@ -94,6 +96,13 @@ async function saveFounders(req, res) {
   res.status(result.ok ? 200 : 400).json(result);
 }
 
+// --- PUT ?resource=settings: founder saves the public runtime settings (booking link, etc.) ---
+async function saveSiteSettings(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const result = await saveSettings((await readBody(req)) || {});
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
 // --- DELETE: founder resets a test account (user record + sim state) by email ---
 async function resetAccount(req, res) {
   if (!(await founderGate(req, res))) return;
@@ -110,8 +119,9 @@ async function resetAccount(req, res) {
 export default async function handler(req, res) {
   if (req.method === "POST") return ingest(req, res);     // public: track an event
   if (req.method === "GET") return read(req, res);        // founder: read funnel events
-  if (req.method === "PUT") {                              // founder: save cohorts, or the admin allowlist
+  if (req.method === "PUT") {                              // founder: save cohorts, admins, or settings
     if (req.query && req.query.resource === "founders") return saveFounders(req, res);
+    if (req.query && req.query.resource === "settings") return saveSiteSettings(req, res);
     return saveCohorts(req, res);
   }
   if (req.method === "DELETE") return resetAccount(req, res); // founder: reset a test account

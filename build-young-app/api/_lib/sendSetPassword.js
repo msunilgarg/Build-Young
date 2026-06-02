@@ -10,7 +10,7 @@
 import { sendEmail } from "./sendEmail.js";
 import { createPasswordToken } from "./auth.js";
 
-const BASE_URL = () => (process.env.PUBLIC_BASE_URL || "https://build-young.com").replace(/\/+$/, "");
+const BASE_URL = () => (process.env.PUBLIC_BASE_URL || "https://www.build-young.com").replace(/\/+$/, "");
 
 export async function sendSetPasswordEmail({ email, name, isReset = false }) {
   const token = await createPasswordToken(email);
