@@ -787,7 +787,7 @@ const HeroPreview = () => {
   );
 };
 
-function Landing({ onEnroll, onCall, onLegal, onLogin }) {
+function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel }) {
   const BATCHES = useCohorts(); // live catalog (hydrated from /api/cohorts; defaults to code)
   const [season, setSeason] = useState(SEASONS[0].key);
   return (
@@ -799,7 +799,9 @@ function Landing({ onEnroll, onCall, onLegal, onLogin }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <span className="nav-talk" {...act(onCall)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Talk to Sunil</span>
-          {onLogin && <span {...act(onLogin)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Log in</span>}
+          {onDashboard
+            ? <span {...act(onDashboard)} style={{ fontSize: 14, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>{dashLabel || "My dashboard"} →</span>
+            : (onLogin && <span {...act(onLogin)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Log in</span>)}
           <button className="btn" onClick={onEnroll} style={{ background: C.ink, color: C.paper2, padding: "10px 20px", borderRadius: 4, fontSize: 14 }}>Enroll →</button>
         </div>
       </nav>
@@ -2344,8 +2346,8 @@ export function FounderDashboard({ onHome }) {
         {/* header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <div>
-            <div className="disp" style={{ fontSize: 26, fontWeight: 800 }}><Mark size={22} />Founder analytics</div>
-            <div style={muted}>Acquisition & engagement funnel · aggregate data only (no student PII).</div>
+            <div className="disp" style={{ fontSize: 26, fontWeight: 800 }}><Mark size={22} />Founder console</div>
+            <div style={muted}>Funnel, cohorts, admins &amp; account tools · aggregate data only (no student PII).</div>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <span {...act(() => downloadFile("build-young-funnel.csv", toCSV(events || []), "text/csv"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> CSV</span>
@@ -2365,7 +2367,7 @@ export function FounderDashboard({ onHome }) {
             <span style={{ ...muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", marginRight: 4 }}>Segment</span>
             {segBtn("All", seg.kind === "all", () => setSeg({ kind: "all", key: null }))}
             {SEASONS.map((s) => segBtn(s.label, seg.kind === "season" && seg.key === s.key, () => setSeg({ kind: "season", key: s.key })))}
-            {TRACKS.map((t) => segBtn(t, seg.kind === "track" && seg.key === t, () => setSeg({ kind: "track", key: t })))}
+            {TRACKS.length > 1 && TRACKS.map((t) => segBtn(t, seg.kind === "track" && seg.key === t, () => setSeg({ kind: "track", key: t })))}
           </div>
           {filter && <div style={{ ...muted, marginTop: 8 }}>Segmented views start at <b>Enrolled</b> — top-of-funnel events (visits, enroll-starts) aren’t tied to a cohort.</div>}
 
@@ -2648,6 +2650,8 @@ export default function App() {
   });
   const goHome = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("home"); });
   const goFounder = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("founder"); });
+  // Logged-in "home" target: a founder w/o a student sim → admin console; otherwise the app dashboard.
+  const goDashboard = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute(isFounder && !state ? "founder" : "app"); });
   // apply the pending scroll after the route's content has rendered
   useLayoutEffect(() => {
     if (pendingScroll.current == null) return;
@@ -2796,7 +2800,7 @@ export default function App() {
       <div style={{ background: C.ink, color: C.paper2, textAlign: "center", fontSize: 12.5, fontWeight: 600, lineHeight: 1.5, padding: "8px 16px", position: "relative", zIndex: 3 }}>
         <Coins size={13} color={C.goldLite} style={{ verticalAlign: "-2px", marginRight: 5 }} /> Learning simulation — every dollar shown is <b style={{ whiteSpace: "nowrap" }}>simulated money,</b> not real currency. No real funds are ever involved.
       </div>
-      {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} />}
+      {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} />}
       {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} />}
       {route === "call" && <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} onFounder={isFounder ? goFounder : null} />}
