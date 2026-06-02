@@ -1686,7 +1686,7 @@ function Platform({ state, setState, onExit, onFounder }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
         <div>
           <div className="disp" {...act(() => { try { window.scrollTo({ top: 0, behavior: "smooth" }); } catch (e) { window.scrollTo(0, 0); } })} aria-label="Build Young — back to top" style={{ fontWeight: 900, fontSize: 20, cursor: "pointer" }}><Mark size={22} /> Build Young</div>
-          <div style={{ fontSize: 13, color: C.muted }}>{s.student.name} · {s.student.track} cohort</div>
+          <div style={{ fontSize: 13, color: C.muted }}>{s.student.name} · <span style={{ color: C.emerald, fontWeight: 600 }}>let's build something real</span></div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <Pill bg={C.turq}>{s.phase === "course"
