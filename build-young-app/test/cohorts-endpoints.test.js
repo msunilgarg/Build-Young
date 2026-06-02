@@ -1,6 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import cohortsHandler from "../api/cohorts.js";
 import funnelHandler from "../api/funnel.js";
+import { signSession, SESSION_COOKIE } from "../api/_lib/auth.js";
+
+// A signed session cookie header for a given email (founder gating reads this).
+const cookieFor = (email) => `${SESSION_COOKIE}=${signSession(email)}`;
 
 // In-memory fake of the KV REST API (kv.js talks to it via global fetch). Covers the SET/GET/DEL
 // the catalog store + account-reset use.
@@ -28,8 +32,8 @@ function makeRes() {
     setHeader(k, v) { this.headers[k] = v; },
   };
 }
-const req = (method, { query = {}, body = null } = {}) => ({
-  method, query, body, headers: {},
+const req = (method, { query = {}, body = null, headers = {} } = {}) => ({
+  method, query, body, headers,
   on: (ev, cb) => { if (ev === "end") cb(); }, // readRaw fallback (unused when body is an object)
 });
 
@@ -38,13 +42,14 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
   beforeEach(() => {
     process.env.KV_REST_API_URL = "https://fake.kv";
     process.env.KV_REST_API_TOKEN = "fake-token";
-    process.env.FOUNDER_TOKEN = "founder-secret";
+    process.env.AUTH_SECRET = "endpoint-test-secret";
+    process.env.FOUNDER_EMAILS = "founder@x.com";
     kv = fakeKv();
     vi.stubGlobal("fetch", kv);
   });
-  afterEach(() => { vi.restoreAllMocks(); delete process.env.FOUNDER_TOKEN; });
+  afterEach(() => { vi.restoreAllMocks(); delete process.env.FOUNDER_EMAILS; });
 
-  it("GET /api/cohorts returns a catalog (defaults when KV is empty)", async () => {
+  it("GET /api/cohorts returns a catalog (public; defaults when KV is empty)", async () => {
     const res = makeRes();
     await cohortsHandler(req("GET"), res);
     expect(res.statusCode).toBe(200);
@@ -52,22 +57,26 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
     expect(res.payload.batches.length).toBeGreaterThan(0);
   });
 
-  it("PUT /api/funnel saves the catalog (founder-gated) and GET reflects it", async () => {
-    // wrong/no token → 403
+  it("PUT /api/funnel saves the catalog (founder-session gated) and GET reflects it", async () => {
+    const body = { batches: [{ id: "only", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mon & Wed", price: 1234, seats: 8, zoom: "", stripeLink: "" }], checkins: 2 };
+
+    // no session → 403
     let res = makeRes();
-    await funnelHandler(req("PUT", { body: { batches: [{ id: "x", price: 999 }] } }), res);
+    await funnelHandler(req("PUT", { body }), res);
     expect(res.statusCode).toBe(403);
 
-    // correct token → saves a sanitized catalog
+    // a non-founder session → 403
     res = makeRes();
-    await funnelHandler(req("PUT", {
-      query: { token: "founder-secret" },
-      body: { batches: [{ id: "only", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mon & Wed", price: 1234, seats: 8, zoom: "", stripeLink: "" }], checkins: 2 },
-    }), res);
+    await funnelHandler(req("PUT", { headers: { cookie: cookieFor("nobody@x.com") }, body }), res);
+    expect(res.statusCode).toBe(403);
+
+    // a founder session → saves a sanitized catalog
+    res = makeRes();
+    await funnelHandler(req("PUT", { headers: { cookie: cookieFor("founder@x.com") }, body }), res);
     expect(res.statusCode).toBe(200);
     expect(res.payload.ok).toBe(true);
 
-    // GET now returns exactly what was saved
+    // GET (public) now returns exactly what was saved
     const g = makeRes();
     await cohortsHandler(req("GET"), g);
     expect(g.payload.batches).toHaveLength(1);
@@ -75,26 +84,51 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
     expect(g.payload.checkins).toBe(2);
   });
 
-  it("PUT 404s when FOUNDER_TOKEN is unset", async () => {
-    delete process.env.FOUNDER_TOKEN;
-    const res = makeRes();
-    await funnelHandler(req("PUT", { query: { token: "x" }, body: { batches: [] } }), res);
-    expect(res.statusCode).toBe(404);
+  it("a founder adds/removes admins on the allowlist (PUT ?resource=founders)", async () => {
+    const asFounder = { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "founders" } };
+    // add new@x.com
+    let res = makeRes();
+    await funnelHandler(req("PUT", { ...asFounder, body: { emails: ["new@x.com"] } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.founders).toEqual(expect.arrayContaining(["founder@x.com", "new@x.com"])); // env kept
+
+    // the newly-added admin can now read the dashboard
+    res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("new@x.com") } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.founders).toContain("new@x.com");
+
+    // remove it again (save empty) — the env bootstrap admin stays
+    res = makeRes();
+    await funnelHandler(req("PUT", { ...asFounder, body: { emails: [] } }), res);
+    expect(res.payload.founders).not.toContain("new@x.com");
+    expect(res.payload.founders).toContain("founder@x.com");
+
+    // a non-founder can't edit the allowlist
+    res = makeRes();
+    await funnelHandler(req("PUT", { headers: { cookie: cookieFor("nobody@x.com") }, query: { resource: "founders" }, body: { emails: ["x@x.com"] } }), res);
+    expect(res.statusCode).toBe(403);
   });
 
-  it("DELETE /api/funnel wipes a test account's user + state (founder-gated)", async () => {
+  it("GET /api/funnel (read) is 403 without a founder session", async () => {
+    const res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("nobody@x.com") } }), res);
+    expect(res.statusCode).toBe(403);
+  });
+
+  it("DELETE /api/funnel wipes a test account's user + state (founder-session gated)", async () => {
     kv._store.set("user:a@x.com", "{}");
     kv._store.set("state:a@x.com", "{}");
 
-    // wrong token → 403, account untouched
+    // non-founder session → 403, account untouched
     let res = makeRes();
-    await funnelHandler(req("DELETE", { query: { token: "nope", email: "a@x.com" } }), res);
+    await funnelHandler(req("DELETE", { headers: { cookie: cookieFor("nobody@x.com") }, query: { email: "a@x.com" } }), res);
     expect(res.statusCode).toBe(403);
     expect(kv._store.has("user:a@x.com")).toBe(true);
 
-    // correct token → deleted
+    // founder session → deleted (email normalized)
     res = makeRes();
-    await funnelHandler(req("DELETE", { query: { token: "founder-secret", email: "A@x.com" } }), res); // normalized
+    await funnelHandler(req("DELETE", { headers: { cookie: cookieFor("founder@x.com") }, query: { email: "A@x.com" } }), res);
     expect(res.statusCode).toBe(200);
     expect(res.payload.ok).toBe(true);
     expect(kv._store.has("user:a@x.com")).toBe(false);
