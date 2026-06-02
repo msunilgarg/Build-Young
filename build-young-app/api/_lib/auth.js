@@ -18,7 +18,7 @@
 //     cohort) plus a password hash. No password is ever logged or returned.
 
 import crypto from "node:crypto";
-import { kvGet, kvSet, kvGetDel } from "./kv.js";
+import { kvGet, kvSet, kvGetDel, kvConfigured } from "./kv.js";
 
 export const SESSION_COOKIE = "by_session";
 export const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
@@ -125,6 +125,52 @@ export function readCookie(req, name = SESSION_COOKIE) {
 // The authenticated user for a request → { email } or null. Trusts the signed cookie; no KV read.
 export function requireUser(req) {
   return verifySession(readCookie(req));
+}
+
+// ---- admin / founder identification -----------------------------------------------------
+// The website ADMIN is the founder: a logged-in user whose email is on the allowlist. The
+// allowlist is the union of an env BOOTSTRAP set (`FOUNDER_EMAILS`, comma-separated — can't be
+// removed, so you can never lock yourself out) and a KV-stored set that founders add/remove from
+// the dashboard. There's no separate admin password; the same login is elevated by the allowlist,
+// re-checked server-side on every admin request.
+const FOUNDERS_KEY = "founders:emails";
+const envFounders = () =>
+  (process.env.FOUNDER_EMAILS || "").split(",").map((e) => normalizeEmail(e)).filter(Boolean);
+
+async function kvFounders() {
+  if (!kvConfigured()) return [];
+  try {
+    const raw = await kvGet(FOUNDERS_KEY);
+    const arr = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : [];
+    return Array.isArray(arr) ? arr.map((e) => normalizeEmail(e)).filter(Boolean) : [];
+  } catch { return []; }
+}
+
+// The effective allowlist (env ∪ KV), deduped.
+export async function loadFounderEmails() {
+  return Array.from(new Set([...envFounders(), ...(await kvFounders())]));
+}
+export async function isFounder(email) {
+  if (!email) return false;
+  return (await loadFounderEmails()).includes(normalizeEmail(email));
+}
+// The session of a logged-in founder, or null. Gates admin endpoints. (async — checks KV.)
+export async function requireFounder(req) {
+  const s = requireUser(req);
+  return s && (await isFounder(s.email)) ? s : null;
+}
+// Founder-managed additions (the env bootstrap set is always implied, never removable). Returns
+// the new effective list. Stores ONLY the KV-managed emails.
+export async function saveFounderEmails(emails) {
+  if (!kvConfigured()) return { ok: false, error: "store not configured" };
+  const env = envFounders();
+  const clean = Array.from(new Set(
+    (Array.isArray(emails) ? emails : [])
+      .map((e) => normalizeEmail(e)).filter((e) => validEmail(e) && !env.includes(e))
+  ));
+  try { await kvSet(FOUNDERS_KEY, JSON.stringify(clean)); }
+  catch { return { ok: false, error: "save failed" }; }
+  return { ok: true, founders: Array.from(new Set([...env, ...clean])), envFounders: env };
 }
 
 // ---- user records (KV) ------------------------------------------------------------------

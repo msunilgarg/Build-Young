@@ -114,7 +114,7 @@ Real accounts + cross-device dashboard, built on the existing KV store (`api/_li
 - **Serves minors:** stores only what enrollment already collects (email, name, cohort) + a password hash; no password is ever logged or returned. Get counsel's eyes on auth/data handling alongside the other minors-related items.
 - **Env when enabling:** `KV_REST_API_URL`+`KV_REST_API_TOKEN` (or the Upstash pair), `AUTH_SECRET`, `PUBLIC_BASE_URL`. Tested via an in-memory KV fake (`test/auth-endpoints.test.js`) + crypto-core (`test/auth.test.js`) + UI (`test/auth-ui.test.jsx`).
 
-## Founder funnel analytics (hidden `?founder=<token>` route)
+## Founder funnel analytics (hidden `?founder` route, account-gated)
 
 A connected acquisition→engagement funnel for the founder/investors. **All stage definitions and
 conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependency-free; imported by
@@ -139,13 +139,18 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   `Builders` track now). Meaningful from `enrolled` onward (top-of-funnel events carry no cohort → excluded under a
   filter).
 - **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net).
-- **Route:** hidden, not in nav — `?founder=<token>` renders `FounderDashboard`. Data from
-  **`/api/funnel`**, gated by the **`FOUNDER_TOKEN`** env var (timing-safe; 404 when unset, 403 on
-  mismatch). Events are ingested by **`POST /api/funnel`** into a KV list (`funnel:events`, capped) —
-  one endpoint does both POST-ingest and GET-read to stay under the Hobby-plan 12-function cap. Charts
-  reuse the lazy `Charts.jsx` (`kind="funnel"` bars + `kind="countline"` curves).
+- **Admin = founder, by account (not a URL token):** access is gated by the logged-in **session** —
+  a user whose email is in the **`FOUNDER_EMAILS`** allowlist (`isFounderEmail`/`requireFounder` in
+  `api/_lib/auth.js`; `/api/auth/me` returns `isFounder`). The Platform header shows an **Admin**
+  entry for founders; the hidden `?founder` route renders `FounderDashboard`.
+- **One endpoint, method-routed (Hobby 12-function cap):** **`POST /api/funnel`** = public event
+  ingest (`funnel:events` KV list, capped); **`GET`** = founder-only funnel read; **`PUT`** = founder
+  saves the cohort catalog; **`DELETE`** = founder resets a test account. All non-POST methods require
+  a founder session (403 otherwise). The dashboard folds in the **funnel** + a **cohort editor** +
+  **account reset**. Charts reuse the lazy `Charts.jsx` (`kind="funnel"` bars + `kind="countline"` curves).
 - **Exports:** "Download CSV/JSON" → `toCSV(events)` / `toDataRoom(events)` for an investor data room.
-- **Env to enable:** `FOUNDER_TOKEN` (+ the KV vars auth already uses). Tests: `test/funnel.test.js`
+- **Env to enable:** `FOUNDER_EMAILS` (comma-separated admin emails) + `AUTH_SECRET` + the KV vars
+  auth already uses. Tests: `test/funnel.test.js`
   (full lifecycle + aggregate counts/conversions/segments/revenue) and `test/founder-ui.test.jsx`
   (route gating).
 

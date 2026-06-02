@@ -1416,7 +1416,7 @@ function OverviewPanel({ s, batch, onTab }) {
 }
 
 /* ============================ PLATFORM ============================ */
-function Platform({ state, setState, onExit }) {
+function Platform({ state, setState, onExit, onFounder }) {
   const BATCHES = useCohorts(); // live catalog
   // Default to Overview until the course has begun (first session attended), so early enrollees
   // land on the welcome/plan rather than a misleading live "Week 1".
@@ -1594,6 +1594,7 @@ function Platform({ state, setState, onExit }) {
           <Pill bg={C.turq}>{s.phase === "course"
             ? (s.started || !startInfo.beforeStart ? `Week ${s.week} of 12` : `Starts ${startInfo.shortDate}`)
             : s.done ? "Graduated" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Check-in")}</Pill>
+          {onFounder && <button className="btn" onClick={onFounder} style={{ background: "transparent", border: `1.5px solid ${C.turq}`, color: C.turq, padding: "7px 12px", borderRadius: 4, fontSize: 13, fontWeight: 700 }}>Admin</button>}
           <button className="btn" onClick={onExit} style={{ background: "transparent", border: `1.5px solid ${C.line}`, color: C.muted, padding: "7px 12px", borderRadius: 4, fontSize: 13 }}>Exit</button>
         </div>
       </div>
@@ -2283,7 +2284,7 @@ function CheckEmail({ track, email, onHome, onLogin }) {
 }
 
 /* ===================== FOUNDER FUNNEL DASHBOARD (hidden route: ?founder=<token>) =====================
- * Not in the public nav. Reads the aggregate funnel stream from /api/funnel (gated by FOUNDER_TOKEN),
+ * Not in the public nav. Reads the aggregate funnel stream from /api/funnel (gated by a founder session),
  * aggregates it via src/funnel.js (the single source of truth), and renders the connected funnel:
  * stage counts + step conversions, season/track segmentation, the week & check-in curves, revenue,
  * the withdrawal exit branch, and CSV/JSON exports for an investor data room. Aggregate data only. */
@@ -2299,24 +2300,26 @@ function downloadFile(filename, text, type) {
   } catch (e) { /* ignore */ }
 }
 
-export function FounderDashboard({ token, onHome }) {
+export function FounderDashboard({ onHome }) {
   const [events, setEvents] = useState(null); // null = loading
+  const [founders, setFounders] = useState([]); // admin allowlist (effective: env ∪ KV)
   const [error, setError] = useState(null);
   const [seg, setSeg] = useState({ kind: "all", key: null }); // all | {season} | {track}
 
+  // Authorized by the session cookie (sent automatically): the server admits only a logged-in
+  // founder (email on the allowlist). 401/403 → not signed in as a founder.
   useEffect(() => {
     let live = true;
     (async () => {
       try {
-        const r = await fetch(`/api/funnel?token=${encodeURIComponent(token || "")}`);
-        if (r.status === 404) { if (live) setError("Analytics isn’t configured yet — set the FOUNDER_TOKEN env var on the server."); return; }
-        if (r.status === 403) { if (live) setError("Access denied — this founder link’s token is invalid."); return; }
+        const r = await fetch("/api/funnel");
+        if (r.status === 401 || r.status === 403) { if (live) setError("Access denied — sign in with your founder account to view this."); return; }
         const data = await r.json();
-        if (live) setEvents(Array.isArray(data.events) ? data.events : []);
+        if (live) { setEvents(Array.isArray(data.events) ? data.events : []); setFounders(Array.isArray(data.founders) ? data.founders : []); }
       } catch (e) { if (live) setError("Couldn’t load analytics (network error)."); }
     })();
     return () => { live = false; };
-  }, [token]);
+  }, []);
 
   const filter = seg.kind === "season" ? { season: seg.key } : seg.kind === "track" ? { track: seg.key } : null;
   const summary = useMemo(() => summarize(events || [], filter), [events, seg.kind, seg.key]);
@@ -2432,9 +2435,11 @@ export function FounderDashboard({ token, onHome }) {
 
         {!error && events !== null && (<>
           <h2 style={h2s}>Cohorts &amp; schedule</h2>
-          <CohortEditor token={token} />
+          <CohortEditor />
+          <h2 style={h2s}>Admins</h2>
+          <FoundersEditor founders={founders} />
           <h2 style={h2s}>Reset a test account</h2>
-          <AccountReset token={token} />
+          <AccountReset />
         </>)}
       </div>
     </div>
@@ -2444,7 +2449,7 @@ export function FounderDashboard({ token, onHome }) {
 // Live cohort editor — add / edit / remove batches (dates, days, seats, price, Zoom, Stripe link)
 // and the check-in count. Reads the current catalog from /api/cohorts and saves via the
 // founder-gated PUT /api/funnel. Changes show on the public site without a redeploy.
-function CohortEditor({ token }) {
+function CohortEditor() {
   const [rows, setRows] = useState(null);
   const [checkins, setCheckins] = useState(1);
   const [status, setStatus] = useState("");
@@ -2469,7 +2474,7 @@ function CohortEditor({ token }) {
   const save = async () => {
     setStatus("Saving…");
     try {
-      const r = await fetch(`/api/funnel?token=${encodeURIComponent(token || "")}`, {
+      const r = await fetch("/api/funnel", {
         method: "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ batches: rows, checkins: Number(checkins) }),
       });
@@ -2518,15 +2523,64 @@ function CohortEditor({ token }) {
   );
 }
 
+// Founder tool: manage the admin allowlist — add/remove the emails that get founder access.
+// Env-bootstrap founders are permanent (the server keeps them even if removed here).
+function FoundersEditor({ founders }) {
+  const [list, setList] = useState(founders || []);
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+  useEffect(() => { setList(founders || []); }, [founders]);
+
+  const add = () => {
+    const e = email.trim().toLowerCase();
+    if (!validEmail(e)) { setStatus("Enter a valid email"); return; }
+    if (!list.includes(e)) setList([...list, e]);
+    setEmail(""); setStatus("");
+  };
+  const remove = (e) => setList(list.filter((x) => x !== e));
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel?resource=founders", {
+        method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ emails: list }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setList(d.founders); setStatus("Saved ✓"); } else setStatus(`Error: ${d.error || r.status}`);
+    } catch { setStatus("Error: network"); }
+  };
+
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 10 }}>Anyone here gets admin access when they sign in. (Bootstrap admins set via env can't be removed.)</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+        {list.map((e) => (
+          <span key={e} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.paper, border: `1px solid ${C.line}`, borderRadius: 999, padding: "6px 12px", fontSize: 13, color: C.ink2 }}>
+            {e}<span {...act(() => remove(e))} aria-label={`remove ${e}`} style={{ cursor: "pointer", color: C.rust, fontWeight: 800 }}>×</span>
+          </span>
+        ))}
+        {list.length === 0 && <span style={{ fontSize: 13, color: C.muted }}>No admins yet.</span>}
+      </div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+        <input aria-label="add admin email" type="email" placeholder="newadmin@example.com" value={email}
+          onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }}
+          style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, flex: 1, minWidth: 220 }} />
+        <span {...act(add)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.emerald, border: `1px solid ${C.emerald}`, borderRadius: 4, padding: "9px 14px" }}>+ Add</span>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save admins</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: status.startsWith("Error") ? C.rust : C.green }}>{status}</span>}
+      </div>
+    </Card>
+  );
+}
+
 // Founder tool: wipe a test account (user record + sim state) so an email can re-run enrollment.
-function AccountReset({ token }) {
+function AccountReset() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
   const reset = async () => {
     if (!validEmail(email)) { setStatus("Enter a valid email"); return; }
     setStatus("Resetting…");
     try {
-      const r = await fetch(`/api/funnel?token=${encodeURIComponent(token || "")}&email=${encodeURIComponent(email)}`, { method: "DELETE" });
+      const r = await fetch(`/api/funnel?email=${encodeURIComponent(email)}`, { method: "DELETE" });
       const d = await r.json().catch(() => ({}));
       setStatus(r.ok && d.ok ? `Cleared ${email} ✓ (they can re-enroll fresh)` : `Error: ${d.error || r.status}`);
     } catch { setStatus("Error: network"); }
@@ -2552,7 +2606,7 @@ export default function App() {
   const [setpwToken, setSetpwToken] = useState(null);   // token from a ?setpw= link (auth mode)
   const [enrolledTrack, setEnrolledTrack] = useState(""); // cohort track for the check-email screen
   const [enrolledEmail, setEnrolledEmail] = useState(""); // recipient of the set-password email (shown on check-email)
-  const [founderToken, setFounderToken] = useState(null); // token from a ?founder= link (hidden analytics route)
+  const [isFounder, setIsFounder] = useState(false); // signed-in user is an admin/founder (from /api/auth/me)
   const [batches, setBatches] = useState(BATCHES); // live cohort catalog (hydrated from /api/cohorts)
   // Hydrate the cohort catalog once on mount; founder edits show without a redeploy. Falls back to
   // the code defaults on any failure (offline/demo/tests), so the app always has a valid catalog.
@@ -2593,6 +2647,7 @@ export default function App() {
     setHistory((h) => h.slice(0, -1));
   });
   const goHome = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("home"); });
+  const goFounder = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("founder"); });
   // apply the pending scroll after the route's content has rendered
   useLayoutEffect(() => {
     if (pendingScroll.current == null) return;
@@ -2605,6 +2660,7 @@ export default function App() {
   // Sign-in succeeded (login or set-password): pull the student's server state (or seed a fresh
   // one from their account) and open the dashboard.
   const hydrateFromServer = async (user) => {
+    setIsFounder(!!(user && user.isFounder)); // admin elevation comes from the server (FOUNDER_EMAILS)
     let srv = await AUTH.getState();
     if (!srv) {
       const b = batches.find((x) => x.id === user.batchId) || batches[0];
@@ -2624,10 +2680,9 @@ export default function App() {
         const params = new URLSearchParams(window.location.search);
         const paidBatch = params.get("enrolled");
         const setpw = params.get("setpw");
-        const founder = params.get("founder");
 
-        // ---- FOUNDER FUNNEL DASHBOARD: hidden, token-gated route (not in nav) ----
-        if (founder) { setFounderToken(founder); setRoute("founder"); setLoaded(true); return; }
+        // ---- FOUNDER/ADMIN DASHBOARD: hidden route, gated by the session cookie (FOUNDER_EMAILS) ----
+        if (params.has("founder")) { setRoute("founder"); setLoaded(true); return; }
 
         trackVisitOnce(); // top of funnel — once per browser session
 
@@ -2739,11 +2794,11 @@ export default function App() {
       {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} />}
       {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} />}
       {route === "call" && <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} />}
-      {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} />}
+      {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} onFounder={isFounder ? goFounder : null} />}
       {route === "login" && <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "setpw" && <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} />}
       {route === "checkemail" && <CheckEmail track={enrolledTrack} email={enrolledEmail} onHome={goHome} onLogin={goLogin} />}
-      {route === "founder" && <FounderDashboard token={founderToken} onHome={goHome} />}
+      {route === "founder" && <FounderDashboard onHome={goHome} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
     </div>
     </CohortsContext.Provider>

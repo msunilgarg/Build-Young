@@ -5,16 +5,15 @@
 //   • POST /api/funnel  — append one aggregate-only event to the durable stream (fired by
 //     track() in src/App.jsx). No auth; a strict prop allowlist drops anything but operational
 //     fields — NO email/name ever persisted.
-//   • GET  /api/funnel?token=…  — read the raw stream for the founder dashboard + data-room
-//     exports. Gated by the FOUNDER_TOKEN env var (timing-safe; 404 when unset, 403 on mismatch).
+//   • GET/PUT/DELETE /api/funnel — founder-only (read funnel + admin allowlist; save cohorts/admins;
+//     exports. Founder-gated: GET/PUT/DELETE require a logged-in founder session (FOUNDER_EMAILS allowlist ∪ KV).
 //
 // The dashboard aggregates client-side via src/funnel.js (the single source of truth), so this
 // endpoint is just gated storage.
 
-import crypto from "node:crypto";
 import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog } from "./_lib/cohortStore.js";
-import { normalizeEmail } from "./_lib/auth.js";
+import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 
 const KEY = "funnel:events";
 const CAP = 100000; // keep only the most recent N events (LTRIM after each push)
@@ -25,9 +24,10 @@ const EVENTS = new Set([
 ]);
 const ALLOWED_PROPS = ["season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall", "stage"];
 
-function timingSafeEq(a, b) {
-  const x = Buffer.from(String(a)), y = Buffer.from(String(b));
-  return x.length === y.length && crypto.timingSafeEqual(x, y);
+// Admin gate: a logged-in founder (session email on the allowlist). 403 otherwise.
+async function founderGate(req, res) {
+  if (!(await requireFounder(req))) { res.status(403).json({ error: "Forbidden — sign in as a founder." }); return false; }
+  return true;
 }
 async function readRaw(req) {
   return await new Promise((resolve) => {
@@ -60,42 +60,43 @@ async function ingest(req, res) {
 
 // --- GET: founder-gated read of the stream ---
 async function read(req, res) {
-  const secret = process.env.FOUNDER_TOKEN;
-  if (!secret) { res.status(404).json({ error: "Not found" }); return; }
-  const token = (req.query && req.query.token) || (req.headers && req.headers["x-founder-token"]) || "";
-  if (!timingSafeEq(token, secret)) { res.status(403).json({ error: "Forbidden" }); return; }
-  if (!kvConfigured()) { res.status(200).json({ events: [] }); return; }
+  if (!(await founderGate(req, res))) return;
+  const founders = await loadFounderEmails();
+  if (!kvConfigured()) { res.status(200).json({ events: [], founders }); return; }
 
   let raw = [];
   try { raw = (await kvCommand(["LRANGE", KEY, "0", "-1"])) || []; } catch { raw = []; }
   const events = raw
     .map((r) => { try { return typeof r === "string" ? JSON.parse(r) : r; } catch { return null; } })
     .filter(Boolean);
-  res.status(200).json({ events });
+  res.status(200).json({ events, founders });
 }
 
-// Founder-gated admin actions share the read() gate. Returns true if authorized (else responds).
-function founderGate(req, res) {
-  const secret = process.env.FOUNDER_TOKEN;
-  if (!secret) { res.status(404).json({ error: "Not found" }); return false; }
-  const token = (req.query && req.query.token) || (req.headers && req.headers["x-founder-token"]) || "";
-  if (!timingSafeEq(token, secret)) { res.status(403).json({ error: "Forbidden" }); return false; }
-  return true;
-}
-
-// --- PUT: founder saves the cohort catalog ---
-async function saveCohorts(req, res) {
-  if (!founderGate(req, res)) return;
+async function readBody(req) {
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = null; } }
   if (!body || typeof body !== "object") { try { body = JSON.parse(await readRaw(req)); } catch { body = null; } }
-  const result = await saveCatalog(body || {});
+  return body;
+}
+
+// --- PUT (default): founder saves the cohort catalog ---
+async function saveCohorts(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const result = await saveCatalog((await readBody(req)) || {});
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
+// --- PUT ?resource=founders: founder adds/removes admins on the allowlist ---
+async function saveFounders(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const body = await readBody(req);
+  const result = await saveFounderEmails((body && body.emails) || []);
   res.status(result.ok ? 200 : 400).json(result);
 }
 
 // --- DELETE: founder resets a test account (user record + sim state) by email ---
 async function resetAccount(req, res) {
-  if (!founderGate(req, res)) return;
+  if (!(await founderGate(req, res))) return;
   if (!kvConfigured()) { res.status(200).json({ ok: false, reason: "store not configured" }); return; }
   const email = normalizeEmail((req.query && req.query.email) || "");
   if (!email || !email.includes("@")) { res.status(400).json({ error: "Provide ?email=<address>" }); return; }
@@ -109,7 +110,10 @@ async function resetAccount(req, res) {
 export default async function handler(req, res) {
   if (req.method === "POST") return ingest(req, res);     // public: track an event
   if (req.method === "GET") return read(req, res);        // founder: read funnel events
-  if (req.method === "PUT") return saveCohorts(req, res); // founder: save cohort catalog
+  if (req.method === "PUT") {                              // founder: save cohorts, or the admin allowlist
+    if (req.query && req.query.resource === "founders") return saveFounders(req, res);
+    return saveCohorts(req, res);
+  }
   if (req.method === "DELETE") return resetAccount(req, res); // founder: reset a test account
   res.status(405).json({ error: "Method not allowed" });
 }

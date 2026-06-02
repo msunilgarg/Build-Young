@@ -93,7 +93,7 @@ App.jsx — that would undo it. `npm run build` (Vite) preserves this split auto
 - **Income model (BUILD-EARNED, not a paycheck):** income comes from the student's *build*, not employment. `INCOME[]` in `App.jsx` is the per-course-week revenue curve — **$0 in the early build weeks**, ramping to a steady `STEADY_INCOME` (= `PAY` = **$10,000**) once the build lands customers (≈week 6) and through the finance act + check-ins. `incomeFor(phase, week)` is the single source; `advance()` uses it. **There is NO employer 401(k) match** (self-employed builder — `advance` adds only the student's own retirement set-aside, no match). **Taxes stay** (15%, framed as self-employment/business tax). **Living costs** (`LIVING`) apply only once independent (finance act, week ≥ `FINANCE_FIRST_WEEK`=7). Other dollar constants (`HOME`/`CAR`/`EMERGENCY`/`SPREE`/`INSURANCE`/`ALT_BUY`/`PE_BUY`) unchanged. All income/cost COPY derives from these; the batch-sim harness imports them. Tests assert relationships, not literals.
 - **Tuition prize:** each cohort, the student with the **highest simulated portfolio value at the final (6th) monthly check-in** — i.e. the close of the full program (12 weeks + 6 check-ins) — wins their **tuition refunded**. Criterion is deliberately *highest value* (the real-world objective) — we welcome diverse investing beliefs, not a diversification gate. Surfaced in three places that must stay in sync: the landing **pricing** intro ("Win your tuition back"), the dashboard **capstone** ("you're in the running"), and the **Terms** "Tuition prize" section in `LEGAL`. The winner is **instructor-confirmed** (the app has no server-side cross-student comparison). It's a contest involving minors → keep the attorney-review flag in the Terms copy. **Anti-gaming (layer 1 — done):** the market schedule (`FLAT_MACRO`/`MACRO`/`CHECKIN_MACRO`/`marketEventFor` + the `MEDIA` map) now lives **server-only** in `api/_lib/marketSchedule.js` and NO LONGER ships in the client bundle, so students can't read future events from devtools. The client learns the **single current** event by fetching `/api/market-event` (server-only schedule lookup; never the full array); offline/demo/tests fall back to a **non-revealing placeholder** ("Markets are moving", neutral effects) so the demo still runs without leaking the schedule. Per-student randomization is intentionally NOT used — a fair cohort prize requires everyone face the same market. **Remaining gap (layer 2):** the simulation state still lives in client localStorage and is user-editable, so true tamper-proof scoring needs **server-authoritative state + auth** (a separate follow-up). The schedule modules `src/marketMedia.js` (client-safe builders/metadata) and `api/_lib/marketSchedule.js` (server-only schedule) MUST stay separate — never import the latter from anything under `src/`.
 
-## Founder funnel analytics (hidden `?founder=<token>` route)
+## Founder funnel analytics (hidden `?founder` route, account-gated)
 
 A connected acquisition→engagement funnel for the founder/investors. **All stage definitions and
 conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependency-free; imported by
@@ -118,13 +118,18 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   `Builders` track now). Meaningful from `enrolled` onward (top-of-funnel events carry no cohort → excluded under a
   filter).
 - **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net).
-- **Route:** hidden, not in nav — `?founder=<token>` renders `FounderDashboard`. Data from
-  **`/api/funnel`**, gated by the **`FOUNDER_TOKEN`** env var (timing-safe; 404 when unset, 403 on
-  mismatch). Events are ingested by **`POST /api/funnel`** into a KV list (`funnel:events`, capped) —
-  one endpoint does both POST-ingest and GET-read to stay under the Hobby-plan 12-function cap. Charts
-  reuse the lazy `Charts.jsx` (`kind="funnel"` bars + `kind="countline"` curves).
+- **Admin = founder, by account (not a URL token):** access is gated by the logged-in **session** —
+  a user whose email is in the **`FOUNDER_EMAILS`** allowlist (`isFounderEmail`/`requireFounder` in
+  `api/_lib/auth.js`; `/api/auth/me` returns `isFounder`). The Platform header shows an **Admin**
+  entry for founders; the hidden `?founder` route renders `FounderDashboard`.
+- **One endpoint, method-routed (Hobby 12-function cap):** **`POST /api/funnel`** = public event
+  ingest (`funnel:events` KV list, capped); **`GET`** = founder-only funnel read; **`PUT`** = founder
+  saves the cohort catalog; **`DELETE`** = founder resets a test account. All non-POST methods require
+  a founder session (403 otherwise). The dashboard folds in the **funnel** + a **cohort editor** +
+  **account reset**. Charts reuse the lazy `Charts.jsx` (`kind="funnel"` bars + `kind="countline"` curves).
 - **Exports:** "Download CSV/JSON" → `toCSV(events)` / `toDataRoom(events)` for an investor data room.
-- **Env to enable:** `FOUNDER_TOKEN` (+ the KV vars auth already uses). Tests: `test/funnel.test.js`
+- **Env to enable:** `FOUNDER_EMAILS` (comma-separated admin emails) + `AUTH_SECRET` + the KV vars
+  auth already uses. Tests: `test/funnel.test.js`
   (full lifecycle + aggregate counts/conversions/segments/revenue) and `test/founder-ui.test.jsx`
   (route gating).
 
