@@ -2737,7 +2737,15 @@ export default function App() {
             setEnrolledTrack(b ? b.track : ""); setEnrolledEmail(pendingEmail); setRoute("checkemail"); setLoaded(true); return;
           }
           const user = await AUTH.me();
-          if (user) { await hydrateFromServer(user); }
+          if (user) {
+            setIsFounder(!!user.isFounder);
+            // Respect the URL on load (refresh/bookmark): the app/admin paths restore that view;
+            // marketing paths (/, /enroll, …) stay put — a logged-in user is NOT bounced off the
+            // home page (the nav shows "Admin →" / "My dashboard →" to get back in).
+            const path = window.location.pathname;
+            if (path === "/admin") { pendingScroll.current = 0; setRoute("founder"); }
+            else if (path === "/dashboard") { await hydrateFromServer(user); }
+          }
           setLoaded(true); return;
         }
 
