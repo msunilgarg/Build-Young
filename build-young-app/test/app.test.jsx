@@ -1,8 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import App from "../src/App.jsx";
+import App, { CONFIG } from "../src/App.jsx";
+
+// These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
+// regardless of the production default for CONFIG.authEnabled. The login flow is covered separately
+// in auth-ui.test.jsx / auth-endpoints.test.js.
+beforeEach(() => { CONFIG.authEnabled = false; });
 
 // Only fail on the impact levels CLAUDE.md commits to (serious/critical).
 async function expectNoSeriousA11y(container) {

@@ -94,7 +94,7 @@ export { BATCHES } from "./cohorts.js";
  *   - calendlyUrl: your 15-min event link, e.g. https://calendly.com/you/intro
  *   - contactEmail / brandDomain: shown in the UI and emails.
  */
-const CONFIG = {
+export const CONFIG = {
   brandDomain: "build-young.com",
   contactEmail: "team@build-young.com",
   linkedinUrl: "https://www.linkedin.com/in/msunilgarg",
@@ -109,7 +109,7 @@ const CONFIG = {
   // enrollments provision accounts). When true, the dashboard requires login and the sim state
   // lives server-side (cross-device) instead of in localStorage. When false, the app keeps the
   // self-contained localStorage demo flow — no login, per-device state. See api/_lib/auth.js.
-  authEnabled: false,
+  authEnabled: true,
 };
 // Auth/state API client. Same-origin fetches carry the HttpOnly session cookie automatically.
 async function postJson(url, body) {
