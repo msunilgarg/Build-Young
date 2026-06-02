@@ -1391,7 +1391,7 @@ function BookCall({ onBack, onHome, onEnroll }) {
 // state persists (s.prereqs). Edit here to change the list.
 const PREREQS = [
   { id: "computer", title: "A laptop or desktop", when: "Day one", why: "You'll install a couple of free tools, so a phone or tablet won't cut it. A modern web browser and a steady internet connection too." },
-  { id: "claude", title: "A free Claude account", when: "Week 1", why: "Your AI build partner — you describe what you want and build it together, the same way this site was made.", link: "https://claude.ai" },
+  { id: "claude", title: "A Claude account — Pro plan recommended", when: "Week 1", why: "Your AI build partner — you describe what you want and build it together, the same way this site was made. The free tier gets you started, but Claude Pro (about $20/month) makes a real build far smoother. A parent can set this up.", link: "https://claude.ai" },
   { id: "github", title: "A free GitHub account", when: "Week 2", why: "Where your code lives, with every version saved — so nothing ever gets lost.", link: "https://github.com" },
   { id: "node", title: "Install Node.js + VS Code — we'll do this together", when: "Week 2", why: "The tools that run your app on your own computer. No need to set them up alone — we'll install them together in class when you get there. (Curious early? Peek at nodejs.org.)", link: "https://nodejs.org" },
   { id: "vercel", title: "A free Vercel account", when: "Week 4", why: "Sign in with GitHub. This is how you put your app on the internet for real people to use.", link: "https://vercel.com" },
@@ -1479,7 +1479,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <span style={{ fontSize: 12.5, fontWeight: 700, color: doneCount === PREREQS.length ? C.green : C.muted }}>{doneCount} of {PREREQS.length} done</span>
         </div>
         <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 8px" }}>
-          In your first weeks you'll build your <b>own</b> app with AI — so you need the same free tools we used to build this one. Tick each off as you set it up, and bring them to the class where they're needed. <span style={{ color: C.muted }}>A parent can help with sign-ups.</span>
+          In your first weeks you'll build your <b>own</b> app with AI — so you need the same tools we used to build this one (most are free). Tick each off as you set it up, and bring them to the class where they're needed. <span style={{ color: C.muted }}>A parent can help with sign-ups.</span>
         </p>
         {PREREQS.map((p) => {
           const checked = !!prereqs[p.id];
