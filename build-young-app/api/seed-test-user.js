@@ -18,6 +18,7 @@
 import crypto from "node:crypto";
 import { putUser, createPasswordToken } from "./_lib/auth.js";
 import { kvConfigured } from "./_lib/kv.js";
+import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
 
 const BASE_URL = () => (process.env.PUBLIC_BASE_URL || "https://build-young.com").replace(/\/+$/, "");
 
@@ -45,6 +46,16 @@ export default async function handler(req, res) {
   await putUser(email, { name, batchId });
   const token = await createPasswordToken(email);
   if (!token) { res.status(500).json({ error: "Could not mint token (KV write failed?)" }); return; }
+  const setpwUrl = `${BASE_URL()}/?setpw=${token}`;
 
-  res.status(200).json({ ok: true, email, setpwUrl: `${BASE_URL()}/?setpw=${token}` });
+  // Also fire the REAL set-password email so this doubles as an email-delivery probe. The returned
+  // `emailed` field surfaces exactly what Resend said — e.g. { ok:false, detail:"missing
+  // RESEND_API_KEY" } or a domain-not-verified error — without needing the Resend dashboard. (This
+  // mints a second, separate token for the email; both links work. setpwUrl above always works even
+  // if email delivery fails.)
+  let emailed;
+  try { emailed = await sendSetPasswordEmail({ email, name }); }
+  catch (e) { emailed = { ok: false, detail: String(e && e.message || e) }; }
+
+  res.status(200).json({ ok: true, email, setpwUrl, emailed });
 }
