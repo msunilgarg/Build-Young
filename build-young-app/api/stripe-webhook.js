@@ -20,6 +20,9 @@
 
 import crypto from "node:crypto";
 import { addEnrollment } from "./_lib/store.js";
+import { kvConfigured } from "./_lib/kv.js";
+import { putUser } from "./_lib/auth.js";
+import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
 
 // Vercel: give us the raw body (needed to verify the Stripe signature).
 export const config = { api: { bodyParser: false } };
@@ -120,5 +123,20 @@ export default async function handler(req, res) {
   }
 
   const result = await addEnrollment({ email, name, batchId });
-  res.status(200).json({ received: true, stored: result.ok, batchId });
+
+  // Provision the student's account and email them a set-password link (server-side, after a
+  // verified payment — this is where account creation belongs). No-op when KV isn't configured,
+  // so the webhook still acknowledges cleanly in a store-less/test setup.
+  let invited = false;
+  if (kvConfigured()) {
+    try {
+      await putUser(email, { name, batchId });
+      const sent = await sendSetPasswordEmail({ email, name });
+      invited = Boolean(sent && sent.ok);
+    } catch {
+      /* enrollment is already stored; a failed invite can be retried via request-reset */
+    }
+  }
+
+  res.status(200).json({ received: true, stored: result.ok, batchId, invited });
 }
