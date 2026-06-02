@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   validEmail, newState, advance, netWorth, holdingsTotal,
   takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, PAY,
-  nextClassLabel, checkinDateLabel, classDateLabel, withdrawalEmail,
+  nextClassLabel, checkinDateLabel, classDateLabel, withdrawalEmail, refundFor,
 } from "../src/App.jsx";
 // The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
 // module so the future schedule never ships in the client bundle (anti-gaming). These engine
@@ -51,14 +51,35 @@ describe("withdrawalEmail (refund confirmation)", () => {
     expect(mail.body).toContain(`$${batch.price.toLocaleString()}`);
     expect(mail.body).toContain("Jordan");
   });
-  it("confirms a prorated refund mid-course (names the unattended sessions)", () => {
+  it("confirms a prorated refund mid-course (counts sessions not yet held)", () => {
+    // Dashboard "Week 3" = 2 sessions attended (week increments on each advance).
     const s = newState(STUDENT); s.week = 3; s.started = true;
-    const refund = Math.round((batch.price * (12 - 3)) / 12);
+    const refund = refundFor(batch, true, 3);
     const mail = withdrawalEmail(s, batch, refund, false);
     expect(mail.subject).toMatch(/withdrawal is confirmed/i);
     expect(mail.body).toContain("prorated refund");
-    expect(mail.body).toContain("9 sessions"); // 12 - 3 unattended
+    expect(mail.body).toContain("10 sessions not yet held"); // 12 - (3 - 1)
+    expect(mail.body).toContain("Attended: 2 of 12");        // not 3
     expect(mail.body).toContain(`$${refund.toLocaleString()}`);
+  });
+});
+
+describe("refundFor (sessions not yet held)", () => {
+  const batch = BATCHES.find((b) => b.id === "fall-hs-wed"); // $899
+  it("is the full price before the cohort starts", () => {
+    expect(refundFor(batch, false, 1)).toBe(batch.price);
+  });
+  it("refunds for every session not yet held (no off-by-one)", () => {
+    // "Week 2" = 1 attended → 11 unheld; "Week 3" = 2 attended → 10 unheld.
+    expect(refundFor(batch, true, 2)).toBe(Math.round((batch.price * 11) / 12)); // $824, not $749
+    expect(refundFor(batch, true, 3)).toBe(Math.round((batch.price * 10) / 12)); // $749
+  });
+  it("never refunds more than full or less than zero across the course", () => {
+    for (let wk = 1; wk <= 12; wk++) {
+      const r = refundFor(batch, true, wk);
+      expect(r).toBeLessThanOrEqual(batch.price);
+      expect(r).toBeGreaterThanOrEqual(0);
+    }
   });
 });
 

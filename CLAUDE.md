@@ -96,7 +96,7 @@ recharts (~344 KB, ~110 KB gzip) is **only** used in the dashboard, so it’s sp
 This keeps the landing-page initial JS ~90 KB gzip. Don’t statically import recharts into
 App.jsx — that would undo it. `npm run build` (Vite) preserves this split automatically.
 
-- **Refund policy (in code):** full refund before the cohort starts (state flag `started:false`, flips true on first `doAdvance`); prorated refund through Act 1 (weeks 1–3) = `price×(12−week)/12`; non-refundable after Act 1 (shown explicitly to the student once Week 3 passes). Logic lives in `Platform` (`notStarted`, `canWithdraw`, `refund`) and the Terms copy in `LEGAL`.
+- **Refund policy (in code):** full refund before the cohort starts (state flag `started:false`, flips true on first `doAdvance`); prorated refund through the first 3 weeks; non-refundable after (shown explicitly to the student once Week 3 passes). **Proration basis = "sessions not yet held"** (matches the Terms): `week` increments on each advance (attending session 1 → "Week 2"), so sessions held = `week−1` and `refund = price × (12 − (week−1)) / 12`. Don't reintroduce `price×(12−week)/12` — that's the old off-by-one that under-refunded one session and overstated attendance. Logic lives in `Platform` (`notStarted`, `attended`, `unheld`, `refund`) + `withdrawalEmail`, and the Terms copy in `LEGAL`.
 
 ## Business & legal setup (do first — not legal advice; consult professionals)
 
