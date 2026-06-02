@@ -156,13 +156,16 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
 - **Tagline / mission:** "**Raising builders, not consumers.**" This is the canonical line —
   it appears as the hero headline, in the footer, and in the SEO/JSON-LD. The full mission
   paragraph lives in the "More than money" section: *"Raising builders, not consumers. Building
-  something people value has always mattered — but AI just made it radically easier, so a
-  motivated teenager can now create what used to take a team. That changes everything: the edge
-  goes to the kids who build, not the ones who only consume. We teach it by letting them live it
-  — they build, they earn, then they learn to grow and protect what they've made — because their
-  future rests on what they can make, not just what they were credentialed to do."* It is
-  BUILD-LED, and the KEY ARGUMENT is that **AI lowered the cost of building** (not just "building
-  matters in an AI world") — keep that "always mattered, but now it's easy" framing. Money-savvy
+  something people value has always mattered — but AI just collapsed the barrier to entry: what
+  used to take a team, a budget, and years of permission, a motivated teenager can now do alone.
+  When the cost of building falls to almost nothing, the edge isn't talent or a credential — it's
+  starting early, while everyone else is still waiting to be ready. We teach it by letting them
+  live it — they build, they earn, then they learn to grow and protect what they've made —
+  because their future rests on what they can make, not just what they were credentialed to do."*
+  It is BUILD-LED, and the KEY ARGUMENT is causal: **AI collapsed the barrier to entry** (teams/
+  budgets/permission no longer needed) → therefore **the edge is starting early** (ties to the
+  brand name *Build Young*). Keep that "always mattered, but the barrier just dropped, so start
+  young" chain — don't water it down to a generic "building matters in an AI world." Money-savvy
   is how you grow/protect what you build, not the headline. Keep all instances in sync. Tone is
   confident and forward, never fearful.
 - Tone is first-person from Sunil where the parent is deciding ("…taught by me", "ask me
