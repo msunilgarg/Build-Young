@@ -66,17 +66,16 @@ describe("withdrawalEmail (refund confirmation)", () => {
 });
 
 describe("canWithdrawNow (cancellation window)", () => {
-  it("is the first 2 weeks", () => {
-    expect(REFUND_WEEKS).toBe(2);
+  it("is the first week", () => {
+    expect(REFUND_WEEKS).toBe(1);
   });
   it("allows cancellation before the cohort starts (full refund window)", () => {
     const s = newState(STUDENT); // started: false
     expect(canWithdrawNow(s)).toBe(true);
   });
-  it("allows it during the first 2 weeks, then NEVER after", () => {
+  it("allows it through the refund window (week ≤ REFUND_WEEKS), then NEVER after", () => {
     for (let wk = 1; wk <= 12; wk++) {
       const s = newState(STUDENT); s.started = true; s.week = wk;
-      // "Week 2" = 1 attended, "Week 3" = 2 attended → week 3 onward is past the window.
       expect(canWithdrawNow(s), `week ${wk}`).toBe(wk <= REFUND_WEEKS);
     }
   });
