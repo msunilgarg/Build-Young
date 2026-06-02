@@ -164,8 +164,8 @@ function track(event, props = {}) {
     const clean = {};
     for (const k in props) if (props[k] !== undefined && props[k] !== null) clean[k] = props[k];
     const body = JSON.stringify({ event, props: clean });
-    if (navigator.sendBeacon) navigator.sendBeacon("/api/track", new Blob([body], { type: "application/json" }));
-    else fetch("/api/track", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
+    if (navigator.sendBeacon) navigator.sendBeacon("/api/funnel", new Blob([body], { type: "application/json" }));
+    else fetch("/api/funnel", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
   } catch (e) { /* analytics must never break the app */ }
 }
 // Fire `visited` once per browser session (top of funnel — don't re-count re-renders/SPA nav).

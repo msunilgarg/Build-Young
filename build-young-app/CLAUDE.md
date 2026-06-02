@@ -102,7 +102,7 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   "Talk to Sunil" assist path — enrollments split call→enroll vs. direct via a `fromCall` prop), and
   the progression curves `week_advanced` (weeks 2–12) + `checkin_completed` (months 1–6 retention).
   `withdrawn` is the exit branch, tagged with a `refundTier` (`full`/`prorated`/`none`).
-- **`track(event, props)`** (App.jsx): fire-and-forget `sendBeacon`/fetch to `/api/track`, no-op in
+- **`track(event, props)`** (App.jsx): fire-and-forget `sendBeacon`/fetch to `/api/funnel` (POST), no-op in
   tests, never throws. Fired at each stage — `visited` (once/session), `enroll_started`
   (startEnroll), `call_booked` (BookCall), `enrolled` (finishEnroll + the `?enrolled=` Stripe
   return), `class_started`/`week_advanced`/`graduated`/`checkin_completed` (doAdvance), `withdrawn`
@@ -118,7 +118,8 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
 - **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net).
 - **Route:** hidden, not in nav — `?founder=<token>` renders `FounderDashboard`. Data from
   **`/api/funnel`**, gated by the **`FOUNDER_TOKEN`** env var (timing-safe; 404 when unset, 403 on
-  mismatch). Events are stored by **`/api/track`** in a KV list (`funnel:events`, capped). Charts
+  mismatch). Events are ingested by **`POST /api/funnel`** into a KV list (`funnel:events`, capped) —
+  one endpoint does both POST-ingest and GET-read to stay under the Hobby-plan 12-function cap. Charts
   reuse the lazy `Charts.jsx` (`kind="funnel"` bars + `kind="countline"` curves).
 - **Exports:** "Download CSV/JSON" → `toCSV(events)` / `toDataRoom(events)` for an investor data room.
 - **Env to enable:** `FOUNDER_TOKEN` (+ the KV vars auth already uses). Tests: `test/funnel.test.js`
