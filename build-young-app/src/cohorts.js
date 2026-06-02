@@ -28,14 +28,14 @@ export const SEASONS = [
 
 export const BATCHES = [
   // Fall 2026
-  { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000001" },
-  { id: "fall-tt", season: "fall", track: "Builders", start: "Sep 8, 2026", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000002" },
+  { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 999, zoom: "https://zoom.us/j/8801000001" },
+  { id: "fall-tt", season: "fall", track: "Builders", start: "Sep 8, 2026", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 999, zoom: "https://zoom.us/j/8801000002" },
   // Winter 2027
-  { id: "winter-mw", season: "winter", track: "Builders", start: "Jan 11, 2027", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000003" },
-  { id: "winter-tt", season: "winter", track: "Builders", start: "Jan 12, 2027", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000004" },
+  { id: "winter-mw", season: "winter", track: "Builders", start: "Jan 11, 2027", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 999, zoom: "https://zoom.us/j/8801000003" },
+  { id: "winter-tt", season: "winter", track: "Builders", start: "Jan 12, 2027", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 999, zoom: "https://zoom.us/j/8801000004" },
   // Spring 2027
-  { id: "spring-mw", season: "spring", track: "Builders", start: "Apr 6, 2027", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000005" },
-  { id: "spring-tt", season: "spring", track: "Builders", start: "Apr 7, 2027", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 899, zoom: "https://zoom.us/j/8801000006" },
+  { id: "spring-mw", season: "spring", track: "Builders", start: "Apr 6, 2027", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 12, price: 999, zoom: "https://zoom.us/j/8801000005" },
+  { id: "spring-tt", season: "spring", track: "Builders", start: "Apr 7, 2027", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 12, price: 999, zoom: "https://zoom.us/j/8801000006" },
 ];
 
 export const seasonLabel = (key) => (SEASONS.find((s) => s.key === key) || {}).label || "";
