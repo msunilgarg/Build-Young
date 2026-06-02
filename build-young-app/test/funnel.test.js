@@ -7,8 +7,8 @@ import {
 const ev = (event, props = {}) => ({ event, ts: Date.now(), props });
 const n = (count, make) => Array.from({ length: count }, (_, i) => make(i));
 
-const FALL = cohortMeta("fall-mw");     // Builders / fall / $899
-const WINTER = cohortMeta("winter-tt"); // Builders / winter / $899
+const FALL = cohortMeta("fall-mw");     // Builders / fall / $999
+const WINTER = cohortMeta("winter-tt"); // Builders / winter / $999
 
 describe("funnel definitions", () => {
   it("has the linear spine in order", () => {
@@ -19,7 +19,7 @@ describe("funnel definitions", () => {
     expect(conversionRate(3, 0)).toBe(0);
   });
   it("cohortMeta pulls season/track/price and carries no PII", () => {
-    expect(FALL).toEqual({ batchId: "fall-mw", season: "fall", track: "Builders", priceCents: 89900 });
+    expect(FALL).toEqual({ batchId: "fall-mw", season: "fall", track: "Builders", priceCents: 99900 });
     expect(Object.keys(FALL)).not.toContain("email");
   });
 });
@@ -52,7 +52,7 @@ describe("full single-student lifecycle", () => {
     expect(s.checkinCurve.every((c) => c.value === 1)).toBe(true);
   });
   it("derives revenue from the enrolled price with no refunds", () => {
-    expect(s.revenue).toEqual({ grossCents: 89900, refundedCents: 0, netCents: 89900 });
+    expect(s.revenue).toEqual({ grossCents: 99900, refundedCents: 0, netCents: 99900 });
   });
 });
 
@@ -66,7 +66,7 @@ describe("aggregate funnel over many students", () => {
     ...n(16, () => ev("class_started", FALL)),
     ev("week_advanced", { ...FALL, week: 2 }), ev("week_advanced", { ...FALL, week: 2 }),
     ev("week_advanced", { ...FALL, week: 12 }),
-    ...n(2, () => ev("withdrawn", { ...FALL, refundTier: "full", refundCents: 89900, stage: "before_start" })),
+    ...n(2, () => ev("withdrawn", { ...FALL, refundTier: "full", refundCents: 99900, stage: "before_start" })),
     ev("withdrawn", { ...FALL, refundTier: "prorated", refundCents: 82400, stage: "in_progress" }),
   ];
   const s = summarize(events);
@@ -86,9 +86,9 @@ describe("aggregate funnel over many students", () => {
   it("tags withdrawals by refund tier and nets them out of revenue", () => {
     expect(s.withdrawals.total).toBe(3);
     expect(s.withdrawals.byTier).toEqual({ full: 2, prorated: 1, none: 0 });
-    expect(s.revenue.grossCents).toBe(20 * 89900);
-    expect(s.revenue.refundedCents).toBe(89900 + 89900 + 82400);
-    expect(s.revenue.netCents).toBe(20 * 89900 - (89900 * 2 + 82400));
+    expect(s.revenue.grossCents).toBe(20 * 99900);
+    expect(s.revenue.refundedCents).toBe(99900 + 99900 + 82400);
+    expect(s.revenue.netCents).toBe(20 * 99900 - (99900 * 2 + 82400));
   });
   it("reads the week-progression curve", () => {
     expect(s.weekCurve.find((w) => w.week === 2).value).toBe(2);

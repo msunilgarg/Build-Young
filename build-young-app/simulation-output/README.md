@@ -86,14 +86,14 @@ trade-off worth showing students.
 
 ### fall-mw — Builders (Mondays & Wednesdays · 5:00–6:30 PM PST)
 
-- Students: 15 · Tuition: $899
+- Students: 15 · Tuition: $999
 - Average final net worth: **$49,285** (min $44,951, max $58,398)
 - Tuition-prize winner (highest portfolio value): **Isabella Davis** at $58,398
 - By risk style: aggressive 5 (avg $49,279), balanced 6 (avg $46,356), conservative 4 (avg $53,686)
 
 ### fall-tt — Builders (Tuesdays & Thursdays · 5:00–6:30 PM PST)
 
-- Students: 15 · Tuition: $899
+- Students: 15 · Tuition: $999
 - Average final net worth: **$49,285** (min $44,951, max $58,398)
 - Tuition-prize winner (highest portfolio value): **Isabella Davis** at $58,398
 - By risk style: aggressive 5 (avg $49,279), balanced 6 (avg $46,356), conservative 4 (avg $53,686)
