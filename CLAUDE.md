@@ -18,6 +18,7 @@ Founder: **Sunil Garg** (ex-Microsoft, 20 years in product). LinkedIn:
 - Icons via **lucide-react**.
 - No router library — navigation is a hand-rolled history stack inside `App` (see “Navigation”).
 - Email via a serverless function (`api/send-email.js`) using Resend. Off by default.
+- Web analytics via **Vercel Web Analytics** (`@vercel/analytics`, cookieless/no-PII) — `<Analytics/>` in `main.jsx`; App reflects each SPA route in the URL via `replaceState` (no new history entry) so screens show as distinct pages with time-on-page.
 
 ## Run it
 

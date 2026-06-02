@@ -2639,6 +2639,15 @@ export default function App() {
     })();
     return () => { live = false; };
   }, []);
+  // Reflect the SPA route in the URL so Vercel Web Analytics records a pageview + time-on-page
+  // per screen. Uses replaceState (NOT pushState) — no new browser-history entry, so the in-app
+  // Back stack + scroll restoration are untouched. Gated on `loaded` so it never strips the
+  // ?enrolled= / ?setpw= / ?founder= params before the load effect reads them.
+  useEffect(() => {
+    if (!loaded) return;
+    const PATHS = { home: "/", enroll: "/enroll", call: "/book-call", app: "/dashboard", login: "/login", setpw: "/set-password", checkemail: "/enrolled", founder: "/admin" };
+    try { window.history.replaceState({}, "", PATHS[route] || "/"); } catch (e) { /* ignore */ }
+  }, [route, loaded]);
   // remember scroll position per route so Back lands where you left off
   const pendingScroll = useRef(null); // px to restore after next render (null = scroll to top)
   const scrollTo = (y) => { try { window.scrollTo(0, y); } catch (e) {} };
