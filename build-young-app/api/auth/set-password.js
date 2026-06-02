@@ -4,7 +4,7 @@
 // changed — proving control of the email via the tokenized link.
 
 import {
-  consumePasswordToken, putUser, hashPassword, signSession, sessionCookie, MIN_PASSWORD_LENGTH,
+  consumePasswordToken, putUser, hashPassword, signSession, sessionCookie, MIN_PASSWORD_LENGTH, isFounder,
 } from "../_lib/auth.js";
 import { rateLimited, clientIp } from "../_lib/rateLimit.js";
 
@@ -43,5 +43,5 @@ export default async function handler(req, res) {
 
   const user = await putUser(email, { passwordHash: hashPassword(password), emailVerified: true });
   res.setHeader("Set-Cookie", sessionCookie(session));
-  res.status(200).json({ ok: true, user: { email: user.email, name: user.name || "", batchId: user.batchId || "" } });
+  res.status(200).json({ ok: true, user: { email: user.email, name: user.name || "", batchId: user.batchId || "", isFounder: await isFounder(user.email) } });
 }

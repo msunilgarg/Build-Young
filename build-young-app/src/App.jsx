@@ -2662,6 +2662,11 @@ export default function App() {
   const hydrateFromServer = async (user) => {
     setIsFounder(!!(user && user.isFounder)); // admin elevation comes from the server (FOUNDER_EMAILS)
     let srv = await AUTH.getState();
+    // A founder who isn't enrolled (no cohort + no saved sim) lands on the ADMIN dashboard —
+    // not a fabricated student cohort. (Founders who also enrolled keep the student view + Admin link.)
+    if (!srv && user && user.isFounder && !user.batchId) {
+      pendingScroll.current = 0; setHistory([]); setRoute("founder"); return;
+    }
     if (!srv) {
       const b = batches.find((x) => x.id === user.batchId) || batches[0];
       srv = newState({ name: user.name || "", email: user.email, batch: b.id, track: b.track });
