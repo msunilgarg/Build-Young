@@ -109,6 +109,40 @@ Real accounts + cross-device dashboard, built on the existing KV store (`api/_li
 - **Serves minors:** stores only what enrollment already collects (email, name, cohort) + a password hash; no password is ever logged or returned. Get counsel's eyes on auth/data handling alongside the other minors-related items.
 - **Env when enabling:** `KV_REST_API_URL`+`KV_REST_API_TOKEN` (or the Upstash pair), `AUTH_SECRET`, `PUBLIC_BASE_URL`. Tested via an in-memory KV fake (`test/auth-endpoints.test.js`) + crypto-core (`test/auth.test.js`) + UI (`test/auth-ui.test.jsx`).
 
+## Founder funnel analytics (hidden `?founder=<token>` route)
+
+A connected acquisition→engagement funnel for the founder/investors. **All stage definitions and
+conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependency-free; imported by
+`App.jsx`, the read endpoint, and tests so they can't drift).
+
+- **Ordered stages (the linear spine):** `visited` → `enroll_started` → `enrolled` →
+  `class_started` → `graduated`. Non-spine signals feed their own charts: `call_booked` (parallel
+  "Talk to Sunil" assist path — enrollments split call→enroll vs. direct via a `fromCall` prop), and
+  the progression curves `week_advanced` (weeks 2–12) + `checkin_completed` (months 1–6 retention).
+  `withdrawn` is the exit branch, tagged with a `refundTier` (`full`/`prorated`/`none`).
+- **`track(event, props)`** (App.jsx): fire-and-forget `sendBeacon`/fetch to `/api/track`, no-op in
+  tests, never throws. Fired at each stage — `visited` (once/session), `enroll_started`
+  (startEnroll), `call_booked` (BookCall), `enrolled` (finishEnroll + the `?enrolled=` Stripe
+  return), `class_started`/`week_advanced`/`graduated`/`checkin_completed` (doAdvance), `withdrawn`
+  (doWithdraw). **Aggregate-only — NO PII** (season, track, batch id, week/check-in, refund tier,
+  cents; a server allowlist drops anything else).
+- **Conversion rates:** each consecutive pair (`enroll_started/visited`, `enrolled/enroll_started`,
+  `class_started/enrolled`, `graduated/class_started`) plus overall `enrolled/visited` — via
+  `conversionRate(numer, denom)` (0 when denom is 0). `summarize(events, filter)` →
+  `{counts, steps, overall, calls, weekCurve, checkinCurve, withdrawals, revenue}`.
+- **Segmentation:** `segments(events)` → per-season (Fall/Winter/Spring) and per-track (Middle/High
+  School). Meaningful from `enrolled` onward (top-of-funnel events carry no cohort → excluded under a
+  filter).
+- **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net).
+- **Route:** hidden, not in nav — `?founder=<token>` renders `FounderDashboard`. Data from
+  **`/api/funnel`**, gated by the **`FOUNDER_TOKEN`** env var (timing-safe; 404 when unset, 403 on
+  mismatch). Events are stored by **`/api/track`** in a KV list (`funnel:events`, capped). Charts
+  reuse the lazy `Charts.jsx` (`kind="funnel"` bars + `kind="countline"` curves).
+- **Exports:** "Download CSV/JSON" → `toCSV(events)` / `toDataRoom(events)` for an investor data room.
+- **Env to enable:** `FOUNDER_TOKEN` (+ the KV vars auth already uses). Tests: `test/funnel.test.js`
+  (full lifecycle + aggregate counts/conversions/segments/revenue) and `test/founder-ui.test.jsx`
+  (route gating).
+
 ## Business & legal setup (do first — not legal advice; consult professionals)
 
 These precede the technical go-live items below and some gate them (e.g. Stripe wants a

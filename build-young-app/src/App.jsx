@@ -3,7 +3,7 @@ import {
   TrendingUp, TrendingDown, Home, Car, Wallet, PiggyBank, LineChart as LineIcon,
   Shield, Coins, Building2, GraduationCap, ArrowRight, Check, Lock, Newspaper,
   CircleDollarSign, Sparkles, AlertTriangle, ShoppingBag, Landmark, Video, Mail, Briefcase,
-  Anchor, Linkedin, BookOpen,
+  Anchor, Linkedin, BookOpen, Download, Users, Activity,
 } from "lucide-react";
 // Client-safe market-media bits live in a dependency-free module (no React/lucide) so the
 // serverless cron + the server-only schedule module can share the SAME builders. The FUTURE
@@ -85,6 +85,8 @@ export const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e || "").tri
 // module shared with the cron scheduler — and are imported here + re-exported below.
 import { SEASONS, BATCHES, seasonLabel } from "./cohorts.js";
 export { BATCHES } from "./cohorts.js";
+// Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
+import { STAGES, cohortMeta, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS } from "./funnel.js";
 
 /* ============================ PRODUCTION CONFIG ============================
  * Fill these in to go live. Empty values fall back to the safe demo flow,
@@ -151,6 +153,33 @@ function sendEmail(to, subject, body) {
   } catch (e) { console.warn("[email] error:", e); }
 }
 const PENDING_KEY = "by:pending-enroll";
+
+// ---- Funnel analytics: fire-and-forget aggregate events to /api/track (see src/funnel.js) ----
+// Never throws, never blocks the UI, and is a no-op in tests. sendBeacon is preferred so the
+// event survives a navigation/redirect (e.g. handing off to Stripe). NO PII is ever sent.
+function track(event, props = {}) {
+  try {
+    if (typeof window === "undefined") return;
+    if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.MODE === "test") return;
+    const clean = {};
+    for (const k in props) if (props[k] !== undefined && props[k] !== null) clean[k] = props[k];
+    const body = JSON.stringify({ event, props: clean });
+    if (navigator.sendBeacon) navigator.sendBeacon("/api/track", new Blob([body], { type: "application/json" }));
+    else fetch("/api/track", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
+  } catch (e) { /* analytics must never break the app */ }
+}
+// Fire `visited` once per browser session (top of funnel — don't re-count re-renders/SPA nav).
+function trackVisitOnce() {
+  try {
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      if (window.sessionStorage.getItem("by_visited")) return;
+      window.sessionStorage.setItem("by_visited", "1");
+    }
+  } catch (e) { /* ignore */ }
+  track("visited");
+}
+// Whether a "Talk to Sunil" call was booked earlier this session — tags the call→enroll branch.
+let _callBookedThisSession = false;
 
 // Key + label come from the shared ASSET_META (single-sourced with the scheduler);
 // the color + lucide icon are UI-only and layered on here, keyed by asset key.
@@ -1218,7 +1247,7 @@ function BookCall({ onBack, onHome, onEnroll }) {
                     </div>
                     <div style={{ marginTop: 16 }}><div style={label}>Your name</div><input aria-label="Your name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jordan Rivera" style={inputS} /></div>
                     <div style={{ marginTop: 14 }}><div style={label}>Email</div><input aria-label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={inputS} /></div>
-                    <button className="btn" disabled={!(slot && name.trim() && validEmail(email))} onClick={() => setDone(true)} style={{ width: "100%", marginTop: 20, background: (slot && name.trim() && validEmail(email)) ? A : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: (slot && name.trim() && validEmail(email)) ? "pointer" : "not-allowed" }}>Book my call →</button>
+                    <button className="btn" disabled={!(slot && name.trim() && validEmail(email))} onClick={() => { _callBookedThisSession = true; track("call_booked", {}); setDone(true); }} style={{ width: "100%", marginTop: 20, background: (slot && name.trim() && validEmail(email)) ? A : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: (slot && name.trim() && validEmail(email)) ? "pointer" : "not-allowed" }}>Book my call →</button>
                     <p style={{ color: C.muted, fontSize: 12, textAlign: "center", marginTop: 10 }}>Already sure? You can <span {...act(onEnroll)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>enroll directly</span> instead.</p>
                   </>
                 )}
@@ -1304,6 +1333,12 @@ function Platform({ state, setState, onExit }) {
     withdrawingRef.current = true;
     const mail = withdrawalEmail(s, batch, refund, notStarted);
     sendEmail(s.student.email, mail.subject, mail.body);
+    // Funnel: exit branch, tagged with the refund tier (full before start, else prorated).
+    track("withdrawn", {
+      season: batch.season, track: batch.track, batchId: batch.id,
+      refundTier: notStarted ? "full" : "prorated", refundCents: Math.round(refund * 100),
+      week: s.week, stage: notStarted ? "before_start" : "in_progress",
+    });
     setState((p) => ({ ...p, emails: [mail, ...(p.emails || [])] }));
     setWithdraw("done");
   };
@@ -1375,6 +1410,16 @@ function Platform({ state, setState, onExit }) {
       ? `${m.body}\n\nResources:\n${m.resources.map((r) => `• ${r.label}: ${r.url}`).join("\n")}`
       : m.body;
     toSend.forEach((m) => sendEmail(who, m.subject, bodyFor(m)));
+    // Funnel: this advance is the first session (class started), a weekly step, the graduation
+    // transition (advancing from week 12), or a monthly check-in. `s` is the pre-advance snapshot.
+    const fmeta = { season: batch.season, track: batch.track, batchId: batch.id };
+    if (!s.started) track("class_started", fmeta);
+    if (s.phase === "course") {
+      if (s.week >= 12) track("graduated", fmeta);
+      else track("week_advanced", { ...fmeta, week: s.week + 1 });
+    } else {
+      track("checkin_completed", { ...fmeta, checkin: s.checkin + 1 });
+    }
     const gotMedia = toSend.some((m) => m.type === "media");
     const base = s.phase === "course"
       ? (s.week >= 12 ? `Course-complete email sent to ${who}` : `Week ${s.week} recap sent to ${who}`)
@@ -2121,8 +2166,160 @@ function CheckEmail({ track, onHome, onLogin }) {
   );
 }
 
+/* ===================== FOUNDER FUNNEL DASHBOARD (hidden route: ?founder=<token>) =====================
+ * Not in the public nav. Reads the aggregate funnel stream from /api/funnel (gated by FOUNDER_TOKEN),
+ * aggregates it via src/funnel.js (the single source of truth), and renders the connected funnel:
+ * stage counts + step conversions, season/track segmentation, the week & check-in curves, revenue,
+ * the withdrawal exit branch, and CSV/JSON exports for an investor data room. Aggregate data only. */
+const FUNNEL_COLORS = [C.emerald, C.turq, C.gold, C.sky, C.green];
+
+function downloadFile(filename, text, type) {
+  try {
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch (e) { /* ignore */ }
+}
+
+export function FounderDashboard({ token, onHome }) {
+  const [events, setEvents] = useState(null); // null = loading
+  const [error, setError] = useState(null);
+  const [seg, setSeg] = useState({ kind: "all", key: null }); // all | {season} | {track}
+
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await fetch(`/api/funnel?token=${encodeURIComponent(token || "")}`);
+        if (r.status === 404) { if (live) setError("Analytics isn’t configured yet — set the FOUNDER_TOKEN env var on the server."); return; }
+        if (r.status === 403) { if (live) setError("Access denied — this founder link’s token is invalid."); return; }
+        const data = await r.json();
+        if (live) setEvents(Array.isArray(data.events) ? data.events : []);
+      } catch (e) { if (live) setError("Couldn’t load analytics (network error)."); }
+    })();
+    return () => { live = false; };
+  }, [token]);
+
+  const filter = seg.kind === "season" ? { season: seg.key } : seg.kind === "track" ? { track: seg.key } : null;
+  const summary = useMemo(() => summarize(events || [], filter), [events, seg.kind, seg.key]);
+
+  const funnelData = STAGES.map((st, i) => {
+    const count = summary.counts[st.key];
+    const annot = i === 0 ? count.toLocaleString() : `${count.toLocaleString()} · ${ratePct(summary.steps[i - 1].rate)}`;
+    return { label: st.label, count, color: FUNNEL_COLORS[i % FUNNEL_COLORS.length], annot };
+  });
+
+  const segBtn = (label, active, onClick) => (
+    <span {...act(onClick)} key={label} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 12px", borderRadius: 4, border: `1px solid ${active ? C.emerald : C.line}`, background: active ? C.emerald : C.card, color: active ? "#fff" : C.ink2 }}>{label}</span>
+  );
+
+  const wrap = { maxWidth: 1080, margin: "0 auto", padding: "0 20px 80px", position: "relative", zIndex: 1 };
+  const h2s = { fontSize: 17, fontWeight: 800, color: C.ink, margin: "30px 0 12px" };
+  const muted = { fontSize: 12.5, color: C.muted };
+
+  return (
+    <div style={{ minHeight: "100vh", paddingTop: 24 }}>
+      <div style={wrap}>
+        {/* header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div className="disp" style={{ fontSize: 26, fontWeight: 800 }}><Mark size={22} />Founder analytics</div>
+            <div style={muted}>Acquisition & engagement funnel · aggregate data only (no student PII).</div>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span {...act(() => downloadFile("build-young-funnel.csv", toCSV(events || []), "text/csv"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> CSV</span>
+            <span {...act(() => downloadFile("build-young-funnel.json", JSON.stringify(toDataRoom(events || []), null, 2), "application/json"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> JSON</span>
+            <span {...act(onHome)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.muted, padding: "8px 6px" }}>← Home</span>
+          </div>
+        </div>
+
+        {error && <Card style={{ padding: 18, marginTop: 24, borderColor: C.goldLite, background: "#fbeede" }}><b style={{ color: C.ink }}>{error}</b></Card>}
+        {!error && events === null && <Card style={{ padding: 24, marginTop: 24, color: C.muted }}>Loading analytics…</Card>}
+
+        {!error && events !== null && (<>
+          {events.length === 0 && <Card style={{ padding: 14, marginTop: 18, ...muted }}>No events recorded yet — the funnel will populate as visitors move through the site.</Card>}
+
+          {/* segment selector */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 22 }}>
+            <span style={{ ...muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", marginRight: 4 }}>Segment</span>
+            {segBtn("All", seg.kind === "all", () => setSeg({ kind: "all", key: null }))}
+            {SEASONS.map((s) => segBtn(s.label, seg.kind === "season" && seg.key === s.key, () => setSeg({ kind: "season", key: s.key })))}
+            {TRACKS.map((t) => segBtn(t, seg.kind === "track" && seg.key === t, () => setSeg({ kind: "track", key: t })))}
+          </div>
+          {filter && <div style={{ ...muted, marginTop: 8 }}>Segmented views start at <b>Enrolled</b> — top-of-funnel events (visits, enroll-starts) aren’t tied to a cohort.</div>}
+
+          {/* funnel + revenue */}
+          <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18, marginTop: 14, alignItems: "start" }} className="enroll-grid">
+            <Card style={{ padding: 18 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <b style={{ fontSize: 14 }}>The funnel</b>
+                <span style={muted}>{ratePct(summary.overall)} visited → enrolled</span>
+              </div>
+              <React.Suspense fallback={<div style={{ height: 280, display: "grid", placeItems: "center", color: C.muted, fontSize: 13 }}>Loading chart…</div>}>
+                <Charts kind="funnel" data={funnelData} mutedColor={C.muted} fmt={fmt} />
+              </React.Suspense>
+            </Card>
+            <div style={{ display: "grid", gap: 12 }}>
+              <Stat label="Net revenue" value={fmt(summary.revenue.netCents / 100)} sub={`${fmt(summary.revenue.grossCents / 100)} gross − ${fmt(summary.revenue.refundedCents / 100)} refunded`} icon={CircleDollarSign} color={C.green} />
+              <Stat label="Enrolled" value={summary.counts.enrolled.toLocaleString()} sub={`${summary.calls.enrolledFromCall} via a booked call · ${summary.calls.enrolledDirect} direct`} icon={Users} color={C.emerald} />
+              <Stat label="Calls booked" value={summary.calls.booked.toLocaleString()} sub="“Talk to Sunil” assist path" icon={Video} color={C.turq} />
+            </div>
+          </div>
+
+          {/* step conversions */}
+          <h2 style={h2s}>Stage-to-stage conversion</h2>
+          <Card style={{ padding: 4 }}>
+            {summary.steps.map((st, i) => (
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderTop: i ? `1px solid ${C.line}` : "none" }}>
+                <span style={{ fontSize: 13.5, color: C.ink2 }}>{st.fromLabel} → {st.toLabel}</span>
+                <span style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                  <span style={muted}>{st.fromCount.toLocaleString()} → {st.toCount.toLocaleString()}</span>
+                  <span className="disp" style={{ fontSize: 16, fontWeight: 800, color: st.rate >= 0.5 ? C.green : st.rate >= 0.2 ? C.gold : C.pink, minWidth: 56, textAlign: "right" }}>{ratePct(st.rate)}</span>
+                </span>
+              </div>
+            ))}
+          </Card>
+
+          {/* curves */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginTop: 8 }} className="enroll-grid">
+            <div>
+              <h2 style={h2s}>Week-by-week progression</h2>
+              <Card style={{ padding: 16 }}>
+                <div style={muted}>Students reaching each week (drop-off across the 12-week course).</div>
+                <React.Suspense fallback={<div style={{ height: 200 }} />}>
+                  <Charts kind="countline" data={summary.weekCurve} color={C.emerald} mutedColor={C.muted} fmt={fmt} />
+                </React.Suspense>
+              </Card>
+            </div>
+            <div>
+              <h2 style={h2s}>Check-in retention</h2>
+              <Card style={{ padding: 16 }}>
+                <div style={muted}>Monthly check-ins completed after graduation (6-month retention curve).</div>
+                <React.Suspense fallback={<div style={{ height: 200 }} />}>
+                  <Charts kind="countline" data={summary.checkinCurve} color={C.turq} mutedColor={C.muted} fmt={fmt} />
+                </React.Suspense>
+              </Card>
+            </div>
+          </div>
+
+          {/* withdrawals exit branch */}
+          <h2 style={h2s}>Withdrawals (exit branch)</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }} className="enroll-grid">
+            <Stat label="Total" value={summary.withdrawals.total.toLocaleString()} icon={Activity} color={C.pink} />
+            <Stat label="Full refund" value={summary.withdrawals.byTier.full.toLocaleString()} sub="before class started" color={C.ink} />
+            <Stat label="Prorated" value={summary.withdrawals.byTier.prorated.toLocaleString()} sub={`within first ${REFUND_WEEKS} weeks`} color={C.ink} />
+            <Stat label="No refund" value={summary.withdrawals.byTier.none.toLocaleString()} sub="after the window" color={C.ink} />
+          </div>
+        </>)}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
-  const [route, setRoute] = useState("home"); // home | enroll | call | app | login | setpw | checkemail
+  const [route, setRoute] = useState("home"); // home | enroll | call | app | login | setpw | checkemail | founder
   const [history, setHistory] = useState([]); // stack of routes we navigated from
   const [preselect, setPreselect] = useState(null);
   const [state, setState] = useState(null);
@@ -2130,6 +2327,7 @@ export default function App() {
   const [legal, setLegal] = useState(null); // null | "privacy" | "terms"
   const [setpwToken, setSetpwToken] = useState(null);   // token from a ?setpw= link (auth mode)
   const [enrolledTrack, setEnrolledTrack] = useState(""); // cohort track for the check-email screen
+  const [founderToken, setFounderToken] = useState(null); // token from a ?founder= link (hidden analytics route)
   // remember scroll position per route so Back lands where you left off
   const pendingScroll = useRef(null); // px to restore after next render (null = scroll to top)
   const scrollTo = (y) => { try { window.scrollTo(0, y); } catch (e) {} };
@@ -2186,6 +2384,12 @@ export default function App() {
         const params = new URLSearchParams(window.location.search);
         const paidBatch = params.get("enrolled");
         const setpw = params.get("setpw");
+        const founder = params.get("founder");
+
+        // ---- FOUNDER FUNNEL DASHBOARD: hidden, token-gated route (not in nav) ----
+        if (founder) { setFounderToken(founder); setRoute("founder"); setLoaded(true); return; }
+
+        trackVisitOnce(); // top of funnel — once per browser session
 
         // ---- AUTH MODE: dashboard requires login; state lives server-side ----
         if (CONFIG.authEnabled) {
@@ -2195,6 +2399,7 @@ export default function App() {
           }
           if (paidBatch) {
             // The Stripe webhook provisioned the account + emailed the set-password link.
+            track("enrolled", { ...cohortMeta(paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
             const b = BATCHES.find((x) => x.id === paidBatch);
             try { window.localStorage.removeItem(PENDING_KEY); } catch (e) {}
             window.history.replaceState({}, "", window.location.pathname);
@@ -2216,6 +2421,7 @@ export default function App() {
               : { name: "", email: "", batch: paidBatch, track: b.track };
             try { window.localStorage.removeItem(PENDING_KEY); } catch (e) {}
             window.history.replaceState({}, "", window.location.pathname);
+            track("enrolled", { ...cohortMeta(paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
             // mirror the demo flow: send the welcome email on a real (Stripe) enrollment too
             const w = welcomeEmail(student);
             sendEmail(student.email, w.subject, w.body);
@@ -2242,9 +2448,15 @@ export default function App() {
     try { if (window.storage) window.storage.set("by:state", JSON.stringify(state)); } catch (e) { }
   }, [state, loaded]);
 
-  const startEnroll = (batchId) => { setPreselect(typeof batchId === "string" ? batchId : null); nav("enroll"); };
+  const startEnroll = (batchId) => {
+    const id = typeof batchId === "string" ? batchId : null;
+    track("enroll_started", { ...(id ? cohortMeta(id) : {}), fromCall: _callBookedThisSession });
+    setPreselect(id); nav("enroll");
+  };
   const startCall = () => nav("call");
   const finishEnroll = (student) => guard(() => {
+    // Funnel: payment completed (demo path — the Stripe path fires `enrolled` on the ?enrolled= return).
+    track("enrolled", { ...cohortMeta(student.batch), fromCall: _callBookedThisSession });
     if (CONFIG.authEnabled) {
       // Account creation happens server-side (Stripe webhook → set-password email); send the
       // student to the check-email screen rather than straight into the dashboard.
@@ -2287,6 +2499,7 @@ export default function App() {
       {route === "login" && <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "setpw" && <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} />}
       {route === "checkemail" && <CheckEmail track={enrolledTrack} onHome={goHome} onLogin={goLogin} />}
+      {route === "founder" && <FounderDashboard token={founderToken} onHome={goHome} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
     </div>
   );
