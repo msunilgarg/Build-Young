@@ -105,6 +105,30 @@ const CONFIG = {
   // Email: set emailEnabled true once the /api/send-email function + provider key are live.
   emailEnabled: true,
   emailEndpoint: "/api/send-email",
+  // Auth: flip true once the KV store + AUTH_SECRET are configured (and Stripe, so real
+  // enrollments provision accounts). When true, the dashboard requires login and the sim state
+  // lives server-side (cross-device) instead of in localStorage. When false, the app keeps the
+  // self-contained localStorage demo flow — no login, per-device state. See api/_lib/auth.js.
+  authEnabled: false,
+};
+// Auth/state API client. Same-origin fetches carry the HttpOnly session cookie automatically.
+async function postJson(url, body) {
+  try {
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await r.json().catch(() => ({}));
+    return { ok: r.ok, status: r.status, ...data };
+  } catch (e) {
+    return { ok: false, status: 0, error: "Network error — please try again." };
+  }
+}
+const AUTH = {
+  async me() { try { const r = await fetch("/api/auth/me"); return r.ok ? (await r.json()).user : null; } catch { return null; } },
+  login: (email, password) => postJson("/api/auth/login", { email, password }),
+  setPassword: (token, password) => postJson("/api/auth/set-password", { token, password }),
+  requestReset: (email) => postJson("/api/auth/request-reset", { email }),
+  async logout() { try { await fetch("/api/auth/logout", { method: "POST" }); } catch { /* ignore */ } },
+  async getState() { try { const r = await fetch("/api/state"); return r.ok ? (await r.json()).state : null; } catch { return null; } },
+  async putState(state) { try { await fetch("/api/state", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state }) }); } catch { /* ignore */ } },
 };
 // Fire-and-forget email send. No-ops gracefully in demo/local; UI toast still shows.
 function sendEmail(to, subject, body) {
@@ -621,7 +645,7 @@ const HeroPreview = () => {
   );
 };
 
-function Landing({ onEnroll, onCall, onLegal }) {
+function Landing({ onEnroll, onCall, onLegal, onLogin }) {
   const [season, setSeason] = useState(SEASONS[0].key);
   return (
     <div style={{ position: "relative", zIndex: 2 }}>
@@ -632,6 +656,7 @@ function Landing({ onEnroll, onCall, onLegal }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <span className="nav-talk" {...act(onCall)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Talk to Sunil</span>
+          {onLogin && <span {...act(onLogin)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Log in</span>}
           <button className="btn" onClick={onEnroll} style={{ background: C.ink, color: C.paper2, padding: "10px 20px", borderRadius: 4, fontSize: 14 }}>Enroll →</button>
         </div>
       </nav>
@@ -1895,13 +1920,110 @@ function LegalModal({ kind, onClose }) {
   );
 }
 
+// Shared shell for the auth screens (login / set-password / check-email) — matches the site
+// theme: paper background, centered white card, brand wordmark.
+function AuthShell({ title, sub, children, onHome }) {
+  return (
+    <div style={{ minHeight: "100vh", background: C.paper, display: "flex", flexDirection: "column", alignItems: "center", padding: "6vh 6vw" }}>
+      <div className="disp" {...act(onHome)} aria-label="Build Young — home" style={{ fontWeight: 900, fontSize: 22, letterSpacing: "-.02em", cursor: "pointer", marginBottom: 24 }}>
+        <Mark size={24} /> Build <span className="grad">Young</span>
+      </div>
+      <Card style={{ width: "100%", maxWidth: 420, padding: 28 }}>
+        <h1 className="disp" style={{ fontSize: 24, fontWeight: 800, margin: 0 }}>{title}</h1>
+        {sub && <p style={{ color: C.muted, fontSize: 14, marginTop: 8, lineHeight: 1.5 }}>{sub}</p>}
+        {children}
+      </Card>
+    </div>
+  );
+}
+const authInput = { width: "100%", padding: "12px 14px", borderRadius: 4, border: `1.5px solid ${C.line}`, background: C.paper2, fontSize: 15, marginTop: 6, boxSizing: "border-box" };
+const authLabel = { fontSize: 13, fontWeight: 700, color: C.ink2 };
+
+// Returning-student sign in. On success the parent hydrates server state and routes to the app.
+export function Login({ onLogin, onReset, onHome, onEnroll }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const submit = async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    setErr(""); setBusy(true);
+    const res = await onLogin(email.trim(), password);
+    if (!res.ok) { setErr(res.error || "Could not sign in."); setBusy(false); }
+  };
+  const doReset = async () => {
+    if (!validEmail(email)) { setErr("Enter your email above first, then tap reset."); return; }
+    setErr(""); await onReset(email.trim()); setResetSent(true);
+  };
+  return (
+    <AuthShell title="Log in" sub="Sign in to your student dashboard." onHome={onHome}>
+      {resetSent && <div role="status" style={{ background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "10px 12px", marginTop: 14, fontSize: 13, color: C.ink2 }}>If an account exists for that email, we've sent a link to set a new password.</div>}
+      <form onSubmit={submit}>
+        <div style={{ marginTop: 16 }}><div style={authLabel}>Email</div><input aria-label="Email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={authInput} /></div>
+        <div style={{ marginTop: 14 }}><div style={authLabel}>Password</div><input aria-label="Password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" style={authInput} /></div>
+        {err && <div role="alert" style={{ color: C.rust, fontSize: 13, marginTop: 12 }}>{err}</div>}
+        <button className="btn" type="submit" disabled={busy} style={{ width: "100%", marginTop: 20, background: C.emerald, color: "#fff", padding: 13, borderRadius: 4, fontSize: 15, opacity: busy ? 0.7 : 1 }}>{busy ? "Signing in…" : "Log in"}</button>
+      </form>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 16, fontSize: 13 }}>
+        <span {...act(doReset)} style={{ color: C.emerald, fontWeight: 600, cursor: "pointer" }}>Forgot password?</span>
+        <span {...act(onEnroll)} style={{ color: C.ink2, fontWeight: 600, cursor: "pointer" }}>Need a seat? Enroll →</span>
+      </div>
+    </AuthShell>
+  );
+}
+
+// Reached via the emailed ?setpw=<token> link. Sets the password, then signs the student in.
+export function SetPassword({ token, onSetPassword, onHome }) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const submit = async (e) => {
+    e.preventDefault();
+    if (busy) return;
+    if (password.length < 8) { setErr("Use at least 8 characters."); return; }
+    if (password !== confirm) { setErr("The two passwords don't match."); return; }
+    setErr(""); setBusy(true);
+    const res = await onSetPassword(token, password);
+    if (!res.ok) { setErr(res.error || "Could not set your password. The link may have expired."); setBusy(false); }
+  };
+  return (
+    <AuthShell title="Set your password" sub="Choose a password to finish setting up your dashboard. You'll use your email + this password to log in from any device." onHome={onHome}>
+      <form onSubmit={submit}>
+        <div style={{ marginTop: 16 }}><div style={authLabel}>New password</div><input aria-label="New password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" style={authInput} /></div>
+        <div style={{ marginTop: 14 }}><div style={authLabel}>Confirm password</div><input aria-label="Confirm password" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Re-enter it" style={authInput} /></div>
+        {err && <div role="alert" style={{ color: C.rust, fontSize: 13, marginTop: 12 }}>{err}</div>}
+        <button className="btn" type="submit" disabled={busy} style={{ width: "100%", marginTop: 20, background: C.emerald, color: "#fff", padding: 13, borderRadius: 4, fontSize: 15, opacity: busy ? 0.7 : 1 }}>{busy ? "Saving…" : "Set password & open dashboard"}</button>
+      </form>
+    </AuthShell>
+  );
+}
+
+// Shown after enrollment (Stripe return or demo) when auth is on: the account was provisioned
+// server-side and a set-password link was emailed.
+function CheckEmail({ track, onHome, onLogin }) {
+  return (
+    <AuthShell title="You're enrolled! 🎉" sub={`Your seat${track ? ` in the ${track} cohort` : ""} is reserved.`} onHome={onHome}>
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "12px 14px", marginTop: 16 }}>
+        <Mail size={16} color={C.emerald} style={{ marginTop: 2, flexShrink: 0 }} />
+        <span style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>Check your email for a link to <b>set your password</b>. Once it's set, you can log in to your dashboard from any device. The link is good for 24 hours.</span>
+      </div>
+      <button className="btn" onClick={onLogin} style={{ width: "100%", marginTop: 20, background: C.ink, color: C.paper2, padding: 12, borderRadius: 4, fontSize: 14 }}>Go to login</button>
+    </AuthShell>
+  );
+}
+
 export default function App() {
-  const [route, setRoute] = useState("home"); // home | enroll | call | app
+  const [route, setRoute] = useState("home"); // home | enroll | call | app | login | setpw | checkemail
   const [history, setHistory] = useState([]); // stack of routes we navigated from
   const [preselect, setPreselect] = useState(null);
   const [state, setState] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [legal, setLegal] = useState(null); // null | "privacy" | "terms"
+  const [setpwToken, setSetpwToken] = useState(null);   // token from a ?setpw= link (auth mode)
+  const [enrolledTrack, setEnrolledTrack] = useState(""); // cohort track for the check-email screen
   // remember scroll position per route so Back lands where you left off
   const pendingScroll = useRef(null); // px to restore after next render (null = scroll to top)
   const scrollTo = (y) => { try { window.scrollTo(0, y); } catch (e) {} };
@@ -1936,7 +2058,19 @@ export default function App() {
     requestAnimationFrame(() => requestAnimationFrame(() => scrollTo(y)));
   }, [route]);
 
-  // load persisted state — and handle Stripe payment return (?enrolled=batchId)
+  // Sign-in succeeded (login or set-password): pull the student's server state (or seed a fresh
+  // one from their account) and open the dashboard.
+  const hydrateFromServer = async (user) => {
+    let srv = await AUTH.getState();
+    if (!srv) {
+      const b = BATCHES.find((x) => x.id === user.batchId) || BATCHES[0];
+      srv = newState({ name: user.name || "", email: user.email, batch: b.id, track: b.track });
+      AUTH.putState(srv);
+    }
+    pendingScroll.current = 0; setHistory([]); setState(srv); setRoute("app");
+  };
+
+  // load persisted state — and handle Stripe payment return (?enrolled=) + set-password (?setpw=)
   const didLoad = useRef(false);
   useEffect(() => {
     if (didLoad.current) return; // run once even under StrictMode double-invoke
@@ -1945,6 +2079,27 @@ export default function App() {
       try {
         const params = new URLSearchParams(window.location.search);
         const paidBatch = params.get("enrolled");
+        const setpw = params.get("setpw");
+
+        // ---- AUTH MODE: dashboard requires login; state lives server-side ----
+        if (CONFIG.authEnabled) {
+          if (setpw) {
+            window.history.replaceState({}, "", window.location.pathname);
+            setSetpwToken(setpw); setRoute("setpw"); setLoaded(true); return;
+          }
+          if (paidBatch) {
+            // The Stripe webhook provisioned the account + emailed the set-password link.
+            const b = BATCHES.find((x) => x.id === paidBatch);
+            try { window.localStorage.removeItem(PENDING_KEY); } catch (e) {}
+            window.history.replaceState({}, "", window.location.pathname);
+            setEnrolledTrack(b ? b.track : ""); setRoute("checkemail"); setLoaded(true); return;
+          }
+          const user = await AUTH.me();
+          if (user) { await hydrateFromServer(user); }
+          setLoaded(true); return;
+        }
+
+        // ---- DEMO MODE: self-contained localStorage flow (no login) ----
         if (paidBatch) {
           let pending = null;
           try { pending = JSON.parse(window.localStorage.getItem(PENDING_KEY) || "null"); } catch (e) {}
@@ -1971,23 +2126,47 @@ export default function App() {
     })();
   }, []);
 
-  // persist state
+  // persist state — server-side (debounced) in auth mode, else local window.storage
   useEffect(() => {
     if (!loaded || !state) return;
+    if (CONFIG.authEnabled) {
+      const id = setTimeout(() => AUTH.putState(state), 600);
+      return () => clearTimeout(id);
+    }
     try { if (window.storage) window.storage.set("by:state", JSON.stringify(state)); } catch (e) { }
   }, [state, loaded]);
 
   const startEnroll = (batchId) => { setPreselect(typeof batchId === "string" ? batchId : null); nav("enroll"); };
   const startCall = () => nav("call");
   const finishEnroll = (student) => guard(() => {
+    if (CONFIG.authEnabled) {
+      // Account creation happens server-side (Stripe webhook → set-password email); send the
+      // student to the check-email screen rather than straight into the dashboard.
+      pendingScroll.current = 0; setHistory([]); setEnrolledTrack(student.track || ""); setRoute("checkemail");
+      return;
+    }
     const w = welcomeEmail(student);
     sendEmail(student.email, w.subject, w.body);
     pendingScroll.current = 0; setHistory([]); setState(newState(student)); setRoute("app");
   });
   const exitApp = () => guard(() => {
-    try { if (window.storage) window.storage.delete("by:state"); } catch (e) { }
+    if (CONFIG.authEnabled) { AUTH.logout(); }
+    else { try { if (window.storage) window.storage.delete("by:state"); } catch (e) { } }
     pendingScroll.current = 0; setHistory([]); setState(null); setRoute("home");
   });
+
+  // auth handlers passed to the Login / SetPassword screens
+  const doLogin = async (email, password) => {
+    const res = await AUTH.login(email, password);
+    if (res.ok && res.user) await hydrateFromServer(res.user);
+    return res;
+  };
+  const doSetPassword = async (token, password) => {
+    const res = await AUTH.setPassword(token, password);
+    if (res.ok && res.user) await hydrateFromServer(res.user);
+    return res;
+  };
+  const goLogin = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("login"); });
 
   return (
     <div className="flp" style={{ minHeight: "100vh", background: C.paper }}>
@@ -1995,10 +2174,13 @@ export default function App() {
       <div style={{ background: C.ink, color: C.paper2, textAlign: "center", fontSize: 12.5, fontWeight: 600, lineHeight: 1.5, padding: "8px 16px", position: "relative", zIndex: 3 }}>
         <Coins size={13} color={C.goldLite} style={{ verticalAlign: "-2px", marginRight: 5 }} /> Learning simulation — every dollar shown is <b style={{ whiteSpace: "nowrap" }}>simulated money,</b> not real currency. No real funds are ever involved.
       </div>
-      {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} />}
+      {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} />}
       {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} />}
       {route === "call" && <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} />}
+      {route === "login" && <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} />}
+      {route === "setpw" && <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} />}
+      {route === "checkemail" && <CheckEmail track={enrolledTrack} onHome={goHome} onLogin={goLogin} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
     </div>
   );
