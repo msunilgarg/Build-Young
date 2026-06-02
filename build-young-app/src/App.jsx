@@ -1234,15 +1234,16 @@ function Platform({ state, setState, onExit }) {
   const notStarted = !s.started; // before the first session → full refund
   const canWithdraw = notStarted || (s.phase === "course" && s.week <= 3); // pre-start, or within the first 3 weeks
   const refund = notStarted ? batch.price : Math.round((batch.price * (12 - s.week)) / 12);
-  // Confirm a withdrawal: email the refund/cancellation confirmation, drop it in the inbox, and
-  // show the done state. Functional updater so a double-click can't fire two sends.
+  // Confirm a withdrawal: email the refund/cancellation confirmation (once — a ref guards
+  // against a double-click), drop it in the in-app inbox, and show the done state. The send is
+  // a side effect, so it lives OUTSIDE the setState updater (updaters must stay pure).
+  const withdrawingRef = useRef(false);
   const doWithdraw = () => {
-    setState((p) => {
-      if (p.withdrawn) return p; // already done
-      const mail = withdrawalEmail(p, batch, refund, !p.started);
-      sendEmail(p.student.email, mail.subject, mail.body);
-      return { ...p, withdrawn: true, emails: [mail, ...(p.emails || [])] };
-    });
+    if (withdrawingRef.current) return;
+    withdrawingRef.current = true;
+    const mail = withdrawalEmail(s, batch, refund, notStarted);
+    sendEmail(s.student.email, mail.subject, mail.body);
+    setState((p) => ({ ...p, emails: [mail, ...(p.emails || [])] }));
     setWithdraw("done");
   };
   const nw = netWorth(s);
