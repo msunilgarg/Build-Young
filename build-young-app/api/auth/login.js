@@ -2,7 +2,7 @@
 // Verifies credentials and issues a session cookie. Errors are deliberately generic so the
 // endpoint never reveals whether an account exists.
 
-import { getUser, verifyPassword, signSession, sessionCookie, validEmail } from "../_lib/auth.js";
+import { getUser, verifyPassword, signSession, sessionCookie, validEmail, isFounder } from "../_lib/auth.js";
 import { rateLimited, clientIp } from "../_lib/rateLimit.js";
 
 export default async function handler(req, res) {
@@ -33,5 +33,5 @@ export default async function handler(req, res) {
     return;
   }
   res.setHeader("Set-Cookie", sessionCookie(session));
-  res.status(200).json({ ok: true, user: { email: user.email, name: user.name || "", batchId: user.batchId || "" } });
+  res.status(200).json({ ok: true, user: { email: user.email, name: user.name || "", batchId: user.batchId || "", isFounder: await isFounder(user.email) } });
 }
