@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import handler from "../api/send-email.js";
 
-// Minimal Vercel-style req/res mocks.
-function makeReq({ method = "POST", body = {}, ip = "1.2.3.4" } = {}) {
-  return { method, body, headers: { "x-forwarded-for": ip }, socket: { remoteAddress: ip } };
+// Minimal Vercel-style req/res mocks. A valid same-origin header is the default so the
+// success-path tests pass the origin gate; pass origin:null to simulate curl/bots.
+function makeReq({ method = "POST", body = {}, ip = "1.2.3.4", origin = "https://build-young.com" } = {}) {
+  const headers = { "x-forwarded-for": ip };
+  if (origin) headers.origin = origin;
+  return { method, body, headers, socket: { remoteAddress: ip } };
 }
 function makeRes() {
   return {
@@ -31,6 +34,20 @@ describe("/api/send-email handler", () => {
     const res = makeRes();
     await handler(makeReq({ method: "GET", ip: freshIp() }), res);
     expect(res.statusCode).toBe(405);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects a request from a disallowed origin (other site / forged)", async () => {
+    const res = makeRes();
+    await handler(makeReq({ ip: freshIp(), origin: "https://evil.example", body: { to: "a@b.com", subject: "s", body: "b" } }), res);
+    expect(res.statusCode).toBe(403);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects a request with no Origin/Referer (curl/bots)", async () => {
+    const res = makeRes();
+    await handler(makeReq({ ip: freshIp(), origin: null, body: { to: "a@b.com", subject: "s", body: "b" } }), res);
+    expect(res.statusCode).toBe(403);
     expect(fetch).not.toHaveBeenCalled();
   });
 

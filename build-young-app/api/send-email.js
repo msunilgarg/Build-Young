@@ -26,6 +26,29 @@ const MAX_BODY = 5000;
 // RFC-5322-ish: good enough to reject obvious garbage and header-injection attempts.
 const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
 
+// Same-origin gate. The ONLY legitimate caller of this HTTP endpoint is the browser app —
+// the market-news cron uses the shared sender (api/_lib/sendEmail.js) directly, never HTTP.
+// A real browser POST always carries an Origin header; curl/bots/other sites won't match.
+// This blunts abuse of a public send endpoint on a verified domain (not a hard auth boundary
+// — a determined attacker can forge Origin — but it stops cross-site/CSRF and casual misuse,
+// layered on top of the per-IP rate limit). Add preview/extra origins (comma-separated, e.g.
+// your Vercel preview URL) via the ALLOWED_ORIGIN env var.
+const DEFAULT_ORIGINS = ["https://build-young.com", "https://www.build-young.com"];
+function allowedOrigins() {
+  const extra = (process.env.ALLOWED_ORIGIN || "").split(",").map((s) => s.trim()).filter(Boolean);
+  return new Set([...DEFAULT_ORIGINS, ...extra]);
+}
+function requestOrigin(req) {
+  const o = req.headers && req.headers.origin;
+  if (typeof o === "string" && o) return o;
+  // Fall back to the Referer's origin if Origin is absent.
+  const ref = req.headers && req.headers.referer;
+  if (typeof ref === "string" && ref) {
+    try { return new URL(ref).origin; } catch { /* malformed referer */ }
+  }
+  return null;
+}
+
 // Best-effort in-memory limiter. Serverless instances are recycled, so this is not a
 // hard guarantee — it just blunts trivial bursts from a single source. For real limits
 // use a shared store (e.g. Upstash/Redis) or your platform's edge rate limiting.
@@ -52,6 +75,13 @@ function clientIp(req) {
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
+    return;
+  }
+
+  // Reject anything that isn't a same-origin browser request (see DEFAULT_ORIGINS above).
+  const origin = requestOrigin(req);
+  if (!origin || !allowedOrigins().has(origin)) {
+    res.status(403).json({ error: "Forbidden" });
     return;
   }
 
