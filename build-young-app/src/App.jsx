@@ -2331,6 +2331,11 @@ export function FounderDashboard({ onHome }) {
     const annot = i === 0 ? count.toLocaleString() : `${count.toLocaleString()} · ${ratePct(summary.steps[i - 1].rate)}`;
     return { label: st.label, count, color: FUNNEL_COLORS[i % FUNNEL_COLORS.length], annot };
   });
+  // Biggest leak = the step with the largest drop, only among steps the downstream stage has
+  // actually been reached (toCount > 0). This ignores stages that simply haven't started yet
+  // (e.g. Class started = 0 before a cohort begins), so it flags real drop-off, not timing.
+  const leakSteps = summary.steps.filter((s) => s.toCount > 0);
+  const biggestLeak = leakSteps.length ? leakSteps.reduce((a, b) => ((1 - b.rate) > (1 - a.rate) ? b : a)) : null;
 
   const segBtn = (label, active, onClick) => (
     <span {...act(onClick)} key={label} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, padding: "6px 12px", borderRadius: 4, border: `1px solid ${active ? C.emerald : C.line}`, background: active ? C.emerald : C.card, color: active ? "#fff" : C.ink2 }}>{label}</span>
@@ -2390,18 +2395,28 @@ export function FounderDashboard({ onHome }) {
           </div>
 
           {/* step conversions */}
-          <h2 style={h2s}>Stage-to-stage conversion</h2>
+          <h2 style={h2s}>Drop-off — where you lose people</h2>
+          {biggestLeak && (
+            <div style={{ fontSize: 13.5, color: C.ink2, marginBottom: 10 }}>
+              Biggest drop-off: <b>{biggestLeak.fromLabel} → {biggestLeak.toLabel}</b> — <b style={{ color: C.pink }}>{ratePct(1 - biggestLeak.rate)} lost</b> ({Math.max(0, biggestLeak.fromCount - biggestLeak.toCount).toLocaleString()} of {biggestLeak.fromCount.toLocaleString()}).
+            </div>
+          )}
           <Card style={{ padding: 4 }}>
-            {summary.steps.map((st, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderTop: i ? `1px solid ${C.line}` : "none" }}>
-                <span style={{ fontSize: 13.5, color: C.ink2 }}>{st.fromLabel} → {st.toLabel}</span>
-                <span style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                  <span style={muted}>{st.fromCount.toLocaleString()} → {st.toCount.toLocaleString()}</span>
-                  <span className="disp" style={{ fontSize: 16, fontWeight: 800, color: st.rate >= 0.5 ? C.green : st.rate >= 0.2 ? C.gold : C.pink, minWidth: 56, textAlign: "right" }}>{ratePct(st.rate)}</span>
-                </span>
-              </div>
-            ))}
+            {summary.steps.map((st, i) => {
+              const lost = Math.max(0, st.fromCount - st.toCount);
+              const isLeak = st === biggestLeak;
+              return (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderTop: i ? `1px solid ${C.line}` : "none", background: isLeak ? "#fbeede" : "transparent" }}>
+                  <span style={{ fontSize: 13.5, color: C.ink2 }}>{st.fromLabel} → {st.toLabel}{isLeak && <b style={{ color: C.gold, marginLeft: 8, fontSize: 10.5, letterSpacing: ".04em" }}>BIGGEST DROP-OFF</b>}</span>
+                  <span style={{ display: "flex", gap: 14, alignItems: "center" }}>
+                    <span style={muted}>{st.fromCount.toLocaleString()} → {st.toCount.toLocaleString()}{st.fromCount > 0 ? ` · ${lost.toLocaleString()} lost` : ""}</span>
+                    <span className="disp" style={{ fontSize: 16, fontWeight: 800, color: st.rate >= 0.5 ? C.green : st.rate >= 0.2 ? C.gold : C.pink, minWidth: 52, textAlign: "right" }}>{ratePct(st.rate)} kept</span>
+                  </span>
+                </div>
+              );
+            })}
           </Card>
+          <div style={{ ...muted, marginTop: 8 }}><b>Class started</b> and later fill in as each cohort begins — a 0 there is timing, not drop-off.</div>
 
           {/* curves */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginTop: 8 }} className="enroll-grid">
