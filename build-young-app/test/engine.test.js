@@ -10,16 +10,16 @@ import {
 // tests run in node, so they import directly from the server module.
 import { marketEventFor, mediaDrip } from "../api/_lib/marketSchedule.js";
 
-const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-hs-wed", track: "High School" };
+const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-mw", track: "Builders" };
 const CALM = { h: "Markets open calm", d: "Quiet.", e: { stocks: 0.02, bonds: 0.005, reits: 0.01, bullion: 0, sav: 0.01 } };
 
 describe("nextClassLabel", () => {
-  // fall-hs-wed starts "Sep 9, 2026" (a Wednesday), day "Wednesdays · 5:00–6:30 PM PST".
-  const batch = BATCHES.find((b) => b.id === "fall-hs-wed");
+  // fall-mw starts "Sep 7, 2026" (a Monday), day "Mondays & Wednesdays · 5:00–6:30 PM PST".
+  const batch = BATCHES.find((b) => b.id === "fall-mw");
   it("shows the concrete date + time for the current course week (not just the weekday)", () => {
-    expect(nextClassLabel(batch, "course", 1)).toBe("Wed, Sep 9, 2026 · 5:00–6:30 PM PST");
+    expect(nextClassLabel(batch, "course", 1)).toBe("Mon, Sep 7, 2026 · 5:00–6:30 PM PST");
     // Week N is start + (N-1)*7 days.
-    expect(nextClassLabel(batch, "course", 3)).toBe("Wed, Sep 23, 2026 · 5:00–6:30 PM PST");
+    expect(nextClassLabel(batch, "course", 3)).toBe("Mon, Sep 21, 2026 · 5:00–6:30 PM PST");
   });
   it("uses the follow-up check-in date once the course is over", () => {
     expect(nextClassLabel(batch, "checkin", 0)).toBe(checkinDateLabel(batch));
@@ -31,10 +31,10 @@ describe("nextClassLabel", () => {
 });
 
 describe("classDateLabel (refund-deadline dates)", () => {
-  const batch = BATCHES.find((b) => b.id === "fall-hs-wed"); // starts Sep 9, 2026 (Wed)
+  const batch = BATCHES.find((b) => b.id === "fall-mw"); // starts Sep 7, 2026 (Mon)
   it("returns the date-only label for a given course week (no time)", () => {
-    expect(classDateLabel(batch, 1)).toBe("Wed, Sep 9, 2026");   // full-refund deadline
-    expect(classDateLabel(batch, 4)).toBe("Wed, Sep 30, 2026");  // prorated-window close
+    expect(classDateLabel(batch, 1)).toBe("Mon, Sep 7, 2026");   // full-refund deadline
+    expect(classDateLabel(batch, 4)).toBe("Mon, Sep 28, 2026");  // prorated-window close
   });
   it("returns empty string when start is unparseable", () => {
     expect(classDateLabel({ ...batch, start: "nope" }, 1)).toBe("");
@@ -42,7 +42,7 @@ describe("classDateLabel (refund-deadline dates)", () => {
 });
 
 describe("withdrawalEmail (refund confirmation)", () => {
-  const batch = BATCHES.find((b) => b.id === "fall-hs-wed");
+  const batch = BATCHES.find((b) => b.id === "fall-mw");
   it("confirms a full refund when the cohort hasn't started", () => {
     const s = newState(STUDENT);
     const mail = withdrawalEmail(s, batch, batch.price, true);
@@ -87,7 +87,7 @@ describe("canWithdrawNow (cancellation window)", () => {
 });
 
 describe("cohortStartInfo (pre-start awareness)", () => {
-  const batch = BATCHES.find((b) => b.id === "fall-ms-mon"); // starts Sep 7, 2026
+  const batch = BATCHES.find((b) => b.id === "fall-mw"); // starts Sep 7, 2026
   it("counts down weeks/days when the cohort hasn't started", () => {
     const aMonthBefore = cohortStartInfo(batch, new Date("2026-08-07T12:00:00Z"));
     expect(aMonthBefore.beforeStart).toBe(true);
@@ -110,7 +110,7 @@ describe("cohortStartInfo (pre-start awareness)", () => {
 });
 
 describe("refundFor (sessions not yet held)", () => {
-  const batch = BATCHES.find((b) => b.id === "fall-hs-wed"); // $899
+  const batch = BATCHES.find((b) => b.id === "fall-mw"); // $899
   it("is the full price before the cohort starts", () => {
     expect(refundFor(batch, false, 1)).toBe(batch.price);
   });
@@ -312,8 +312,9 @@ describe("market media drip — emails sent before each investing class", () => 
 });
 
 describe("BATCHES", () => {
-  it("has 12 cohorts (3 seasons x 4) with unique ids", () => {
-    expect(BATCHES).toHaveLength(12);
-    expect(new Set(BATCHES.map((b) => b.id)).size).toBe(12);
+  it("has 6 Builders cohorts (3 seasons x 2) with unique ids", () => {
+    expect(BATCHES).toHaveLength(6);
+    expect(new Set(BATCHES.map((b) => b.id)).size).toBe(6);
+    expect(BATCHES.every((b) => b.track === "Builders")).toBe(true);
   });
 });

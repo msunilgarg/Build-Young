@@ -10,7 +10,7 @@
 //
 // Dependency-free (no React/lucide) so it can be imported by serverless code and tests too.
 
-import { BATCHES, SEASONS, seasonLabel } from "./cohorts.js";
+import { BATCHES, SEASONS, seasonLabel, CHECKINS } from "./cohorts.js";
 
 // Raw event names fired by track() in App.jsx, in lifecycle order. `week_advanced` and
 // `checkin_completed` are the progression curves; `withdrawn` is the exit branch.
@@ -30,7 +30,8 @@ export const STAGES = [
 ];
 
 export const REFUND_TIERS = ["full", "prorated", "none"];
-export const TRACKS = ["Middle School", "High School"];
+// One combined teen track now ("Builders"); segmentation is meaningful by season, not age.
+export const TRACKS = ["Builders"];
 
 export { SEASONS, seasonLabel };
 
@@ -91,9 +92,9 @@ export function summarize(events, filter = null) {
   // Week-by-week progression curve (weeks 2..12 — week N = students who advanced to it).
   const weekCurve = [];
   for (let w = 2; w <= 12; w++) weekCurve.push({ week: w, label: `W${w}`, value: count("week_advanced", (e) => e.props?.week === w) });
-  // Check-in retention curve (months 1..6 after graduation).
+  // Check-in retention curve — one point per monthly check-in (CHECKINS, currently 1).
   const checkinCurve = [];
-  for (let c = 1; c <= 6; c++) checkinCurve.push({ checkin: c, label: `M${c}`, value: count("checkin_completed", (e) => e.props?.checkin === c) });
+  for (let c = 1; c <= CHECKINS; c++) checkinCurve.push({ checkin: c, label: `M${c}`, value: count("checkin_completed", (e) => e.props?.checkin === c) });
 
   // Withdrawals as an exit branch, tagged by refund tier.
   const withdrawals = { total: count("withdrawn"), byTier: {} };

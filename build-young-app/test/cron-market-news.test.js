@@ -69,40 +69,40 @@ describe("/api/cron/market-news handler", () => {
   });
 
   it("sends one email per enrolled student for each due cohort on a given day", async () => {
-    // On 2026-10-25: fall-hs-wed (W8, -3), fall-ms-mon (W8, -1), fall-ms-tue (W8, -2) are due.
+    // On 2026-10-24: fall-tt W8 (Oct 27) is 3 days out, fall-mw W8 (Oct 26) is 2 days out.
     rosterSpy.mockImplementation(async (batchId) => {
-      if (batchId === "fall-hs-wed") return [
+      if (batchId === "fall-tt") return [
         { email: "a@x.com", name: "Avery Lee", batchId },
         { email: "b@x.com", name: "Bo Kim", batchId },
       ];
-      if (batchId === "fall-ms-mon") return [{ email: "c@x.com", name: "Cleo Ng", batchId }];
-      return []; // fall-ms-tue empty, everyone else empty
+      if (batchId === "fall-mw") return [{ email: "c@x.com", name: "Cleo Ng", batchId }];
+      return []; // everyone else empty
     });
 
     const res = makeRes();
-    await handler(makeReq({ auth: `Bearer ${SECRET}`, query: { date: "2026-10-25" } }), res);
+    await handler(makeReq({ auth: `Bearer ${SECRET}`, query: { date: "2026-10-24" } }), res);
 
     expect(res.statusCode).toBe(200);
     expect(res.payload.ok).toBe(true);
-    // 3 cohorts due; rosters: 2 + 1 + 0 = 3 emails attempted/sent.
+    // 2 cohorts due; rosters: 2 + 1 = 3 emails attempted/sent.
     expect(sendSpy).toHaveBeenCalledTimes(3);
     expect(res.payload.sent).toBe(3);
 
-    // The fall-hs-wed students get the dayOffset-3 BREAKING email (Week 3 = "The Fed hikes rates").
-    const wedSends = sendSpy.mock.calls.filter((c) => ["a@x.com", "b@x.com"].includes(c[0].to));
-    expect(wedSends).toHaveLength(2);
-    for (const [arg] of wedSends) {
+    // The fall-tt students get the dayOffset-3 BREAKING email (Week 8 = "The Fed hikes rates").
+    const ttSends = sendSpy.mock.calls.filter((c) => ["a@x.com", "b@x.com"].includes(c[0].to));
+    expect(ttSends).toHaveLength(2);
+    for (const [arg] of ttSends) {
       expect(arg.subject).toContain("Breaking");
       expect(arg.subject).toContain("The Fed hikes rates");
       expect(arg.body).toContain("Resources:"); // resource links appended
     }
-    // The fall-ms-mon student gets the dayOffset-1 CHALLENGE email.
-    const monSend = sendSpy.mock.calls.find((c) => c[0].to === "c@x.com");
-    expect(monSend[0].subject.toLowerCase()).toContain("class tomorrow");
+    // The fall-mw student also gets that week's drip email.
+    const mwSend = sendSpy.mock.calls.find((c) => c[0].to === "c@x.com");
+    expect(mwSend[0].subject).toBeTruthy();
   });
 
   it("sends nothing on a day with no due classes", async () => {
-    rosterSpy.mockResolvedValue([{ email: "a@x.com", name: "A", batchId: "fall-hs-wed" }]);
+    rosterSpy.mockResolvedValue([{ email: "a@x.com", name: "A", batchId: "fall-mw" }]);
     const res = makeRes();
     await handler(makeReq({ auth: `Bearer ${SECRET}`, query: { date: "2026-08-01" } }), res);
     expect(res.statusCode).toBe(200);

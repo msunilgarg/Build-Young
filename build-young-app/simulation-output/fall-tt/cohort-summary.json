@@ -1,0 +1,304 @@
+{
+  "batchId": "fall-tt",
+  "track": "Builders",
+  "day": "Tuesdays & Thursdays · 5:00–6:30 PM PST",
+  "start": "Sep 8, 2026",
+  "price": 899,
+  "seats": 12,
+  "studentCount": 15,
+  "seed": 12345,
+  "averageNetWorth": 49284.8,
+  "minNetWorth": 44950.64,
+  "maxNetWorth": 58397.96,
+  "prizeWinner": {
+    "name": "Isabella Davis",
+    "netWorth": 58397.96
+  },
+  "distributionByRiskStyle": {
+    "aggressive": {
+      "count": 5,
+      "totalNetWorth": 246395.33000000002,
+      "students": [
+        "Ava Thompson",
+        "Maya Robinson",
+        "Ethan Kim",
+        "Charlotte Wilson",
+        "James Anderson"
+      ],
+      "avgNetWorth": 49279.07
+    },
+    "balanced": {
+      "count": 6,
+      "totalNetWorth": 278134.51999999996,
+      "students": [
+        "Liam Patel",
+        "Noah Garcia",
+        "Olivia Martinez",
+        "Mason Lee",
+        "Elijah Moore",
+        "Harper Thomas"
+      ],
+      "avgNetWorth": 46355.75
+    },
+    "conservative": {
+      "count": 4,
+      "totalNetWorth": 214742.13999999998,
+      "students": [
+        "Sofia Nguyen",
+        "Lucas Brown",
+        "Isabella Davis",
+        "Amelia Taylor"
+      ],
+      "avgNetWorth": 53685.54
+    }
+  },
+  "notableOutcomes": {
+    "boughtHome": [
+      "Isabella Davis",
+      "Amelia Taylor"
+    ],
+    "boughtCar": [
+      "Liam Patel",
+      "Olivia Martinez",
+      "Mason Lee",
+      "Elijah Moore",
+      "Harper Thomas"
+    ],
+    "carriedCardDebt": [
+      "Noah Garcia",
+      "Isabella Davis",
+      "Mason Lee",
+      "Amelia Taylor"
+    ],
+    "hustled": [],
+    "heldPrivateEquity": [],
+    "bookedCallBeforeEnrolling": [
+      "Ava Thompson",
+      "Liam Patel",
+      "Sofia Nguyen",
+      "Maya Robinson",
+      "Ethan Kim",
+      "Olivia Martinez",
+      "Isabella Davis",
+      "Mason Lee",
+      "Charlotte Wilson",
+      "Amelia Taylor",
+      "James Anderson",
+      "Harper Thomas"
+    ]
+  },
+  "ranking": [
+    {
+      "rank": 1,
+      "name": "Isabella Davis",
+      "riskStyle": "conservative",
+      "finalNetWorth": 58397.96,
+      "creditScore": 764
+    },
+    {
+      "rank": 2,
+      "name": "Amelia Taylor",
+      "riskStyle": "conservative",
+      "finalNetWorth": 58397.96,
+      "creditScore": 764
+    },
+    {
+      "rank": 3,
+      "name": "James Anderson",
+      "riskStyle": "aggressive",
+      "finalNetWorth": 49304.62,
+      "creditScore": 764
+    },
+    {
+      "rank": 4,
+      "name": "Maya Robinson",
+      "riskStyle": "aggressive",
+      "finalNetWorth": 49294.48,
+      "creditScore": 764
+    },
+    {
+      "rank": 5,
+      "name": "Ava Thompson",
+      "riskStyle": "aggressive",
+      "finalNetWorth": 49279.95,
+      "creditScore": 764
+    },
+    {
+      "rank": 6,
+      "name": "Charlotte Wilson",
+      "riskStyle": "aggressive",
+      "finalNetWorth": 49279.95,
+      "creditScore": 764
+    },
+    {
+      "rank": 7,
+      "name": "Sofia Nguyen",
+      "riskStyle": "conservative",
+      "finalNetWorth": 49248.73,
+      "creditScore": 764
+    },
+    {
+      "rank": 8,
+      "name": "Ethan Kim",
+      "riskStyle": "aggressive",
+      "finalNetWorth": 49236.33,
+      "creditScore": 764
+    },
+    {
+      "rank": 9,
+      "name": "Lucas Brown",
+      "riskStyle": "conservative",
+      "finalNetWorth": 48697.49,
+      "creditScore": 764
+    },
+    {
+      "rank": 10,
+      "name": "Noah Garcia",
+      "riskStyle": "balanced",
+      "finalNetWorth": 47100.92,
+      "creditScore": 764
+    },
+    {
+      "rank": 11,
+      "name": "Liam Patel",
+      "riskStyle": "balanced",
+      "finalNetWorth": 46652.53,
+      "creditScore": 764
+    },
+    {
+      "rank": 12,
+      "name": "Olivia Martinez",
+      "riskStyle": "balanced",
+      "finalNetWorth": 46587.97,
+      "creditScore": 764
+    },
+    {
+      "rank": 13,
+      "name": "Elijah Moore",
+      "riskStyle": "balanced",
+      "finalNetWorth": 46582.44,
+      "creditScore": 764
+    },
+    {
+      "rank": 14,
+      "name": "Mason Lee",
+      "riskStyle": "balanced",
+      "finalNetWorth": 46260.02,
+      "creditScore": 764
+    },
+    {
+      "rank": 15,
+      "name": "Harper Thomas",
+      "riskStyle": "balanced",
+      "finalNetWorth": 44950.64,
+      "creditScore": 764
+    }
+  ],
+  "roster": [
+    {
+      "name": "Ava Thompson",
+      "email": "ava.thompson@example.com",
+      "discoverySource": "Instagram",
+      "bookedCall": true,
+      "riskStyle": "aggressive"
+    },
+    {
+      "name": "Liam Patel",
+      "email": "liam.patel@example.com",
+      "discoverySource": "friend referral",
+      "bookedCall": true,
+      "riskStyle": "balanced"
+    },
+    {
+      "name": "Sofia Nguyen",
+      "email": "sofia.nguyen@example.com",
+      "discoverySource": "Google search",
+      "bookedCall": true,
+      "riskStyle": "conservative"
+    },
+    {
+      "name": "Noah Garcia",
+      "email": "noah.garcia@example.com",
+      "discoverySource": "school flyer",
+      "bookedCall": false,
+      "riskStyle": "balanced"
+    },
+    {
+      "name": "Maya Robinson",
+      "email": "maya.robinson@example.com",
+      "discoverySource": "Instagram",
+      "bookedCall": true,
+      "riskStyle": "aggressive"
+    },
+    {
+      "name": "Ethan Kim",
+      "email": "ethan.kim@example.com",
+      "discoverySource": "YouTube",
+      "bookedCall": true,
+      "riskStyle": "aggressive"
+    },
+    {
+      "name": "Olivia Martinez",
+      "email": "olivia.martinez@example.com",
+      "discoverySource": "friend referral",
+      "bookedCall": true,
+      "riskStyle": "balanced"
+    },
+    {
+      "name": "Lucas Brown",
+      "email": "lucas.brown@example.com",
+      "discoverySource": "podcast ad",
+      "bookedCall": false,
+      "riskStyle": "conservative"
+    },
+    {
+      "name": "Isabella Davis",
+      "email": "isabella.davis@example.com",
+      "discoverySource": "Google search",
+      "bookedCall": true,
+      "riskStyle": "conservative"
+    },
+    {
+      "name": "Mason Lee",
+      "email": "mason.lee@example.com",
+      "discoverySource": "Instagram",
+      "bookedCall": true,
+      "riskStyle": "balanced"
+    },
+    {
+      "name": "Charlotte Wilson",
+      "email": "charlotte.wilson@example.com",
+      "discoverySource": "school flyer",
+      "bookedCall": true,
+      "riskStyle": "aggressive"
+    },
+    {
+      "name": "Elijah Moore",
+      "email": "elijah.moore@example.com",
+      "discoverySource": "Google search",
+      "bookedCall": false,
+      "riskStyle": "balanced"
+    },
+    {
+      "name": "Amelia Taylor",
+      "email": "amelia.taylor@example.com",
+      "discoverySource": "friend referral",
+      "bookedCall": true,
+      "riskStyle": "conservative"
+    },
+    {
+      "name": "James Anderson",
+      "email": "james.anderson@example.com",
+      "discoverySource": "Reddit",
+      "bookedCall": true,
+      "riskStyle": "aggressive"
+    },
+    {
+      "name": "Harper Thomas",
+      "email": "harper.thomas@example.com",
+      "discoverySource": "Instagram",
+      "bookedCall": true,
+      "riskStyle": "balanced"
+    }
+  ]
+}
