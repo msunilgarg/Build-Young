@@ -1786,7 +1786,7 @@ At the end they graduate, get a certificate, and add it to LinkedIn. Throughout,
 // durable principles to keep in mind, not a long worked example. The actionable bits (pre-reqs +
 // copy-your-spec) live in the student activity below.
 const MAKE_PRINCIPLES = [
-  { t: "Build the smallest version first", d: "Just the one thing that HAS to work — skip login, payments, and extras for now. Get the heart of it real, then add the rest." },
+  { t: "Hand over the full spec — but build it in slices", d: "Your Week 2 spec is the whole vision, and that's what you give AI. Don't build it all at once, though: ask AI to start with the smallest version — just the one thing that HAS to work — get that solid, then add the rest piece by piece. (Your copy-paste spec below already tells it to start small.)" },
   { t: "Run the loop: describe → see → taste → refine", d: "AI builds it, you look, you judge it with taste (what does GOOD look like?), you ask for the change — repeat. You don't write code; you direct it. That taste is the skill that matters most in an AI world." },
   { t: "Ship it early", d: "Put it live before it's perfect (free, one click on Vercel). Real people surface the real problems worth fixing — not imaginary ones." },
 ];
