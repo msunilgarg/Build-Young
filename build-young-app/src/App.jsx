@@ -13,7 +13,7 @@ import {
 // time the dashboard fetches the SINGLE current event from /api/market-event and falls back
 // to a non-revealing placeholder when offline (demo/tests). App.jsx layers React/lucide bits
 // (ASSETS icons, WEEKS subtitles) on top.
-import { pct, ASSET_META, buildMediaDrip } from "./marketMedia.js";
+import { pct, ASSET_META, buildMediaDrip, WEEK_PREP } from "./marketMedia.js";
 // Re-export the client-safe content so callers importing from "../src/App.jsx" still work.
 export { pct, buildMediaDrip } from "./marketMedia.js";
 // recharts is heavy (~344 KB) and only used in the dashboard — load it on demand
@@ -473,7 +473,7 @@ Great work in Week ${week}: "${wk.t}." Your simulated net worth is now ${fmt(net
 
 Your next session is Week ${week + 1}: "${next.t}"
 ${batch.day}  ·  Join on Zoom: ${batch.zoom}
-
+${WEEK_PREP[week] ? `\nHomework — to prepare for next week:\n${WEEK_PREP[week]}\n` : ""}
 See you there,
 The Team`,
     };

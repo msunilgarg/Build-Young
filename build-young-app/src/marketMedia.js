@@ -51,6 +51,25 @@ export const WEEK_TITLES = [
   "Capstone: What You Built & What It's Worth",
 ];
 
+// Homework to prepare for each week (index = week − 1). Sent in the week-completion email
+// (prep for the NEXT week) and the 2-days-before class reminder. Kept here (dependency-free) so
+// the app email + the cron reminder share one source. DRAFTS — refine the copy any time; an empty
+// string means "no homework section" for that week.
+export const WEEK_PREP = [
+  "Come with 3 problems you (or people you know) run into — small, real, a little annoying. We'll pick one to build around.",
+  "Using last week's problem, jot a one-line idea, who it's for, the single \"magic moment\" it nails, and the smallest version you could build. (See the Shape-the-Idea steps.)",
+  "Make sure your Claude account + tools are ready. Bring your shaped idea — we build the first version together, live.",
+  "Get your build to a point you can show someone. Line up 2–3 people who actually have the problem to try it.",
+  "List what your product does for someone, and what a fair price feels like. Bring any feedback from your first testers.",
+  "Note which feature (or which people) responded best — and bring one idea for doing more of what's working.",
+  "Bring a rough guess at what your build could earn in a month. We'll set up self-employment taxes and paying yourself.",
+  "Think about one short-term goal (something you want) and one long-term goal. We'll set your auto-save + investing style.",
+  "Skim one recent headline about inflation, interest rates, or the economy — we'll watch it move your portfolio.",
+  "Pick a big thing you'd buy one day (a car, a place) and a rough price. We'll learn to finance it without wrecking your budget.",
+  "Jot your typical monthly wants vs. needs. We'll handle a surprise expense and a tempting splurge.",
+  "Be ready to show what you built and what it's worth — and to say what you'd build next.",
+];
+
 // The from-address used on the drip emails. Kept as a constant here so the content stays
 // identical whether it's rendered in the browser app or the serverless scheduler. (App.jsx
 // historically used CONFIG.contactEmail, which is this same value.)

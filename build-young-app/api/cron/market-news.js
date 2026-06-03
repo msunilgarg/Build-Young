@@ -20,10 +20,38 @@
 //     doesn't error the cron — it just sends nothing.
 
 import { BATCHES } from "../../src/cohorts.js";
+import { WEEK_TITLES, WEEK_PREP } from "../../src/marketMedia.js";
 import { mediaDrip } from "../_lib/marketSchedule.js";
-import { dueSends, DRIP_OFFSETS } from "../_lib/schedule.js";
+import { dueSends, DRIP_OFFSETS, dueReminders, classDateForWeek } from "../_lib/schedule.js";
 import { getRoster } from "../_lib/roster.js";
 import { sendEmail } from "../_lib/sendEmail.js";
+
+// Readable class date for week N (UTC, so the calendar day never shifts by timezone).
+function readableClassDate(batch, week) {
+  const d = classDateForWeek(batch, week);
+  return d ? d.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric", year: "numeric" }) : (batch.day || "");
+}
+
+// The 2-days-before class reminder: next session + what to prepare (WEEK_PREP). Plain content so
+// it's identical for every student in the cohort.
+function reminderEmail(name, week, batch) {
+  const first = String(name || "").trim().split(" ")[0] || "there";
+  const title = WEEK_TITLES[week - 1] || `Week ${week}`;
+  const prep = WEEK_PREP[week - 1];
+  return {
+    subject: `Your Build Young class is in 2 days — Week ${week}`,
+    body: `Hi ${first},
+
+Heads-up — your next Build Young class is in 2 days.
+
+Week ${week}: "${title}"
+${readableClassDate(batch, week)}  ·  ${batch.day}
+Join on Zoom: ${batch.zoom}
+${prep ? `\nTo prepare:\n${prep}\n` : ""}
+See you there,
+The Build Young Team`,
+  };
+}
 
 // Append the resource links to the plain-text body (mirrors the in-app sendEmail behavior).
 function bodyWithResources(m) {
@@ -91,5 +119,22 @@ export default async function handler(req, res) {
     }
   }
 
-  res.status(200).json({ ok: true, date: typeof today === "string" ? today : undefined, due: due.length, attempts: attempts.length, sent, failed });
+  // ---- Class reminders: 2 days before every weekly class (weeks 1–12). ----
+  const reminders = dueReminders(today, BATCHES);
+  for (const { batchId, week } of reminders) {
+    const batch = BATCHES.find((b) => b.id === batchId);
+    if (!batch) continue;
+    let roster = [];
+    try { roster = await getRoster(batchId); } catch { roster = []; }
+    for (const student of roster) {
+      const mail = reminderEmail(student.name, week, batch);
+      attempts.push({ kind: "reminder", batchId, week, to: student.email });
+      try {
+        const result = await sendEmail({ to: student.email, subject: mail.subject, body: mail.body });
+        if (result.ok) sent += 1; else failed += 1;
+      } catch { failed += 1; }
+    }
+  }
+
+  res.status(200).json({ ok: true, date: typeof today === "string" ? today : undefined, due: due.length, reminders: reminders.length, attempts: attempts.length, sent, failed });
 }

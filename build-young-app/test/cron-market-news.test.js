@@ -84,9 +84,11 @@ describe("/api/cron/market-news handler", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.payload.ok).toBe(true);
-    // 2 cohorts due; rosters: 2 + 1 = 3 emails attempted/sent.
-    expect(sendSpy).toHaveBeenCalledTimes(3);
-    expect(res.payload.sent).toBe(3);
+    // Drips: fall-tt W8 (−3) ×2 + fall-mw W8 (−2) ×1 = 3. PLUS the 2-days-before class reminder:
+    // fall-mw W8's class (Oct 26) is exactly 2 days out → fall-mw's 1 student also gets a reminder.
+    expect(res.payload.reminders).toBe(1);
+    expect(sendSpy).toHaveBeenCalledTimes(4);
+    expect(res.payload.sent).toBe(4);
 
     // The fall-tt students get the dayOffset-3 BREAKING email (Week 8 = "The Fed hikes rates").
     const ttSends = sendSpy.mock.calls.filter((c) => ["a@x.com", "b@x.com"].includes(c[0].to));
@@ -96,9 +98,13 @@ describe("/api/cron/market-news handler", () => {
       expect(arg.subject).toContain("The Fed hikes rates");
       expect(arg.body).toContain("Resources:"); // resource links appended
     }
-    // The fall-mw student also gets that week's drip email.
-    const mwSend = sendSpy.mock.calls.find((c) => c[0].to === "c@x.com");
-    expect(mwSend[0].subject).toBeTruthy();
+    // The fall-mw student gets BOTH that week's drip email AND the 2-days class reminder.
+    const mwSends = sendSpy.mock.calls.filter((c) => c[0].to === "c@x.com");
+    expect(mwSends).toHaveLength(2);
+    const reminder = mwSends.find((c) => /in 2 days/.test(c[0].subject));
+    expect(reminder).toBeTruthy();
+    expect(reminder[0].subject).toContain("Week 8");
+    expect(reminder[0].body).toContain("To prepare:"); // Week 8 has homework
   });
 
   it("sends nothing on a day with no due classes", async () => {

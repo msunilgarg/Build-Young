@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
-  toUtcMidnight, daysBetween, classDateForWeek, classISOForWeek, dueSends,
-  MEDIA_WEEKS, DRIP_OFFSETS,
+  toUtcMidnight, daysBetween, classDateForWeek, classISOForWeek, dueSends, dueReminders,
+  MEDIA_WEEKS, DRIP_OFFSETS, REMINDER_OFFSET,
 } from "../api/_lib/schedule.js";
 import { BATCHES } from "../src/cohorts.js";
 
@@ -93,5 +93,20 @@ describe("dueSends — picks the right sends for a given day", () => {
   it("tolerates an empty / missing batch list", () => {
     expect(dueSends("2026-09-20", [])).toEqual([]);
     expect(dueSends("2026-09-20", undefined)).toEqual([]);
+  });
+});
+
+describe("dueReminders (2 days before every weekly class)", () => {
+  it("flags a cohort's week when its class is exactly REMINDER_OFFSET days out", () => {
+    expect(REMINDER_OFFSET).toBe(2);
+    // MW Week 1 class = Mon Sep 7, 2026 → reminder due Sat Sep 5.
+    const r = dueReminders("2026-09-05", [MW]);
+    expect(r).toContainEqual({ batchId: "fall-mw", week: 1 });
+    // applies to later weeks too: Week 3 class = Sep 21 → reminder Sep 19.
+    expect(dueReminders("2026-09-19", [MW])).toContainEqual({ batchId: "fall-mw", week: 3 });
+  });
+  it("is empty when no class is 2 days out, and tolerates no batches", () => {
+    expect(dueReminders("2026-09-06", [MW])).toEqual([]); // 1 day out, not 2
+    expect(dueReminders("2026-09-05", [])).toEqual([]);
   });
 });
