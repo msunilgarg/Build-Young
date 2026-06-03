@@ -15,6 +15,7 @@ import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog } from "./_lib/cohortStore.js";
 import { saveSettings } from "./_lib/settingsStore.js";
 import { listCerts } from "./_lib/cert.js";
+import { listBuildPlans } from "./_lib/buildPlans.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 
 const KEY = "funnel:events";
@@ -68,6 +69,12 @@ async function read(req, res) {
   if (req.query && req.query.resource === "certs") {
     const certs = await listCerts();
     res.status(200).json({ certs });
+    return;
+  }
+
+  if (req.query && req.query.resource === "builds") {
+    const builds = await listBuildPlans();
+    res.status(200).json({ builds });
     return;
   }
 

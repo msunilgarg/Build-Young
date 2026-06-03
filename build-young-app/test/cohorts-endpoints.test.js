@@ -31,6 +31,13 @@ function fakeKv() {
         e = e < 0 ? len + e : e;
         result = arr.slice(s, e + 1); break;
       }
+      case "SADD": {
+        const set = new Set(store.has(key) ? JSON.parse(store.get(key)) : []);
+        rest.forEach((v) => set.add(v));
+        store.set(key, JSON.stringify([...set]));
+        result = rest.length; break;
+      }
+      case "SMEMBERS": result = store.has(key) ? JSON.parse(store.get(key)) : []; break;
       default: result = null;
     }
     return { ok: true, json: async () => ({ result }) };
@@ -176,6 +183,24 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
     await funnelHandler(req("GET", { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "certs" } }), res);
     expect(res.statusCode).toBe(200);
     expect(res.payload.certs.map((c) => c.certId)).toEqual(["c2", "c1"]);
+  });
+
+  it("GET /api/funnel?resource=builds returns students' build plans (founder-gated, content only)", async () => {
+    kv._store.set("students:emails", JSON.stringify(["ada@x.com", "blank@x.com"]));
+    kv._store.set("state:ada@x.com", JSON.stringify({ student: { name: "Ada", batch: "fall-mw" }, build: { scenario: "flashcards", pain: "classmates cram and forget", pr: "Announcing FlashFast" } }));
+    kv._store.set("state:blank@x.com", JSON.stringify({ student: { name: "Bo", batch: "fall-mw" }, build: { scenario: "", pain: "", pr: "" } })); // no content → excluded
+
+    // non-founder → 403
+    let res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("nobody@x.com") }, query: { resource: "builds" } }), res);
+    expect(res.statusCode).toBe(403);
+
+    // founder → only the plan with content
+    res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "builds" } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.builds).toHaveLength(1);
+    expect(res.payload.builds[0]).toMatchObject({ name: "Ada", scenario: "flashcards", pain: "classmates cram and forget" });
   });
 
   it("GET /api/funnel (read) is 403 without a founder session", async () => {

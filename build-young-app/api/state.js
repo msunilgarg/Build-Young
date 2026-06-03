@@ -11,6 +11,7 @@
 import { requireUser } from "./_lib/auth.js";
 import { kvGet, kvSet } from "./_lib/kv.js";
 import { issueCertForEmail, getCertByEmail } from "./_lib/cert.js";
+import { indexStudent } from "./_lib/buildPlans.js";
 
 const MAX_STATE_BYTES = 200 * 1024; // generous cap; the sim state is a few KB
 const stateKey = (email) => `state:${email}`;
@@ -51,6 +52,7 @@ export default async function handler(req, res) {
       return;
     }
     const ok = await kvSet(stateKey(session.email), serialized);
+    if (ok) indexStudent(session.email); // track this student for the founder's build-plan view (fire-and-forget)
     // Issue the completion certificate the first time we persist a graduated state (idempotent;
     // emails once). Never block the state save on it.
     let cert = null;

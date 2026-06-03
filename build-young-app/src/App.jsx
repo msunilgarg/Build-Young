@@ -87,7 +87,7 @@ import { SEASONS, BATCHES, seasonLabel, CHECKINS } from "./cohorts.js";
 export { BATCHES, CHECKINS } from "./cohorts.js";
 import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
 import { certName, certVerifyUrl, linkedInAddUrl, certDate, CERT_ORG } from "./cert.js";
-import { SCENARIO_GROUPS } from "./scenarios.js";
+import { SCENARIO_GROUPS, scenarioLabel } from "./scenarios.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
 import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engagement } from "./funnel.js";
 
@@ -2696,6 +2696,8 @@ export function FounderDashboard({ onHome }) {
           <CohortEditor />
           <h2 style={h2s}>Certificates</h2>
           <CertificatesAdmin />
+          <h2 style={h2s}>Student build plans</h2>
+          <BuildPlansAdmin />
           <h2 style={h2s}>Admins</h2>
           <FoundersEditor founders={founders} />
           <h2 style={h2s}>Reset a test account</h2>
@@ -3104,6 +3106,46 @@ function CertificatesAdmin() {
         ))}
       </Card>
     </>
+  );
+}
+
+// Founder console: read every student's "Your build" plan (idea + pain + press release) for
+// coaching. Founder-gated read via /api/funnel?resource=builds.
+function BuildPlansAdmin() {
+  const [builds, setBuilds] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/funnel?resource=builds");
+        const d = r.ok ? await r.json() : {};
+        if (live) setBuilds(Array.isArray(d.builds) ? d.builds : []);
+      } catch { if (live) setBuilds([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+
+  const idea = (b) => (b.scenario === "custom" ? (b.custom || "Custom idea") : (scenarioLabel(b.scenario) || "—"));
+  const block = { fontSize: 13, color: C.ink2, lineHeight: 1.5, whiteSpace: "pre-wrap", background: C.paper, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 10px", marginTop: 4 };
+  const lab = { fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em" };
+
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 10 }}>What each student chose to build, the customer pain they named, and their press release — for coaching. Updates as students write on their dashboard.</div>
+      {builds === null && <div style={{ fontSize: 13, color: C.muted }}>Loading…</div>}
+      {builds && builds.length === 0 && <div style={{ fontSize: 13, color: C.muted }}>No build plans yet — they appear here as students fill in their plan.</div>}
+      {builds && builds.map((b, i) => (
+        <div key={b.email || i} style={{ borderTop: i ? `1px solid ${C.line}` : "none", padding: "14px 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+            <b style={{ fontSize: 14, color: C.ink }}>{b.name || b.email || "Student"}</b>
+            <span style={{ fontSize: 11.5, color: C.muted }}>{b.batchId || ""}{b.email ? ` · ${b.email}` : ""}</span>
+          </div>
+          <div style={{ marginTop: 6 }}><span style={lab}>Idea</span><div style={block}>{idea(b)}</div></div>
+          {b.pain && b.pain.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Customer pain</span><div style={block}>{b.pain}</div></div>}
+          {b.pr && b.pr.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Press release</span><div style={block}>{b.pr}</div></div>}
+        </div>
+      ))}
+    </Card>
   );
 }
 
