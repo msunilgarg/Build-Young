@@ -21,6 +21,10 @@ export const MEDIA_WEEKS = { first: 8, last: 12 };
 // -1 (challenge). Stored as positive "days before class".
 export const DRIP_OFFSETS = [3, 2, 1];
 
+// A class reminder goes out this many days before EVERY weekly class (weeks 1–12) — a heads-up
+// with what to prepare, separate from the market-news drip.
+export const REMINDER_OFFSET = 2;
+
 // Parse a date string/Date into a UTC-midnight Date (time-of-day stripped). Returns null
 // for unparseable input so callers can skip a malformed batch rather than crash.
 export function toUtcMidnight(dateLike) {
@@ -75,5 +79,21 @@ export function dueSends(today, batches) {
     a.batchId < b.batchId ? -1 : a.batchId > b.batchId ? 1 :
     a.week - b.week || b.dayOffset - a.dayOffset
   );
+  return out;
+}
+
+// Class reminders due today: { batchId, week } for every week 1–12 whose class is exactly
+// REMINDER_OFFSET days from `today`. Used by the cron to send the "prepare for next week"
+// heads-up. Sorted by batchId, then week.
+export function dueReminders(today, batches) {
+  const out = [];
+  for (const batch of batches || []) {
+    for (let week = 1; week <= 12; week++) {
+      const classDate = classDateForWeek(batch, week);
+      if (!classDate) continue;
+      if (daysBetween(today, classDate) === REMINDER_OFFSET) out.push({ batchId: batch.id, week });
+    }
+  }
+  out.sort((a, b) => (a.batchId < b.batchId ? -1 : a.batchId > b.batchId ? 1 : a.week - b.week));
   return out;
 }
