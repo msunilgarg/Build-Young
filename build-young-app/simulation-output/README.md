@@ -10,8 +10,8 @@ so the numbers match what a student would see in the live simulation.
 - Harness: `scripts/simulateBatch.js` (`runCohort(batchId)`).
 - Runner: `test/simulate.batch.test.js` (run with `npm run simulate` or `npm test`).
 - The engine is imported READ-ONLY from `src/App.jsx` + `src/marketMedia.js`.
-- Each student is run through the full lifecycle: 12 weekly classes (`phase:"course"`)
-  then 1 monthly check-in (`phase:"checkin"`), 13 periods total. Each period applies
+- Each student is run through the full lifecycle: 12 weekly classes (`phase:"course"`),
+  12 periods total (finishing Week 12 graduates — no separate check-in). Each period applies
   one $10,000 paycheck (split per the student's settings), then the period's shared
   market event from `marketEventFor(...)`, then that week's decisions.
 - **Reproducible:** the only randomness is the hustle bonus in `advance()`. The harness
@@ -21,7 +21,7 @@ so the numbers match what a student would see in the live simulation.
 ## Funnel modeled
 
 discover (source) → (maybe) book a free 15-min call → enroll → engage weekly →
-complete the course → finish the monthly check-in → graduate. Each student's `funnel` field
+complete the course → graduate at the Week 12 capstone. Each student's `funnel` field
 records their stage progression, and `discoverySource` / `bookedCall` capture the top.
 
 ## Files
@@ -30,11 +30,11 @@ records their stage progression, and `discoverySource` / `bookedCall` capture th
 simulation-output/
   README.md                 ← this file
   fall-mw/
-    cohort-summary.json     ← roster, prize ranking, averages/min/max, risk breakdown, notable outcomes
+    cohort-summary.json     ← roster, portfolio ranking, averages/min/max, risk breakdown, notable outcomes
     cohort.csv              ← one row per student for spreadsheet review
     <student-slug>.json     ← full per-student journey (15 files)
   fall-tt/
-    cohort-summary.json     ← roster, prize ranking, averages/min/max, risk breakdown, notable outcomes
+    cohort-summary.json     ← roster, portfolio ranking, averages/min/max, risk breakdown, notable outcomes
     cohort.csv              ← one row per student for spreadsheet review
     <student-slug>.json     ← full per-student journey (15 files)
 ```
@@ -61,11 +61,11 @@ low-engagement (skip optional buys, minimal contributions) to model the students
 - **Ethan Kim** (aggressive) — Started aggressive, got nervous in the correction, rebalanced to conservative mid-course. Locks in a calmer mix; hustles for extra cash.
 - **Olivia Martinez** (balanced) — Balanced and well-rounded; saves up for a car, pays cards in full, hustles, insures, and adds a bullion + REIT slice. The diversified all-rounder.
 - **Lucas Brown** (conservative) — Low engagement — minimal contributions, never opens a card, skips every optional buy and the hustle. The 'missed it' student.
-- **Isabella Davis** (conservative) — Laser-focused HOME saver; max savings rate, zero brokerage, finances the emergency on a card (carrying a small balance) so every saved dollar keeps funding the down payment — buys the home during the check-ins and holds the equity. Real-estate-first.
+- **Isabella Davis** (conservative) — Laser-focused HOME saver; max savings rate, zero brokerage, finances the emergency on a card (carrying a small balance) so every saved dollar keeps funding the down payment — buys the home late in the course and holds the equity. Real-estate-first.
 - **Mason Lee** (balanced) — Balanced risk-taker who puts the emergency on a card and carries the balance, but offsets it with a hustle, a saved-up car, and steady investing. Mixed habits.
 - **Charlotte Wilson** (aggressive) — Aggressive and all-in on the market: max 401(k), heavy brokerage, hustle, rebalances aggressive. High risk, high invested base, no big purchases.
 - **Elijah Moore** (balanced) — Balanced and simple; saves up for a car but rents (no home), pays cards in full, hustles, light bullion slice. Keeps it uncomplicated.
-- **Amelia Taylor** (conservative) — Conservative HOME-buyer; max savings, no brokerage, no hustle, finances the emergency on a card (carrying a small balance) to protect the down-payment fund. Buys the home during the check-ins and holds home equity. Real-estate-leaning.
+- **Amelia Taylor** (conservative) — Conservative HOME-buyer; max savings, no brokerage, no hustle, finances the emergency on a card (carrying a small balance) to protect the down-payment fund. Buys the home late in the course and holds home equity. Real-estate-leaning.
 - **James Anderson** (aggressive) — Aggressive builder; max 401(k), heavy brokerage, hustle, pays cards in full. Biggest invested base; stays cash-light so skips the big purchases.
 - **Harper Thomas** (balanced) — Balanced mid-engagement; takes the spree treat once, no hustle, saves up for a car, pays cards in full, stays diversified.
 
@@ -76,7 +76,7 @@ LIQUIDITY-constrained. Big lump purchases are gated by available funds, exactly 
 dashboard's disabled buy buttons enforce, so the harness models the realistic behavior of
 *saving toward a goal and buying when it's affordable*. In practice: a **car** ($6,000
 down) is reachable for steady savers; a **home** ($20,000 down) is only reachable by
-max-rate savers, and only by the final check-ins; and the **$15,000 private-equity** buy
+max-rate savers, and only late in the course; and the **$15,000 private-equity** buy
 is effectively unreachable for everyone within the 13 periods given how little cash
 accumulates — so no persona clears it this run (the field is still captured, always $0).
 Heavy auto-investors finish with the largest invested base but stay cash-poor — a genuine
@@ -87,14 +87,14 @@ trade-off worth showing students.
 ### fall-mw — Builders (Mondays & Wednesdays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $999
-- Average final net worth: **$49,285** (min $44,951, max $58,398)
-- Tuition-prize winner (highest portfolio value): **Isabella Davis** at $58,398
-- By risk style: aggressive 5 (avg $49,279), balanced 6 (avg $46,356), conservative 4 (avg $53,686)
+- Average final net worth: **$43,237** (min $40,053, max $48,319)
+- Highest portfolio value: **Isabella Davis** at $48,319
+- By risk style: aggressive 5 (avg $43,348), balanced 6 (avg $41,360), conservative 4 (avg $45,913)
 
 ### fall-tt — Builders (Tuesdays & Thursdays · 5:00–6:30 PM PST)
 
 - Students: 15 · Tuition: $999
-- Average final net worth: **$49,285** (min $44,951, max $58,398)
-- Tuition-prize winner (highest portfolio value): **Isabella Davis** at $58,398
-- By risk style: aggressive 5 (avg $49,279), balanced 6 (avg $46,356), conservative 4 (avg $53,686)
+- Average final net worth: **$43,237** (min $40,053, max $48,319)
+- Highest portfolio value: **Isabella Davis** at $48,319
+- By risk style: aggressive 5 (avg $43,348), balanced 6 (avg $41,360), conservative 4 (avg $45,913)
 

@@ -2,7 +2,7 @@
 //
 // OFFLINE data-generation harness for Build Young. It drives the SAME simulation engine
 // that powers the student dashboard (imported READ-ONLY from src/App.jsx + marketMedia.js)
-// through the FULL student lifecycle — 12 course weeks + 6 monthly check-ins — for a whole
+// through the FULL student lifecycle — 12 course weeks (no separate check-in) — for a whole
 // cohort of 15 personas, then persists rich per-student + per-cohort data for founder review.
 //
 // ── How it mirrors the real app ──────────────────────────────────────────────
@@ -154,7 +154,7 @@ const P = (over) => ({
 // purchase is a high SAVINGS rate paired with a LOW brokerage rate (so cash, not savings, eats
 // the living costs). Personas are calibrated so their intended behavior actually occurs in the
 // engine: dedicated savers reach the car ($3k) and even the home ($7.5k) down payment by the
-// later periods/check-ins; heavy auto-investors stay cash-strapped (a real, teachable outcome).
+// later periods; heavy auto-investors stay cash-strapped (a real, teachable outcome).
 const PERSONAS = [
   P({ name: "Ava Thompson", discoverySource: "Instagram",
     description: "Aggressive all-in investor; maxes the 401(k) match and pours pay into the brokerage, so she's cash-strapped for big buys but builds the biggest invested base. The textbook growth 'builder'.",
@@ -191,7 +191,7 @@ const PERSONAS = [
     buyHome: false, buyCar: false, card: "never", hustle: false, insure: false,
     buyBullion: false, buyReit: false, bookedCall: false }),
   P({ name: "Isabella Davis", discoverySource: "Google search",
-    description: "Laser-focused HOME saver; max savings rate, zero brokerage, finances the emergency on a card (carrying a small balance) so every saved dollar keeps funding the down payment — buys the home during the check-ins and holds the equity. Real-estate-first.",
+    description: "Laser-focused HOME saver; max savings rate, zero brokerage, finances the emergency on a card (carrying a small balance) so every saved dollar keeps funding the down payment — buys the home late in the course and holds the equity. Real-estate-first.",
     risk: "conservative", retire401k: 0, savingsRate: 0.5, brokerageRate: 0,
     buyHome: true, buyCar: false, spree: "invest", emergency: "credit", card: "carry",
     hustle: false, insure: false, buyBullion: false, buyReit: false }),
@@ -208,7 +208,7 @@ const PERSONAS = [
     risk: "balanced", retire401k: 0.04, savingsRate: 0.35, brokerageRate: 0.12,
     buyHome: false, buyReit: false, buyBullion: true, bookedCall: false }),
   P({ name: "Amelia Taylor", discoverySource: "friend referral",
-    description: "Conservative HOME-buyer; max savings, no brokerage, no hustle, finances the emergency on a card (carrying a small balance) to protect the down-payment fund. Buys the home during the check-ins and holds home equity. Real-estate-leaning.",
+    description: "Conservative HOME-buyer; max savings, no brokerage, no hustle, finances the emergency on a card (carrying a small balance) to protect the down-payment fund. Buys the home late in the course and holds home equity. Real-estate-leaning.",
     risk: "conservative", retire401k: 0, savingsRate: 0.5, brokerageRate: 0,
     buyHome: true, buyCar: false, emergency: "credit", card: "carry",
     hustle: false, insure: false, buyBullion: false, buyReit: false }),
@@ -225,18 +225,18 @@ const PERSONAS = [
 // ============================ PER-WEEK DECISION SCHEDULE ============================
 // Maps the persona's flags onto the 12-week curriculum's action weeks (matching WEEKS in
 // App.jsx). Returns the ordered list of {key, arg} ops to apply in a given course week
-// (the engine.s salary keeps paying through the 6 check-ins too — see below).
+// (the salary ramps via advance() through the finance act — see below).
 //
 // NOTE on big purchases: on the salary with heavy auto-investing, savings accumulates
 // slowly, so the home ($7,500 down) / car ($3,000 down) / PE ($2,000) buys are LIQUIDITY-
 // gated. We model the realistic teen behavior of *saving toward a goal and buying when it's
 // affordable*: an intending student attempts the purchase on the curriculum week the option
-// is introduced and RETRIES every period after (including check-ins) until they can afford
+// is introduced and RETRIES every period after until they can afford
 // it — exactly what the dashboard's funds-gated buy button allows. Students who never clear
 // the threshold simply never buy, and the data captures that honestly.
 function weekOps(persona, week, phase) {
   const ops = [];
-  const courseWeek = phase === "course" ? week : 99; // check-ins are "after week 12"
+  const courseWeek = phase === "course" ? week : 99; // (unused) check-ins were "after week 12"
   // FLIPPED CURRICULUM: Weeks 1–6 are the BUILD act (placeholder lessons, no dashboard
   // mechanics; income from the build ramps automatically in advance()). The FINANCE act runs
   // Weeks 7–12 and is where the financial decisions happen.
@@ -320,16 +320,13 @@ function snapshot(s) {
 // (which isn't exported). Called on the just-advanced state BEFORE the week/checkin counters
 // roll — matching doAdvance's order. Returns null if there's nothing to send.
 function recapEmail(s, batch) {
-  if (s.phase === "course") {
-    const last = s.week >= 12;
-    return {
-      type: "followup",
-      when: "Just now",
-      event: null,
-      subject: last ? "Course complete — your check-ins are coming" : `Week ${s.week} recap + your next class`,
-    };
-  }
-  return { type: "followup", when: "Just now", event: null, subject: `Your monthly check-in recap` };
+  const last = s.week >= 12; // finishing Week 12 = course complete (no separate check-in)
+  return {
+    type: "followup",
+    when: "Just now",
+    event: null,
+    subject: last ? "Course complete — you did it 🎓" : `Week ${s.week} recap + your next class`,
+  };
 }
 
 // Email-subject extraction: welcome email + per-period recaps + the 3-email media drips.
@@ -354,11 +351,11 @@ function runStudent(persona, batch) {
 
   const weekByWeek = [];
 
-  // The lifecycle: 12 course weeks (phase "course"), then 6 check-ins (phase "checkin").
-  // We advance exactly like the dashboard's doAdvance: apply this period's decisions, then
-  // call advance(state, macroEvent), then roll the phase/week/checkin counters.
+  // The lifecycle: 12 course weeks (phase "course"); finishing Week 12 graduates you — no
+  // separate check-in. We advance exactly like the dashboard's doAdvance: apply this period's
+  // decisions, call advance(state, macroEvent), then roll the week counter / set done.
   let period = 0;
-  const MAX_PERIODS = 12 + CHECKINS; // 12 course weeks + monthly check-ins
+  const MAX_PERIODS = 12 + CHECKINS; // 12 course weeks (+ any check-ins; CHECKINS is 0 now)
   const introNoted = {}; // first-introduction "couldn't afford yet" note shown once per goal
   while (!s.done && period < MAX_PERIODS) {
     period += 1;
@@ -400,17 +397,13 @@ function runStudent(persona, batch) {
     const recap = recapEmail(ns, batch);
     if (recap) ns.emails = [recap, ...(ns.emails || [])];
 
-    // 3) Roll phase/week/checkin counters exactly as doAdvance does.
-    if (ns.phase === "course") {
-      if (ns.week >= 12) { ns.phase = "checkin"; ns.week = 12; ns.done = false; }
-      else ns.week += 1;
-    } else {
-      ns.checkin += 1;
-      if (ns.checkin >= CHECKINS) ns.done = true;
-    }
+    // 3) Roll the week counter exactly as doAdvance does — finishing Week 12 graduates you.
+    if (ns.week >= 12) { ns.week = 12; ns.done = true; }
+    else ns.week += 1;
 
-    // Pre-class media drip for the week we just arrived at (mirrors doAdvance).
-    const media = mediaDrip(ns, batch);
+    // Pre-class media drip for the week we just arrived at (mirrors doAdvance). None on
+    // graduation — there's no next week to prep for.
+    const media = ns.done ? [] : mediaDrip(ns, batch);
     if (media.length) ns.emails = [...media, ...(ns.emails || [])];
 
     s = ns;
@@ -426,7 +419,6 @@ function runStudent(persona, batch) {
   }
 
   funnel.push("completed the 12-week course");
-  funnel.push("completed 6 monthly check-ins");
   funnel.push("graduated");
 
   const final = snapshot(s);
