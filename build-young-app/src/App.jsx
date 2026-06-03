@@ -1511,7 +1511,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
  * Lives at the top of the Dashboard. Before building, the student picks an idea (or writes their
  * own) and writes WHO it's for + a short "press release" as if it already launched — the
  * work-backwards move. Persists in s.build (auto-saved with the rest of the sim state). */
-function BuildPlan({ s, setS }) {
+function BuildPlan({ s, setS, bare }) {
   const build = s.build || {};
   const setField = (k, v) => setS((p) => ({ ...p, build: { ...(p.build || {}), [k]: v } }));
   const isCustom = build.scenario === "custom";
@@ -1524,8 +1524,8 @@ How it works: [the one magic thing it does].
 Why people love it: [the payoff].
 "[a happy first user's quote]"`;
 
-  return (
-    <Card style={{ padding: 20, marginBottom: 12 }}>
+  const inner = (
+    <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your build — start from the customer 🧭</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
         Before you build anything, get clear on <b>who it's for</b> and <b>why</b>. Pick an idea to start from (or write your own), name the pain you're solving, then write a short <b>press release</b> as if it already launched. Writing it first forces the idea to be clear. <span style={{ color: C.muted }}>Saved automatically.</span>
@@ -1564,8 +1564,9 @@ Why people love it: [the payoff].
           placeholder={PR_PLACEHOLDER}
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
-    </Card>
+    </>
   );
+  return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
 /* ============================ PLATFORM ============================ */
@@ -1796,7 +1797,6 @@ function Platform({ state, setState, onExit, onFounder }) {
               <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}><Video size={16} /> Join class on Zoom</button>
             </a>
           </Card>
-          <BuildPlan s={s} setS={setState} />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 12 }}>
             <Stat label="Net Worth" value={fmt(nw)} icon={Sparkles} color={C.emerald} sub={s.history.length > 1 ? `${fmt(nw - last)} since last · simulated` : "Simulated money"} />
             <Stat label="Cash" value={fmt(s.cash)} icon={Wallet} />
@@ -1850,7 +1850,7 @@ function Platform({ state, setState, onExit, onFounder }) {
         {/* Course progress = your current step (advance + this week's activity) followed by the
             full week-by-week course content (unlocks as you reach each week). */}
         <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} cert={cert} />
-        <div style={{ marginTop: 18 }}><CoursePanel s={s} batch={batch} /></div>
+        <div style={{ marginTop: 18 }}><CoursePanel s={s} setState={setState} batch={batch} /></div>
       </>)}
       {tab === "port" && <PortfolioPanel s={s} setState={setState} pieData={pieData} nw={nw} />}
       {tab === "macro" && (
@@ -1893,15 +1893,10 @@ function ResLink({ r, icon: Icon = Newspaper }) {
 }
 
 /* ---- Course hub: every week's materials + the resources we email, for review/catch-up ---- */
-function CoursePanel({ s, batch }) {
+function CoursePanel({ s, setState, batch }) {
   const offCourse = s.phase !== "course"; // in check-ins / graduated, the 12 weeks are all done
   const currentWeek = offCourse ? 12 : s.week;
-  const [open, setOpen] = useState(() => new Set([currentWeek]));
-  const toggle = (n) => setOpen((prev) => {
-    const nx = new Set(prev);
-    nx.has(n) ? nx.delete(n) : nx.add(n);
-    return nx;
-  });
+  const [selected, setSelected] = useState(currentWeek); // which week's content is shown in the right pane
 
   // The per-week market-event resources are server-only (the schedule isn't in the bundle).
   // Fetch them for UNLOCKED weeks only (current + past — never future), one /api/market-event
@@ -1923,12 +1918,24 @@ function CoursePanel({ s, batch }) {
     }
     return () => { live = false; };
   }, [unlockedThrough]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // The selected week's content for the right pane.
+  const selW = WEEKS[selected - 1];
+  const selUnlocked = offCourse || selected <= currentWeek;
+  const selStatus = !selUnlocked ? "Upcoming" : (selected === currentWeek && !offCourse ? "This week" : "Completed");
+  const selStatusColor = selStatus === "This week" ? C.emerald : selStatus === "Completed" ? C.turq : C.muted;
+  const selResources = selUnlocked ? (weekRes[selected] || []) : [];
+  const selMaterials = selUnlocked ? (selW.materials || []) : [];
+  const selParked = selUnlocked ? (selW.parked || []) : [];
+  const secLabel = { fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 };
+  const pillWrap = { display: "flex", flexWrap: "wrap", gap: 8 };
+
   return (
     <div className="rise">
       <Card style={{ padding: 20, marginBottom: 12 }}>
         <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Your course, week by week</div>
         <div style={{ fontSize: 13.5, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>
-          Missed a class or want to review? It's all here. Each week unlocks as you reach it, with its class materials and the same market-event resources we email you — so you can catch up, revise, and dig deeper any time.
+          Pick any week you've reached to see its activity, materials, and resources. Each week unlocks as you get there — no spoilers on what's ahead.
         </div>
         {batch && (
           <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: C.ink2, flexWrap: "wrap" }}>
@@ -1937,83 +1944,78 @@ function CoursePanel({ s, batch }) {
           </div>
         )}
       </Card>
-      {Object.keys(ACTS).map(Number).map((act) => (
-        <div key={act}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "14px 2px 8px" }}>
-            <Pill bg={act === 1 ? C.green : act === 2 ? C.pink : C.turq}>Act {act}</Pill>
-            <span className="disp" style={{ fontSize: 15, fontWeight: 700, color: C.ink2 }}>{ACTS[act]}</span>
-          </div>
-          {WEEKS.map((w, i) => {
-            const week = i + 1;
-            if (w.act !== act) return null;
-            const unlocked = offCourse || week <= currentWeek;
-            const status = !unlocked ? "Upcoming" : (week === currentWeek && !offCourse ? "This week" : "Completed");
-            const statusColor = status === "This week" ? C.emerald : status === "Completed" ? C.turq : C.muted;
-            const resources = unlocked ? (weekRes[week] || []) : [];
-            const materials = unlocked ? (w.materials || []) : [];
-            const parked = unlocked ? (w.parked || []) : [];
-            const isOpen = open.has(week);
-            return (
-              <Card key={week} style={{ padding: 0, marginBottom: 10, overflow: "hidden", opacity: unlocked ? 1 : 0.65 }}>
-                <button type="button" className="btn" onClick={() => unlocked && toggle(week)} aria-expanded={isOpen} disabled={!unlocked}
-                  style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "13px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, cursor: unlocked ? "pointer" : "not-allowed" }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                    {!unlocked && <Lock size={13} color={C.muted} style={{ flexShrink: 0 }} />}
+      <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+        {/* left rail — vertical week tabs, grouped by act */}
+        <Card style={{ padding: 8, flex: "0 0 240px", minWidth: 0 }}>
+          {Object.keys(ACTS).map(Number).map((act) => (
+            <div key={act}>
+              <div style={{ fontSize: 10.5, fontWeight: 800, color: act === 1 ? C.green : act === 2 ? C.pink : C.turq, letterSpacing: ".05em", textTransform: "uppercase", padding: "10px 10px 4px" }}>Act {act} · {ACTS[act]}</div>
+              {WEEKS.map((w, i) => {
+                const week = i + 1;
+                if (w.act !== act) return null;
+                const unlocked = offCourse || week <= currentWeek;
+                const isSel = week === selected;
+                const rStatus = !unlocked ? "Locked" : (week === currentWeek && !offCourse ? "This week" : "Done");
+                const rColor = rStatus === "This week" ? C.emerald : rStatus === "Done" ? C.turq : C.muted;
+                return (
+                  <button key={week} type="button" className="tab" aria-label={`Week ${week}`} aria-current={isSel ? "true" : undefined} onClick={() => setSelected(week)}
+                    style={{ width: "100%", textAlign: "left", border: "none", borderLeft: `3px solid ${isSel ? C.emerald : "transparent"}`, background: isSel ? C.paper2 : "transparent", padding: "9px 11px", display: "flex", gap: 8, alignItems: "center", cursor: "pointer", borderRadius: 4 }}>
+                    {!unlocked && <Lock size={12} color={C.muted} style={{ flexShrink: 0, marginTop: 2 }} />}
                     <span style={{ minWidth: 0 }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: statusColor, letterSpacing: ".04em" }}>WEEK {week} · {status.toUpperCase()}</span>
-                      <span className="disp" style={{ display: "block", fontSize: 16, fontWeight: 700, color: C.ink }}>{w.t}</span>
+                      <span style={{ display: "block", fontSize: 10, fontWeight: 700, color: rColor, letterSpacing: ".04em" }}>WEEK {week} · {rStatus.toUpperCase()}</span>
+                      <span className="disp" style={{ display: "block", fontSize: 13, fontWeight: 700, color: isSel ? C.ink : C.ink2, lineHeight: 1.25, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.t}</span>
                     </span>
-                  </span>
-                  {unlocked && <span aria-hidden="true" style={{ color: C.muted, fontSize: 20, flexShrink: 0, lineHeight: 1 }}>{isOpen ? "–" : "+"}</span>}
-                </button>
-                {unlocked && isOpen && (
-                  <div style={{ padding: "0 16px 16px", borderTop: `1px solid ${C.line}` }}>
-                    <div style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5, margin: "12px 0" }}>{w.s}</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Class materials</div>
-                    {materials.length ? (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                        {materials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic" }}>Lesson materials coming soon.</div>
-                    )}
-                    {resources.length > 0 && (
-                      <>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", margin: "16px 0 8px" }}>This week's market event — research it</div>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                          {resources.map((r, j) => <ResLink key={j} r={r} icon={Newspaper} />)}
-                        </div>
-                      </>
-                    )}
-                    {parked.length > 0 && (
-                      <div style={{ marginTop: 16, padding: 14, background: C.paper, borderRadius: 4, border: `1px dashed ${C.line}` }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 4 }}>More money topics — coming soon</div>
-                        <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>We also cover these in the program. Where they land in the schedule is being finalized — here's a preview and some resources to get a head start.</div>
-                        <div style={{ display: "grid", gap: 10 }}>
-                          {parked.map((pt, j) => (
-                            <div key={j}>
-                              <div className="disp" style={{ fontWeight: 700, fontSize: 14 }}>{pt.t}</div>
-                              <div style={{ fontSize: 12.5, color: C.muted, margin: "2px 0 6px", lineHeight: 1.4 }}>{pt.d}</div>
-                              {pt.materials && pt.materials.length > 0 && (
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                  {pt.materials.map((r, k) => <ResLink key={k} r={r} icon={BookOpen} />)}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {!unlocked && (
-                  <div style={{ padding: "0 16px 13px 38px", fontSize: 12.5, color: C.muted }}>Unlocks when you reach Week {week}.</div>
-                )}
-              </Card>
-            );
-          })}
-        </div>
-      ))}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </Card>
+
+        {/* right pane — the selected week's content */}
+        <Card style={{ padding: 22, flex: "1 1 320px", minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: selStatusColor, letterSpacing: ".04em" }}>WEEK {selected} · {selStatus.toUpperCase()}</div>
+          <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{selW.t}</div>
+          {selUnlocked && <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>}
+
+          {!selUnlocked ? (
+            <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: C.muted, background: C.paper, borderRadius: 4, padding: "12px 14px", marginTop: 12 }}>
+              <Lock size={15} style={{ flexShrink: 0 }} /> Unlocks when you reach Week {selected}. No spoilers — keep your focus on where you are now.
+            </div>
+          ) : (<>
+            {/* Week 1's activity IS the build plan — start from the customer. */}
+            {selected === 1 && <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${C.line}` }}><BuildPlan s={s} setS={setState} bare /></div>}
+
+            <div style={secLabel}>Class materials</div>
+            {selMaterials.length ? (
+              <div style={pillWrap}>{selMaterials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
+            ) : (
+              <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic" }}>Lesson materials coming soon.</div>
+            )}
+            {selResources.length > 0 && (<>
+              <div style={{ ...secLabel, marginTop: 16 }}>This week's market event — research it</div>
+              <div style={pillWrap}>{selResources.map((r, j) => <ResLink key={j} r={r} icon={Newspaper} />)}</div>
+            </>)}
+            {selParked.length > 0 && (
+              <div style={{ marginTop: 16, padding: 14, background: C.paper, borderRadius: 4, border: `1px dashed ${C.line}` }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 4 }}>More money topics — coming soon</div>
+                <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>We also cover these in the program. Where they land in the schedule is being finalized — here's a preview and some resources to get a head start.</div>
+                <div style={{ display: "grid", gap: 10 }}>
+                  {selParked.map((pt, j) => (
+                    <div key={j}>
+                      <div className="disp" style={{ fontWeight: 700, fontSize: 14 }}>{pt.t}</div>
+                      <div style={{ fontSize: 12.5, color: C.muted, margin: "2px 0 6px", lineHeight: 1.4 }}>{pt.d}</div>
+                      {pt.materials && pt.materials.length > 0 && (
+                        <div style={pillWrap}>{pt.materials.map((r, k) => <ResLink key={k} r={r} icon={BookOpen} />)}</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>)}
+        </Card>
+      </div>
     </div>
   );
 }
