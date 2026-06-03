@@ -1962,8 +1962,6 @@ function MakePlan({ s, setS, bare }) {
     } catch { /* clipboard blocked — the textarea is selectable as a fallback */ }
   };
 
-  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
-  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
   const inner = (
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Make it — build your first version with AI 🛠️</h3>
@@ -2016,17 +2014,6 @@ function MakePlan({ s, setS, bare }) {
         )}
       </div>
 
-      {/* The build itself happens live in Claude — not in text boxes. So the only thing we
-          capture here is the deliverable: the link to what you shipped. */}
-      <label style={{ display: "block" }}>
-        <span style={labelStyle}>Your live link 🔗</span>
-        <input type="url" aria-label="Your live link" value={make.liveLink || ""} onChange={(e) => setField("liveLink", e.target.value)}
-          placeholder="https://your-app.vercel.app"
-          style={{ ...inputStyle, resize: "none" }} />
-        <span style={{ fontSize: 12, color: C.muted, display: "block", marginTop: 5, lineHeight: 1.45 }}>
-          Once you've shipped your first version (e.g. on Vercel), paste the link here so anyone can try it — even your parents. That's the whole goal this week. <span style={{ color: C.muted }}>Saved automatically.</span>
-        </span>
-      </label>
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
