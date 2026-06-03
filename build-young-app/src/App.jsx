@@ -2006,6 +2006,13 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
         })()}
       </div>
       <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>
+      {/* What the student completed this week (Week 1 = their build plan — still editable). */}
+      {selected === 1 && (
+        <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${C.line}` }}>
+          <div style={secLabel}>What you worked on — edit any time</div>
+          <BuildPlan s={s} setS={setState} bare />
+        </div>
+      )}
       <div style={secLabel}>Class materials</div>
       {selMaterials.length ? (
         <div style={pillWrap}>{selMaterials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
