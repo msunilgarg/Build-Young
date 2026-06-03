@@ -4,7 +4,7 @@ This file orients you (Claude Code) to the project so you can build new function
 confidently. Read it fully before making changes.
 
 ## What this is
-**Build Young** is a live, online money-skills program for teens (ages 13–18), plus a
+**Build Young** is a live, online money-skills program for teens (ages 15–18), plus a
 single-page React marketing site + enrollment flow + an interactive "money simulation"
 dashboard students use after enrolling. Tagline: *"Raising builders, not consumers."*
 Founder: **Sunil Garg** (ex-Microsoft, 20 years in product). LinkedIn:
@@ -54,7 +54,7 @@ Top-to-bottom, the major pieces:
 - **`act(fn)`** — accessibility helper: makes a non-button element keyboard-operable
   (role=button, tabIndex, Enter/Space). Use it on any clickable `<span>`/`<div>`.
 - **`SEASONS` + `BATCHES`** — cohorts run in 3 seasonal intakes (Fall 2026, Winter 2027,
-  Spring 2027). ONE combined **"Builders"** track (ages 13–18; no MS/HS split). `BATCHES` has 6
+  Spring 2027). ONE combined **"Builders"** track (ages 15–18; no MS/HS split). `BATCHES` has 6
   entries = 3 seasons × 2 cohorts on alternating day-pairs (**Mon & Wed**, **Tue & Thu**); each
   meets **twice a week (~3 hrs)** over the 12-week course. `track` is `"Builders"` for all. Ids
   look like `fall-mw` / `fall-tt`. `CHECKINS` (= **1**) lives in cohorts.js too (imported by
