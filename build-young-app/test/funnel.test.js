@@ -90,6 +90,16 @@ describe("aggregate funnel over many students", () => {
     expect(s.revenue.refundedCents).toBe(99900 + 99900 + 82400);
     expect(s.revenue.netCents).toBe(20 * 99900 - (99900 * 2 + 82400));
   });
+  it("buckets withdrawals by cancellation reason (untagged → 'unspecified')", () => {
+    expect(s.withdrawals.byReason).toEqual({ unspecified: 3 });
+    const withReasons = summarize([
+      ev("withdrawn", { ...FALL, refundTier: "full", reason: "cost" }),
+      ev("withdrawn", { ...FALL, refundTier: "full", reason: "cost" }),
+      ev("withdrawn", { ...FALL, refundTier: "prorated", reason: "schedule" }),
+      ev("withdrawn", { ...FALL, refundTier: "full" }), // no reason
+    ]).withdrawals;
+    expect(withReasons.byReason).toEqual({ cost: 2, schedule: 1, unspecified: 1 });
+  });
   it("reads the week-progression curve", () => {
     expect(s.weekCurve.find((w) => w.week === 2).value).toBe(2);
     expect(s.weekCurve.find((w) => w.week === 12).value).toBe(1);

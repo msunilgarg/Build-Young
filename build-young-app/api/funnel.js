@@ -26,7 +26,7 @@ const EVENTS = new Set([
   "class_started", "week_advanced", "graduated", "checkin_completed", "withdrawn",
   "screen_view", "exit", // traffic & engagement: per-screen dwell + exit screen
 ]);
-const ALLOWED_PROPS = ["season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall", "stage", "source", "screen", "ms"];
+const ALLOWED_PROPS = ["season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall", "stage", "source", "screen", "ms", "reason"];
 
 // Admin gate: a logged-in founder (session email on the allowlist). 403 otherwise.
 async function founderGate(req, res) {

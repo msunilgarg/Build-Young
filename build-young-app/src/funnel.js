@@ -98,9 +98,13 @@ export function summarize(events, filter = null) {
   const checkinCurve = [];
   for (let c = 1; c <= CHECKINS; c++) checkinCurve.push({ checkin: c, label: `M${c}`, value: count("checkin_completed", (e) => e.props?.checkin === c) });
 
-  // Withdrawals as an exit branch, tagged by refund tier.
-  const withdrawals = { total: count("withdrawn"), byTier: {} };
+  // Withdrawals as an exit branch, tagged by refund tier + the cancellation reason.
+  const withdrawals = { total: count("withdrawn"), byTier: {}, byReason: {} };
   REFUND_TIERS.forEach((t) => { withdrawals.byTier[t] = count("withdrawn", (e) => e.props?.refundTier === t); });
+  where("withdrawn").forEach((e) => {
+    const r = e.props?.reason || "unspecified";
+    withdrawals.byReason[r] = (withdrawals.byReason[r] || 0) + 1;
+  });
 
   // Revenue = enrolled prices − refunds (cents).
   const grossCents = where("enrolled").reduce((s, e) => s + (e.props?.priceCents || 0), 0);

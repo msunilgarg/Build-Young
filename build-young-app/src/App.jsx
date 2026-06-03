@@ -488,7 +488,19 @@ The Team`,
 }
 // Refund/cancellation confirmation — sent when a student confirms a withdrawal. Full refund if
 // the cohort hasn't started; prorated (for the unattended sessions) within the first week.
-export function withdrawalEmail(s, batch, refund, notStarted) {
+// Why a family cancels — preset options (the `value` is aggregate-safe for the funnel; the
+// optional free-text note goes only to the founder's email, never the analytics stream).
+export const CANCEL_REASONS = [
+  { value: "cost", label: "Cost — too expensive" },
+  { value: "schedule", label: "Schedule or timing doesn't work" },
+  { value: "fit", label: "Not the right fit" },
+  { value: "other_program", label: "Going with another program" },
+  { value: "interest", label: "Lost interest" },
+  { value: "other", label: "Other" },
+];
+export const cancelReasonLabel = (v) => (CANCEL_REASONS.find((r) => r.value === v) || {}).label || "";
+
+export function withdrawalEmail(s, batch, refund, notStarted, reasonText) {
   const first = s.student.name.split(" ")[0] || "there";
   // week increments on each advance, so sessions held = week − 1 once started; the rest are
   // "not yet held" (the prorated refund basis — matches the Terms).
@@ -503,7 +515,7 @@ export function withdrawalEmail(s, batch, refund, notStarted) {
 We've canceled your enrollment in the ${batch.track} cohort, as requested. A full refund of ${fmt(refund)} is on its way back to your original payment method — refunds typically land within 5–10 business days.
 
   •  Cohort: ${batch.track} — ${batch.day}
-  •  Refund: ${fmt(refund)} (full)
+  •  Refund: ${fmt(refund)} (full)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
 
 No hard feelings — your seat is freed up for someone else, and you're welcome back anytime. Just reply to this email if anything looks off.
 
@@ -515,7 +527,7 @@ We've processed your withdrawal from the ${batch.track} cohort. A prorated refun
 
   •  Cohort: ${batch.track} — ${batch.day}
   •  Attended: ${attended} of 12 sessions
-  •  Refund: ${fmt(refund)} (prorated)
+  •  Refund: ${fmt(refund)} (prorated)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
 
 Thanks for giving it a try — you're welcome back anytime. Just reply to this email if anything looks off.
 
@@ -1576,6 +1588,9 @@ function Platform({ state, setState, onExit, onFounder }) {
   const [tab, setTab] = useState(state && state.started ? "dash" : "overview");
   const [toast, setToast] = useState(null);
   const [withdraw, setWithdraw] = useState(false); // false | 'confirm' | 'done'
+  const [reason, setReason] = useState("");        // preset cancel-reason value (required to confirm)
+  const [reasonNote, setReasonNote] = useState(""); // optional free-text note (goes to the founder email only)
+  const closeWithdraw = () => { setWithdraw(false); setReason(""); setReasonNote(""); };
   const ping = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3600); };
   const s = state;
   const batch = BATCHES.find((b) => b.id === s.student.batch) || BATCHES[0];
@@ -1593,15 +1608,19 @@ function Platform({ state, setState, onExit, onFounder }) {
   // a side effect, so it lives OUTSIDE the setState updater (updaters must stay pure).
   const withdrawingRef = useRef(false);
   const doWithdraw = () => {
-    if (withdrawingRef.current || !canWithdrawNow(s)) return; // window closed → refuse (defense-in-depth)
+    if (withdrawingRef.current || !canWithdrawNow(s) || !reason) return; // need a reason; window open
     withdrawingRef.current = true;
-    const mail = withdrawalEmail(s, batch, refund, notStarted);
+    // Human-readable reason for the founder's email: the preset label + any free-text note.
+    const note = reasonNote.trim();
+    const reasonText = cancelReasonLabel(reason) + (note ? ` — ${note}` : "");
+    const mail = withdrawalEmail(s, batch, refund, notStarted, reasonText);
     sendEmail(s.student.email, mail.subject, mail.body);
-    // Funnel: exit branch, tagged with the refund tier (full before start, else prorated).
+    // Funnel: exit branch, tagged with the refund tier + the PRESET reason (aggregate; the
+    // free-text note is intentionally NOT sent to analytics).
     track("withdrawn", {
       season: batch.season, track: batch.track, batchId: batch.id,
       refundTier: notStarted ? "full" : "prorated", refundCents: Math.round(refund * 100),
-      week: s.week, stage: notStarted ? "before_start" : "in_progress",
+      week: s.week, stage: notStarted ? "before_start" : "in_progress", reason,
     });
     setState((p) => ({ ...p, emails: [mail, ...(p.emails || [])] }));
     setWithdraw("done");
@@ -1738,9 +1757,20 @@ function Platform({ state, setState, onExit, onFounder }) {
                     ? <>Your cohort hasn't started yet, so you'll receive a <b>full refund of {fmt(refund)}</b> — no questions asked. This frees up your seat for someone else.</>
                     : <>You've attended {attended} of 12 sessions. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {unheld} sessions not yet held. Refunds are available only through the {REFUND_WINDOW}, so this can't be reversed.</>}
                 </p>
+                <label style={{ display: "block", marginTop: 16 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: C.ink2, display: "block", marginBottom: 5 }}>Reason for cancelling <span style={{ color: C.rust }}>*</span></span>
+                  <select aria-label="Reason for cancelling" value={reason} onChange={(e) => setReason(e.target.value)} style={{ width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink }}>
+                    <option value="">Choose a reason…</option>
+                    {CANCEL_REASONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+                  </select>
+                </label>
+                <label style={{ display: "block", marginTop: 10 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: C.ink2, display: "block", marginBottom: 5 }}>Anything else? <span style={{ color: C.muted, fontWeight: 500 }}>(optional — helps us improve)</span></span>
+                  <textarea aria-label="Anything else about why you're cancelling" value={reasonNote} onChange={(e) => setReasonNote(e.target.value)} rows={2} placeholder="Tell Sunil what would have made it a better fit…" style={{ width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
+                </label>
                 <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
-                  <button className="btn" onClick={() => setWithdraw(false)} style={{ flex: 1, background: C.paper2, color: C.ink, border: `1px solid ${C.line}`, padding: 12, borderRadius: 4, fontSize: 14 }}>Cancel</button>
-                  <button className="btn" onClick={doWithdraw} style={{ flex: 1, background: C.rust, color: "#fff", padding: 12, borderRadius: 4, fontSize: 14 }}>Confirm withdrawal</button>
+                  <button className="btn" onClick={closeWithdraw} style={{ flex: 1, background: C.paper2, color: C.ink, border: `1px solid ${C.line}`, padding: 12, borderRadius: 4, fontSize: 14 }}>Never mind</button>
+                  <button className="btn" disabled={!reason} onClick={doWithdraw} style={{ flex: 1, background: reason ? C.rust : C.line, color: "#fff", padding: 12, borderRadius: 4, fontSize: 14, cursor: reason ? "pointer" : "not-allowed" }}>Confirm withdrawal</button>
                 </div>
               </>
             ) : (
@@ -2689,6 +2719,19 @@ export function FounderDashboard({ onHome }) {
             <Stat label="Prorated" value={summary.withdrawals.byTier.prorated.toLocaleString()} sub={`within the ${REFUND_WINDOW}`} color={C.ink} />
             <Stat label="No refund" value={summary.withdrawals.byTier.none.toLocaleString()} sub="after the window" color={C.ink} />
           </div>
+          {summary.withdrawals.total > 0 && (
+            <Card style={{ padding: 16, marginTop: 12 }}>
+              <b style={{ fontSize: 13.5 }}>Why they cancelled</b>
+              <div style={{ marginTop: 8 }}>
+                {Object.entries(summary.withdrawals.byReason).sort((a, b) => b[1] - a[1]).map(([r, n], i) => (
+                  <div key={r} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
+                    <span style={{ color: C.ink2 }}>{cancelReasonLabel(r) || (r === "unspecified" ? "Unspecified" : r)}</span>
+                    <b>{n.toLocaleString()}</b>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
         </>)}
 
         {!error && events !== null && (<>
