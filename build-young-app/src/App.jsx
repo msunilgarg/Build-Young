@@ -920,24 +920,25 @@ function Testimonials({ items = [] }) {
   const cur = idx % n;
   const t = list[cur];
   return (
-    <section style={{ padding: "18px 6vw 20px", background: "#fbfafa", borderBottom: `1px solid ${C.line}` }}>
-      <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
-        <div style={{ marginBottom: 10 }}>
-          <span style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".08em", textTransform: "uppercase", color: C.muted }}>What our <span className="grad">builders</span> made</span>
+    <section style={{ padding: "34px 6vw 38px", background: `linear-gradient(180deg, #e9f2fb 0%, #eef6f4 100%)`, borderBottom: `1px solid ${C.line}` }}>
+      <div style={{ maxWidth: 860, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ marginBottom: 16 }}>
+          <span style={{ fontSize: 12.5, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase", color: C.emerald }}>What our <span className="grad">builders</span> made</span>
           {usingSamples && <span style={{ fontSize: 11, color: C.gold, fontWeight: 700, marginLeft: 8 }}>· sample preview</span>}
         </div>
         {/* key={cur} re-mounts on each change so the fade-in animation replays */}
-        <div key={cur} className="by-quote" style={{ minHeight: 64 }}>
-          <p style={{ fontSize: 17, color: C.ink, lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
-            <span style={{ color: C.turq, fontWeight: 800 }}>“</span>{t.feedback}”
+        <div key={cur} className="by-quote" style={{ minHeight: 96, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          <div aria-hidden="true" style={{ fontFamily: "Georgia, serif", fontSize: 44, lineHeight: 0.2, color: C.turq, fontWeight: 800, marginBottom: 18 }}>“</div>
+          <p className="disp" style={{ fontSize: "clamp(20px,2.6vw,27px)", color: C.ink, lineHeight: 1.35, margin: 0, fontWeight: 700, maxWidth: 760, letterSpacing: "-.01em" }}>
+            {t.feedback}
           </p>
-          <div className="disp" style={{ fontSize: 13.5, fontWeight: 700, color: C.ink2, marginTop: 8 }}>
+          <div className="disp" style={{ fontSize: 14.5, fontWeight: 800, color: C.emerald, marginTop: 14 }}>
             — {t.name || "A Build Young builder"}
-            {t.link && <> · <a href={t.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, textDecoration: "none" }}>See their build ↗</a></>}
+            {t.link && <> · <a href={t.link} target="_blank" rel="noopener noreferrer" style={{ color: C.turq, fontWeight: 700, textDecoration: "none" }}>See their build ↗</a></>}
           </div>
         </div>
         {/* count + dots */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 16 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: C.muted, fontVariantNumeric: "tabular-nums" }}>{cur + 1} / {n}</span>
           {n > 1 && n <= 20 && (
             <span style={{ display: "inline-flex", gap: 6 }}>
@@ -3363,7 +3364,7 @@ function TeachingSchedule() {
   );
 }
 
-export function FounderDashboard({ onHome }) {
+export function FounderDashboard({ onHome, onPreviewStudent }) {
   const [events, setEvents] = useState(null); // null = loading
   const [founders, setFounders] = useState([]); // admin allowlist (effective: env ∪ KV)
   const [error, setError] = useState(null);
@@ -3421,6 +3422,7 @@ export function FounderDashboard({ onHome }) {
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <span {...act(() => downloadFile("build-young-funnel.csv", toCSV(events || []), "text/csv"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> CSV</span>
             <span {...act(() => downloadFile("build-young-funnel.json", JSON.stringify(toDataRoom(events || []), null, 2), "application/json"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> JSON</span>
+            {onPreviewStudent && <span {...act(onPreviewStudent)} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#fff", background: C.emerald, borderRadius: 4, padding: "8px 12px" }}><GraduationCap size={14} /> Preview student dashboard</span>}
             <span {...act(onHome)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.muted, padding: "8px 6px" }}>← Home</span>
           </div>
         </div>
@@ -4398,6 +4400,7 @@ export default function App() {
   // single-flight lock: a route transition takes one frame; ignore re-fires within it
   // (prevents double-click races — history desync, double-enroll, duplicate emails).
   const navLock = useRef(false);
+  const previewRef = useRef(false); // founder is previewing the student dashboard → don't persist
   const guard = (fn) => {
     if (navLock.current) return;
     navLock.current = true;
@@ -4416,10 +4419,20 @@ export default function App() {
     setRoute(prev.route);
     setHistory((h) => h.slice(0, -1));
   });
-  const goHome = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("home"); });
+  const goHome = () => guard(() => { if (previewRef.current) { previewRef.current = false; setState(null); } pendingScroll.current = 0; setHistory([]); setRoute("home"); });
   const goFounder = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("founder"); });
   // Logged-in "home" target: a founder w/o a student sim → admin console; otherwise the app dashboard.
   const goDashboard = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute(isFounder && !state ? "founder" : "app"); });
+  // Founder-only: walk the STUDENT dashboard with a throwaway demo state. `previewRef` skips the
+  // persist effect so it never writes a demo over the founder's account. previewAllWeeks unlocks
+  // every week so all content (Weeks 1–12) is reviewable.
+  const previewStudent = () => guard(() => {
+    const b = batches[0] || BATCHES[0];
+    previewRef.current = true;
+    pendingScroll.current = 0; setHistory([]);
+    setState(newState({ name: "Preview Student", email: "preview@build-young.com", batch: b.id, track: b.track }));
+    setRoute("app");
+  });
   // apply the pending scroll after the route's content has rendered
   useLayoutEffect(() => {
     if (pendingScroll.current == null) return;
@@ -4524,9 +4537,10 @@ export default function App() {
     })();
   }, []);
 
-  // persist state — server-side (debounced) in auth mode, else local window.storage
+  // persist state — server-side (debounced) in auth mode, else local window.storage.
+  // Skipped entirely while a founder previews the student dashboard (throwaway demo state).
   useEffect(() => {
-    if (!loaded || !state) return;
+    if (!loaded || !state || previewRef.current) return;
     if (CONFIG.authEnabled) {
       const id = setTimeout(() => AUTH.putState(state), 600);
       return () => clearTimeout(id);
@@ -4554,6 +4568,8 @@ export default function App() {
     pendingScroll.current = 0; setHistory([]); setState(newState(student)); setRoute("app");
   });
   const exitApp = () => guard(() => {
+    // Founder previewing the student dashboard → drop the throwaway state, back to the console.
+    if (previewRef.current) { previewRef.current = false; pendingScroll.current = 0; setHistory([]); setState(null); setRoute("founder"); return; }
     if (CONFIG.authEnabled) { AUTH.logout(); }
     else { try { if (window.storage) window.storage.delete("by:state"); } catch (e) { } }
     pendingScroll.current = 0; setHistory([]); setState(null); setRoute("home");
@@ -4586,7 +4602,7 @@ export default function App() {
       {route === "login" && <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "setpw" && <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} />}
       {route === "checkemail" && <CheckEmail track={enrolledTrack} email={enrolledEmail} onHome={goHome} onLogin={goLogin} />}
-      {route === "founder" && <FounderDashboard onHome={goHome} />}
+      {route === "founder" && <FounderDashboard onHome={goHome} onPreviewStudent={previewStudent} />}
       {route === "verify" && <CertifyVerify certId={verifyId} onHome={goHome} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
     </div>
