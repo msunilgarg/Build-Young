@@ -1459,8 +1459,8 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>How each week works</h3>
           <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
-          <div style={li}>{num(2)}<span><b>Build weeks (1–6):</b> work on <b>your product</b> with AI as your tool, and earn your first income from it.</span></div>
-          <div style={li}>{num(3)}<span><b>Money weeks (7–12):</b> open <b>This Week</b>, then <b>advance your simulation</b> — rebalance your <b>Portfolio</b> as events unfold in <b>Markets</b>.</span></div>
+          <div style={li}>{num(2)}<span>Open <b>This Week</b> for that session's activity — building your product early on, managing the money later.</span></div>
+          <div style={li}>{num(3)}<span><b>Advance your simulation</b>, then rebalance your <b>Portfolio</b> as events unfold in <b>Markets</b>.</span></div>
           <div style={li}>{num(4)}<span>Watch your <b>business</b> and <b>net worth</b> grow on the <b>Dashboard</b>.</span></div>
         </Card>
       </div>
