@@ -8,9 +8,11 @@
 
 import { kvConfigured, kvCommand, kvDel } from "./kv.js";
 import { normalizeEmail } from "./auth.js";
-import { sendEmail } from "./sendEmail.js";
+import { sendEmail, REPLY_TO_ADDRESS } from "./sendEmail.js";
 
 const KEY = "interest:list";
+const TUTOR_KEY = "interest:tutors"; // prospective live tutors — SEPARATE from cohort interest so
+                                     // the new-cohort notification never emails applicants.
 const BASE_URL = () => (process.env.PUBLIC_BASE_URL || "https://www.build-young.com").replace(/\/+$/, "");
 const parse = (r) => { try { return typeof r === "string" ? JSON.parse(r) : r; } catch { return null; } };
 
@@ -24,6 +26,54 @@ export async function addInterest({ name, email, batchId, season, track }) {
     await kvCommand(["LTRIM", KEY, "-5000", "-1"]);
   } catch { return { ok: false }; }
   return { ok: true };
+}
+
+// --- Prospective live tutors (Careers → "Teach with us") -------------------------------------
+// Dead simple + mail-client-independent: the Careers form asks for just an email and POSTs here.
+// We email it straight to the founder (so it lands in the inbox like a real application) AND store
+// it under its own key as a reliable backstop the console can read. Never swept by
+// notifyInterestOfNewCohorts. Returns { ok, emailed } so the form can confirm it went through.
+export async function addTutorInterest({ email, linkedin }) {
+  const e = normalizeEmail(email || "");
+  if (!e || !e.includes("@")) return { ok: false, error: "Please enter a valid email." };
+  const li = String(linkedin || "").trim().slice(0, 300);
+  if (!li || !/linkedin\.com\//i.test(li)) return { ok: false, error: "Please enter a valid LinkedIn profile URL." };
+
+  // Best-effort: drop it in KV so it's never lost even if email isn't configured.
+  let stored = false;
+  if (kvConfigured()) {
+    const rec = JSON.stringify({ email: e, linkedin: li, ts: Date.now() });
+    try {
+      await kvCommand(["RPUSH", TUTOR_KEY, rec]);
+      await kvCommand(["LTRIM", TUTOR_KEY, "-5000", "-1"]);
+      stored = true;
+    } catch { /* fall through to the email */ }
+  }
+
+  // Send it to the founder's inbox.
+  let emailed = false;
+  try {
+    const sent = await sendEmail({
+      to: REPLY_TO_ADDRESS,
+      subject: "New live-tutor interest — Build Young",
+      body: `Someone is interested in becoming a Build Young live tutor.\n\nTheir email: ${e}\nLinkedIn: ${li}\n\nReply to them directly to follow up.`,
+      replyTo: e, // hitting "reply" reaches the applicant
+    });
+    emailed = !!(sent && sent.ok);
+  } catch { /* keep going */ }
+
+  // Success if we captured it either way; only fail if BOTH the store and the email fell through.
+  if (!stored && !emailed) return { ok: false, error: "We couldn't submit that just now — please email us instead." };
+  return { ok: true, emailed };
+}
+
+// Newest first.
+export async function listTutorInterest() {
+  if (!kvConfigured()) return [];
+  try {
+    const raw = (await kvCommand(["LRANGE", TUTOR_KEY, "0", "-1"])) || [];
+    return raw.map(parse).filter(Boolean).reverse();
+  } catch { return []; }
 }
 
 // Newest first.
