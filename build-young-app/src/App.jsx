@@ -1155,47 +1155,71 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
   );
 }
 
-// "Teach with us" — a lightweight interest modal for prospective live tutors. As we grow to many
-// cohorts/day we'll need more instructors; this captures interest via a pre-filled email (no
-// backend/PII storage). Mirrors the calm modal style used elsewhere.
+// "Teach with us" — a simple interest modal for prospective live tutors. We just ask for an email
+// + LinkedIn (both required) and POST to /api/funnel?resource=tutor, which emails it to the founder
+// and stores it. Mail-client-independent (no mailto) so it works for everyone. Calm modal style.
 function CareersModal({ onClose }) {
-  const subject = "Live tutor — I'd like to teach with Build Young";
-  const body = `Hi Sunil,
+  const [email, setEmail] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | sending | done
+  const [err, setErr] = useState("");
+  const liOk = /linkedin\.com\//i.test(linkedin.trim());
+  const canSend = validEmail(email) && liOk && status !== "sending";
 
-I'm interested in becoming a live tutor for Build Young.
+  const submit = async () => {
+    if (!canSend) return;
+    setStatus("sending"); setErr("");
+    const r = await postJson("/api/funnel?resource=tutor", { email: email.trim(), linkedin: linkedin.trim() });
+    if (r.ok) setStatus("done");
+    else { setStatus("idle"); setErr(r.error || "Couldn't submit just now — please try again."); }
+  };
 
-A bit about me:
-• Background (product / startup / building with AI / teaching teens):
-• Why I'd be a good fit:
-• Time zone & weekday evenings I could teach:
-• LinkedIn / portfolio:
-
-Thanks!`;
-  const mailto = `mailto:${CONFIG.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   const li = { display: "flex", gap: 9, alignItems: "flex-start", fontSize: 14, color: C.ink2, lineHeight: 1.5, padding: "5px 0" };
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
   return (
     <div role="dialog" aria-modal="true" aria-label="Teach with Build Young" onClick={onClose}
       style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(36,36,36,.5)", display: "grid", placeItems: "center", padding: 20 }}>
       <Card onClick={(e) => e.stopPropagation()} style={{ padding: 28, maxWidth: 520, width: "100%", maxHeight: "88vh", overflowY: "auto" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#efe7f5", color: C.gold, fontSize: 11.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 4 }}><GraduationCap size={13} /> Careers · Teach with us</div>
         <h2 className="disp" style={{ fontSize: 24, fontWeight: 800, margin: "14px 0 0" }}>Become a Build Young tutor</h2>
-        <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 10 }}>
-          We run small, live cohorts where teens build a real product with AI and learn how money works. As we grow, we're looking for instructors who can lead a group live over Zoom — twice a week, ~90 minutes a session, over the 12-week course.
-        </p>
-        <div style={{ marginTop: 8, marginBottom: 14 }}>
-          <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You've <b>built things</b> yourself — a product, startup, or side project (bonus if you build with AI).</span></div>
-          <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You genuinely like <b>working with teens</b> and can make hard ideas feel simple.</span></div>
-          <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You can commit to a <b>standing weekly time</b> for a cohort, live on Zoom.</span></div>
-        </div>
-        <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>
-          Working with minors, so we run background checks for live instructors. Tell us about yourself and we'll be in touch.
-        </p>
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <a href={mailto} style={{ textDecoration: "none" }}>
-            <button className="btn" style={{ background: C.emerald, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}><Mail size={16} /> Express interest</button>
-          </a>
-          <button className="btn" onClick={onClose} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "12px 18px", borderRadius: 4, fontSize: 14 }}>Maybe later</button>
-        </div>
+
+        {status === "done" ? (
+          <>
+            <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 12 }}>
+              <Check size={17} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
+              Thanks — we've got your details and Sunil will be in touch. 🙌
+            </p>
+            <button className="btn" onClick={onClose} style={{ marginTop: 16, background: C.ink, color: C.paper2, padding: "11px 20px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Close</button>
+          </>
+        ) : (
+          <>
+            <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 10 }}>
+              We run small, live cohorts where teens build a real product with AI and learn how money works. As we grow, we're looking for instructors who can lead a group live over Zoom — twice a week, ~90 minutes a session, over the 12-week course.
+            </p>
+            <div style={{ marginTop: 8, marginBottom: 16 }}>
+              <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You've <b>built things</b> yourself — a product, startup, or side project (bonus if you build with AI).</span></div>
+              <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You genuinely like <b>working with teens</b> and can make hard ideas feel simple.</span></div>
+              <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You can commit to a <b>standing weekly time</b> for a cohort, live on Zoom.</span></div>
+            </div>
+            <label style={{ display: "block", marginBottom: 12 }}>
+              <span style={labelStyle}>Your email</span>
+              <input type="email" aria-label="Your email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
+            </label>
+            <label style={{ display: "block", marginBottom: 6 }}>
+              <span style={labelStyle}>LinkedIn profile <span style={{ color: C.pink }}>*</span></span>
+              <input type="url" aria-label="LinkedIn profile URL" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} placeholder="https://www.linkedin.com/in/your-profile" style={inputStyle} />
+            </label>
+            {err && <div style={{ fontSize: 13, color: C.pink, marginTop: 6 }}>{err}</div>}
+            <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "12px 0 16px" }}>
+              We work with minors, so live instructors go through a background check. We'll only use your details to follow up.
+            </p>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.emerald : C.line, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8, cursor: canSend ? "pointer" : "not-allowed" }}><Mail size={16} /> {status === "sending" ? "Sending…" : "Express interest"}</button>
+              <button className="btn" onClick={onClose} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "12px 18px", borderRadius: 4, fontSize: 14 }}>Maybe later</button>
+            </div>
+          </>
+        )}
       </Card>
     </div>
   );
@@ -1898,6 +1922,42 @@ function MakePlan({ s, setS, bare }) {
   const buildTools = PREREQS.filter((p) => p.build);
   const allReady = buildTools.every((p) => prereqs[p.id]);
   const togglePrereq = (id) => setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
+
+  // A ready-to-paste prompt for Claude, assembled from the student's OWN Week 2 spec (s.shape) so
+  // it builds THEIR product. Empty fields fall back to a clear placeholder so the prompt still
+  // makes sense (and nudges them to go finish the spec).
+  const shape = s.shape || {};
+  const [copied, setCopied] = useState(false);
+  const has = (v) => v && v.trim();
+  const promptLines = [
+    "I'm building my very first web app, and I'd like you to build a first version with me — you write the code, I'll tell you what's good and what to change. I don't code, so please keep explanations simple and tell me exactly what to do.",
+    "",
+    "WHAT IT IS:",
+    has(shape.vision) ? shape.vision.trim() : "(Describe your product — what it is, the main thing it does, and who it's for. From your Week 2 spec.)",
+    "",
+    "WHAT IT SHOULD DO (features):",
+    has(shape.capabilities) ? shape.capabilities.trim() : "(List the features — sign-up, the main actions, what users see. Start with the most important one.)",
+    "",
+    "WHAT IT SHOULD BE LIKE TO USE:",
+    has(shape.experience) ? shape.experience.trim() : "(Walk through it step by step — what you open, see, and click, what happens, and how it should feel.)",
+  ];
+  if (has(shape.wow)) promptLines.push("", "THE “WOW” MOMENT:", shape.wow.trim());
+  promptLines.push(
+    "",
+    "HOW TO BUILD IT:",
+    "1. Start with the SMALLEST working version — just the one thing that HAS to work. We'll add the rest after.",
+    "2. Use clean, simple, friendly styling.",
+    "3. When it's built, tell me exactly how to run it and see it in my browser.",
+    "",
+    "Then I'll look at it and tell you what to change. Let's go!"
+  );
+  const aiPrompt = promptLines.join("\n");
+  const copyPrompt = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(aiPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    } catch { /* clipboard blocked — the textarea is selectable as a fallback */ }
+  };
+
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
   const field = (k, label, placeholder, rows = 3) => (
@@ -1917,7 +1977,7 @@ function MakePlan({ s, setS, bare }) {
           now. Same s.prereqs state as the Overview checklist, so ticking here syncs there. */}
       <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Pre-reqs — set these up before this week's build</span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Pre-reqs — you'll need these for this week's build</span>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
         </div>
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
@@ -1935,6 +1995,22 @@ function MakePlan({ s, setS, bare }) {
             </div>
           );
         })}
+      </div>
+
+      {/* Copy-paste starter prompt for Claude — built from the student's own Week 2 spec. */}
+      <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 Your copy-paste prompt for Claude</span>
+          <button type="button" className="btn" onClick={copyPrompt} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
+            {copied ? <><Check size={14} /> Copied!</> : "Copy prompt"}
+          </button>
+        </div>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 8px" }}>
+          Open Claude (or Claude Code), paste this in, and send it — it's built from <b>your Week 2 spec</b>, so the more you filled in there, the better it builds. Read it over and tweak anything before you send.
+        </p>
+        <textarea readOnly aria-label="Copy-paste AI prompt" value={aiPrompt} rows={9}
+          onFocus={(e) => e.target.select()}
+          style={{ width: "100%", boxSizing: "border-box", fontSize: 12.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
       </div>
 
       {field("firstVersion", "What you'll build first", "What's the smallest version that's still real and useful? Name the one thing that HAS to work — build that before anything else.")}
@@ -3345,6 +3421,8 @@ export function FounderDashboard({ onHome }) {
           <CertificatesAdmin />
           <h2 style={h2s}>Student build plans</h2>
           <BuildPlansAdmin />
+          <h2 style={h2s}>Tutor applications</h2>
+          <TutorInterestAdmin />
           <h2 style={h2s}>Reset a test account</h2>
           <AccountReset />
         </>)}
@@ -3930,6 +4008,36 @@ function InterestAdmin() {
         <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
           <span style={{ minWidth: 0 }}><b style={{ color: C.ink }}>{r.name || "—"}</b> <span style={{ color: C.muted }}>· {r.email}</span></span>
           <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.batchId || r.season || ""}{r.ts ? ` · ${new Date(r.ts).toLocaleDateString()}` : ""}</span>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+// Founder view of prospective live tutors (Careers → "Teach with us"). Read-only; they're also
+// emailed to the founder's inbox as they come in.
+function TutorInterestAdmin() {
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=tutor"); const d = r.ok ? await r.json() : {}; if (live) setList(Array.isArray(d.tutors) ? d.tutors : []); }
+      catch { if (live) setList([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>People who applied to teach live (Careers → “Teach with us”). They're also emailed to your inbox as they come in.</div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
+      {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No tutor applications yet.</div>}
+      {list && list.map((r, i) => (
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
+          <span style={{ minWidth: 0, display: "flex", flexWrap: "wrap", gap: "2px 8px", alignItems: "baseline" }}>
+            <b style={{ color: C.ink }}>{r.email}</b>
+            {r.linkedin && <a href={r.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}><Linkedin size={12} /> LinkedIn ↗</a>}
+          </span>
+          <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
         </div>
       ))}
     </Card>

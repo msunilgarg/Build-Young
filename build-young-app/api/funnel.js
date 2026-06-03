@@ -14,7 +14,7 @@
 import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
 import { saveSettings } from "./_lib/settingsStore.js";
-import { addInterest, listInterest, notifyInterestOfNewCohorts } from "./_lib/interestStore.js";
+import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest } from "./_lib/interestStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
 import { listCerts } from "./_lib/cert.js";
 import { listBuildPlans } from "./_lib/buildPlans.js";
@@ -82,6 +82,11 @@ async function read(req, res) {
 
   if (req.query && req.query.resource === "interest") {
     res.status(200).json({ interest: await listInterest() });
+    return;
+  }
+
+  if (req.query && req.query.resource === "tutor") {
+    res.status(200).json({ tutors: await listTutorInterest() });
     return;
   }
 
@@ -160,9 +165,17 @@ async function saveInterest(req, res) {
   res.status(result.ok || result.reason ? 200 : 400).json(result);
 }
 
+// --- POST ?resource=tutor: public — a prospective live tutor submits their email + LinkedIn
+// (Careers → "Teach with us"). We email it to the founder and store it. ---
+async function saveTutorInterest(req, res) {
+  const result = await addTutorInterest((await readBody(req)) || {});
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
 export default async function handler(req, res) {
   if (req.method === "POST") {
     if (req.query && req.query.resource === "interest") return saveInterest(req, res); // public
+    if (req.query && req.query.resource === "tutor") return saveTutorInterest(req, res); // public
     return ingest(req, res);     // public: track an event
   }
   if (req.method === "GET") return read(req, res);        // founder: read funnel events
