@@ -1530,10 +1530,28 @@ function OverviewPanel({ s, batch, onTab, setS }) {
  * Lives at the top of the Dashboard. Before building, the student picks an idea (or writes their
  * own) and writes WHO it's for + a short "press release" as if it already launched — the
  * work-backwards move. Persists in s.build (auto-saved with the rest of the sim state). */
+// A fully worked Week-1 build plan — Build Young itself — so students see what "good" looks like.
+const EXAMPLE_BUILD = {
+  idea: "Build Young — a live program where teens 13–18 build a real product with AI, then learn to grow and manage what it earns, all inside one money simulation.",
+  pain: `Teens aren't taught how money or the real world actually works — it's not on any test, and the free videos out there go unwatched.
+Parents worry that in an AI world a degree won't be the edge — but there's no hands-on way for their kid to learn to build, or to handle money, before adulthood.
+The "investing classes" that exist only teach stock-picking (the flashy 10%) — not earning, taxes, budgeting, or big purchases, which are the parts that actually shape a life.`,
+  pr: `Announcing Build Young — a live program where teens build a product people would pay for, with AI as their tool, and learn to manage the money it earns.
+
+The problem: Kids leave school having never built anything real or learned how money works — and in an AI world, the edge is what you can build, not what you were credentialed to do.
+
+How it works: Over 12 weeks, each teen builds their own product with AI, earns (simulated) income from it, then learns taxes, saving, investing, and big purchases — all in one continuous simulation where mistakes are safe.
+
+Why families love it: It's live and small-group with a standing weekly time, so "someday" becomes "done" — and kids graduate having built both a business and a net worth from zero.
+
+"My daughter went from 'I don't get money' to running her own little product and explaining compound interest at dinner." — a Build Young parent`,
+};
+
 function BuildPlan({ s, setS, bare }) {
   const build = s.build || {};
   const setField = (k, v) => setS((p) => ({ ...p, build: { ...(p.build || {}), [k]: v } }));
   const isCustom = build.scenario === "custom";
+  const [showEx, setShowEx] = useState(false); // worked-example reveal
 
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
@@ -1549,6 +1567,26 @@ Why people love it: [the payoff].
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
         Before you build anything, get clear on <b>who it's for</b> and <b>why</b>. Pick an idea to start from (or write your own), name the pain you're solving, then write a short <b>press release</b> as if it already launched. Writing it first forces the idea to be clear. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
+
+      {/* Worked example: how Build Young itself would fill this in. */}
+      <div style={{ border: `1px solid ${C.line}`, borderRadius: 6, marginBottom: 16, background: C.paper, overflow: "hidden" }}>
+        <button type="button" className="btn" onClick={() => setShowEx((v) => !v)} aria-expanded={showEx}
+          style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "11px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", fontSize: 13.5, fontWeight: 700, color: C.emerald }}>
+          <span><Sparkles size={14} style={{ verticalAlign: "-2px", marginRight: 6 }} />See a worked example — how we'd fill this in for <b>Build Young</b></span>
+          <span aria-hidden="true" style={{ color: C.muted, fontSize: 18 }}>{showEx ? "–" : "+"}</span>
+        </button>
+        {showEx && (
+          <div style={{ padding: "0 14px 14px", borderTop: `1px solid ${C.line}` }}>
+            {[["The idea", EXAMPLE_BUILD.idea], ["Customer pain point(s)", EXAMPLE_BUILD.pain], ["Press release", EXAMPLE_BUILD.pr]].map(([label, text]) => (
+              <div key={label} style={{ marginTop: 12 }}>
+                <span style={labelStyle}>{label}</span>
+                <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{text}</div>
+              </div>
+            ))}
+            <div style={{ fontSize: 12, color: C.muted, marginTop: 12, fontStyle: "italic" }}>Yours doesn't need to be this polished — this is the program you're in, shown as a model. Start rough; it'll evolve.</div>
+          </div>
+        )}
+      </div>
 
       <label style={{ display: "block", marginBottom: 14 }}>
         <span style={labelStyle}>Your idea</span>
