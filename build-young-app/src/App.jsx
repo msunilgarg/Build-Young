@@ -918,6 +918,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <span className="nav-talk" {...act(onCall)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Talk to Sunil</span>
+          <span className="nav-talk" {...act(() => setCareers(true))} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Careers</span>
           {onDashboard
             ? <span {...act(onDashboard)} style={{ fontSize: 14, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>{dashLabel || "My dashboard"} →</span>
             : (onLogin && <span {...act(onLogin)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Log in</span>)}
