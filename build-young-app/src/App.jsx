@@ -970,7 +970,8 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           {onDashboard
             ? <span {...act(onDashboard)} style={{ fontSize: 14, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>{dashLabel || "My dashboard"} →</span>
             : (onLogin && <span {...act(onLogin)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Log in</span>)}
-          <button className="btn" onClick={onEnroll} style={{ background: C.ink, color: C.paper2, padding: "10px 20px", borderRadius: 4, fontSize: 14 }}>Enroll →</button>
+          {/* Already enrolled / signed in → no Enroll CTA (they'd go to their dashboard instead). */}
+          {!onDashboard && <button className="btn" onClick={onEnroll} style={{ background: C.ink, color: C.paper2, padding: "10px 20px", borderRadius: 4, fontSize: 14 }}>Enroll →</button>}
         </div>
       </nav>
 
@@ -991,7 +992,9 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         </p>
         <HeroPreview />
         <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
-          <button className="btn" onClick={onEnroll} style={{ background: C.emerald, color: "#fff", padding: "15px 30px", borderRadius: 4, fontSize: 16 }}>Pick a batch & enroll <ArrowRight size={16} style={{ verticalAlign: "-2px" }} /></button>
+          {onDashboard
+            ? <button className="btn" onClick={onDashboard} style={{ background: C.emerald, color: "#fff", padding: "15px 30px", borderRadius: 4, fontSize: 16 }}>Go to {dashLabel ? dashLabel.toLowerCase() : "my dashboard"} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} /></button>
+            : <button className="btn" onClick={onEnroll} style={{ background: C.emerald, color: "#fff", padding: "15px 30px", borderRadius: 4, fontSize: 16 }}>Pick a batch & enroll <ArrowRight size={16} style={{ verticalAlign: "-2px" }} /></button>}
           <button className="btn" onClick={onCall} style={{ background: "transparent", color: C.ink, padding: "15px 28px", borderRadius: 4, fontSize: 16, border: `1.5px solid ${C.ink}` }}>Talk to Sunil first</button>
           <a href="#curriculum" style={{ textDecoration: "none", alignSelf: "center" }}><span style={{ color: C.ink2, fontSize: 15, fontWeight: 600, borderBottom: `1.5px solid ${C.line}`, paddingBottom: 2 }}>See the 12 weeks</span></a>
         </div>
@@ -1747,7 +1750,7 @@ Why families love it: It's live and small-group with a standing weekly time, so 
 const SHAPE_EXAMPLE = {
   vision: `Build Young is a live, online money-skills program for teens 15–18, delivered through one web app. A family discovers it, can talk to the founder first, then enrolls and pays online — and the teen gets their own login. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income, learning to grow and manage it. It's hands-on and a bit like a game, and it ends with a certificate they can show off.
 
-(This whole thing is the product spec — written in enough detail that you could hand it to AI and it would build most of it in one go. The more specific you are, the more it gets right the first time.)`,
+(This whole thing IS your spec — your project's guide. Real builders keep a document like this (often a file called CLAUDE.md) that tells the AI what they're making, so it can build confidently. Write yours in enough detail that AI could build most of it in one go — the more specific and complete, the more it gets right the first time. In Week 3, you'll hand exactly this to Claude.)`,
   capabilities: `Getting in:
 • Marketing website that explains the program, the curriculum, the price, and the founder, and lists the upcoming class options (cohorts) to choose from.
 • "Talk first": book a free 15-minute call with the founder before deciding.
