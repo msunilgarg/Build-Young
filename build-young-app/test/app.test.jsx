@@ -133,12 +133,14 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await user.click(await screen.findByRole("button", { name: "Course progress" }));
     expect(await screen.findByText(/Your course, week by week/i)).toBeInTheDocument();
 
-    // Week 1 is the current week — the build arc opens the course (build-first curriculum).
-    // Appears both in the current-step panel and the week-by-week list now that they're merged.
+    // Week 1 is selected by default — its title shows in the left rail + the right pane.
     expect(screen.getAllByText(/Find a Problem Worth Solving/i).length).toBeGreaterThan(0);
+    // Week 1's activity is the build plan (start from the customer).
+    expect(screen.getByText(/start from the customer/i)).toBeInTheDocument();
 
-    // A future week is locked (no spoilers) until the student reaches it
-    expect(screen.getByText(/Unlocks when you reach Week 12/i)).toBeInTheDocument();
+    // A future week is locked: selecting it shows the no-spoilers message (no content leaked).
+    await user.click(screen.getByRole("button", { name: "Week 12" }));
+    expect(await screen.findByText(/Unlocks when you reach Week 12/i)).toBeInTheDocument();
   });
 
   it("has no serious/critical accessibility violations on the Course hub", async () => {
