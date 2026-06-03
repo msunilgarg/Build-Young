@@ -1551,7 +1551,7 @@ function BuildPlan({ s, setS, bare }) {
   const build = s.build || {};
   const setField = (k, v) => setS((p) => ({ ...p, build: { ...(p.build || {}), [k]: v } }));
   const isCustom = build.scenario === "custom";
-  const [showEx, setShowEx] = useState(false); // worked-example reveal
+  const [showEx, setShowEx] = useState(true); // class example — shown by default (the model we discuss first)
 
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
@@ -1568,22 +1568,26 @@ Why people love it: [the payoff].
         Before you build anything, get clear on <b>who it's for</b> and <b>why</b>. Pick an idea to start from (or write your own), name the pain you're solving, then write a short <b>press release</b> as if it already launched. Writing it first forces the idea to be clear. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
-      {/* Worked example: how Build Young itself would fill this in. */}
-      <div style={{ border: `1px solid ${C.line}`, borderRadius: 6, marginBottom: 16, background: C.paper, overflow: "hidden" }}>
+      {/* Class example: how Build Young itself fills this in — the model we walk through in class
+          before you write your own. */}
+      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, marginBottom: 16, background: "#eef3f0", overflow: "hidden" }}>
         <button type="button" className="btn" onClick={() => setShowEx((v) => !v)} aria-expanded={showEx}
-          style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "11px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", fontSize: 13.5, fontWeight: 700, color: C.emerald }}>
-          <span><Sparkles size={14} style={{ verticalAlign: "-2px", marginRight: 6 }} />See a worked example — how we'd fill this in for <b>Build Young</b></span>
-          <span aria-hidden="true" style={{ color: C.muted, fontSize: 18 }}>{showEx ? "–" : "+"}</span>
+          style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
+          <span style={{ minWidth: 0 }}>
+            <span style={{ display: "block", fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Sparkles size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />Class example</span>
+            <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: C.ink, marginTop: 2 }}>Build Young — how we'd fill this in</span>
+          </span>
+          <span aria-hidden="true" style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>{showEx ? "–" : "+"}</span>
         </button>
         {showEx && (
-          <div style={{ padding: "0 14px 14px", borderTop: `1px solid ${C.line}` }}>
+          <div style={{ padding: "0 14px 14px", borderTop: `1px solid ${C.emerald}33` }}>
+            <div style={{ fontSize: 12.5, color: C.ink2, margin: "12px 0 4px" }}>We'll walk through this together in class — then you'll write your own. (Yours can start rough; it'll evolve.)</div>
             {[["The idea", EXAMPLE_BUILD.idea], ["Customer pain point(s)", EXAMPLE_BUILD.pain], ["Press release", EXAMPLE_BUILD.pr]].map(([label, text]) => (
               <div key={label} style={{ marginTop: 12 }}>
                 <span style={labelStyle}>{label}</span>
                 <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{text}</div>
               </div>
             ))}
-            <div style={{ fontSize: 12, color: C.muted, marginTop: 12, fontStyle: "italic" }}>Yours doesn't need to be this polished — this is the program you're in, shown as a model. Start rough; it'll evolve.</div>
           </div>
         )}
       </div>
