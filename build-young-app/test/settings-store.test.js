@@ -24,6 +24,14 @@ describe("site settings store", () => {
     expect(clean.linkedinUrl).toBe(SITE_DEFAULTS.linkedinUrl); // bad type defaulted
   });
 
+  it("preserves boolean flags (showcaseEnabled) instead of coercing them to strings", () => {
+    expect(sanitizeSettings({ showcaseEnabled: true }).showcaseEnabled).toBe(true);
+    expect(sanitizeSettings({ showcaseEnabled: "on" }).showcaseEnabled).toBe(true);
+    expect(sanitizeSettings({ showcaseEnabled: "off" }).showcaseEnabled).toBe(false);
+    expect(sanitizeSettings({}).showcaseEnabled).toBe(false); // default
+    expect(sanitizeSettings({ showcaseEnabled: "garbage" }).showcaseEnabled).toBe(false); // default
+  });
+
   it("loadSettings falls back to defaults when KV is unconfigured", async () => {
     expect(await loadSettings()).toEqual(SITE_DEFAULTS);
   });

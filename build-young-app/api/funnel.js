@@ -15,6 +15,7 @@ import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
 import { saveSettings, loadOps, saveOps } from "./_lib/settingsStore.js";
 import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest } from "./_lib/interestStore.js";
+import { addShowcase, listShowcase } from "./_lib/showcaseStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
 import { listCerts } from "./_lib/cert.js";
 import { listBuildPlans } from "./_lib/buildPlans.js";
@@ -92,6 +93,11 @@ async function read(req, res) {
 
   if (req.query && req.query.resource === "ops") {
     res.status(200).json({ ops: await loadOps() });
+    return;
+  }
+
+  if (req.query && req.query.resource === "showcase") {
+    res.status(200).json({ showcase: await listShowcase() });
     return;
   }
 
@@ -184,10 +190,18 @@ async function saveTutorInterest(req, res) {
   res.status(result.ok ? 200 : 400).json(result);
 }
 
+// --- POST ?resource=showcase: public — a graduating student shares their build link + feedback
+// at the capstone (gated client-side by the founder's showcaseEnabled flag). ---
+async function saveShowcase(req, res) {
+  const result = await addShowcase((await readBody(req)) || {});
+  res.status(result.ok || result.reason ? 200 : 400).json(result);
+}
+
 export default async function handler(req, res) {
   if (req.method === "POST") {
     if (req.query && req.query.resource === "interest") return saveInterest(req, res); // public
     if (req.query && req.query.resource === "tutor") return saveTutorInterest(req, res); // public
+    if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
     return ingest(req, res);     // public: track an event
   }
   if (req.method === "GET") return read(req, res);        // founder: read funnel events

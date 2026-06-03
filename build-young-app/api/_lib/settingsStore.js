@@ -32,7 +32,12 @@ export function sanitizeSettings(input) {
   const out = {};
   for (const k of SETTINGS_KEYS) {
     const v = input && input[k];
-    out[k] = typeof v === "string" ? v.trim() : SITE_DEFAULTS[k];
+    if (typeof SITE_DEFAULTS[k] === "boolean") {
+      // Boolean flags: accept a real boolean or the strings "true"/"on"; everything else → default.
+      out[k] = typeof v === "boolean" ? v : (v === "true" || v === "on" ? true : (v === "false" || v === "off" ? false : SITE_DEFAULTS[k]));
+    } else {
+      out[k] = typeof v === "string" ? v.trim() : SITE_DEFAULTS[k];
+    }
   }
   return out;
 }

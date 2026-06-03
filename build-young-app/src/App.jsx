@@ -2019,6 +2019,60 @@ function MakePlan({ s, setS, bare }) {
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
+// Capstone "share your build" capture — link to the live product + a bit of feedback we can use as
+// a testimonial. Gated by CONFIG.showcaseEnabled (founder toggle). Opt-in with explicit consent;
+// because students are minors, the founder confirms parental consent before any public use.
+function ShowcaseCapture({ s }) {
+  const [link, setLink] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | sending | done
+  const canSend = (link.trim() || feedback.trim()) && status !== "sending";
+  const submit = async () => {
+    if (!canSend) return;
+    setStatus("sending");
+    const r = await postJson("/api/funnel?resource=showcase", {
+      link: link.trim(), feedback: feedback.trim(), consent,
+      name: (s.student && s.student.name) || "", batchId: (s.student && s.student.batch) || "",
+    });
+    setStatus(r.ok ? "done" : "idle");
+  };
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, lineHeight: 1.5 };
+  return (
+    <div style={{ marginTop: 16, border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "14px 16px" }}>
+      <div style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>🌟 Share what you built</div>
+      {status === "done" ? (
+        <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, marginTop: 8 }}>
+          <Check size={16} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
+          Thank you — Sunil will take a look. We'd love to feature it!
+        </p>
+      ) : (
+        <>
+          <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 12px" }}>
+            You made something real. Drop the link and a line about your experience — we may feature it (with your OK).
+          </p>
+          <label style={{ display: "block", marginBottom: 12 }}>
+            <span style={labelStyle}>Your build's link</span>
+            <input type="url" aria-label="Your build's link" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://your-app.vercel.app" style={inputStyle} />
+          </label>
+          <label style={{ display: "block", marginBottom: 12 }}>
+            <span style={labelStyle}>How was Build Young for you?</span>
+            <textarea aria-label="Your feedback" value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={4} placeholder="What did you build, what did you learn, and how did it feel to ship something real?" style={{ ...inputStyle, resize: "vertical" }} />
+          </label>
+          <label style={{ display: "flex", gap: 9, alignItems: "flex-start", fontSize: 12.5, color: C.ink2, lineHeight: 1.45, marginBottom: 12, cursor: "pointer" }}>
+            <input type="checkbox" aria-label="Consent to feature" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ width: 16, height: 16, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+            <span>Build Young may feature my build and first name on their site. <b>I've checked with my parent/guardian.</b></span>
+          </label>
+          <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.turq : C.line, color: "#fff", padding: "10px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700, cursor: canSend ? "pointer" : "not-allowed" }}>
+            {status === "sending" ? "Sharing…" : "Share my build"}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ============================ PLATFORM ============================ */
 function Platform({ state, setState, onExit, onFounder }) {
   const BATCHES = useCohorts(); // live catalog
@@ -2825,6 +2879,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
             </div>
           </div>
           <div style={{ fontSize: 14, color: C.ink2, marginTop: 12 }}>From here you move into your follow-up check-in a month out — the markets keep moving, and you keep managing your portfolio. Advance to begin.</div>
+          {CONFIG.showcaseEnabled && <ShowcaseCapture s={s} />}
         </Wrap>
       )}
 
@@ -3423,6 +3478,8 @@ export function FounderDashboard({ onHome }) {
           <BuildPlansAdmin />
           <h2 style={h2s}>Tutor applications</h2>
           <TutorInterestAdmin />
+          <h2 style={h2s}>Student showcase</h2>
+          <ShowcaseAdmin />
           <h2 style={h2s}>Reset a test account</h2>
           <AccountReset />
         </>)}
@@ -3481,7 +3538,16 @@ function SettingsEditor() {
     <Card style={{ padding: 16 }}>
       <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>These take effect on the public site immediately (no redeploy). Leave the booking link empty to use the built-in demo scheduler.</div>
       <div style={{ display: "grid", gap: 14 }}>
-        {SETTINGS_FIELDS.map((f) => (
+        {SETTINGS_FIELDS.map((f) => f.type === "boolean" ? (
+          <label key={f.key} style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer" }}>
+            <input type="checkbox" aria-label={f.label} checked={!!vals[f.key]} onChange={(e) => set(f.key, e.target.checked)}
+              style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+            <span style={{ minWidth: 0 }}>
+              <span style={{ fontSize: 13.5, fontWeight: 700, color: C.ink, display: "block" }}>{f.label}{vals[f.key] ? " · ON" : " · off"}</span>
+              {f.hint && <span style={{ fontSize: 12, color: C.muted, display: "block", marginTop: 2 }}>{f.hint}</span>}
+            </span>
+          </label>
+        ) : (
           <label key={f.key} style={{ display: "block" }}>
             <span style={lab}>{f.label}</span>
             <input aria-label={f.label} type="text" value={vals[f.key] ?? ""} placeholder={f.placeholder}
@@ -4082,6 +4148,41 @@ function TutorInterestAdmin() {
             {r.linkedin && <a href={r.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}><Linkedin size={12} /> LinkedIn ↗</a>}
           </span>
           <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+// Founder view of student showcase submissions (capstone "share your build" — link + feedback).
+// Opt-in; `consent` flags whether the student confirmed parental OK to feature it publicly.
+function ShowcaseAdmin() {
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=showcase"); const d = r.ok ? await r.json() : {}; if (live) setList(Array.isArray(d.showcase) ? d.showcase : []); }
+      catch { if (live) setList([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 660 }}>What graduating students shared at the capstone — their build link + feedback (potential testimonials). “Consent” = they confirmed a parent/guardian is OK to feature it. <b>Get explicit parental consent before any public use</b> (they're minors). Enable/disable collection under <b>Settings → Student showcase capture</b>.</div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
+      {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No submissions yet.</div>}
+      {list && list.map((r, i) => (
+        <div key={i} style={{ padding: "10px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "baseline" }}>
+            <span style={{ display: "flex", flexWrap: "wrap", gap: "2px 8px", alignItems: "baseline", minWidth: 0 }}>
+              <b style={{ color: C.ink, fontSize: 13.5 }}>{r.name || "—"}</b>
+              {r.batchId && <span style={{ fontSize: 12, color: C.muted }}>· {r.batchId}</span>}
+              {r.link && <a href={r.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, fontSize: 12.5 }}>Open build ↗</a>}
+              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: r.consent ? C.green : C.gold, background: r.consent ? "#e7f3ee" : "#fbeede", borderRadius: 999, padding: "2px 8px" }}>{r.consent ? "Consent ✓" : "No consent"}</span>
+            </span>
+            <span style={{ fontSize: 12, color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
+          </div>
+          {r.feedback && <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, marginTop: 5, fontStyle: "italic" }}>“{r.feedback}”</div>}
         </div>
       ))}
     </Card>
