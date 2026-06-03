@@ -979,7 +979,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <h1 className="disp rise" style={{ fontSize: "clamp(38px,6.5vw,74px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-.02em", margin: 0 }}>
           Raising <span className="grad">builders,</span><br />not consumers.
         </h1>
-        <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — financial literacy, learned by living it.</p>
+        <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build something real, then learn the money behind it.</p>
         <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
           Build Young is a <b>live, instructor-led course</b> where teens <b>build a product they believe people would pay for</b> — a small app, tool, or service, made with AI — and in the simulation, <b>that product is where their income comes from</b>. They learn to think like <b>founders</b>: create value first, then <b>manage what they earn</b> — taxes, saving, investing through real market swings, big purchases, and watching it compound — graduating having built both a business and a net worth from zero. <b>You create the value first; the money follows.</b> It's a hands-on sandbox — <b>no real money is ever involved</b> — just the real skills, practiced somewhere safe before the stakes are real.
         </p>
