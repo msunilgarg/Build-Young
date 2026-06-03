@@ -15,6 +15,7 @@ import { loadSettings } from "./_lib/settingsStore.js";
 import { loadHomework } from "./_lib/homeworkStore.js";
 import { getCertById } from "./_lib/cert.js";
 import { countEnrollments } from "./_lib/store.js";
+import { listPublicTestimonials } from "./_lib/showcaseStore.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") { res.status(405).json({ error: "Method not allowed" }); return; }
@@ -35,6 +36,8 @@ export default async function handler(req, res) {
     const seatsLeft = Math.max(0, (b.seats || 0) - enrolled);
     return { ...b, seatsLeft, full: (b.seats || 0) > 0 && seatsLeft <= 0 };
   }));
+  // Public testimonials (consented student showcase) — only when the founder has the feature on.
+  const testimonials = settings.showcaseEnabled ? await listPublicTestimonials() : [];
   res.setHeader("Cache-Control", "no-store");
-  res.status(200).json({ ...catalog, batches, settings, homework });
+  res.status(200).json({ ...catalog, batches, settings, homework, testimonials });
 }

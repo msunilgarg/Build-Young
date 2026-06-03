@@ -44,3 +44,14 @@ export async function clearShowcase() {
   if (!kvConfigured()) return;
   try { await kvDel(KEY); } catch { /* best-effort */ }
 }
+
+// PUBLIC, safe subset for the website's testimonials section: ONLY entries with explicit consent
+// AND some feedback text, reduced to { name, feedback, link } and capped. Never exposes
+// non-consented submissions or the batch id.
+export async function listPublicTestimonials(limit = 12) {
+  const all = await listShowcase();
+  return all
+    .filter((r) => r && r.consent === true && r.feedback)
+    .slice(0, limit)
+    .map((r) => ({ name: r.name || "", feedback: r.feedback, link: r.link || "" }));
+}

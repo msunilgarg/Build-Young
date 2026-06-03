@@ -905,7 +905,49 @@ const HeroPreview = () => {
   );
 };
 
-function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel }) {
+// Illustrative testimonials shown ONLY as a preview when the showcase is enabled but no real
+// (consented) student feedback has come in yet — so the founder can see the layout. Clearly
+// captioned as samples on the page; they're replaced automatically by real submissions.
+const SAMPLE_TESTIMONIALS = [
+  { name: "Maya, 16", feedback: "I built a flashcards app for my class and watched a friend actually use it. I never thought I could make something real.", link: "" },
+  { name: "Devin, 15", feedback: "Shipping my first website was the best feeling. And money finally makes sense — I get taxes and saving now.", link: "" },
+  { name: "Aria, 17", feedback: "I made a tool for my swim team to track our times. My parents were shocked it was online and actually working!", link: "" },
+  { name: "Leo, 14", feedback: "I learned to tell AI what 'good' looks like. By the end I had a real product and understood how a business makes money.", link: "" },
+];
+
+// Public testimonials / student-showcase section on the landing page. Renders real consented
+// submissions (from /api/cohorts) when present; otherwise falls back to SAMPLE_TESTIMONIALS for
+// preview, with a caption so it's never mistaken for real feedback. Gated upstream by
+// CONFIG.showcaseEnabled.
+function Testimonials({ items = [] }) {
+  const real = (Array.isArray(items) ? items : []).filter((t) => t && t.feedback);
+  const usingSamples = real.length === 0;
+  const list = usingSamples ? SAMPLE_TESTIMONIALS : real;
+  if (!list.length) return null;
+  return (
+    <section style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 6vw 10px" }}>
+      <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 24px" }}>
+        <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>What our <span className="grad">builders</span> made</h2>
+        <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Real teens, real products they shipped — in their own words.</p>
+        {usingSamples && <p style={{ color: C.gold, fontSize: 12.5, marginTop: 8, fontWeight: 700 }}>Sample testimonials shown for preview — replaced automatically as real student feedback comes in.</p>}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16 }}>
+        {list.map((t, i) => (
+          <Card key={i} style={{ padding: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ color: C.turq, fontSize: 26, lineHeight: 0.6, fontWeight: 800 }} aria-hidden="true">“</div>
+            <div style={{ fontSize: 14.5, color: C.ink2, lineHeight: 1.55, flex: 1 }}>{t.feedback}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+              <span className="disp" style={{ fontWeight: 700, fontSize: 14, color: C.ink }}>— {t.name || "A Build Young builder"}</span>
+              {t.link && <a href={t.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none" }}>See their build ↗</a>}
+            </div>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, testimonials = [] }) {
   const BATCHES = useCohorts(); // live catalog (hydrated from /api/cohorts; defaults to code)
   const [season, setSeason] = useState(SEASONS[0].key);
   const [careers, setCareers] = useState(false); // "teach with us" interest modal
@@ -1096,6 +1138,9 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
           </Card>
         </div>
       </section>
+
+      {/* testimonials — student showcase (gated by the founder toggle) */}
+      {CONFIG.showcaseEnabled && <Testimonials items={testimonials} />}
 
       {/* batches / pricing */}
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 6vw 70px" }}>
@@ -3592,7 +3637,7 @@ function NotificationsEditor() {
   const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
   return (
     <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Where founder alerts are emailed — like a new <b>tutor application</b> from Careers. Private (never shown on the public site). Leave blank to use the default address. Sending also requires <code>RESEND_API_KEY</code> on the host.</div>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Where founder alerts are emailed — like a new <b>tutor application</b> from Careers. Private (never shown on the public site). Leave blank to use your <b>team/contact email</b>. Sending also requires <code>RESEND_API_KEY</code> on the host.</div>
       <label style={{ display: "block" }}>
         <span style={lab}>Notifications email</span>
         <input aria-label="Notifications email" type="email" value={email} placeholder="you@example.com"
@@ -4202,6 +4247,7 @@ export default function App() {
   const [isFounder, setIsFounder] = useState(false); // signed-in user is an admin/founder (from /api/auth/me)
   const [verifyId, setVerifyId] = useState(""); // cert id for the public /verify/<id> page
   const [batches, setBatches] = useState(BATCHES); // live cohort catalog (hydrated from /api/cohorts)
+  const [testimonials, setTestimonials] = useState([]); // public consented student showcase
   const [, bumpCfg] = useState(0); // bump to re-render after CONFIG hydration (settings are mutated in place)
   // Hydrate the live, founder-editable config once on mount — the cohort catalog AND the runtime
   // settings (booking link, contact email, LinkedIn) — so founder edits show without a redeploy.
@@ -4215,6 +4261,7 @@ export default function App() {
         const cat = await r.json();
         if (!live) return;
         if (cat && Array.isArray(cat.batches) && cat.batches.length) setBatches(cat.batches);
+        if (cat && Array.isArray(cat.testimonials)) setTestimonials(cat.testimonials);
         if (cat && Array.isArray(cat.homework) && cat.homework.length === 12) HOMEWORK = cat.homework;
         if (cat && cat.settings && typeof cat.settings === "object") {
           Object.assign(CONFIG, cat.settings); // mutate the shared CONFIG, then re-render to pick it up
@@ -4445,7 +4492,7 @@ export default function App() {
       <div style={{ background: C.ink, color: C.paper2, textAlign: "center", fontSize: 12.5, fontWeight: 600, lineHeight: 1.5, padding: "8px 16px", position: "relative", zIndex: 3 }}>
         <Coins size={13} color={C.goldLite} style={{ verticalAlign: "-2px", marginRight: 5 }} /> Learning simulation — every dollar shown is <b style={{ whiteSpace: "nowrap" }}>simulated money,</b> not real currency. No real funds are ever involved.
       </div>
-      {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} />}
+      {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} />}
       {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} />}
       {route === "call" && <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} onFounder={isFounder ? goFounder : null} />}

@@ -8,8 +8,12 @@
 
 import { kvConfigured, kvCommand, kvDel } from "./kv.js";
 import { normalizeEmail } from "./auth.js";
-import { sendEmail, REPLY_TO_ADDRESS } from "./sendEmail.js";
-import { loadOps } from "./settingsStore.js";
+import { sendEmail } from "./sendEmail.js";
+import { loadOps, loadSettings } from "./settingsStore.js";
+
+// Default destination for founder notifications when no specific notifyEmail is configured: the
+// public team alias (NOT a personal inbox). Founder-editable via the contact email / ops settings.
+const TEAM_EMAIL = "team@build-young.com";
 
 const KEY = "interest:list";
 const TUTOR_KEY = "interest:tutors"; // prospective live tutors — SEPARATE from cohort interest so
@@ -51,12 +55,12 @@ export async function addTutorInterest({ email, linkedin }) {
     } catch { /* fall through to the email */ }
   }
 
-  // Send it to the founder's inbox — to the console-configured notifications address if set,
-  // otherwise the code default.
+  // Send it to the team: the console-configured notifications address if set, otherwise the
+  // founder's public contact/team alias (never a personal inbox by default).
   let emailed = false;
   try {
-    const ops = await loadOps();
-    const to = (ops && ops.notifyEmail) || REPLY_TO_ADDRESS;
+    const [ops, settings] = await Promise.all([loadOps(), loadSettings()]);
+    const to = (ops && ops.notifyEmail) || (settings && settings.contactEmail) || TEAM_EMAIL;
     const sent = await sendEmail({
       to,
       subject: "New live-tutor interest — Build Young",
