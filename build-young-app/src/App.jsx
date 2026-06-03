@@ -493,6 +493,8 @@ Your username is your email (${student.email}) — use it to log in to your stud
 
 Week 1 is "Find a Problem Worth Solving" — the start of building a product you believe people would pay for. In the simulation, that product is what earns your income in the weeks ahead, and then you'll learn to make it grow. Everything runs inside your student dashboard.
 
+One more thing to aim for: the BUILDER PRIZE. The first builder in your cohort to land a real paying customer — within a year of today — gets their tuition refunded (a real sale, with proof, plus a short video about what you built). The whole point of Build Young, rewarded. See the Terms for details.
+
 See you in class,
 The Build Young Team`,
   };
@@ -1491,6 +1493,9 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
             <p style={{ color: C.muted, fontSize: 14, marginTop: 6 }}>Your seat in the {b.track} cohort ({b.day}) is reserved. Your class <b>Zoom link</b> is waiting in your dashboard — the same link works for every class.</p>
             <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "9px 12px", marginTop: 12 }}>
               <Mail size={15} color={C.emerald} /><span style={{ fontSize: 12.5, color: C.ink2 }}>A welcome email has been sent to <b>{email}</b>.</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 8, textAlign: "left", background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 6, padding: "10px 13px", marginTop: 10 }}>
+              <Award size={16} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5 }}><b style={{ color: C.green }}>One to aim for — the builder prize.</b> The first builder in your cohort to land a real paying customer within a year gets their <b>tuition refunded</b> (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span>
             </div>
             <button className="btn" onClick={() => onDone({ name, email, batch, track: b.track })} style={{ width: "100%", marginTop: 22, background: C.emerald, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16 }}>Open my dashboard →</button>
           </div>
