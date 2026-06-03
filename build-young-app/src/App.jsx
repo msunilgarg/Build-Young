@@ -1552,14 +1552,39 @@ Why families love it: It's live and small-group with a standing weekly time, so 
 // Week 2 "Shape the Idea": envisioning the product — what it can do (capabilities) and what it's
 // like to use (experience). Worked through for Build Young as the class model.
 const SHAPE_EXAMPLE = {
-  vision: `Build Young is a live online program with a simple dashboard. Each teen builds their own small product with AI, then runs a money simulation where that product is their income — and they learn to grow it.`,
-  capabilities: `• Build weeks: step-by-step help to make a real product, with AI as the tool.
-• A money simulation: collect your income, pay taxes, save, invest, and make big purchases.
-• Live class on Zoom twice a week with a real teacher and a small group.
-• A dashboard that shows your net worth, your week, and a spot for your notes.
-• A certificate at the end you can add to your LinkedIn.`,
-  experience: `You log in to a clean dashboard that shows what week you're on and how you're doing. You join the live class on Zoom, then open the week to do that week's activity and hit "advance" to move your simulation forward. You jot notes right on the page and watch your net worth grow as each week unlocks. It should feel hands-on and a bit like a game — not like homework.`,
-  wow: `The first time a teen sees money show up from a product they actually built — and realizes they can grow it.`,
+  vision: `Build Young is a live, online money-skills program for teens 13–18, delivered through one web app. A family discovers it, can talk to the founder first, then enrolls and pays online — and the teen gets their own login. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income, learning to grow and manage it. It's hands-on and a bit like a game, and it ends with a certificate they can show off.
+
+(This whole thing is the product spec — written in enough detail that you could hand it to AI and it would build most of it in one go. The more specific you are, the more it gets right the first time.)`,
+  capabilities: `Getting in:
+• Marketing website that explains the program, the curriculum, the price, and the founder, and lists the upcoming class options (cohorts) to choose from.
+• "Talk first": book a free 15-minute call with the founder before deciding.
+• Enroll & pay: pick a cohort (Mon & Wed, or Tue & Thu), enter the student's name + email, confirm they're 13 or older, and pay securely online (we use Stripe). Each cohort has its own price, dates, and number of seats.
+• Accounts: after payment, the student gets an email to set a password, then a login that works on any device, with password reset if they forget.
+
+Emails along the way (no spam — just what helps):
+• A welcome when they enroll, a reminder 2 days before each week's first class, a recap with homework after each week, market-news during the investing weeks, and a certificate at the end.
+
+The student dashboard:
+• Before class starts: a friendly overview with a countdown to the first session.
+• Course progress: a week-by-week stepper (1–12). Each week shows its class material, that week's activity, a Zoom link (or a recording to rewatch), and a private notes area. Weeks unlock as you reach them.
+• Build weeks (1–6): guided activities to find a problem, shape the idea, build it with AI, launch, price it, and grow it — your build becomes your income.
+• Money weeks (7–12): set up business taxes, save and invest, react to real market events, buy and finance a home and a car, budget for surprises, and a capstone.
+• The simulation: hit "advance" to collect your income, apply the week's market move, and watch your net worth change. Mistakes are safe — the money is simulated.
+• Portfolio & markets pages to rebalance your investments and see the events moving them.
+
+At the end:
+• A shareable certificate of completion with a verify page and an "Add to LinkedIn" button.
+• A tuition prize: the student with the highest portfolio at the final check-in wins their tuition back.
+• Full refund before the cohort starts; prorated through the first week.
+
+Behind the scenes (for the founder):
+• A console to edit cohorts, prices, recordings, and homework, see the signup funnel + analytics, and view what students built — all without touching code.`,
+  experience: `A parent lands on the website and reads what it is and how it works. If they're unsure, they book a free 15-minute call with the founder. When they're ready, they pick a cohort, enter the student's name and email, confirm the student is 13+, and pay — a secure checkout, no charge until that step. They get a confirmation, and the student gets an email to set a password.
+
+The student logs in to a clean dashboard with a countdown to the first class. Two days before the week starts, a reminder email arrives. They join the live class on Zoom, then open the current week to do its activity — in Week 1, for example, they fill in their build plan right on the page. They hit "advance" to move the simulation forward, jot notes in the side panel, and watch their net worth grow as each week unlocks. After each week, a recap email with homework lands; if they missed a class, they can rewatch the recording.
+
+At the end they graduate, get a certificate, and add it to LinkedIn — and the highest portfolio wins tuition back. Throughout, it should feel hands-on, encouraging, and a little like a game — never like slideware.`,
+  wow: `The first time a teen shares a link to their product — live on the internet, real and usable — and watches someone actually use it. Even their parents!`,
 };
 
 // Generic class-example card (the worked Build Young model the instructor presents). Generic over
@@ -1704,13 +1729,13 @@ function ShapePlan({ s, setS, bare }) {
   );
   const inner = (
     <>
-      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — picture the product ✏️</h3>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        This week is about <b>imagining the actual product</b> before you build it — <b>what it can do</b> (its features) and <b>what it's like to use</b> (the experience). Picture it clearly here; it'll guide what you build. <span style={{ color: C.muted }}>Saved automatically.</span>
+        This week you write your product's <b>spec</b> — a clear picture of <b>what it can do</b> (its features) and <b>what it's like to use</b> (the experience). This is the description you'll hand to AI to build it, so <b>be specific</b>: the more detail, the more it builds correctly in one go. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
-      {field("vision", "Picture your product", "Describe it like you're showing a friend: what is it, and what's the main thing it does?")}
-      {field("capabilities", "What it can do (its capabilities)", "List the main things it can do — its features. Start with the one that matters most.", 4)}
-      {field("experience", "What it's like to use (the experience)", "Walk through using it start to finish: what do you open, what do you see, what do you do — and how should it feel?", 4)}
+      {field("vision", "Picture your product", "Describe it like you're showing a friend: what is it, what's the main thing it does, and who's it for?")}
+      {field("capabilities", "What it can do (its capabilities)", "List everything it can do — its features and screens. Be thorough: sign-up, the main actions, what users see. Start with the feature that matters most.", 5)}
+      {field("experience", "What it's like to use (the experience)", "Walk through it start to finish: what do you open, what do you see, what do you click, what happens — and how should it feel? Step by step.", 5)}
       {field("wow", "The “wow” moment", "What's the moment a new user goes “oh, this is great”?")}
     </>
   );
