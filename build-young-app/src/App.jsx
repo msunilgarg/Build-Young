@@ -1545,13 +1545,50 @@ How it works: Over 12 weeks, each teen builds their own product with AI, earns (
 Why families love it: It's live and small-group with a standing weekly time, so "someday" becomes "done" — and kids graduate having built both a business and a net worth from zero.
 
 "My daughter went from 'I don't get money' to running her own little product and explaining compound interest at dinner." — a Build Young parent`,
+  productSuccess: `A teen finishes having built and shipped something real with AI that people actually used — and can explain how money works in their own words. Classes stay small and full, students keep building after the program ends, and parents tell other parents. The product is working when families would recommend it without being asked.`,
+  financialSuccess: `Each cohort runs full and profitable; revenue across the three seasons covers costs with healthy margin. Referrals keep the cost of finding new families low, so it's sustainable enough to grow into a real business — not a side project that breaks even at best.`,
 };
+
+// Week 1's class material: the Build Young build plan, worked through. This is the model the
+// instructor presents to the class before students write their own (it's NOT the student's editor).
+function ClassExample() {
+  const [open, setOpen] = useState(true);
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  return (
+    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", overflow: "hidden" }}>
+      <button type="button" className="btn" onClick={() => setOpen((v) => !v)} aria-expanded={open}
+        style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
+        <span style={{ minWidth: 0 }}>
+          <span style={{ display: "block", fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Sparkles size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />Class example — Build Young</span>
+          <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: C.ink, marginTop: 2 }}>A worked build plan — how we'd fill this in</span>
+        </span>
+        <span aria-hidden="true" style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>{open ? "–" : "+"}</span>
+      </button>
+      {open && (
+        <div style={{ padding: "0 14px 14px", borderTop: `1px solid ${C.emerald}33` }}>
+          <div style={{ fontSize: 12.5, color: C.ink2, margin: "12px 0 4px" }}>We'll walk through this together in class — then you'll write your own below. (Yours can start rough; it'll evolve.)</div>
+          {[
+            ["The idea", EXAMPLE_BUILD.idea],
+            ["Customer pain point(s)", EXAMPLE_BUILD.pain],
+            ["Press release", EXAMPLE_BUILD.pr],
+            ["What product success looks like", EXAMPLE_BUILD.productSuccess],
+            ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
+          ].map(([label, text]) => (
+            <div key={label} style={{ marginTop: 12 }}>
+              <span style={lab}>{label}</span>
+              <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{text}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function BuildPlan({ s, setS, bare }) {
   const build = s.build || {};
   const setField = (k, v) => setS((p) => ({ ...p, build: { ...(p.build || {}), [k]: v } }));
   const isCustom = build.scenario === "custom";
-  const [showEx, setShowEx] = useState(true); // class example — shown by default (the model we discuss first)
 
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
@@ -1567,30 +1604,6 @@ Why people love it: [the payoff].
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
         Before you build anything, get clear on <b>who it's for</b> and <b>why</b>. Pick an idea to start from (or write your own), name the pain you're solving, then write a short <b>press release</b> as if it already launched. Writing it first forces the idea to be clear. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
-
-      {/* Class example: how Build Young itself fills this in — the model we walk through in class
-          before you write your own. */}
-      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, marginBottom: 16, background: "#eef3f0", overflow: "hidden" }}>
-        <button type="button" className="btn" onClick={() => setShowEx((v) => !v)} aria-expanded={showEx}
-          style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
-          <span style={{ minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Sparkles size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />Class example</span>
-            <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: C.ink, marginTop: 2 }}>Build Young — how we'd fill this in</span>
-          </span>
-          <span aria-hidden="true" style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>{showEx ? "–" : "+"}</span>
-        </button>
-        {showEx && (
-          <div style={{ padding: "0 14px 14px", borderTop: `1px solid ${C.emerald}33` }}>
-            <div style={{ fontSize: 12.5, color: C.ink2, margin: "12px 0 4px" }}>We'll walk through this together in class — then you'll write your own. (Yours can start rough; it'll evolve.)</div>
-            {[["The idea", EXAMPLE_BUILD.idea], ["Customer pain point(s)", EXAMPLE_BUILD.pain], ["Press release", EXAMPLE_BUILD.pr]].map(([label, text]) => (
-              <div key={label} style={{ marginTop: 12 }}>
-                <span style={labelStyle}>{label}</span>
-                <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{text}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
       <label style={{ display: "block", marginBottom: 14 }}>
         <span style={labelStyle}>Your idea</span>
@@ -1619,10 +1632,24 @@ Why people love it: [the payoff].
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
 
-      <label style={{ display: "block" }}>
+      <label style={{ display: "block", marginBottom: 14 }}>
         <span style={labelStyle}>Press release statement</span>
         <textarea aria-label="Press release statement" value={build.pr || ""} onChange={(e) => setField("pr", e.target.value)} rows={6}
           placeholder={PR_PLACEHOLDER}
+          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
+
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={labelStyle}>What does product success look like?</span>
+        <textarea aria-label="What product success looks like" value={build.productSuccess || ""} onChange={(e) => setField("productSuccess", e.target.value)} rows={3}
+          placeholder="How will you know your product is working? (Who's using it, what they do with it, what they'd miss if it vanished.)"
+          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
+
+      <label style={{ display: "block" }}>
+        <span style={labelStyle}>What does financial success look like for your business?</span>
+        <textarea aria-label="What financial success looks like" value={build.financialSuccess || ""} onChange={(e) => setField("financialSuccess", e.target.value)} rows={3}
+          placeholder="What would make this a real business — revenue, profit, repeat customers, covering its costs?"
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
     </>
@@ -2060,7 +2087,9 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
         </div>
       )}
       <div style={secLabel}>Class materials</div>
-      {selMaterials.length ? (
+      {selected === 1 ? (
+        <ClassExample />
+      ) : selMaterials.length ? (
         <div style={pillWrap}>{selMaterials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
       ) : (
         <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic" }}>Lesson materials coming soon.</div>
@@ -2344,8 +2373,14 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
       {action === "build" && (
         <Wrap title={wk.t} blurb={wk.s}>
           {s.week === 1 ? (
-            // Week 1's activity is the build plan — start from the customer.
-            <BuildPlan s={s} setS={setState} bare />
+            // Week 1: the class material is the worked Build Young example; then the student writes
+            // their own build plan.
+            <>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Class material</div>
+              <ClassExample />
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", margin: "22px 0 8px" }}>Your turn</div>
+              <BuildPlan s={s} setS={setState} bare />
+            </>
           ) : (
             <div style={{ background: C.paper, borderRadius: 4, padding: 18, textAlign: "center" }}>
               <Sparkles size={22} color={C.gold} style={{ marginBottom: 8 }} />
@@ -3401,6 +3436,8 @@ function BuildPlansAdmin() {
           <div style={{ marginTop: 6 }}><span style={lab}>Idea</span><div style={block}>{idea(b)}</div></div>
           {b.pain && b.pain.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Customer pain</span><div style={block}>{b.pain}</div></div>}
           {b.pr && b.pr.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Press release</span><div style={block}>{b.pr}</div></div>}
+          {b.productSuccess && b.productSuccess.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Product success</span><div style={block}>{b.productSuccess}</div></div>}
+          {b.financialSuccess && b.financialSuccess.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Financial success</span><div style={block}>{b.financialSuccess}</div></div>}
         </div>
       ))}
     </Card>
