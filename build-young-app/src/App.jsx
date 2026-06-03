@@ -2013,6 +2013,7 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
       {selected === 1 && (
         <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${C.line}` }}>
           <div style={secLabel}>What you worked on — edit any time</div>
+          <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 12px" }}>Even though this class is done, your idea is <b>meant to evolve as you build</b> — come back and tweak this whenever your thinking changes.</div>
           <BuildPlan s={s} setS={setState} bare />
         </div>
       )}
