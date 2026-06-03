@@ -86,6 +86,7 @@ export const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e || "").tri
 import { SEASONS, BATCHES, seasonLabel, CHECKINS } from "./cohorts.js";
 export { BATCHES, CHECKINS } from "./cohorts.js";
 import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
+import { certName, certVerifyUrl, linkedInAddUrl, certDate, CERT_ORG } from "./cert.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
 import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engagement } from "./funnel.js";
 
@@ -142,6 +143,7 @@ const AUTH = {
   requestReset: (email) => postJson("/api/auth/request-reset", { email }),
   async logout() { try { await fetch("/api/auth/logout", { method: "POST" }); } catch { /* ignore */ } },
   async getState() { try { const r = await fetch("/api/state"); return r.ok ? (await r.json()).state : null; } catch { return null; } },
+  async getCert() { try { const r = await fetch("/api/state"); return r.ok ? (await r.json()).cert : null; } catch { return null; } },
   async putState(state) { try { await fetch("/api/state", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ state }) }); } catch { /* ignore */ } },
 };
 // Fire-and-forget email send. No-ops gracefully in demo/local; UI toast still shows. On any
@@ -1457,15 +1459,15 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>How each week works</h3>
           <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
-          <div style={li}>{num(2)}<span>Open <b>This Week</b> to do that week's activity, then <b>advance your simulation</b>.</span></div>
-          <div style={li}>{num(3)}<span>Rebalance your <b>Portfolio</b> as new events unfold in <b>Markets</b>.</span></div>
-          <div style={li}>{num(4)}<span>Watch your <b>net worth</b> grow on the <b>Dashboard</b>.</span></div>
+          <div style={li}>{num(2)}<span><b>Build weeks (1–6):</b> work on <b>your product</b> with AI as your tool, and earn your first income from it.</span></div>
+          <div style={li}>{num(3)}<span><b>Money weeks (7–12):</b> open <b>This Week</b>, then <b>advance your simulation</b> — rebalance your <b>Portfolio</b> as events unfold in <b>Markets</b>.</span></div>
+          <div style={li}>{num(4)}<span>Watch your <b>business</b> and <b>net worth</b> grow on the <b>Dashboard</b>.</span></div>
         </Card>
       </div>
 
       <Card style={{ padding: 20, marginTop: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-          <h3 style={{ ...sectionTitle, margin: 0 }}>Get your workshop set up before you build</h3>
+          <h3 style={{ ...sectionTitle, margin: 0 }}>Get set up before you build</h3>
           <span style={{ fontSize: 12.5, fontWeight: 700, color: doneCount === PREREQS.length ? C.green : C.muted }}>{doneCount} of {PREREQS.length} done</span>
         </div>
         <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 8px" }}>
@@ -1545,6 +1547,24 @@ function Platform({ state, setState, onExit, onFounder }) {
   // compare to the PREVIOUS recorded period (the latest entry is the current one)
   const last = s.history.length > 1 ? s.history[s.history.length - 2].nw : 0;
   const wk = WEEKS[s.week - 1];
+
+  // Completion certificate (auth mode): minted + emailed server-side on graduation. Once the
+  // student has finished the 12 weeks (in the check-in phase), fetch it for the dashboard card.
+  // The mint can lag the graduating state-save slightly, so retry a few times.
+  const graduated = s.phase !== "course" || s.done;
+  const [cert, setCert] = useState(null);
+  useEffect(() => {
+    if (!CONFIG.authEnabled || !graduated) return;
+    let live = true, tries = 0;
+    const tryFetch = async () => {
+      const c = await AUTH.getCert();
+      if (!live) return;
+      if (c) { setCert(c); return; }
+      if (tries++ < 4) setTimeout(tryFetch, 1500);
+    };
+    tryFetch();
+    return () => { live = false; };
+  }, [graduated]);
 
   // The CURRENT market event. The full schedule is server-only (anti-gaming), so we fetch
   // the single current event from /api/market-event. Until it resolves — or whenever the
@@ -1700,6 +1720,7 @@ function Platform({ state, setState, onExit, onFounder }) {
 
       {tab === "dash" && (
         <div className="rise">
+          {cert && <CertificateCard cert={cert} />}
           <Card style={{ padding: 18, marginBottom: 12, background: C.ink, border: "none", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ width: 42, height: 42, borderRadius: 4, background: "rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}><Video size={20} color="#fff" /></div>
@@ -1788,6 +1809,9 @@ function Platform({ state, setState, onExit, onFounder }) {
           </Card>
         </div>
       )}
+      <div style={{ textAlign: "center", fontSize: 12.5, color: C.muted, padding: "30px 16px 8px", lineHeight: 1.6 }}>
+        Questions about the program or your account? Email <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.emerald, fontWeight: 600 }}>{CONFIG.contactEmail}</a> — we're happy to help.
+      </div>
       </div>
     </div>
   );
@@ -2844,6 +2868,136 @@ function AccountReset() {
   );
 }
 
+/* ============================ COMPLETION CERTIFICATE (client) ============================
+ * The visual certificate + the "Add to LinkedIn" / download / verify actions. The cert is minted
+ * + emailed server-side on graduation (api/_lib/cert.js via /api/state); the client fetches it
+ * with AUTH.getCert() and the public /verify/<id> page reads it from /api/cohorts?cert=<id>. */
+
+// Standalone SVG of the certificate, for download (crisp + printable, no canvas needed).
+function buildCertSvg(cert) {
+  const esc = (s) => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const name = esc(cert.name || "Build Young Graduate");
+  const title = esc(certName(cert.track));
+  const dateStr = esc(certDate(cert.completedAt));
+  const id = esc(cert.certId);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700" font-family="Georgia, 'Times New Roman', serif">
+  <rect width="1000" height="700" fill="#ffffff"/>
+  <rect x="20" y="20" width="960" height="660" fill="none" stroke="#0067b8" stroke-width="3"/>
+  <rect x="32" y="32" width="936" height="636" fill="none" stroke="#e1dfdd" stroke-width="1"/>
+  <text x="500" y="118" text-anchor="middle" font-size="30" font-weight="bold" fill="#242424">Build Young</text>
+  <text x="500" y="182" text-anchor="middle" font-size="17" letter-spacing="6" fill="#605e5c">CERTIFICATE OF COMPLETION</text>
+  <text x="500" y="248" text-anchor="middle" font-size="16" fill="#605e5c">This certifies that</text>
+  <text x="500" y="312" text-anchor="middle" font-size="44" font-weight="bold" fill="#242424">${name}</text>
+  <text x="500" y="372" text-anchor="middle" font-size="20" fill="#424242">has completed the ${title}</text>
+  <text x="500" y="406" text-anchor="middle" font-size="15" fill="#605e5c">building a product with AI as a tool, then learning to grow and manage what it earns.</text>
+  <line x1="180" y1="560" x2="420" y2="560" stroke="#242424"/>
+  <text x="300" y="585" text-anchor="middle" font-size="16" fill="#242424">Sunil Garg</text>
+  <text x="300" y="605" text-anchor="middle" font-size="12" fill="#605e5c">Founder, Build Young</text>
+  <line x1="580" y1="560" x2="820" y2="560" stroke="#242424"/>
+  <text x="700" y="585" text-anchor="middle" font-size="16" fill="#242424">${dateStr}</text>
+  <text x="700" y="605" text-anchor="middle" font-size="12" fill="#605e5c">Date of completion</text>
+  <text x="500" y="652" text-anchor="middle" font-size="11" fill="#605e5c">Credential ID ${id}</text>
+</svg>`;
+}
+
+// On-screen certificate. `compact` shrinks it for the in-dashboard card vs. the full verify page.
+function CertificateView({ cert, compact }) {
+  const name = cert.name || "Build Young Graduate";
+  return (
+    <div style={{ position: "relative", background: "#fff", border: `2px solid ${C.emerald}`, borderRadius: 10, padding: compact ? "26px 22px" : "44px 32px", textAlign: "center", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 7, border: `1px solid ${C.line}`, borderRadius: 8, pointerEvents: "none" }} />
+      <div style={{ position: "relative" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, justifyContent: "center" }}><Mark size={24} /><span className="disp" style={{ fontWeight: 900, fontSize: 19 }}>Build <span className="grad">Young</span></span></div>
+        <div style={{ fontSize: 11.5, letterSpacing: ".18em", color: C.muted, fontWeight: 700, marginTop: 16 }}>CERTIFICATE OF COMPLETION</div>
+        <div style={{ fontSize: 13, color: C.muted, marginTop: 16 }}>This certifies that</div>
+        <div className="disp" style={{ fontSize: compact ? 26 : 34, fontWeight: 800, color: C.ink, margin: "6px 0" }}>{name}</div>
+        <div style={{ fontSize: 14.5, color: C.ink2, lineHeight: 1.6, maxWidth: 520, margin: "8px auto 0" }}>
+          has completed the <b>{certName(cert.track)}</b> — building a product with AI as a tool, then learning to grow and manage what it earns.
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20, marginTop: 28, textAlign: "left", flexWrap: "wrap" }}>
+          <div>
+            <div className="disp" style={{ fontSize: 16, fontWeight: 700, color: C.ink, borderBottom: `1px solid ${C.line}`, paddingBottom: 4 }}>Sunil Garg</div>
+            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Founder, Build Young</div>
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <div className="disp" style={{ fontSize: 16, fontWeight: 700, color: C.ink, borderBottom: `1px solid ${C.line}`, paddingBottom: 4 }}>{certDate(cert.completedAt)}</div>
+            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Date of completion</div>
+          </div>
+        </div>
+        <div style={{ fontSize: 10.5, color: C.muted, marginTop: 16 }}>Credential ID {cert.certId} · verify at {CONFIG.brandDomain}/verify/{cert.certId}</div>
+      </div>
+    </div>
+  );
+}
+
+// The action buttons (Add to LinkedIn / Download / public page) shared by the dashboard card
+// and the verify page.
+function CertActions({ cert }) {
+  const verifyUrl = certVerifyUrl(`https://${CONFIG.brandDomain}`, cert.certId);
+  const li = linkedInAddUrl({ track: cert.track, certId: cert.certId, certUrl: verifyUrl, issuedAt: cert.completedAt });
+  return (
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      <a className="btn" href={li} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, background: "#0a66c2", color: "#fff", padding: "11px 16px", borderRadius: 4, fontSize: 14, fontWeight: 600 }}><Linkedin size={16} /> Add to LinkedIn</a>
+      <button className="btn" onClick={() => downloadFile("build-young-certificate.svg", buildCertSvg(cert), "image/svg+xml")} style={{ background: C.emerald, color: "#fff", padding: "11px 16px", borderRadius: 4, fontSize: 14, fontWeight: 600 }}>Download</button>
+      <a className="btn" href={verifyUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", background: C.paper2, color: C.ink, padding: "11px 16px", borderRadius: 4, fontSize: 14, fontWeight: 600 }}>View public page</a>
+    </div>
+  );
+}
+
+// The in-dashboard certificate card (shown once the student has graduated).
+function CertificateCard({ cert }) {
+  if (!cert) return null;
+  return (
+    <Card style={{ padding: 20, marginBottom: 12 }}>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: "0 0 12px" }}>Your certificate 🎓</h3>
+      <CertificateView cert={cert} compact />
+      <div style={{ marginTop: 14 }}><CertActions cert={cert} /></div>
+      <div style={{ fontSize: 12, color: C.muted, marginTop: 10 }}>We emailed this to you too. Under 16? A parent can add it to their LinkedIn.</div>
+    </Card>
+  );
+}
+
+// Public certificate verification page (no auth) — opened from /verify/<id> + LinkedIn.
+function CertifyVerify({ certId, onHome }) {
+  const [cert, setCert] = useState(undefined); // undefined = loading, null = not found
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await fetch(`/api/cohorts?cert=${encodeURIComponent(certId)}`);
+        if (!r.ok) { if (live) setCert(null); return; }
+        const d = await r.json();
+        if (live) setCert(d && d.cert ? d.cert : null);
+      } catch { if (live) setCert(null); }
+    })();
+    return () => { live = false; };
+  }, [certId]);
+
+  const wrap = { maxWidth: 720, margin: "0 auto", padding: "40px 20px 80px" };
+  return (
+    <div style={{ minHeight: "100vh" }}>
+      <div style={wrap}>
+        <div className="disp" {...act(onHome)} style={{ fontWeight: 900, fontSize: 20, cursor: "pointer", marginBottom: 24 }}><Mark size={22} /> Build <span className="grad">Young</span></div>
+        {cert === undefined && <Card style={{ padding: 24, color: C.muted }}>Verifying certificate…</Card>}
+        {cert === null && (
+          <Card style={{ padding: 24 }}>
+            <b style={{ color: C.ink }}>Certificate not found.</b>
+            <div style={{ fontSize: 13.5, color: C.muted, marginTop: 6 }}>This credential ID doesn't match any Build Young certificate. <span {...act(onHome)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Visit Build Young →</span></div>
+          </Card>
+        )}
+        {cert && (<>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eef3f0", color: C.green, border: `1px solid ${C.line}`, borderRadius: 999, padding: "6px 14px", fontSize: 13, fontWeight: 700, marginBottom: 14 }}><Check size={15} /> Verified by Build Young</div>
+          <CertificateView cert={cert} />
+          <div style={{ marginTop: 16 }}><CertActions cert={cert} /></div>
+          <div style={{ fontSize: 13, color: C.muted, marginTop: 18, lineHeight: 1.6 }}>
+            {CERT_ORG} is a live program where teens build a product with AI and learn to grow and manage what it earns. <span {...act(onHome)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Learn more →</span>
+          </div>
+        </>)}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [route, setRoute] = useState("home"); // home | enroll | call | app | login | setpw | checkemail | founder
   const [history, setHistory] = useState([]); // stack of routes we navigated from
@@ -2855,6 +3009,7 @@ export default function App() {
   const [enrolledTrack, setEnrolledTrack] = useState(""); // cohort track for the check-email screen
   const [enrolledEmail, setEnrolledEmail] = useState(""); // recipient of the set-password email (shown on check-email)
   const [isFounder, setIsFounder] = useState(false); // signed-in user is an admin/founder (from /api/auth/me)
+  const [verifyId, setVerifyId] = useState(""); // cert id for the public /verify/<id> page
   const [batches, setBatches] = useState(BATCHES); // live cohort catalog (hydrated from /api/cohorts)
   const [, bumpCfg] = useState(0); // bump to re-render after CONFIG hydration (settings are mutated in place)
   // Hydrate the live, founder-editable config once on mount — the cohort catalog AND the runtime
@@ -2907,6 +3062,7 @@ export default function App() {
   // ?enrolled= / ?setpw= / ?founder= params before the load effect reads them.
   useEffect(() => {
     if (!loaded) return;
+    if (route === "verify") return; // keep the /verify/<id> URL intact (id lives in the path)
     const PATHS = { home: "/", enroll: "/enroll", call: "/book-call", app: "/dashboard", login: "/login", setpw: "/set-password", checkemail: "/enrolled", founder: "/admin" };
     try { window.history.replaceState({}, "", PATHS[route] || "/"); } catch (e) { /* ignore */ }
   }, [route, loaded]);
@@ -2975,6 +3131,10 @@ export default function App() {
         const params = new URLSearchParams(window.location.search);
         const paidBatch = params.get("enrolled");
         const setpw = params.get("setpw");
+
+        // ---- PUBLIC CERTIFICATE VERIFICATION: /verify/<id> (no auth, opened from LinkedIn) ----
+        const vm = window.location.pathname.match(/^\/verify\/(.+)$/);
+        if (vm) { setVerifyId(decodeURIComponent(vm[1])); setRoute("verify"); setLoaded(true); return; }
 
         // ---- FOUNDER/ADMIN DASHBOARD: hidden route, gated by the session cookie (FOUNDER_EMAILS) ----
         if (params.has("founder")) { setRoute("founder"); setLoaded(true); return; }
@@ -3101,6 +3261,7 @@ export default function App() {
       {route === "setpw" && <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} />}
       {route === "checkemail" && <CheckEmail track={enrolledTrack} email={enrolledEmail} onHome={goHome} onLogin={goLogin} />}
       {route === "founder" && <FounderDashboard onHome={goHome} />}
+      {route === "verify" && <CertifyVerify certId={verifyId} onHome={goHome} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
     </div>
     </CohortsContext.Provider>
