@@ -1549,9 +1549,22 @@ Why families love it: It's live and small-group with a standing weekly time, so 
   financialSuccess: `It makes more money than it costs to run. Most new families come from people telling their friends, so we don't have to spend much to find them — and there's enough left over to keep it going and make it bigger.`,
 };
 
-// Week 1's class material: the Build Young build plan, worked through. This is the model the
-// instructor presents to the class before students write their own (it's NOT the student's editor).
-function ClassExample() {
+// Week 2 "Shape the Idea": envisioning the product — what it can do (capabilities) and what it's
+// like to use (experience). Worked through for Build Young as the class model.
+const SHAPE_EXAMPLE = {
+  vision: `Build Young is a live online program with a simple dashboard. Each teen builds their own small product with AI, then runs a money simulation where that product is their income — and they learn to grow it.`,
+  capabilities: `• Build weeks: step-by-step help to make a real product, with AI as the tool.
+• A money simulation: collect your income, pay taxes, save, invest, and make big purchases.
+• Live class on Zoom twice a week with a real teacher and a small group.
+• A dashboard that shows your net worth, your week, and a spot for your notes.
+• A certificate at the end you can add to your LinkedIn.`,
+  experience: `You log in to a clean dashboard that shows what week you're on and how you're doing. You join the live class on Zoom, then open the week to do that week's activity and hit "advance" to move your simulation forward. You jot notes right on the page and watch your net worth grow as each week unlocks. It should feel hands-on and a bit like a game — not like homework.`,
+  wow: `The first time a teen sees money show up from a product they actually built — and realizes they can grow it.`,
+};
+
+// Generic class-example card (the worked Build Young model the instructor presents). Generic over
+// its fields so each build week can have its own. Shown by default; it's NOT the student's editor.
+function ExampleCard({ subtitle, fields }) {
   const [open, setOpen] = useState(true);
   const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   return (
@@ -1560,20 +1573,14 @@ function ClassExample() {
         style={{ width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
         <span style={{ minWidth: 0 }}>
           <span style={{ display: "block", fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Sparkles size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />Class example — Build Young</span>
-          <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: C.ink, marginTop: 2 }}>A worked build plan — how we'd fill this in</span>
+          <span style={{ display: "block", fontSize: 13.5, fontWeight: 700, color: C.ink, marginTop: 2 }}>{subtitle}</span>
         </span>
         <span aria-hidden="true" style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>{open ? "–" : "+"}</span>
       </button>
       {open && (
         <div style={{ padding: "0 14px 14px", borderTop: `1px solid ${C.emerald}33` }}>
           <div style={{ fontSize: 12.5, color: C.ink2, margin: "12px 0 4px" }}>We'll walk through this together in class — then you'll write your own below. (Yours can start rough; it'll evolve.)</div>
-          {[
-            ["The idea", EXAMPLE_BUILD.idea],
-            ["Customer pain point(s)", EXAMPLE_BUILD.pain],
-            ["Press release", EXAMPLE_BUILD.pr],
-            ["What product success looks like", EXAMPLE_BUILD.productSuccess],
-            ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
-          ].map(([label, text]) => (
+          {fields.map(([label, text]) => (
             <div key={label} style={{ marginTop: 12 }}>
               <span style={lab}>{label}</span>
               <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{text}</div>
@@ -1583,6 +1590,31 @@ function ClassExample() {
       )}
     </div>
   );
+}
+
+// The class-material example for a build week (null if that week has none yet).
+function weekExample(week) {
+  if (week === 1) return <ExampleCard subtitle="A worked build plan — how we'd fill this in" fields={[
+    ["The idea", EXAMPLE_BUILD.idea],
+    ["Customer pain point(s)", EXAMPLE_BUILD.pain],
+    ["Press release", EXAMPLE_BUILD.pr],
+    ["What product success looks like", EXAMPLE_BUILD.productSuccess],
+    ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
+  ]} />;
+  if (week === 2) return <ExampleCard subtitle="A worked product vision — how we'd fill this in" fields={[
+    ["Picture the product", SHAPE_EXAMPLE.vision],
+    ["What it can do (capabilities)", SHAPE_EXAMPLE.capabilities],
+    ["What it's like to use (experience)", SHAPE_EXAMPLE.experience],
+    ["The 'wow' moment", SHAPE_EXAMPLE.wow],
+  ]} />;
+  return null;
+}
+
+// The student's activity component for a build week (null if none yet).
+function weekActivity(week, s, setState, bare) {
+  if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
+  if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
+  return null;
 }
 
 function BuildPlan({ s, setS, bare }) {
@@ -1652,6 +1684,34 @@ Why people love it: [the payoff].
           placeholder="What would make this a real business — like making more money than it costs, and people coming back to pay again?"
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
+    </>
+  );
+  return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
+}
+
+// Week 2 student activity — "Shape the Idea": envision the product, its capabilities, and the
+// experience of using it. Persists in s.shape.
+function ShapePlan({ s, setS, bare }) {
+  const shape = s.shape || {};
+  const setField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
+  const field = (k, label, placeholder, rows = 3) => (
+    <label style={{ display: "block", marginBottom: 14 }}>
+      <span style={labelStyle}>{label}</span>
+      <textarea aria-label={label} value={shape[k] || ""} onChange={(e) => setField(k, e.target.value)} rows={rows} placeholder={placeholder} style={inputStyle} />
+    </label>
+  );
+  const inner = (
+    <>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — picture the product ✏️</h3>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
+        This week is about <b>imagining the actual product</b> before you build it — <b>what it can do</b> (its features) and <b>what it's like to use</b> (the experience). Picture it clearly here; it'll guide what you build. <span style={{ color: C.muted }}>Saved automatically.</span>
+      </p>
+      {field("vision", "Picture your product", "Describe it like you're showing a friend: what is it, and what's the main thing it does?")}
+      {field("capabilities", "What it can do (its capabilities)", "List the main things it can do — its features. Start with the one that matters most.", 4)}
+      {field("experience", "What it's like to use (the experience)", "Walk through using it start to finish: what do you open, what do you see, what do you do — and how should it feel?", 4)}
+      {field("wow", "The “wow” moment", "What's the moment a new user goes “oh, this is great”?")}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -2097,17 +2157,17 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
         })()}
       </div>
       <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>
-      {/* What the student completed this week (Week 1 = their build plan — still editable). */}
-      {selected === 1 && (
+      {/* What the student completed this week (the week's own activity — still editable). */}
+      {weekActivity(selected, s, setState, true) && (
         <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${C.line}` }}>
           <div style={secLabel}>What you worked on — edit any time</div>
-          <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 12px" }}>Even though this class is done, your idea is <b>meant to evolve as you build</b> — come back and tweak this whenever your thinking changes.</div>
-          <BuildPlan s={s} setS={setState} bare />
+          <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 12px" }}>Even though this class is done, your work here is <b>meant to evolve as you build</b> — come back and tweak it whenever your thinking changes.</div>
+          {weekActivity(selected, s, setState, true)}
         </div>
       )}
       <div style={secLabel}>Class materials</div>
-      {selected === 1 ? (
-        <ClassExample />
+      {weekExample(selected) ? (
+        weekExample(selected)
       ) : selMaterials.length ? (
         <div style={pillWrap}>{selMaterials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
       ) : (
@@ -2402,14 +2462,16 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
 
       {action === "build" && (
         <Wrap title={wk.t} blurb={wk.s}>
-          {s.week === 1 ? (
-            // Week 1: the class material is the worked Build Young example; then the student writes
-            // their own build plan.
+          {weekActivity(s.week, s, setState, true) ? (
+            // Build weeks with content: the class material is the worked Build Young example, then
+            // the student does their own activity.
             <>
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Class material</div>
-              <ClassExample />
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", margin: "22px 0 8px" }}>Your turn</div>
-              <BuildPlan s={s} setS={setState} bare />
+              {weekExample(s.week) && <>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Class material</div>
+                {weekExample(s.week)}
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", margin: "22px 0 8px" }}>Your turn</div>
+              </>}
+              {weekActivity(s.week, s, setState, true)}
             </>
           ) : (
             <div style={{ background: C.paper, borderRadius: 4, padding: 18, textAlign: "center" }}>
