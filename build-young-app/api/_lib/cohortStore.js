@@ -10,9 +10,9 @@ import { kvConfigured, kvGet, kvSet } from "./kv.js";
 
 const KEY = "cohorts:catalog";
 
-// Default catalog from code (seed/fallback). Each batch carries its own stripeLink now.
+// Default catalog from code (seed/fallback). Each batch carries its own stripeLink + recordings.
 export function defaultCatalog() {
-  return { batches: DEFAULT_BATCHES.map((b) => ({ stripeLink: "", ...b })), checkins: DEFAULT_CHECKINS };
+  return { batches: DEFAULT_BATCHES.map((b) => ({ stripeLink: "", recordings: {}, ...b })), checkins: DEFAULT_CHECKINS };
 }
 
 export async function loadCatalog() {
@@ -30,6 +30,20 @@ export async function loadCatalog() {
 const str = (v, fb = "") => (typeof v === "string" ? v : fb);
 const num = (v, fb = 0) => (Number.isFinite(+v) ? +v : fb);
 
+// Per-week class recording URLs: { "1": url, … "12": url } — only weeks 1–12 with a non-empty
+// string survive. Founder pastes a Zoom cloud-recording link per session; the student's "Rewatch"
+// uses it when present (else the live class link).
+function sanitizeRecordings(r) {
+  const out = {};
+  if (r && typeof r === "object") {
+    for (let w = 1; w <= 12; w++) {
+      const v = r[w] ?? r[String(w)];
+      if (typeof v === "string" && v.trim()) out[String(w)] = v.trim();
+    }
+  }
+  return out;
+}
+
 // Validate + normalize an incoming catalog: enforce fields/types, drop junk, dedupe ids.
 export function sanitizeCatalog(input) {
   const seen = new Set();
@@ -44,6 +58,7 @@ export function sanitizeCatalog(input) {
       price: Math.max(0, Math.round(num(b && b.price, 0))),
       zoom: str(b && b.zoom).trim(),
       stripeLink: str(b && b.stripeLink).trim(),
+      recordings: sanitizeRecordings(b && b.recordings),
     }))
     .filter((b) => b.id && !seen.has(b.id) && (seen.add(b.id), true));
   const checkins = Math.max(0, Math.round(num(input && input.checkins, DEFAULT_CHECKINS)));
