@@ -24,7 +24,6 @@
     "enrolled (Sep 8, 2026)",
     "started weekly engagement",
     "completed the 12-week course",
-    "completed 6 monthly check-ins",
     "graduated"
   ],
   "weekByWeek": [
@@ -497,60 +496,12 @@
       },
       "insured": false,
       "hustleActive": false
-    },
-    {
-      "period": "Monthly check-in",
-      "phase": "checkin",
-      "marketEvent": {
-        "headline": "Q1 — Inflation cools",
-        "detail": "Bonds recover; gold gives back gains.",
-        "effects": {
-          "stocks": 0.03,
-          "bonds": 0.025,
-          "reits": 0.02,
-          "bullion": -0.02,
-          "sav": 0.012
-        }
-      },
-      "decisionsMade": [
-        "showed up, collected salary, let the portfolio ride"
-      ],
-      "netWorth": 46260.02,
-      "cash": 11760,
-      "savings": 14864.85,
-      "retirement": 4490.61,
-      "holdings": {
-        "stocks": 6493.13,
-        "bonds": 3070.03,
-        "reits": 1482.24,
-        "bullion": 991.22
-      },
-      "privateEquity": 0,
-      "creditScore": 764,
-      "home": null,
-      "car": {
-        "value": 28240.1,
-        "loan": 22320,
-        "equity": 5920.1
-      },
-      "creditCard": {
-        "open": true,
-        "balance": 2812.16
-      },
-      "insured": false,
-      "hustleActive": false
     }
   ],
   "emailsReceived": [
     {
       "type": "followup",
-      "subject": "Your monthly check-in recap",
-      "when": "Just now",
-      "event": null
-    },
-    {
-      "type": "followup",
-      "subject": "Course complete — your check-ins are coming",
+      "subject": "Course complete — you did it 🎓",
       "when": "Just now",
       "event": null
     },
@@ -718,24 +669,24 @@
     }
   ],
   "final": {
-    "finalNetWorth": 46260.02,
+    "finalNetWorth": 41404.7,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 11760,
-      "savings": 14864.85,
-      "retirement": 4490.61,
-      "brokerageHoldings": 12036.62,
+      "cash": 11220,
+      "savings": 12288.59,
+      "retirement": 3866.17,
+      "brokerageHoldings": 10803.79,
       "privateEquity": 0,
       "homeEquity": 0,
-      "carEquity": 5920.1,
-      "creditCardDebt": 2812.16
+      "carEquity": 5930.15,
+      "creditCardDebt": 2704
     },
-    "creditScore": 764,
+    "creditScore": 756,
     "boughtHome": false,
     "boughtCar": true,
     "carriedCardDebt": true,
     "insured": false,
     "hustled": false,
-    "narrative": "Mason ran a balanced strategy, rented (no home), bought a car, finished carrying $2,812 in card debt — finishing with a simulated net worth of $46,260 and a credit score of 764. All figures simulated."
+    "narrative": "Mason ran a balanced strategy, rented (no home), bought a car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $41,405 and a credit score of 756. All figures simulated."
   }
 }

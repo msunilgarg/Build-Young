@@ -44,13 +44,13 @@ describe.each(COHORTS)("cohort %s", (batchId) => {
     expect(results[batchId].students).toHaveLength(15);
   });
 
-  it("every student completed all 13 periods (12 weeks + 1 check-in) and graduated", () => {
+  it("every student completed all 12 weekly periods and graduated (no separate check-in)", () => {
     for (const st of results[batchId].students) {
-      expect(st.weekByWeek).toHaveLength(13);
+      expect(st.weekByWeek).toHaveLength(12);
       expect(st._internal.state.done).toBe(true);
-      expect(st._internal.state.checkin).toBe(1);
-      // last period is the monthly check-in
-      expect(st.weekByWeek[st.weekByWeek.length - 1].period).toBe("Monthly check-in");
+      expect(st._internal.state.week).toBe(12);
+      // last period is the Week 12 capstone
+      expect(st.weekByWeek[st.weekByWeek.length - 1].period).toMatch(/^Week 12:/);
       expect(st.funnel).toContain("graduated");
     }
   });
@@ -137,8 +137,8 @@ function writeReadme(results) {
   lines.push("- Harness: `scripts/simulateBatch.js` (`runCohort(batchId)`).");
   lines.push("- Runner: `test/simulate.batch.test.js` (run with `npm run simulate` or `npm test`).");
   lines.push("- The engine is imported READ-ONLY from `src/App.jsx` + `src/marketMedia.js`.");
-  lines.push("- Each student is run through the full lifecycle: 12 weekly classes (`phase:\"course\"`)");
-  lines.push("  then 1 monthly check-in (`phase:\"checkin\"`), 13 periods total. Each period applies");
+  lines.push("- Each student is run through the full lifecycle: 12 weekly classes (`phase:\"course\"`),");
+  lines.push("  12 periods total (finishing Week 12 graduates — no separate check-in). Each period applies");
   lines.push(`  one ${usd(PAY)} paycheck (split per the student's settings), then the period's shared`);
   lines.push("  market event from `marketEventFor(...)`, then that week's decisions.");
   lines.push("- **Reproducible:** the only randomness is the hustle bonus in `advance()`. The harness");
@@ -148,7 +148,7 @@ function writeReadme(results) {
   lines.push("## Funnel modeled");
   lines.push("");
   lines.push("discover (source) → (maybe) book a free 15-min call → enroll → engage weekly →");
-  lines.push("complete the course → finish the monthly check-in → graduate. Each student's `funnel` field");
+  lines.push("complete the course → graduate at the Week 12 capstone. Each student's `funnel` field");
   lines.push("records their stage progression, and `discoverySource` / `bookedCall` capture the top.");
   lines.push("");
   lines.push("## Files");
@@ -158,7 +158,7 @@ function writeReadme(results) {
   lines.push("  README.md                 ← this file");
   for (const batchId of Object.keys(results)) {
     lines.push(`  ${batchId}/`);
-    lines.push("    cohort-summary.json     ← roster, prize ranking, averages/min/max, risk breakdown, notable outcomes");
+    lines.push("    cohort-summary.json     ← roster, portfolio ranking, averages/min/max, risk breakdown, notable outcomes");
     lines.push("    cohort.csv              ← one row per student for spreadsheet review");
     lines.push("    <student-slug>.json     ← full per-student journey (15 files)");
   }
@@ -189,7 +189,7 @@ function writeReadme(results) {
   lines.push("dashboard's disabled buy buttons enforce, so the harness models the realistic behavior of");
   lines.push(`*saving toward a goal and buying when it's affordable*. In practice: a **car** (${usd(CAR.down)}`);
   lines.push(`down) is reachable for steady savers; a **home** (${usd(HOME.down)} down) is only reachable by`);
-  lines.push(`max-rate savers, and only by the final check-ins; and the **${usd(PE_BUY)} private-equity** buy`);
+  lines.push(`max-rate savers, and only late in the course; and the **${usd(PE_BUY)} private-equity** buy`);
   lines.push("is effectively unreachable for everyone within the 13 periods given how little cash");
   lines.push("accumulates — so no persona clears it this run (the field is still captured, always $0).");
   lines.push("Heavy auto-investors finish with the largest invested base but stay cash-poor — a genuine");
@@ -204,7 +204,7 @@ function writeReadme(results) {
     lines.push("");
     lines.push(`- Students: ${s.studentCount} · Tuition: ${fmt(s.price)}`);
     lines.push(`- Average final net worth: **${fmt(s.averageNetWorth)}** (min ${fmt(s.minNetWorth)}, max ${fmt(s.maxNetWorth)})`);
-    lines.push(`- Tuition-prize winner (highest portfolio value): **${s.prizeWinner.name}** at ${fmt(s.prizeWinner.netWorth)}`);
+    lines.push(`- Highest portfolio value: **${s.prizeWinner.name}** at ${fmt(s.prizeWinner.netWorth)}`);
     const rb = Object.entries(s.distributionByRiskStyle)
       .map(([k, v]) => `${k} ${v.count} (avg ${fmt(v.avgNetWorth)})`).join(", ");
     lines.push(`- By risk style: ${rb}`);

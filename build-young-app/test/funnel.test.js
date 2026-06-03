@@ -25,7 +25,8 @@ describe("funnel definitions", () => {
 });
 
 describe("full single-student lifecycle", () => {
-  // visited → enroll_started → enrolled → class_started → weeks 2..12 → graduated → check-in 1
+  // visited → enroll_started → enrolled → class_started → weeks 2..12 → graduated
+  // (12 weeks flat — no separate check-in)
   const events = [
     ev("visited"),
     ev("enroll_started", { ...FALL, fromCall: false }),
@@ -33,7 +34,6 @@ describe("full single-student lifecycle", () => {
     ev("class_started", FALL),
     ...n(11, (i) => ev("week_advanced", { ...FALL, week: i + 2 })), // weeks 2..12
     ev("graduated", FALL),
-    ev("checkin_completed", { ...FALL, checkin: 1 }), // the single monthly check-in
   ];
   const s = summarize(events);
 
@@ -45,11 +45,10 @@ describe("full single-student lifecycle", () => {
     expect(s.overall).toBe(1);
     expect(ratePct(s.overall)).toBe("100%");
   });
-  it("fills the week curve (2..12) and the check-in retention point(s)", () => {
+  it("fills the week curve (2..12); the check-in curve is empty (CHECKINS = 0)", () => {
     expect(s.weekCurve.map((w) => w.week)).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     expect(s.weekCurve.every((w) => w.value === 1)).toBe(true);
-    expect(s.checkinCurve.map((c) => c.checkin)).toEqual([1]); // CHECKINS = 1
-    expect(s.checkinCurve.every((c) => c.value === 1)).toBe(true);
+    expect(s.checkinCurve).toEqual([]); // no separate check-in
   });
   it("derives revenue from the enrolled price with no refunds", () => {
     expect(s.revenue).toEqual({ grossCents: 99900, refundedCents: 0, netCents: 99900 });

@@ -16,7 +16,7 @@
       "brokerageRate": 0.1,
       "finalRisk": "conservative"
     },
-    "prizeRank": 7
+    "prizeRank": 3
   },
   "funnel": [
     "discovered (Google search)",
@@ -24,7 +24,6 @@
     "enrolled (Sep 7, 2026)",
     "started weekly engagement",
     "completed the 12-week course",
-    "completed 6 monthly check-ins",
     "graduated"
   ],
   "weekByWeek": [
@@ -485,56 +484,12 @@
       },
       "insured": false,
       "hustleActive": false
-    },
-    {
-      "period": "Monthly check-in",
-      "phase": "checkin",
-      "marketEvent": {
-        "headline": "Q1 — Inflation cools",
-        "detail": "Bonds recover; gold gives back gains.",
-        "effects": {
-          "stocks": 0.03,
-          "bonds": 0.025,
-          "reits": 0.02,
-          "bullion": -0.02,
-          "sav": 0.012
-        }
-      },
-      "decisionsMade": [
-        "showed up, collected salary, let the portfolio ride"
-      ],
-      "netWorth": 49248.73,
-      "cash": 14705,
-      "savings": 18325.62,
-      "retirement": 5209.41,
-      "holdings": {
-        "stocks": 4635.15,
-        "bonds": 4116.54,
-        "reits": 1351.15,
-        "bullion": 905.86
-      },
-      "privateEquity": 0,
-      "creditScore": 764,
-      "home": null,
-      "car": null,
-      "creditCard": {
-        "open": false,
-        "balance": 0
-      },
-      "insured": false,
-      "hustleActive": false
     }
   ],
   "emailsReceived": [
     {
       "type": "followup",
-      "subject": "Your monthly check-in recap",
-      "when": "Just now",
-      "event": null
-    },
-    {
-      "type": "followup",
-      "subject": "Course complete — your check-ins are coming",
+      "subject": "Course complete — you did it 🎓",
       "when": "Just now",
       "event": null
     },
@@ -702,24 +657,24 @@
     }
   ],
   "final": {
-    "finalNetWorth": 49248.73,
+    "finalNetWorth": 43643.66,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 14705,
-      "savings": 18325.62,
-      "retirement": 5209.41,
-      "brokerageHoldings": 11008.7,
+      "cash": 13465,
+      "savings": 15738.32,
+      "retirement": 4465.05,
+      "brokerageHoldings": 9975.29,
       "privateEquity": 0,
       "homeEquity": 0,
       "carEquity": 0,
       "creditCardDebt": 0
     },
-    "creditScore": 764,
+    "creditScore": 756,
     "boughtHome": false,
     "boughtCar": false,
     "carriedCardDebt": false,
     "insured": false,
     "hustled": false,
-    "narrative": "Sofia ran a conservative strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $49,249 and a credit score of 764. All figures simulated."
+    "narrative": "Sofia ran a conservative strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $43,644 and a credit score of 756. All figures simulated."
   }
 }

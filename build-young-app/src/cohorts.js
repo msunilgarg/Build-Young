@@ -17,8 +17,10 @@
 //   - day     — human label, e.g. "Mondays & Wednesdays · 5:00–6:30 PM PST"
 //   - seats / price / zoom — enrollment + class details
 
-// Monthly check-ins after the 12-week course (the prize is decided at the last one).
-export const CHECKINS = 1;
+// Follow-up check-ins after the 12-week course. The program is now 12 weeks flat — the finale is
+// the Week 12 capstone (no separate check-in call, no tuition prize) — so this is 0. Kept as a
+// constant (not deleted) so the funnel/analytics + sim harness stay generic if it ever returns.
+export const CHECKINS = 0;
 
 export const SEASONS = [
   { key: "fall", label: "Fall 2026", note: "Enrolling now" },
