@@ -33,20 +33,20 @@ function readableClassDate(batch, week) {
   return d ? d.toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric", year: "numeric" }) : (batch.day || "");
 }
 
-// The 2-days-before class reminder: next session + what to prepare (founder-editable homework).
-// Plain content so it's identical for every student in the cohort.
+// The reminder, sent 2 days before a week's FIRST session. Each week has two classes, so this is
+// the heads-up that the week is starting; what to prepare comes from the founder-editable homework.
 function reminderEmail(name, week, batch, homework) {
   const first = String(name || "").trim().split(" ")[0] || "there";
   const title = WEEK_TITLES[week - 1] || `Week ${week}`;
   const prep = homework[week - 1];
   return {
-    subject: `Your Build Young class is in 2 days — Week ${week}`,
+    subject: `Week ${week} of Build Young starts in 2 days`,
     body: `Hi ${first},
 
-Heads-up — your next Build Young class is in 2 days.
+Heads-up — Week ${week} starts in 2 days. You meet twice this week (${batch.day}).
 
 Week ${week}: "${title}"
-${readableClassDate(batch, week)}  ·  ${batch.day}
+First session: ${readableClassDate(batch, week)}
 Join on Zoom: ${batch.zoom}
 ${prep ? `\nTo prepare:\n${prep}\n` : ""}
 See you there,
