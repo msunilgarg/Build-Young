@@ -57,6 +57,22 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
     expect(res.payload.batches.length).toBeGreaterThan(0);
   });
 
+  it("GET /api/cohorts?cert=<id> publicly verifies a certificate (no auth)", async () => {
+    const rec = { certId: "abc123", name: "Bani Garg", track: "Builders", season: "fall", completedAt: Date.now() };
+    kv._store.set("cert:abc123", JSON.stringify(rec));
+
+    // found → 200 + the cert (no session needed)
+    let res = makeRes();
+    await cohortsHandler(req("GET", { query: { cert: "abc123" } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.cert).toMatchObject({ certId: "abc123", name: "Bani Garg", track: "Builders" });
+
+    // unknown id → 404
+    res = makeRes();
+    await cohortsHandler(req("GET", { query: { cert: "nope" } }), res);
+    expect(res.statusCode).toBe(404);
+  });
+
   it("PUT /api/funnel saves the catalog (founder-session gated) and GET reflects it", async () => {
     const body = { batches: [{ id: "only", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mon & Wed", price: 1234, seats: 8, zoom: "", stripeLink: "" }], checkins: 2 };
 
