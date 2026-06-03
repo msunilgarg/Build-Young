@@ -12,8 +12,9 @@
 // endpoint is just gated storage.
 
 import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
-import { saveCatalog } from "./_lib/cohortStore.js";
+import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
 import { saveSettings } from "./_lib/settingsStore.js";
+import { addInterest, listInterest, notifyInterestOfNewCohorts } from "./_lib/interestStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
 import { listCerts } from "./_lib/cert.js";
 import { listBuildPlans } from "./_lib/buildPlans.js";
@@ -79,6 +80,11 @@ async function read(req, res) {
     return;
   }
 
+  if (req.query && req.query.resource === "interest") {
+    res.status(200).json({ interest: await listInterest() });
+    return;
+  }
+
   const founders = await loadFounderEmails();
   if (!kvConfigured()) { res.status(200).json({ events: [], founders }); return; }
 
@@ -97,10 +103,17 @@ async function readBody(req) {
   return body;
 }
 
-// --- PUT (default): founder saves the cohort catalog ---
+// --- PUT (default): founder saves the cohort catalog. If this introduces a NEW cohort, everyone
+// who registered interest (when something was full) is emailed automatically that it opened. ---
 async function saveCohorts(req, res) {
   if (!(await founderGate(req, res))) return;
+  const before = await loadCatalog(); // to spot newly-added cohorts
   const result = await saveCatalog((await readBody(req)) || {});
+  if (result.ok) {
+    const oldIds = new Set((before.batches || []).map((b) => b.id));
+    const added = (result.catalog.batches || []).filter((b) => !oldIds.has(b.id));
+    if (added.length) { try { await notifyInterestOfNewCohorts(added); } catch { /* best-effort */ } }
+  }
   res.status(result.ok ? 200 : 400).json(result);
 }
 
@@ -140,8 +153,18 @@ async function resetAccount(req, res) {
   res.status(200).json({ ok: true, deleted: [`user:${email}`, `state:${email}`] });
 }
 
+// --- POST ?resource=interest: public — capture a family's interest when a cohort is full (so we
+// can notify them about the NEXT cohort). ---
+async function saveInterest(req, res) {
+  const result = await addInterest((await readBody(req)) || {});
+  res.status(result.ok || result.reason ? 200 : 400).json(result);
+}
+
 export default async function handler(req, res) {
-  if (req.method === "POST") return ingest(req, res);     // public: track an event
+  if (req.method === "POST") {
+    if (req.query && req.query.resource === "interest") return saveInterest(req, res); // public
+    return ingest(req, res);     // public: track an event
+  }
   if (req.method === "GET") return read(req, res);        // founder: read funnel events
   if (req.method === "PUT") {                              // founder: save cohorts, admins, or settings
     if (req.query && req.query.resource === "founders") return saveFounders(req, res);

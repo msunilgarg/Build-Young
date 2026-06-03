@@ -28,6 +28,15 @@ export async function addEnrollment({ email, name, batchId }) {
 }
 
 // List enrollments for a cohort → [{ email, name, batchId }]. [] when unconfigured/empty.
+// Number of students enrolled in a cohort (cheap HLEN). 0 when unconfigured/empty. Used to
+// auto-detect a full cohort (enrolled >= seats) on the public catalog read.
+export async function countEnrollments(batchId) {
+  if (!storeConfigured() || !batchId) return 0;
+  const res = await command(["HLEN", keyFor(batchId)]);
+  const n = typeof res === "number" ? res : Number(res);
+  return Number.isFinite(n) ? n : 0;
+}
+
 export async function listEnrollments(batchId) {
   if (!storeConfigured()) return [];
   const res = await command(["HGETALL", keyFor(batchId)]);
