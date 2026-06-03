@@ -3,7 +3,7 @@ import {
   TrendingUp, TrendingDown, Home, Car, Wallet, PiggyBank, LineChart as LineIcon,
   Shield, Coins, Building2, GraduationCap, ArrowRight, Check, Lock, Newspaper,
   CircleDollarSign, Sparkles, AlertTriangle, ShoppingBag, Landmark, Video, Mail, Briefcase,
-  Anchor, Linkedin, BookOpen, Download, Users, Activity,
+  Anchor, Linkedin, BookOpen, Download, Users, Activity, Award,
 } from "lucide-react";
 // Client-safe market-media bits live in a dependency-free module (no React/lucide) so the
 // serverless cron + the server-only schedule module can share the SAME builders. The FUTURE
@@ -1449,23 +1449,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         </div>
       </Card>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="enroll-grid">
-        <Card style={{ padding: 20 }}>
-          <h3 style={sectionTitle}>What to expect</h3>
-          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — Build.</b> Find a problem worth solving and build a product, app, or service (AI is your tool). Your income comes from what you build.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–12 — Manage the money.</b> Taxes, saving, investing through real market swings, big purchases, and watching it compound.</span></div>
-          <div style={li}><Sparkles size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A follow-up check-in.</b> A month after graduation you'll reconvene to see how your independent investing decisions played out.</span></div>
-        </Card>
-        <Card style={{ padding: 20 }}>
-          <h3 style={sectionTitle}>How each week works</h3>
-          <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
-          <div style={li}>{num(2)}<span>Open <b>This Week</b> for that session's activity — building your product early on, managing the money later.</span></div>
-          <div style={li}>{num(3)}<span><b>Advance your simulation</b>, then rebalance your <b>Portfolio</b> as events unfold in <b>Markets</b>.</span></div>
-          <div style={li}>{num(4)}<span>Watch your <b>business</b> and <b>net worth</b> grow on the <b>Dashboard</b>.</span></div>
-        </Card>
-      </div>
-
-      <Card style={{ padding: 20, marginTop: 14 }}>
+      <Card style={{ padding: 20, marginBottom: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
           <h3 style={{ ...sectionTitle, margin: 0 }}>Get set up before you build</h3>
           <span style={{ fontSize: 12.5, fontWeight: 700, color: doneCount === PREREQS.length ? C.green : C.muted }}>{doneCount} of {PREREQS.length} done</span>
@@ -1497,6 +1481,23 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           New to all this? Perfect — that's the whole point. You'll set up every one of these yourself, and by the end you'll have built and shipped a real app. 🚀
         </div>
       </Card>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="enroll-grid">
+        <Card style={{ padding: 20 }}>
+          <h3 style={sectionTitle}>What to expect</h3>
+          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — Build.</b> Find a problem worth solving and build a product, app, or service (AI is your tool). Your income comes from what you build.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–12 — Manage the money.</b> Taxes, saving, investing through real market swings, big purchases, and watching it compound.</span></div>
+          <div style={li}><Sparkles size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A follow-up check-in.</b> A month after graduation you'll reconvene to see how your independent investing decisions played out.</span></div>
+          <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
+        </Card>
+        <Card style={{ padding: 20 }}>
+          <h3 style={sectionTitle}>How each week works</h3>
+          <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
+          <div style={li}>{num(2)}<span>Open <b>This Week</b> for that session's activity — building your product early on, managing the money later.</span></div>
+          <div style={li}>{num(3)}<span><b>Advance your simulation</b>, then rebalance your <b>Portfolio</b> as events unfold in <b>Markets</b>.</span></div>
+          <div style={li}>{num(4)}<span>Watch your <b>business</b> and <b>net worth</b> grow on the <b>Dashboard</b>.</span></div>
+        </Card>
+      </div>
 
       <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
         All money in the program is <b>simulated</b> — this is financial education, not licensed advice. Full refund any time before your cohort starts; prorated through the {REFUND_WINDOW}.
@@ -1783,7 +1784,7 @@ function Platform({ state, setState, onExit, onFounder }) {
           )}
         </div>
       )}
-      {tab === "week" && <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} />}
+      {tab === "week" && <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} cert={cert} />}
       {tab === "course" && <CoursePanel s={s} batch={batch} />}
       {tab === "port" && <PortfolioPanel s={s} setState={setState} pieData={pieData} nw={nw} />}
       {tab === "macro" && (
@@ -2016,7 +2017,7 @@ function PortfolioPanel({ s, setState, pieData, nw }) {
 }
 
 /* ---- the weekly action panel ---- */
-function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
+function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert }) {
   const wk = WEEKS[s.week - 1];
   const action = s.phase === "course" ? wk.action : "checkin";
   const set = (fn) => setState((p) => { const ns = JSON.parse(JSON.stringify(p)); fn(ns); return ns; });
@@ -2206,12 +2207,14 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
         </Wrap>
       )}
 
-      {action === "checkin" && (
+      {action === "checkin" && (<>
+        {/* Course complete → lead with the certificate (the first thing they see on finishing). */}
+        {cert && <div style={{ marginBottom: 14 }}><CertificateCard cert={cert} /></div>}
         <Wrap title={s.done ? "You've graduated 🎓" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Your follow-up check-in")} blurb={s.done ? "A month of independent investing, done. Your portfolio reflects every decision you made." : `Your build keeps earning about ${fmt(STEADY_INCOME)} a period. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your income and apply it.`}>
           {!s.done && <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}><b>{macroNow.h}.</b> <span style={{ color: C.ink2 }}>{macroNow.d}</span></div>}
           {s.done && <Stat label="Net worth after one year independent" value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />}
         </Wrap>
-      )}
+      </>)}
 
       {!s.done && (
         <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
@@ -2627,6 +2630,8 @@ export function FounderDashboard({ onHome }) {
           <SettingsEditor />
           <h2 style={h2s}>Cohorts &amp; schedule</h2>
           <CohortEditor />
+          <h2 style={h2s}>Certificates</h2>
+          <CertificatesAdmin />
           <h2 style={h2s}>Admins</h2>
           <FoundersEditor founders={founders} />
           <h2 style={h2s}>Reset a test account</h2>
@@ -2995,6 +3000,46 @@ function CertifyVerify({ certId, onHome }) {
         </>)}
       </div>
     </div>
+  );
+}
+
+// Founder console: preview the certificate design + see every issued certificate (founder-gated
+// read via /api/funnel?resource=certs). Aggregate-only (name + cohort + date + id).
+function CertificatesAdmin() {
+  const [certs, setCerts] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/funnel?resource=certs");
+        const d = r.ok ? await r.json() : {};
+        if (live) setCerts(Array.isArray(d.certs) ? d.certs : []);
+      } catch { if (live) setCerts([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  const sample = { name: "Sample Student", track: "Builders", completedAt: Date.now(), certId: "sample" };
+  return (
+    <>
+      <Card style={{ padding: 16, marginBottom: 12 }}>
+        <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Exactly how a student's certificate looks. It's issued automatically when they complete the 12 weeks, shown on their dashboard, and emailed to them.</div>
+        <CertificateView cert={sample} compact />
+        <div style={{ marginTop: 12 }}>
+          <button className="btn" onClick={() => downloadFile("build-young-certificate-sample.svg", buildCertSvg(sample), "image/svg+xml")} style={{ background: C.emerald, color: "#fff", padding: "9px 16px", borderRadius: 4, fontSize: 14, fontWeight: 600 }}>Download sample</button>
+        </div>
+      </Card>
+      <Card style={{ padding: 16 }}>
+        <b style={{ fontSize: 13.5 }}>Issued certificates{certs ? ` (${certs.length})` : ""}</b>
+        {certs === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
+        {certs && certs.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>None issued yet — they appear here as students complete the course.</div>}
+        {certs && certs.map((c) => (
+          <div key={c.certId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "10px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+            <span style={{ minWidth: 0 }}><b style={{ color: C.ink }}>{c.name || "—"}</b> <span style={{ color: C.muted }}>· {c.track} · {certDate(c.completedAt)}</span></span>
+            <a href={certVerifyUrl(`https://${CONFIG.brandDomain}`, c.certId)} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>View ↗</a>
+          </div>
+        ))}
+      </Card>
+    </>
   );
 }
 

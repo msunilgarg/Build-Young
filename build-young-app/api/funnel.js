@@ -14,6 +14,7 @@
 import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog } from "./_lib/cohortStore.js";
 import { saveSettings } from "./_lib/settingsStore.js";
+import { listCerts } from "./_lib/cert.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 
 const KEY = "funnel:events";
@@ -60,9 +61,16 @@ async function ingest(req, res) {
   res.status(200).json({ ok: true });
 }
 
-// --- GET: founder-gated read of the stream ---
+// --- GET: founder-gated read of the stream (or ?resource=certs → issued certificates) ---
 async function read(req, res) {
   if (!(await founderGate(req, res))) return;
+
+  if (req.query && req.query.resource === "certs") {
+    const certs = await listCerts();
+    res.status(200).json({ certs });
+    return;
+  }
+
   const founders = await loadFounderEmails();
   if (!kvConfigured()) { res.status(200).json({ events: [], founders }); return; }
 
