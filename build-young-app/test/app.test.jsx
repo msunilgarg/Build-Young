@@ -7,7 +7,7 @@ import App, { CONFIG, BATCHES } from "../src/App.jsx";
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
 // AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production
 // catalog. The auth + Stripe paths are covered separately in auth-ui.test.jsx / auth-endpoints.test.js.
-beforeEach(() => { CONFIG.authEnabled = false; BATCHES.forEach((b) => { b.stripeLink = ""; }); });
+beforeEach(() => { CONFIG.authEnabled = false; CONFIG.previewAllWeeks = false; BATCHES.forEach((b) => { b.stripeLink = ""; }); });
 
 // Only fail on the impact levels CLAUDE.md commits to (serious/critical).
 async function expectNoSeriousA11y(container) {

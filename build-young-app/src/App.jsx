@@ -126,6 +126,10 @@ export const CONFIG = {
   // lives server-side (cross-device) instead of in localStorage. When false, the app keeps the
   // self-contained localStorage demo flow — no login, per-device state. See api/_lib/auth.js.
   authEnabled: true,
+  // DEV / AUTHORING: unlock every course week (each shows its full activity) so the course can be
+  // built + previewed without advancing the simulation. Set false before launch so weeks lock
+  // again and unlock as the student reaches them.
+  previewAllWeeks: true,
 };
 // Auth/state API client. Same-origin fetches carry the HttpOnly session cookie automatically.
 async function postJson(url, body) {
@@ -1835,17 +1839,18 @@ function Platform({ state, setState, onExit, onFounder }) {
           </div>
 
           <Card style={{ padding: 20, marginTop: 14 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontSize: 12, color: C.turq, fontWeight: 700, letterSpacing: ".05em" }}>{s.phase === "course" ? `WEEK ${s.week}` : `CHECK-IN ${s.checkin + 1}`}</div>
-                <div className="disp" style={{ fontSize: 22, fontWeight: 800 }}>{s.phase === "course" ? wk.t : "Manage your portfolio"}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+              <div style={{ fontWeight: 700 }}>Course progress</div>
+              <div style={{ fontSize: 13, color: C.muted }}>{s.phase === "course" ? `Week ${s.week} of 12 · Act ${wk.act}` : (s.done ? "Complete 🎓" : "Follow-up check-in")}</div>
+            </div>
+            <div style={{ height: 8, background: C.paper2, borderRadius: 999, marginTop: 12, overflow: "hidden" }}>
+              <div style={{ width: `${Math.round(((s.phase === "course" ? s.week : 12) / 12) * 100)}%`, height: "100%", background: C.emerald, borderRadius: 999 }} />
+            </div>
+            {!s.done && (
+              <div style={{ fontSize: 12.5, color: C.muted, marginTop: 10 }}>
+                <span {...act(() => setTab("course"))} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Open this week's activity →</span>
               </div>
-              {!s.done && <button className="btn" onClick={() => setTab("course")} style={{ background: C.emerald, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14 }}>Open →</button>}
-            </div>
-            <div style={{ marginTop: 14, padding: 14, background: C.paper, borderRadius: 4, display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <Newspaper size={18} color={C.turq} style={{ flexShrink: 0, marginTop: 2 }} />
-              <div><b>{macroNow.h}.</b> <span style={{ color: C.ink2 }}>{macroNow.d}</span></div>
-            </div>
+            )}
           </Card>
 
           {s.history.length > 1 && (
@@ -1923,6 +1928,7 @@ function ResLink({ r, icon: Icon = Newspaper }) {
 
 /* ---- Course progress: a horizontal week stepper + the selected week's activity below ---- */
 function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert }) {
+  const previewAll = CONFIG.previewAllWeeks; // DEV: every week open + shows its full activity
   const offCourse = s.phase !== "course"; // in check-ins / graduated, the 12 weeks are all done
   const currentWeek = offCourse ? 12 : s.week;
   const [selected, setSelected] = useState(currentWeek); // which week's content is shown below
@@ -1933,7 +1939,7 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert }) {
   // shown (the class materials still render). This only ever surfaces past/current weeks, so
   // it reveals nothing the student isn't already entitled to.
   const [weekRes, setWeekRes] = useState({}); // { [week]: resources[] }
-  const unlockedThrough = offCourse ? 12 : currentWeek;
+  const unlockedThrough = previewAll ? 12 : (offCourse ? 12 : currentWeek);
   useEffect(() => {
     let live = true;
     for (let week = 1; week <= unlockedThrough; week++) {
@@ -1950,7 +1956,7 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert }) {
 
   // The selected week's content.
   const selW = WEEKS[selected - 1];
-  const selUnlocked = offCourse || selected <= currentWeek;
+  const selUnlocked = previewAll || offCourse || selected <= currentWeek;
   const isThisWeek = selected === currentWeek; // the live week (the final week, once off-course)
   const selStatus = !selUnlocked ? "Upcoming" : (isThisWeek && !offCourse ? "This week" : "Completed");
   const selStatusColor = selStatus === "This week" ? C.emerald : selStatus === "Completed" ? C.turq : C.muted;
@@ -1963,10 +1969,10 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert }) {
   // One week "step" in the horizontal stepper.
   const step = (week) => {
     const w = WEEKS[week - 1];
-    const unlocked = offCourse || week <= currentWeek;
+    const unlocked = previewAll || offCourse || week <= currentWeek;
     const isSel = week === selected;
     const isCur = week === currentWeek && !offCourse;
-    const bg = !unlocked ? C.paper2 : isCur ? C.emerald : C.turq;
+    const bg = !unlocked ? C.paper2 : isCur ? C.emerald : C.green; // done = green, this week = blue (easy to tell apart)
     const fg = unlocked ? "#fff" : C.muted;
     return (
       <button key={week} type="button" className="tab" aria-label={`Week ${week}${unlocked ? "" : " (locked)"}`} aria-current={isSel ? "true" : undefined}
@@ -2031,15 +2037,22 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert }) {
           {WEEKS.map((w, i) => step(i + 1))}
         </div>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 12, fontSize: 11.5, color: C.muted }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 10, height: 10, borderRadius: 999, background: C.green, display: "inline-block" }} /> Done</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 10, height: 10, borderRadius: 999, background: C.emerald, display: "inline-block" }} /> This week</span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 10, height: 10, borderRadius: 999, background: C.turq, display: "inline-block" }} /> Done</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Lock size={11} /> Upcoming</span>
         </div>
       </Card>
 
-      {/* selected week, full width: the live week shows the real activity (+ Zoom + advance);
-          past weeks show a catch-up; locked weeks stay hidden (no spoilers). */}
-      {!selUnlocked ? (
+      {previewAll && (
+        <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, margin: "0 2px 8px" }}>Preview mode — every week is open for authoring (set CONFIG.previewAllWeeks false to lock).</div>
+      )}
+
+      {/* selected week, full width. Preview: render the SELECTED week's activity (so any week can
+          be authored). Normal: the live week shows the activity (+ Zoom + advance); past weeks a
+          catch-up; locked weeks stay hidden (no spoilers). */}
+      {previewAll ? (
+        <WeekPanel s={{ ...s, week: selected, phase: "course", started: true }} setState={setState} macroNow={macroNow} onAdvance={onAdvance} batch={batch} cert={cert} preview />
+      ) : !selUnlocked ? (
         <Card style={{ padding: 22 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".04em" }}>WEEK {selected} · UPCOMING</div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: C.muted, background: C.paper, borderRadius: 4, padding: "12px 14px", marginTop: 12 }}>
@@ -2118,7 +2131,7 @@ function PortfolioPanel({ s, setState, pieData, nw }) {
 }
 
 /* ---- the weekly action panel ---- */
-function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert }) {
+function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
   const wk = WEEKS[s.week - 1];
   const action = s.phase === "course" ? wk.action : "checkin";
   const set = (fn) => setState((p) => { const ns = JSON.parse(JSON.stringify(p)); fn(ns); return ns; });
@@ -2322,7 +2335,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert }) {
         </Wrap>
       </>)}
 
-      {!s.done && (
+      {!s.done && !preview && (
         <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
           {(() => {
             const inc = incomeFor(s.phase, s.week);
