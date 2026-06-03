@@ -11,10 +11,11 @@ import { kvConfigured, kvCommand, kvDel } from "./kv.js";
 const KEY = "showcase:list";
 const parse = (r) => { try { return typeof r === "string" ? JSON.parse(r) : r; } catch { return null; } };
 
-export async function addShowcase({ link, feedback, name, batchId, consent }) {
+export async function addShowcase({ link, feedback, name, batchId, consent, videoLink, claimingPrize }) {
   const l = String(link || "").trim().slice(0, 400);
   const fb = String(feedback || "").trim().slice(0, 2000);
-  if (!l && !fb) return { ok: false, error: "Add a link or some feedback to share." };
+  const vid = String(videoLink || "").trim().slice(0, 400);
+  if (!l && !fb && !vid) return { ok: false, error: "Add a link, some feedback, or a video to share." };
   if (!kvConfigured()) return { ok: false, reason: "store not configured" };
   const rec = JSON.stringify({
     link: l,
@@ -22,6 +23,8 @@ export async function addShowcase({ link, feedback, name, batchId, consent }) {
     name: String(name || "").trim().slice(0, 120),
     batchId: batchId || null,
     consent: consent === true,
+    videoLink: vid,
+    claimingPrize: claimingPrize === true, // first-year builder prize: student says they made a real sale
     ts: Date.now(),
   });
   try {

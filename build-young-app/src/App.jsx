@@ -1158,6 +1158,10 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>The <b>Builders</b> program is for ages <b>15–18</b>, meeting <b>twice a week</b> (~3 hrs) — choose <b>Mondays & Wednesdays</b> or <b>Tuesdays & Thursdays</b> — <b>100% live online over Zoom</b>. Pick the season and days that fit.</p>
           <p style={{ color: C.muted, fontSize: 14, marginTop: 8, lineHeight: 1.55 }}>Not sure it's the right fit? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Talk to me first — book a free 15-minute call →</span> And if you change your mind, <b>cancel before your cohort starts for a full refund</b>; after it begins, withdraw through the <b>first week</b> for a prorated refund; non-refundable after.</p>
+          <div style={{ marginTop: 18, maxWidth: 660, marginLeft: "auto", marginRight: "auto", background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 8, padding: "14px 18px" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.green }}><Award size={14} /> Earn your tuition back</div>
+            <p style={{ color: C.ink2, fontSize: 14, marginTop: 8, lineHeight: 1.55 }}>The <b>first builder in each cohort to land a real paying customer</b> — within a year of enrolling — gets their <b>tuition refunded</b>. A real sale, with proof — then a <b>2-minute video</b> about what you built (with a parent's OK). The whole point of Build Young, rewarded. <span style={{ color: C.muted }}>(One per cohort; <span {...act(() => onLegal("terms"))} style={{ textDecoration: "underline", cursor: "pointer" }}>see Terms</span>.)</span></p>
+          </div>
         </div>
         {/* season selector */}
         <div role="tablist" aria-label="Choose a season" style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 22 }}>
@@ -2185,13 +2189,16 @@ function ShowcaseCapture({ s }) {
   const [link, setLink] = useState("");
   const [feedback, setFeedback] = useState("");
   const [consent, setConsent] = useState(false);
+  const [claimingPrize, setClaimingPrize] = useState(false); // first-year builder prize
+  const [videoLink, setVideoLink] = useState("");
   const [status, setStatus] = useState("idle"); // idle | sending | done
-  const canSend = (link.trim() || feedback.trim()) && status !== "sending";
+  const canSend = (link.trim() || feedback.trim() || videoLink.trim()) && status !== "sending";
   const submit = async () => {
     if (!canSend) return;
     setStatus("sending");
     const r = await postJson("/api/funnel?resource=showcase", {
       link: link.trim(), feedback: feedback.trim(), consent,
+      videoLink: videoLink.trim(), claimingPrize,
       name: (s.student && s.student.name) || "", batchId: (s.student && s.student.batch) || "",
     });
     setStatus(r.ok ? "done" : "idle");
@@ -2219,12 +2226,30 @@ function ShowcaseCapture({ s }) {
             <span style={labelStyle}>How was Build Young for you?</span>
             <textarea aria-label="Your feedback" value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={4} placeholder="What did you build, what did you learn, and how did it feel to ship something real?" style={{ ...inputStyle, resize: "vertical" }} />
           </label>
+          {/* First-year builder prize claim */}
+          <div style={{ border: `1px solid ${C.green}`, borderRadius: 6, background: "#eef3f0", padding: "10px 12px", marginBottom: 12 }}>
+            <label style={{ display: "flex", gap: 9, alignItems: "flex-start", fontSize: 12.5, color: C.ink2, lineHeight: 1.45, cursor: "pointer" }}>
+              <input type="checkbox" aria-label="Claim the builder prize" checked={claimingPrize} onChange={(e) => setClaimingPrize(e.target.checked)} style={{ width: 16, height: 16, marginTop: 1, flexShrink: 0, accentColor: C.green, cursor: "pointer" }} />
+              <span><Award size={13} color={C.green} style={{ verticalAlign: "-2px", marginRight: 3 }} /><b>I landed a real paying customer</b> — I'm claiming the builder prize (tuition back).</span>
+            </label>
+            {claimingPrize && (
+              <div style={{ marginTop: 10 }}>
+                <label style={{ display: "block" }}>
+                  <span style={labelStyle}>Your 2-minute video link</span>
+                  <input type="url" aria-label="Your video link" value={videoLink} onChange={(e) => setVideoLink(e.target.value)} placeholder="YouTube / Loom / Drive link" style={inputStyle} />
+                </label>
+                <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginTop: 8 }}>
+                  Sunil will verify your <b>real sale</b> (have your payment receipt ready) and check it's first in your cohort. A parent's OK is needed to use your video.
+                </div>
+              </div>
+            )}
+          </div>
           <label style={{ display: "flex", gap: 9, alignItems: "flex-start", fontSize: 12.5, color: C.ink2, lineHeight: 1.45, marginBottom: 12, cursor: "pointer" }}>
             <input type="checkbox" aria-label="Consent to feature" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ width: 16, height: 16, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
-            <span>Build Young may feature my build and first name on their site. <b>I've checked with my parent/guardian.</b></span>
+            <span>Build Young may feature my build{claimingPrize ? ", video," : ""} and first name on their site. <b>I've checked with my parent/guardian.</b></span>
           </label>
           <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.turq : C.line, color: "#fff", padding: "10px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700, cursor: canSend ? "pointer" : "not-allowed" }}>
-            {status === "sending" ? "Sharing…" : "Share my build"}
+            {status === "sending" ? "Sending…" : (claimingPrize ? "Submit my entry" : "Share my build")}
           </button>
         </>
       )}
@@ -3081,6 +3106,7 @@ const LEGAL = {
       ["Education, not financial advice", "Build Young is financial education. It is not licensed financial, investment, tax, or legal advice. All money, accounts, prices, and returns shown in the simulation are simulated; no real funds are ever involved."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
       ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first week — the refund equals the tuition multiplied by the fraction of sessions not yet held. After the first week, tuition is non-refundable."],
+      ["First-year builder prize", "In each cohort, the FIRST enrolled student to make a real, arms-length sale of their own product or service — a genuine paying customer, not a friend or family member — within one year of their enrollment date is eligible to have their tuition refunded. To claim, the student must (1) provide proof of the sale (e.g., a payment receipt from Stripe, PayPal, or a similar processor) for Build Young to verify, and (2) submit a short video (about 2 minutes) describing their product and experience, together with a parent or guardian's written consent for Build Young to use the student's name, likeness, and the video for promotional purposes. One award per cohort, to the first student who both qualifies and completes these steps; Build Young verifies eligibility and resolves any questions in good faith, and its decision is final. The award equals the tuition paid for that cohort and is issued after verification. Build Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; because the prize is a contest involving minors and the use of a minor's name and likeness, it — and an appropriate parental media-release — must be reviewed by counsel before launch.)"],
       ["Conduct", "We ask students and families to be respectful in live sessions. We may remove anyone whose conduct disrupts the class, consistent with the refund policy above."],
       ["Changes & contact", `We may update these terms and will post the new date above. Questions: ${CONFIG.contactEmail}.`],
     ],
@@ -4312,6 +4338,8 @@ function ShowcaseAdmin() {
               <b style={{ color: C.ink, fontSize: 13.5 }}>{r.name || "—"}</b>
               {r.batchId && <span style={{ fontSize: 12, color: C.muted }}>· {r.batchId}</span>}
               {r.link && <a href={r.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, fontSize: 12.5 }}>Open build ↗</a>}
+              {r.videoLink && <a href={r.videoLink} target="_blank" rel="noopener noreferrer" style={{ color: C.turq, fontWeight: 700, fontSize: 12.5 }}>▶ Video ↗</a>}
+              {r.claimingPrize && <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: "#fff", background: C.green, borderRadius: 999, padding: "2px 8px" }}>🏆 Prize claim — verify sale</span>}
               <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: r.consent ? C.green : C.gold, background: r.consent ? "#e7f3ee" : "#fbeede", borderRadius: 999, padding: "2px 8px" }}>{r.consent ? "Consent ✓" : "No consent"}</span>
             </span>
             <span style={{ fontSize: 12, color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
