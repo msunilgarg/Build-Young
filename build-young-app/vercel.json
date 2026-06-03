@@ -5,5 +5,8 @@
       "path": "/api/cron/market-news",
       "schedule": "0 16 * * *"
     }
+  ],
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
