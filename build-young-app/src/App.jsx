@@ -87,6 +87,7 @@ import { SEASONS, BATCHES, seasonLabel, CHECKINS } from "./cohorts.js";
 export { BATCHES, CHECKINS } from "./cohorts.js";
 import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
 import { certName, certVerifyUrl, linkedInAddUrl, certDate, CERT_ORG } from "./cert.js";
+import { SCENARIO_GROUPS } from "./scenarios.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
 import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engagement } from "./funnel.js";
 
@@ -1507,6 +1508,67 @@ function OverviewPanel({ s, batch, onTab, setS }) {
   );
 }
 
+/* ============================ BUILD PLAN (work backwards from the customer) ============================
+ * Lives at the top of the Dashboard. Before building, the student picks an idea (or writes their
+ * own) and writes WHO it's for + a short "press release" as if it already launched — the
+ * work-backwards move. Persists in s.build (auto-saved with the rest of the sim state). */
+function BuildPlan({ s, setS }) {
+  const build = s.build || {};
+  const setField = (k, v) => setS((p) => ({ ...p, build: { ...(p.build || {}), [k]: v } }));
+  const isCustom = build.scenario === "custom";
+
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
+  const PR_PLACEHOLDER = `Announcing [your product] — [one line: what it does and who it helps].
+The problem: [what's hard or annoying today].
+How it works: [the one magic thing it does].
+Why people love it: [the payoff].
+"[a happy first user's quote]"`;
+
+  return (
+    <Card style={{ padding: 20, marginBottom: 12 }}>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your build — start from the customer 🧭</h3>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
+        Before you build anything, get clear on <b>who it's for</b> and <b>why</b>. Pick an idea to start from (or write your own), name the pain you're solving, then write a short <b>press release</b> as if it already launched. Writing it first forces the idea to be clear. <span style={{ color: C.muted }}>Saved automatically.</span>
+      </p>
+
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={labelStyle}>Your idea</span>
+        <select aria-label="Choose a build idea" value={build.scenario || ""} onChange={(e) => setField("scenario", e.target.value)} style={inputStyle}>
+          <option value="">Choose an idea to start from…</option>
+          {SCENARIO_GROUPS.map((g) => (
+            <optgroup key={g.group} label={g.group}>
+              {g.items.map((it) => <option key={it.id} value={it.id}>{it.label}</option>)}
+            </optgroup>
+          ))}
+          <option value="custom">✍️  Write my own</option>
+        </select>
+      </label>
+
+      {isCustom && (
+        <label style={{ display: "block", marginBottom: 14 }}>
+          <span style={labelStyle}>My idea (one line)</span>
+          <input aria-label="My idea" type="text" value={build.custom || ""} onChange={(e) => setField("custom", e.target.value)} placeholder="e.g., A tool that helps my swim team track their times" style={inputStyle} />
+        </label>
+      )}
+
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={labelStyle}>Customer pain point(s)</span>
+        <textarea aria-label="Customer pain points" value={build.pain || ""} onChange={(e) => setField("pain", e.target.value)} rows={3}
+          placeholder="Who has this problem, and what's frustrating about it today? (e.g., 'My classmates cram the night before and forget everything — there's no quick way to quiz yourself from your own notes.')"
+          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
+
+      <label style={{ display: "block" }}>
+        <span style={labelStyle}>Press release statement</span>
+        <textarea aria-label="Press release statement" value={build.pr || ""} onChange={(e) => setField("pr", e.target.value)} rows={6}
+          placeholder={PR_PLACEHOLDER}
+          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
+    </Card>
+  );
+}
+
 /* ============================ PLATFORM ============================ */
 function Platform({ state, setState, onExit, onFounder }) {
   const BATCHES = useCohorts(); // live catalog
@@ -1736,6 +1798,7 @@ function Platform({ state, setState, onExit, onFounder }) {
               <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}><Video size={16} /> Join class on Zoom</button>
             </a>
           </Card>
+          <BuildPlan s={s} setS={setState} />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 12 }}>
             <Stat label="Net Worth" value={fmt(nw)} icon={Sparkles} color={C.emerald} sub={s.history.length > 1 ? `${fmt(nw - last)} since last · simulated` : "Simulated money"} />
             <Stat label="Cash" value={fmt(s.cash)} icon={Wallet} />
