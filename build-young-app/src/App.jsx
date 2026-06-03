@@ -3,7 +3,7 @@ import {
   TrendingUp, TrendingDown, Home, Car, Wallet, PiggyBank, LineChart as LineIcon,
   Shield, Coins, Building2, GraduationCap, ArrowRight, Check, Lock, Newspaper,
   CircleDollarSign, Sparkles, AlertTriangle, ShoppingBag, Landmark, Video, Mail, Briefcase,
-  Anchor, Linkedin, BookOpen, Download, Users, Activity, Award,
+  Anchor, Linkedin, BookOpen, Download, Users, Activity, Award, Calendar, Clock,
 } from "lucide-react";
 // Client-safe market-media bits live in a dependency-free module (no React/lucide) so the
 // serverless cron + the server-only schedule module can share the SAME builders. The FUTURE
@@ -404,6 +404,52 @@ export function cohortStartInfo(batch, now = new Date()) {
   else phrase = "in progress";
   return { days, beforeStart: days > 0, shortDate, longDate, phrase };
 }
+
+// --- Founder teaching schedule (pure date math) ---------------------------------------------
+// Cohorts meet twice a week on a day-pair (e.g. Mon & Wed): session 1 of week N is
+// start + (N−1)*7 days; session 2 is +2 days. So the whole-day offset from `start` tells us
+// everything: offset%7===0 → session 1, ===2 → session 2; week = floor(offset/7)+1.
+const dayNum = (d) => Math.round(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() / 86400000);
+// Does this cohort meet on `day`? → { week, session } or null (before start / after week 12 / off-day).
+export function classMeetingOn(batch, day = new Date()) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime())) return null;
+  const offset = dayNum(day) - dayNum(start);
+  if (offset < 0) return null;
+  const slot = offset % 7;
+  if (slot !== 0 && slot !== 2) return null;
+  const week = Math.floor(offset / 7) + 1;
+  if (week < 1 || week > 12) return null;
+  return { week, session: slot === 0 ? 1 : 2 };
+}
+// The cohort's date for week N, session 1 or 2 (a Date), for "next class" lookups.
+export function sessionDate(batch, week, session) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime()) || week < 1 || week > 12) return null;
+  const base = dayNum(start) + (week - 1) * 7 + (session === 2 ? 2 : 0);
+  return new Date(base * 86400000);
+}
+// The next class strictly on/after `day` → { week, session, date } or null if the course is done.
+export function nextClass(batch, day = new Date()) {
+  const today = dayNum(day);
+  for (let w = 1; w <= 12; w++) {
+    for (const sess of [1, 2]) {
+      const d = sessionDate(batch, w, sess);
+      if (d && dayNum(d) >= today) return { week: w, session: sess, date: d };
+    }
+  }
+  return null;
+}
+// The time-of-day portion of a cohort's `day` label ("Mondays & Wednesdays · 5:00–6:30 PM PST").
+export function cohortTime(batch) {
+  const parts = String((batch && batch.day) || "").split("·");
+  return parts.length > 1 ? parts.slice(1).join("·").trim() : "";
+}
+// The weekday-pair portion of a cohort's `day` label (before the "·").
+export function cohortDays(batch) {
+  return String((batch && batch.day) || "").split("·")[0].trim();
+}
+
 // income for a given period: the build's revenue curve in the course, steady once established
 export function incomeFor(phase, week) {
   if (phase !== "course") return STEADY_INCOME; // check-ins: the build is established
@@ -862,6 +908,7 @@ const HeroPreview = () => {
 function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel }) {
   const BATCHES = useCohorts(); // live catalog (hydrated from /api/cohorts; defaults to code)
   const [season, setSeason] = useState(SEASONS[0].key);
+  const [careers, setCareers] = useState(false); // "teach with us" interest modal
   return (
     <div style={{ position: "relative", zIndex: 2 }}>
       {/* nav */}
@@ -882,7 +929,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
       <header style={{ position: "relative", overflow: "hidden", padding: "40px 6vw 64px" }}>
         <HeroBackdrop />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
-        <div className="rise" style={{ marginBottom: 18 }}><Pill bg={C.ink}>12 weeks · ages 13–18 · live cohorts</Pill></div>
+        <div className="rise" style={{ marginBottom: 18 }}><Pill bg={C.ink}>12 weeks · ages 15–18 · live cohorts</Pill></div>
         <h1 className="disp rise" style={{ fontSize: "clamp(38px,6.5vw,74px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-.02em", margin: 0 }}>
           Raising <span className="grad">builders,</span><br />not consumers.
         </h1>
@@ -921,7 +968,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
-            { icon: Sparkles, t: "Build something people need", d: "First, make a small product, app, or service (with AI as your tool) that solves a real problem for other people.", c: C.gold },
+            { icon: Sparkles, t: "Build something people need", d: "First, make a small product, app, or service (with AI as your tool) that solves a real problem — learning the one skill AI can't replace: taste, knowing what good looks like.", c: C.gold },
             { icon: Wallet, t: "Your build earns the income", d: `That's where the money comes from — your venture grows to about ${fmt(STEADY_INCOME)} a period. No paycheck handed to you.`, c: C.emerald },
             { icon: LineIcon, t: "Markets move like the real world", d: "Once you're investing, live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
             { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car with what you've earned. Live with the payments.", c: C.green },
@@ -992,7 +1039,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
             <div style={{ width: 64, height: 4, borderRadius: 2, margin: "12px auto 0", background: `linear-gradient(90deg, ${C.green}, ${C.turq}, ${C.pink})` }} />
           </div>
           <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 24, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
-            <b className="disp">Raising builders, not consumers.</b> Building something people value has always mattered — but AI just collapsed the barrier to entry: what used to take a team, a budget, and years of permission, a motivated teenager can now do alone. When the cost of building falls to almost nothing, the edge isn't talent or a credential — it's starting early, in <b>founder mode</b>: hands-on, in the details, owning the outcome instead of waiting for permission. We teach it by letting them live it — they build, they earn, then they learn to grow and protect what they've made — because their future rests on what they can make, not just what they were credentialed to do.
+            <b className="disp">Raising builders, not consumers.</b> Building something people value has always mattered — but AI just collapsed the barrier to entry: what used to take a team, a budget, and years of permission, a motivated teenager can now do alone. But when anyone can build, the scarce skill flips — it's no longer writing the code, it's <b>taste</b>: knowing what's worth making and what <i>good</i> looks like, then pushing until it's there. So the edge isn't a credential — it's taste, and starting early, in <b>founder mode</b>: hands-on, in the details, owning the outcome instead of waiting for permission. We teach it by letting them live it — they build, they earn, then they learn to grow and protect what they've made — because their future rests on what they can make, not just what they were credentialed to do.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
             It's not only about the money — it's who a kid becomes in the doing. Making something real, putting it in front of people, living with the wins and the flops — that shapes a person in ways no lecture can. And because money is one of the most avoided, anxiety-soaked topics in most homes, a kid who has actually earned and managed it can talk about it plainly — needs, trade-offs, even mistakes — without shame. They ask sharper questions, they're far harder to mislead, and they make decisions from confidence instead of fear.
@@ -1027,7 +1074,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
             <div style={{ flex: 1, minWidth: 260 }}>
               <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 8 }}>
-                I came to the United States with almost nothing — and with family back home depending on me to provide. I built my life from zero, supporting them while finding my own footing, and made it my own country. Two decades as a product leader at Microsoft later, I'd reached financial independence and was able to step away at 51. But here's the truth I can't stop thinking about: if I'd understood how money really works as a teenager, I'd have gotten there years sooner. That lost time is the whole reason this exists. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. I wanted them to understand how money really works before the world started making those decisions for them — so I built this for them. I built it for teens 13–18 to learn side by side, and the simulation starts exactly where every founder does: at zero, with nothing but an idea and the will to make it real. These days I build AI products for a living, and here's what I keep seeing: AI has made building things astonishingly easy — a kid with the right instincts can now make what used to take a whole team. So the kids who learn to build — not just consume — will own their futures. That's why I called it Build Young: the one advantage these kids have that no one can buy is time. Habits, character, and even a few invested dollars all compound.
+                I came to the United States with almost nothing — and with family back home depending on me to provide. I built my life from zero, supporting them while finding my own footing, and made it my own country. Two decades as a product leader at Microsoft later, I'd reached financial independence and was able to step away at 51. But here's the truth I can't stop thinking about: if I'd understood how money really works as a teenager, I'd have gotten there years sooner. That lost time is the whole reason this exists. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. I wanted them to understand how money really works before the world started making those decisions for them — so I built this for them. I built it for teens 15–18 to learn side by side, and the simulation starts exactly where every founder does: at zero, with nothing but an idea and the will to make it real. These days I build AI products for a living, and here's what I keep seeing: AI has made building things astonishingly easy — a kid with the right instincts can now make what used to take a whole team. So the kids who learn to build — not just consume — will own their futures. That's why I called it Build Young: the one advantage these kids have that no one can buy is time. Habits, character, and even a few invested dollars all compound.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 Here's what I noticed when I went looking for something like this for my own kids. There's plenty of free material out there — banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. And the paid classes that are live? They mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life.
@@ -1053,7 +1100,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 6vw 70px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
-          <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>The <b>Builders</b> program is for ages <b>13–18</b>, meeting <b>twice a week</b> (~3 hrs) — choose <b>Mondays & Wednesdays</b> or <b>Tuesdays & Thursdays</b> — <b>100% live online over Zoom</b>. Pick the season and days that fit.</p>
+          <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>The <b>Builders</b> program is for ages <b>15–18</b>, meeting <b>twice a week</b> (~3 hrs) — choose <b>Mondays & Wednesdays</b> or <b>Tuesdays & Thursdays</b> — <b>100% live online over Zoom</b>. Pick the season and days that fit.</p>
           <p style={{ color: C.muted, fontSize: 14, marginTop: 8, lineHeight: 1.55 }}>Not sure it's the right fit? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Talk to me first — book a free 15-minute call →</span> And if you change your mind, <b>cancel before your cohort starts for a full refund</b>; after it begins, withdraw through the <b>first week</b> for a prorated refund; non-refundable after.</p>
           <p style={{ color: C.ink2, fontSize: 14, marginTop: 10, maxWidth: 640, marginLeft: "auto", marginRight: "auto", lineHeight: 1.55 }}><b style={{ color: C.green }}>Win your tuition back.</b> The student with the <b>highest portfolio value at the final check-in</b> earns a <b>full tuition refund</b> — invest by whatever philosophy you believe in; the market is the same for everyone. <span style={{ color: C.muted }}>(Simulated portfolios; <span {...act(() => onLegal("terms"))} style={{ textDecoration: "underline", cursor: "pointer" }}>see Terms</span>.)</span></p>
         </div>
@@ -1072,7 +1119,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
             return (
             <Card key={b.id} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", height: "100%" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: acc }} />
-              <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track} · ages 13–18</Pill></div>
+              <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track} · ages 15–18</Pill></div>
               <div className="disp" style={{ fontSize: 24, fontWeight: 800, marginTop: 12 }}>Starts {b.start}</div>
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom · ~3 hrs/week</div>
@@ -1095,11 +1142,60 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel })
         <div style={{ marginTop: 8, display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
           <span {...act(() => onLegal("privacy"))} style={{ color: C.muted, cursor: "pointer" }}>Privacy</span>
           <span {...act(() => onLegal("terms"))} style={{ color: C.muted, cursor: "pointer" }}>Terms</span>
+          <span {...act(() => setCareers(true))} style={{ color: C.muted, cursor: "pointer" }}>Careers</span>
           <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.muted }}>{CONFIG.contactEmail}</a>
           <a href={CONFIG.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.muted, display: "inline-flex", alignItems: "center", gap: 5 }}><Linkedin size={13} /> Sunil on LinkedIn</a>
         </div>
         <div style={{ marginTop: 8, fontSize: 12 }}>Financial education, not licensed financial advice. Simulation figures are not real money.</div>
       </footer>
+
+      {careers && <CareersModal onClose={() => setCareers(false)} />}
+    </div>
+  );
+}
+
+// "Teach with us" — a lightweight interest modal for prospective live tutors. As we grow to many
+// cohorts/day we'll need more instructors; this captures interest via a pre-filled email (no
+// backend/PII storage). Mirrors the calm modal style used elsewhere.
+function CareersModal({ onClose }) {
+  const subject = "Live tutor — I'd like to teach with Build Young";
+  const body = `Hi Sunil,
+
+I'm interested in becoming a live tutor for Build Young.
+
+A bit about me:
+• Background (product / startup / building with AI / teaching teens):
+• Why I'd be a good fit:
+• Time zone & weekday evenings I could teach:
+• LinkedIn / portfolio:
+
+Thanks!`;
+  const mailto = `mailto:${CONFIG.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const li = { display: "flex", gap: 9, alignItems: "flex-start", fontSize: 14, color: C.ink2, lineHeight: 1.5, padding: "5px 0" };
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Teach with Build Young" onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(36,36,36,.5)", display: "grid", placeItems: "center", padding: 20 }}>
+      <Card onClick={(e) => e.stopPropagation()} style={{ padding: 28, maxWidth: 520, width: "100%", maxHeight: "88vh", overflowY: "auto" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#efe7f5", color: C.gold, fontSize: 11.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 4 }}><GraduationCap size={13} /> Careers · Teach with us</div>
+        <h2 className="disp" style={{ fontSize: 24, fontWeight: 800, margin: "14px 0 0" }}>Become a Build Young tutor</h2>
+        <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 10 }}>
+          We run small, live cohorts where teens build a real product with AI and learn how money works. As we grow, we're looking for instructors who can lead a group live over Zoom — twice a week, ~90 minutes a session, over the 12-week course.
+        </p>
+        <div style={{ marginTop: 8, marginBottom: 14 }}>
+          <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You've <b>built things</b> yourself — a product, startup, or side project (bonus if you build with AI).</span></div>
+          <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You genuinely like <b>working with teens</b> and can make hard ideas feel simple.</span></div>
+          <div style={li}><Check size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span>You can commit to a <b>standing weekly time</b> for a cohort, live on Zoom.</span></div>
+        </div>
+        <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>
+          Working with minors, so we run background checks for live instructors. Tell us about yourself and we'll be in touch.
+        </p>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <a href={mailto} style={{ textDecoration: "none" }}>
+            <button className="btn" style={{ background: C.emerald, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8 }}><Mail size={16} /> Express interest</button>
+          </a>
+          <button className="btn" onClick={onClose} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "12px 18px", borderRadius: 4, fontSize: 14 }}>Maybe later</button>
+        </div>
+      </Card>
     </div>
   );
 }
@@ -1140,11 +1236,11 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [age13, setAge13] = useState(false); // COPPA age gate — confirm the student is 13+
+  const [age15, setAge15] = useState(false); // COPPA age gate — confirm the student is 15+
   const [batch, setBatch] = useState(preselect || BATCHES[0].id);
   const [notified, setNotified] = useState(false); // captured interest for a full cohort
   const b = BATCHES.find((x) => x.id === batch) || BATCHES[0];
-  const canContinue = name.trim() && validEmail(email) && age13 && !b.full;
+  const canContinue = name.trim() && validEmail(email) && age15 && !b.full;
   const canNotify = name.trim() && validEmail(email);
   // A full cohort doesn't take a waitlist (no mid-course additions) — we capture interest for the
   // NEXT cohort instead, so the founder sees real overflow demand.
@@ -1206,8 +1302,8 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   </>)
                 ) : (<>
                   <label style={{ display: "flex", gap: 9, alignItems: "flex-start", marginTop: 14, fontSize: 13, color: C.ink2, cursor: "pointer", lineHeight: 1.45 }}>
-                    <input type="checkbox" checked={age13} onChange={(e) => setAge13(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.emerald, flexShrink: 0 }} />
-                    <span>I'm the parent/guardian enrolling, and I confirm the student is <b>13 or older</b>. <span style={{ color: C.muted }}>Build Young is for ages 13–18.</span></span>
+                    <input type="checkbox" checked={age15} onChange={(e) => setAge15(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.emerald, flexShrink: 0 }} />
+                    <span>I'm the parent/guardian enrolling, and I confirm the student is <b>15 or older</b>. <span style={{ color: C.muted }}>Build Young is for ages 15–18.</span></span>
                   </label>
                   <button className="btn" disabled={!canContinue} onClick={() => setStep(2)} style={{ width: "100%", marginTop: 18, background: canContinue ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canContinue ? "pointer" : "not-allowed" }}>Continue to payment →</button>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 12, color: C.muted, fontSize: 12.5 }}>
@@ -1553,7 +1649,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
  * work-backwards move. Persists in s.build (auto-saved with the rest of the sim state). */
 // A fully worked Week-1 build plan — Build Young itself — so students see what "good" looks like.
 const EXAMPLE_BUILD = {
-  idea: "Build Young — a live program where teens 13–18 build a real product with AI, then learn to grow and manage what it earns, all inside one money simulation.",
+  idea: "Build Young — a live program where teens 15–18 build a real product with AI, then learn to grow and manage what it earns, all inside one money simulation.",
   pain: `Teens aren't taught how money or the real world actually works — it's not on any test, and the free videos out there go unwatched.
 Parents worry that in an AI world a degree won't be the edge — but there's no hands-on way for their kid to learn to build, or to handle money, before adulthood.
 The "investing classes" that exist only teach stock-picking (the flashy 10%) — not earning, taxes, budgeting, or big purchases, which are the parts that actually shape a life.`,
@@ -1573,13 +1669,13 @@ Why families love it: It's live and small-group with a standing weekly time, so 
 // Week 2 "Shape the Idea": envisioning the product — what it can do (capabilities) and what it's
 // like to use (experience). Worked through for Build Young as the class model.
 const SHAPE_EXAMPLE = {
-  vision: `Build Young is a live, online money-skills program for teens 13–18, delivered through one web app. A family discovers it, can talk to the founder first, then enrolls and pays online — and the teen gets their own login. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income, learning to grow and manage it. It's hands-on and a bit like a game, and it ends with a certificate they can show off.
+  vision: `Build Young is a live, online money-skills program for teens 15–18, delivered through one web app. A family discovers it, can talk to the founder first, then enrolls and pays online — and the teen gets their own login. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income, learning to grow and manage it. It's hands-on and a bit like a game, and it ends with a certificate they can show off.
 
 (This whole thing is the product spec — written in enough detail that you could hand it to AI and it would build most of it in one go. The more specific you are, the more it gets right the first time.)`,
   capabilities: `Getting in:
 • Marketing website that explains the program, the curriculum, the price, and the founder, and lists the upcoming class options (cohorts) to choose from.
 • "Talk first": book a free 15-minute call with the founder before deciding.
-• Enroll & pay: pick a cohort (Mon & Wed, or Tue & Thu), enter the student's name + email, confirm they're 13 or older, and pay securely online (we use Stripe). Each cohort has its own price, dates, and number of seats.
+• Enroll & pay: pick a cohort (Mon & Wed, or Tue & Thu), enter the student's name + email, confirm they're 15 or older, and pay securely online (we use Stripe). Each cohort has its own price, dates, and number of seats.
 • Accounts: after payment, the student gets an email to set a password, then a login that works on any device, with password reset if they forget.
 
 Emails along the way (no spam — just what helps):
@@ -1600,7 +1696,7 @@ At the end:
 
 Behind the scenes (for the founder):
 • A console to edit cohorts, prices, recordings, and homework, see the signup funnel + analytics, and view what students built — all without touching code.`,
-  experience: `A parent lands on the website and reads what it is and how it works. If they're unsure, they book a free 15-minute call with the founder. When they're ready, they pick a cohort, enter the student's name and email, confirm the student is 13+, and pay — a secure checkout, no charge until that step. They get a confirmation, and the student gets an email to set a password.
+  experience: `A parent lands on the website and reads what it is and how it works. If they're unsure, they book a free 15-minute call with the founder. When they're ready, they pick a cohort, enter the student's name and email, confirm the student is 15+, and pay — a secure checkout, no charge until that step. They get a confirmation, and the student gets an email to set a password.
 
 The student logs in to a clean dashboard with a countdown to the first class. Two days before the week starts, a reminder email arrives. They join the live class on Zoom, then open the current week to do its activity — in Week 1, for example, they fill in their build plan right on the page. They hit "advance" to move the simulation forward, jot notes in the side panel, and watch their net worth grow as each week unlocks. After each week, a recap email with homework lands; if they missed a class, they can rewatch the recording.
 
@@ -1609,7 +1705,7 @@ At the end they graduate, get a certificate, and add it to LinkedIn — and the 
 };
 
 // Week 3 "Make It (with AI)": building the first version by handing the spec to AI and running the
-// describe → see → react → refine loop. Worked through for Build Young as the class model.
+// describe → see → taste → refine loop. Worked through for Build Young as the class model.
 const MAKE_EXAMPLE = {
   firstVersion: `We didn't try to build all of Build Young at once. The first version was just the one thing that HAD to work: a teen could open a page, see their money simulation, and click "advance" to watch their net worth grow. No login, no payments, no emails yet — just the core loop on a single screen.
 
@@ -1619,12 +1715,12 @@ Pick the smallest version that's still real and useful, and build that first. Yo
 "Build a single-page React app for a teen money simulation. Show a dashboard with net worth, cash, and investments. A button called 'Advance' moves one week forward: add income, apply a small market change, and update a chart of net worth over time. Use clean, friendly styling."
 
 The clearer the spec, the more it gets right on the first try — most of the screen appeared in one go. You don't start from a blank page; you start from your Week 2 spec.`,
-  loop: `Then the real work — describe → see → react → refine. AI builds it, you look at it, and you react like a picky user:
+  loop: `Then the real work — describe → see → taste → refine. AI builds it, you look at it, and you judge it with taste — like someone who knows what good looks like:
 • "This looks cramped — add space between the cards."
 • "Remove this duplicate button."
 • "The chart is hard to read — use the brand blue."
 
-Each note goes back to AI, it makes the change, you look again. You don't need to know how to code — you need to know what GOOD looks like and keep asking for it until it's there.`,
+Each note goes back to AI, it makes the change, you look again. You don't need to know how to code — you need taste: knowing what GOOD looks like and asking for it until it's there. In an AI world, that's the skill that matters most.`,
   ship: `We put it live on the internet early (one click, free — we used Vercel) instead of waiting for it to be perfect. That's when the real problems showed up: a button didn't work on a phone, some text was too small, a number formatted wrong. We fixed them one at a time.
 
 Shipping early means you fix the real problems actual people hit — not imaginary ones. Get a link you can send to someone today.`,
@@ -1678,7 +1774,7 @@ function weekExample(week) {
   if (week === 3) return <ExampleCard subtitle="A worked first build with AI — how we'd do it" fields={[
     ["What we built first", MAKE_EXAMPLE.firstVersion],
     ["Our starting prompt to AI", MAKE_EXAMPLE.prompt],
-    ["The build loop (describe → see → react → refine)", MAKE_EXAMPLE.loop],
+    ["The build loop (describe → see → taste → refine)", MAKE_EXAMPLE.loop],
     ["Ship it", MAKE_EXAMPLE.ship],
   ]} />;
   return null;
@@ -1793,7 +1889,7 @@ function ShapePlan({ s, setS, bare }) {
 }
 
 // Week 3 student activity — "Make It (with AI)": build the first version by handing your spec to
-// AI and running the describe → see → react → refine loop. Persists in s.make.
+// AI and running the describe → see → taste → refine loop. Persists in s.make.
 function MakePlan({ s, setS, bare }) {
   const make = s.make || {};
   const setField = (k, v) => setS((p) => ({ ...p, make: { ...(p.make || {}), [k]: v } }));
@@ -1813,7 +1909,7 @@ function MakePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Make it — build your first version with AI 🛠️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Now you build. Hand your <b>spec</b> from last week to AI as your starting prompt, then run the loop: <b>describe → see → react → refine</b>. You don't need to know how to code — you need to know what <b>good</b> looks like and keep asking for it. Build the smallest real version first, then ship it so someone can actually use it. <span style={{ color: C.muted }}>Saved automatically.</span>
+        Now you build. Hand your <b>spec</b> from last week to AI as your starting prompt, then run the loop: <b>describe → see → taste → refine</b>. You don't need to know how to code — you need <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. In an AI world, that's the skill that matters most. Build the smallest real version first, then ship it so someone can actually use it. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
       {/* Pre-reqs: this is the week the build actually happens, so every build tool must be ready
@@ -1842,7 +1938,7 @@ function MakePlan({ s, setS, bare }) {
 
       {field("firstVersion", "What you'll build first", "What's the smallest version that's still real and useful? Name the one thing that HAS to work — build that before anything else.")}
       {field("prompt", "Your starting prompt to AI", "Paste/shape your Week 2 spec into the prompt you'll give AI. Be specific — what to build, what it shows, what each button does, how it should feel.", 5)}
-      {field("loop", "The build loop — what you'll change", "After AI builds it, react like a picky user. List the changes you'll ask for: what looks off, what's missing, what to fix. (e.g. \"add space between cards\", \"remove this duplicate button\".)", 5)}
+      {field("loop", "The build loop — what you'll change", "After AI builds it, judge it with taste — like a picky user. List the changes you'll ask for: what looks off, what's missing, what to fix. (e.g. \"add space between cards\", \"remove this duplicate button\".)", 5)}
       {field("ship", "Ship it", "How will you get it live so someone can use it today (e.g. a link)? What real problems showed up once it was live — and how did you fix them?")}
     </>
   );
@@ -2116,6 +2212,14 @@ function Platform({ state, setState, onExit, onFounder }) {
                 <span {...act(() => setTab("course"))} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Open this week's activity →</span>
               </div>
             )}
+            {!s.done && (
+              <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.line}` }}>
+                <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
+                  Done with this week's class &amp; activity? Advance the simulation to collect your income and apply any market move.
+                </div>
+                <AdvanceButton s={s} onAdvance={doAdvance} />
+              </div>
+            )}
           </Card>
 
           {s.history.length > 1 && (
@@ -2289,14 +2393,7 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
         })()}
       </div>
       <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>
-      {/* What the student completed this week (the week's own activity — still editable). */}
-      {weekActivity(selected, s, setState, true) && (
-        <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${C.line}` }}>
-          <div style={secLabel}>What you worked on — edit any time</div>
-          <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 12px" }}>Even though this class is done, your work here is <b>meant to evolve as you build</b> — come back and tweak it whenever your thinking changes.</div>
-          {weekActivity(selected, s, setState, true)}
-        </div>
-      )}
+      {/* Class material first (consistent with the live week panel), then the student's own work. */}
       <div style={secLabel}>Class materials</div>
       {weekExample(selected) ? (
         weekExample(selected)
@@ -2309,6 +2406,14 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
         <div style={{ ...secLabel, marginTop: 16 }}>This week's market event — research it</div>
         <div style={pillWrap}>{selResources.map((r, j) => <ResLink key={j} r={r} icon={Newspaper} />)}</div>
       </>)}
+      {/* What the student completed this week (the week's own activity — still editable). */}
+      {weekActivity(selected, s, setState, true) && (
+        <div style={{ marginTop: 18, paddingTop: 18, borderTop: `1px solid ${C.line}` }}>
+          <div style={secLabel}>What you worked on — edit any time</div>
+          <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 12px" }}>Even though this class is done, your work here is <b>meant to evolve as you build</b> — come back and tweak it whenever your thinking changes.</div>
+          {weekActivity(selected, s, setState, true)}
+        </div>
+      )}
       {selParked.length > 0 && (
         <div style={{ marginTop: 16, padding: 14, background: C.paper, borderRadius: 4, border: `1px dashed ${C.line}` }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 4 }}>More money topics — coming soon</div>
@@ -2655,17 +2760,24 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
         </Wrap>
       </>)}
 
-      {!s.done && !preview && (
-        <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
-          {(() => {
-            const inc = incomeFor(s.phase, s.week);
-            const earn = inc > 0 ? `Collect ${fmt(inc)} & ` : "";
-            if (s.phase === "course") return s.week >= 12 ? "Finish course → your check-in" : `${earn}advance to Week ${s.week + 1}`;
-            return `Collect ${fmt(inc)} & continue`;
-          })()} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
-        </button>
-      )}
     </div>
+  );
+}
+
+// The simulation-advance button. Lives on the Dashboard (the money-simulation home) — NOT inside
+// the per-week Course-progress panels, which are about class materials + your activity. Mirrors
+// the income/phase label logic. Hidden once graduated.
+function AdvanceButton({ s, onAdvance }) {
+  if (s.done) return null;
+  const inc = incomeFor(s.phase, s.week);
+  const earn = inc > 0 ? `Collect ${fmt(inc)} & ` : "";
+  const label = s.phase === "course"
+    ? (s.week >= 12 ? "Finish course → your check-in" : `${earn}advance to Week ${s.week + 1}`)
+    : `Collect ${fmt(inc)} & continue`;
+  return (
+    <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
+      {label} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
+    </button>
   );
 }
 
@@ -2687,7 +2799,7 @@ const LEGAL = {
     title: "Privacy Policy",
     sections: [
       ["Who we are", `Build Young provides live, online money-skills classes for teenagers. You can reach us at ${CONFIG.contactEmail}.`],
-      ["Eligibility — ages 13 and up", "Build Young is intended for students aged 13 and older. We do not knowingly create accounts for, or collect personal information from, children under 13. If you believe a child under 13 has provided us information, contact us and we will delete it."],
+      ["Eligibility — ages 15 to 18", "Build Young is intended for students aged 15 to 18, enrolled by a parent or guardian. We do not knowingly create accounts for, or collect personal information from, children under 13. If you believe a child under 13 has provided us information, contact us and we will delete it."],
       ["What we collect", "To enroll a student and run the class, we collect the enrolling adult's name and email, the student's first name or chosen display name, the selected class, and payment confirmation (processed by our payment provider — we do not store full card numbers). During class activities, the student interacts with a learning simulation; the figures shown are simulated and are not real financial accounts."],
       ["How we use it", "We use this information to deliver the class, send class logistics and reminders, process enrollment and refunds, and improve the program. We send a confirmation email at enrollment and follow-ups tied to class sessions."],
       ["What we do not do", "We do not sell or rent personal information. We do not share it for third-party targeted advertising. We do not use student information to train artificial-intelligence models."],
@@ -2876,12 +2988,125 @@ function downloadFile(filename, text, type) {
   } catch (e) { /* ignore */ }
 }
 
+// ============================ FOUNDER TEACHING SCHEDULE ============================
+// The founder's daily driver: "what am I teaching today, and where do I pick up for each
+// cohort?" Built to scale to many cohorts/day — each row says the time, which session of which
+// week, and the topic. A date field lets the founder look ahead to any day. Pure client-side
+// (live catalog via useCohorts + the date helpers above); no new endpoint.
+function TeachingSchedule() {
+  const BATCHES = useCohorts();
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const [dateStr, setDateStr] = useState(todayISO);
+  const day = useMemo(() => { const d = new Date(dateStr + "T12:00:00"); return isNaN(d.getTime()) ? new Date() : d; }, [dateStr]);
+  const isToday = dateStr === todayISO;
+  const longDay = day.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+
+  // Cohorts meeting on the chosen day, sorted by time-of-day label (best-effort string sort —
+  // all current cohorts share one time, but this keeps order stable when times diverge).
+  const teaching = BATCHES
+    .map((b) => ({ b, meet: classMeetingOn(b, day) }))
+    .filter((x) => x.meet)
+    .sort((a, b) => cohortTime(a.b).localeCompare(cohortTime(b.b)));
+
+  // Whole-roster pipeline: every cohort's state on the chosen day + its next session.
+  const dn = dayNum(day);
+  const roster = BATCHES.map((b) => {
+    const startDay = b.start ? dayNum(new Date(b.start)) : null;
+    const offset = startDay == null ? null : dn - startDay;
+    let state, week = null;
+    if (offset == null) state = "unknown";
+    else if (offset < 0) state = "before";
+    else if (Math.floor(offset / 7) + 1 > 12) state = "done";
+    else { state = "active"; week = Math.floor(offset / 7) + 1; }
+    return { b, state, week, next: nextClass(b, day) };
+  });
+
+  const muted = { fontSize: 12.5, color: C.muted };
+  const card = { padding: 16, marginBottom: 12 };
+  const wk = (n) => WEEKS[n - 1] || {};
+  const shortDate = (d) => d ? d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) : "—";
+
+  return (
+    <div>
+      {/* date picker — defaults to today; founder can scan any day ahead */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
+        <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 700, color: C.ink2 }}>
+          <Calendar size={15} color={C.emerald} /> Day
+          <input type="date" aria-label="Schedule day" value={dateStr} onChange={(e) => setDateStr(e.target.value || todayISO)}
+            style={{ fontSize: 13.5, padding: "7px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink }} />
+        </label>
+        {!isToday && <span {...act(() => setDateStr(todayISO))} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.emerald }}>↩ Back to today</span>}
+        <span style={{ ...muted, fontWeight: 700 }}>{longDay}{isToday ? " · today" : ""}</span>
+      </div>
+
+      {/* Teaching today — the headline list */}
+      {teaching.length === 0 ? (
+        <Card style={{ ...card, background: "#eef3f0", borderColor: C.emerald }}>
+          <b style={{ color: C.ink }}>No classes {isToday ? "today" : "that day"}. 🎉</b>
+          <div style={{ ...muted, marginTop: 4 }}>Your next sessions are listed in the cohort pipeline below.</div>
+        </Card>
+      ) : (
+        teaching.map(({ b, meet }) => {
+          const w = wk(meet.week);
+          return (
+            <Card key={b.id} style={card}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 15, fontWeight: 800, color: C.ink }}><Clock size={15} color={C.emerald} />{cohortTime(b) || "Time TBD"}</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: C.turq, background: "#e6f2f3", borderRadius: 999, padding: "2px 9px" }}>Session {meet.session} of 2</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: C.ink2, marginTop: 4 }}><b>{b.track}</b> · {cohortDays(b)} · <span style={{ color: C.muted }}>{b.id}</span></div>
+                </div>
+                <a href={b.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", flexShrink: 0 }}>
+                  <button className="btn" style={{ background: C.emerald, color: "#fff", padding: "9px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 7 }}><Video size={14} /> Open Zoom</button>
+                </a>
+              </div>
+              {/* where to pick up */}
+              <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${C.line}` }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.muted }}>Pick up at</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: C.ink, marginTop: 3 }}>Week {meet.week} — {w.t}</div>
+                {w.s && <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, marginTop: 3 }}>{w.s}</div>}
+                {HOMEWORK[meet.week - 1] && (
+                  <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, marginTop: 8, background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 5, padding: "8px 11px" }}>
+                    <b style={{ color: C.ink }}>Students were asked to prep:</b> {HOMEWORK[meet.week - 1]}
+                  </div>
+                )}
+              </div>
+            </Card>
+          );
+        })
+      )}
+
+      {/* Whole-cohort pipeline — where every cohort stands + its next session */}
+      <div style={{ fontSize: 15, fontWeight: 800, color: C.ink, margin: "22px 0 10px" }}>All cohorts</div>
+      <Card style={{ padding: 4 }}>
+        {roster.map(({ b, state, week, next }, i) => (
+          <div key={b.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap", padding: "11px 14px", borderTop: i ? `1px solid ${C.line}` : "none" }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: C.ink }}>{b.track} · {seasonLabel(b.season)} <span style={{ color: C.muted, fontWeight: 600 }}>· {cohortDays(b)}</span></div>
+              <div style={muted}>{cohortTime(b)} · {b.id}</div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              {state === "active" && <span className="disp" style={{ fontSize: 14, fontWeight: 800, color: C.emerald }}>Week {week} of 12</span>}
+              {state === "before" && <span style={{ fontSize: 13, fontWeight: 700, color: C.turq }}>Not started</span>}
+              {state === "done" && <span style={{ fontSize: 13, fontWeight: 700, color: C.muted }}>Completed</span>}
+              <div style={muted}>{next ? <>Next: {shortDate(next.date)} · Wk {next.week} (s{next.session})</> : "No more sessions"}</div>
+            </div>
+          </div>
+        ))}
+      </Card>
+      <div style={{ ...muted, marginTop: 8 }}>Times/days come from each cohort's <b>day</b> label and <b>start</b> date (edit them under <b>Cohorts &amp; course</b>). Sessions are the two weekly classes per cohort.</div>
+    </div>
+  );
+}
+
 export function FounderDashboard({ onHome }) {
   const [events, setEvents] = useState(null); // null = loading
   const [founders, setFounders] = useState([]); // admin allowlist (effective: env ∪ KV)
   const [error, setError] = useState(null);
   const [seg, setSeg] = useState({ kind: "all", key: null }); // all | {season} | {track}
-  const [tab, setTab] = useState("funnel"); // funnel | cohorts | students | settings — keeps the console short
+  const [tab, setTab] = useState("today"); // today | funnel | cohorts | students | settings — keeps the console short
 
   // Authorized by the session cookie (sent automatically): the server admits only a logged-in
   // founder (email on the allowlist). 401/403 → not signed in as a founder.
@@ -2944,11 +3169,17 @@ export function FounderDashboard({ onHome }) {
         {/* section tabs — keep the console short instead of one long scroll */}
         {!error && events !== null && (
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 22, borderBottom: `1px solid ${C.line}`, paddingBottom: 2 }}>
-            {[["funnel", "Funnel"], ["cohorts", "Cohorts & course"], ["students", "Students"], ["settings", "Settings"]].map(([k, label]) => (
+            {[["today", "Today"], ["funnel", "Funnel"], ["cohorts", "Cohorts & course"], ["students", "Students"], ["settings", "Settings"]].map(([k, label]) => (
               <span key={k} {...act(() => setTab(k))} style={{ cursor: "pointer", fontSize: 13.5, fontWeight: 700, padding: "8px 14px", borderRadius: "4px 4px 0 0", color: tab === k ? C.ink : C.muted, borderBottom: `2px solid ${tab === k ? C.emerald : "transparent"}`, marginBottom: -2 }}>{label}</span>
             ))}
           </div>
         )}
+
+        {!error && events !== null && tab === "today" && (<>
+          <h2 style={h2s}>Teaching schedule</h2>
+          <div style={{ ...muted, marginBottom: 12 }}>What you're teaching today and where to pick up for each cohort — pick any day to look ahead.</div>
+          <TeachingSchedule />
+        </>)}
 
         {!error && events !== null && tab === "funnel" && (<>
           {events.length === 0 && <Card style={{ padding: 14, marginTop: 18, ...muted }}>No events recorded yet — the funnel will populate as visitors move through the site.</Card>}

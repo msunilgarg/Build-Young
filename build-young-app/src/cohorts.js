@@ -4,7 +4,7 @@
 // cron scheduler (api/cron/market-news.js) and the funnel module can import the SAME source of
 // truth. App.jsx imports + re-exports these unchanged.
 //
-// Build Young runs ONE combined teen track — "Builders" (ages 13–18). Each cohort meets TWICE a
+// Build Young runs ONE combined teen track — "Builders" (ages 15–18). Each cohort meets TWICE a
 // week (~3 hrs/week, two 90-min sessions) over the 12-week course; we run two cohorts per season
 // on alternating day-pairs (Mon & Wed, Tue & Thu) so families can self-select a schedule.
 //

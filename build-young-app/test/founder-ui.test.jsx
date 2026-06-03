@@ -23,7 +23,9 @@ describe("FounderDashboard (account-gated)", () => {
     }));
     const user = userEvent.setup();
     render(<FounderDashboard onHome={() => {}} />);
-    // Funnel tab (default): the analytics scaffold.
+    // Default tab is now "Today" (teaching schedule); switch to Funnel for the analytics scaffold.
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
     await waitFor(() => expect(screen.getByText(/Drop-off — where you lose people/i)).toBeInTheDocument());
     expect(screen.getByText("Segment")).toBeInTheDocument();
     expect(screen.getByText("Traffic & engagement")).toBeInTheDocument();
