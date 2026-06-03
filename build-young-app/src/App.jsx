@@ -1413,9 +1413,9 @@ function OverviewPanel({ s, batch, onTab, setS }) {
   const li = { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: C.ink2, lineHeight: 1.5, padding: "7px 0" };
   const num = (n) => (<span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.emerald, color: "#fff", fontSize: 12, fontWeight: 800, display: "grid", placeItems: "center" }}>{n}</span>);
   const chip = (numv, label) => (
-    <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,.12)", borderRadius: 8, padding: "10px 16px" }}>
-      <span className="disp" style={{ fontSize: 28, fontWeight: 800, color: "#fff", lineHeight: 1, minWidth: 34 }}>{numv}</span>
-      <span style={{ fontSize: 12.5, color: "rgba(255,255,255,.82)", lineHeight: 1.25 }}>{label}</span>
+    <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,.12)", borderRadius: 10, padding: "14px 18px" }}>
+      <span className="disp" style={{ fontSize: 30, fontWeight: 800, color: "#fff", lineHeight: 1, minWidth: 36 }}>{numv}</span>
+      <span style={{ fontSize: 12.5, color: "rgba(255,255,255,.82)", lineHeight: 1.3 }}>{label}</span>
     </div>
   );
 
@@ -1424,23 +1424,23 @@ function OverviewPanel({ s, batch, onTab, setS }) {
       {/* Two-column hero: welcome copy + actions on the left, the cohort stat chips stacked into
           the right (which would otherwise be empty dark space). Collapses to a single column on
           narrow screens via .enroll-grid. */}
-      <Card style={{ padding: 22, marginBottom: 14, background: C.ink, border: "none" }}>
-        <div style={{ display: "flex", gap: 28, alignItems: "stretch", flexWrap: "wrap" }}>
+      <Card style={{ padding: 32, marginBottom: 14, background: C.ink, border: "none" }}>
+        <div style={{ display: "flex", gap: 44, alignItems: "stretch", flexWrap: "wrap" }}>
           <div style={{ flex: "1 1 440px", minWidth: 0 }}>
             <div style={{ fontSize: 12, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>WELCOME TO BUILD YOUNG</div>
-            <div className="disp" style={{ fontSize: 26, fontWeight: 800, marginTop: 4, color: "#fff" }}>You're in, {first}! 🎉</div>
-            <div style={{ color: "rgba(255,255,255,.62)", fontSize: 13, fontWeight: 600, marginTop: 6 }}>{batch.track} · {batch.day}</div>
-            <p style={{ color: "rgba(255,255,255,.78)", fontSize: 14.5, lineHeight: 1.6, marginTop: 8 }}>
+            <div className="disp" style={{ fontSize: 27, fontWeight: 800, marginTop: 8, color: "#fff" }}>You're in, {first}! 🎉</div>
+            <div style={{ color: "rgba(255,255,255,.62)", fontSize: 13, fontWeight: 600, marginTop: 8 }}>{batch.track} · {batch.day}</div>
+            <p style={{ color: "rgba(255,255,255,.78)", fontSize: 14.5, lineHeight: 1.7, marginTop: 14, maxWidth: 580 }}>
               Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} Over 12 live weeks you'll <b style={{ color: "#fff" }}>build a product you believe people would pay for</b>, then learn to <b style={{ color: "#fff" }}>manage what you earn</b> — thinking like a founder, graduating with a business and a net worth grown from zero. Every dollar here is <b style={{ color: "#fff" }}>simulated</b>.
             </p>
-            <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
               <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-                <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}><Video size={16} /> Join class on Zoom</button>
+                <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}><Video size={16} /> Join class on Zoom</button>
               </a>
-              <button className="btn" onClick={() => onTab("dash")} style={{ background: "rgba(255,255,255,.14)", color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14 }}>Go to my dashboard →</button>
+              <button className="btn" onClick={() => onTab("dash")} style={{ background: "rgba(255,255,255,.14)", color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14 }}>Go to my dashboard →</button>
             </div>
           </div>
-          <div style={{ flex: "0 1 260px", display: "flex", flexDirection: "column", gap: 10, justifyContent: "center" }}>
+          <div style={{ flex: "0 1 280px", display: "flex", flexDirection: "column", gap: 14, justifyContent: "center" }}>
             {info.beforeStart && chip(info.days, `${info.days === 1 ? "day" : "days"} until your first class`)}
             {chip(12, "weeks · 2 sessions/week")}
             {chip(CHECKINS, CHECKINS === 1 ? "monthly check-in after" : "monthly check-ins after")}
