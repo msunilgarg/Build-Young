@@ -1914,7 +1914,7 @@ function Platform({ state, setState, onExit, onFounder }) {
           <Card style={{ padding: 20, marginTop: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
               <div style={{ fontWeight: 700 }}>Course progress</div>
-              <div style={{ fontSize: 13, color: C.muted }}>{s.phase === "course" ? `Week ${s.week} of 12 · Act ${wk.act}` : (s.done ? "Complete 🎓" : "Follow-up check-in")}</div>
+              <div style={{ fontSize: 13, color: C.muted }}>{s.phase === "course" ? `Week ${s.week} of 12` : (s.done ? "Complete 🎓" : "Follow-up check-in")}</div>
             </div>
             <div style={{ height: 8, background: C.paper2, borderRadius: 999, marginTop: 12, overflow: "hidden" }}>
               <div style={{ width: `${Math.round(((s.phase === "course" ? s.week : 12) / 12) * 100)}%`, height: "100%", background: C.emerald, borderRadius: 999 }} />
@@ -2064,7 +2064,7 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
     <Card style={{ padding: 22 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: selStatusColor, letterSpacing: ".04em" }}>WEEK {selected} · ACT {selW.act} · {selStatus.toUpperCase()}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: selStatusColor, letterSpacing: ".04em" }}>WEEK {selected} · {selStatus.toUpperCase()}</div>
           <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{selW.t}</div>
         </div>
         {batch && (() => {
@@ -2228,7 +2228,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
 
   const Wrap = ({ children, title, blurb }) => (
     <Card style={{ padding: 22 }}>
-      {s.phase === "course" && <div style={{ fontSize: 12, color: wk.act === 1 ? C.green : wk.act === 2 ? C.pink : C.turq, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {s.week} · ACT {wk.act}</div>}
+      {s.phase === "course" && <div style={{ fontSize: 12, color: wk.act === 1 ? C.green : wk.act === 2 ? C.pink : C.turq, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {s.week}</div>}
       <div className="disp" style={{ fontSize: 24, fontWeight: 800, margin: "4px 0 6px" }}>{title}</div>
       <div style={{ color: C.muted, fontSize: 14, marginBottom: 18, lineHeight: 1.45 }}>{blurb}</div>
       {children}
