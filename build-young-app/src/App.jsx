@@ -298,57 +298,47 @@ async function fetchMarketEvent(phase, week, checkin) {
 // team adds weekly class content as it's built (verified, primary-source links only, per the
 // statistics-integrity bar). A few are seeded as examples; the rest show "coming soon" in the
 // Course hub until filled in.
-// FLIPPED CURRICULUM: Act 1 is the BUILD arc (Weeks 1–6) — you create something people pay
-// for; that's what starts your income. Act 2 (Weeks 7–12) is FINANCE — now manage the income
-// your build earns. Build-week lesson content is pending Sunil's outline (placeholder panels).
+// THREE ACTS: Act 1 · 0→1 (Weeks 1–6) — go from nothing to a launched, earning product. Act 2 ·
+// 1→100 (Weeks 7–8) — scale first customers into a real business. Act 3 · MANAGE (Weeks 9–11) +
+// the Capstone (Week 12) — manage the money your build earns. Build/scale lesson content is the
+// per-week activity (weekActivity); the finance weeks have interactive sim panels.
 const WEEKS = [
-  // ─── Act 1 · BUILD (Weeks 1–6) — placeholder panels until Sunil's outline lands ───
+  // ─── Act 1 · 0 → 1 (Weeks 1–6): from nothing to a launched, earning product ───
   { act: 1, t: "Build: Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your build starts here.", action: "build", comingSoon: true },
   { act: 1, t: "Build: Shape the Idea", s: "Turn the need into a concrete product or service you could make.", action: "build", comingSoon: true },
   { act: 1, t: "Build: Make It (with AI)", s: "Use your skills and AI as a tool to build a first version.", action: "build", comingSoon: true },
   { act: 1, t: "Build: Launch & First Customers", s: "Put it in front of real people — and earn your first dollars.", action: "build", comingSoon: true },
   { act: 1, t: "Build: Price It & Get Paid", s: "Charge for the value you create; turn interest into income.", action: "build", comingSoon: true },
   { act: 1, t: "Build: Grow What's Working", s: "Double down on what sells — your build is now earning.", action: "build", comingSoon: true },
-  // ─── Act 2 · FINANCE (Weeks 7–12) — manage the income your build earns ───
-  { act: 2, t: "Set Up Your Business Finances", s: "Self-employment tax, paying yourself, setting aside for the future.", action: "settings",
+  // ─── Act 2 · 1 → 100 (Weeks 7–8): scale first customers into a real business ───
+  { act: 2, t: "Scale: Reach More Customers", s: "Repeatable ways to find and win customers — turn a trickle into a stream.", action: "build", comingSoon: true },
+  { act: 2, t: "Scale: Make It a Real Business", s: "Systems, pricing, and the few numbers that show what's working as you grow.", action: "build", comingSoon: true },
+  // ─── Act 3 · MANAGE (Weeks 9–11) + Capstone (Week 12): manage the money your build earns ───
+  { act: 3, t: "Set Up Your Business Finances", s: "Self-employment tax, paying yourself, setting aside for the future.", action: "settings",
     materials: [{ label: "IRS — Self-Employed Individuals Tax Center", url: "https://www.irs.gov/businesses/small-businesses-self-employed/self-employed-individuals-tax-center" }] },
-  { act: 2, t: "Savings & Investing + Compounding", s: "Auto-fund accounts; pick your risk style and asset mix.", action: "allocation",
+  { act: 3, t: "Savings & Investing + Compounding", s: "Auto-fund accounts; pick your risk style and asset mix; ride real market moves.", action: "allocation",
     materials: [
       { label: "Investor.gov — Compound Interest Calculator", url: "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator" },
       { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
     ] },
-  { act: 2, t: "Macro Forces on Investments", s: "How inflation, rates and recessions move each asset class.", action: "macro" },
-  { act: 2, t: "Big Purchases: Buy, Finance & Live With It", s: "Buy vs. rent, good vs. bad debt — choose and finance a home and a car.", action: "buy" },
-  { act: 2, t: "Budgeting: Surprises & Temptations", s: "Bills autopay — handle an emergency and a spree.", action: "budget",
-    // PLACEHOLDER PARK: finance topics retired from their own weeks (Credit, Portfolio Review,
-    // Active Investing, Beyond Stocks) are parked here so we don't lose them. Final placement is
-    // TBD — founder will decide how to reorganize. Links are the verified primary sources.
-    parked: [
-      { t: "Credit & Credit Scores", d: "Cards, interest, and how your score sets your rates.", materials: [
-        { label: "CFPB — Credit reports and scores", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/" },
-        { label: "CFPB — Understand your credit score", url: "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/understand-your-credit-score/" },
-      ] },
-      { t: "Portfolio Review: Same Start, Different Results", d: "Tally net worth and trace what drove the spread.", materials: [] },
-      { t: "Active Investing", d: "Review, diversify, rebalance.", materials: [] },
-      { t: "Beyond Stocks: Growing & Protecting Wealth", d: "Bullion, real estate, insurance — and a safety net.", materials: [] },
-    ] },
-  { act: 2, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the build you made and the net worth it earned.", action: "capstone" },
+  { act: 3, t: "Big Purchases: Buy, Finance & Live With It", s: "Buy vs. rent, good vs. bad debt — choose and finance a home and a car.", action: "buy" },
+  { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the build you made and the net worth it earned.", action: "capstone" },
 ];
-const ACTS = { 1: "Build Something People Want", 2: "Manage What You've Earned" };
+const ACTS = { 1: "0 → 1 · Build the first version", 2: "1 → 100 · Scale it into a business", 3: "Manage what you've earned" };
 
 // ============================ SIM ECONOMY ============================
 // One place for every dollar figure, re-tuned to a realistic young-adult budget around a
 // $10,000 paycheck per class. Keep purchases funds-gated against this so the "save toward a
 // goal / live with the payments" lessons hold. Change PAY here and the rest stays in scale.
-// Income comes from the student's BUILD, not a flat paycheck. Build act (weeks 1–6): you
-// create the product and it starts landing customers — revenue ramps from zero. Finance act
-// (weeks 7–12) + check-ins: the established build earns a steady income you now learn to
-// manage. INCOME[courseWeek-1] is the business revenue that period.
+// Income comes from the student's BUILD, not a flat paycheck. Build + scale (weeks 1–8, Acts
+// 1–2): you create the product, launch it, and scale it — revenue ramps from zero to steady.
+// Manage act (weeks 9–12): the established build earns a steady income you now learn to manage
+// (taxes, investing, big purchases). INCOME[courseWeek-1] is the business revenue that period.
 export const INCOME = [0, 0, 0, 3000, 6000, 9000, 10000, 10000, 10000, 10000, 10000, 10000];
-export const STEADY_INCOME = 10000;  // per-period business income in the finance act + check-ins
+export const STEADY_INCOME = 10000;  // per-period business income once the build is established
 export const PAY = STEADY_INCOME;    // back-comat alias (steady business income, not a paycheck)
 const TAX_RATE = 0.15;               // tax on business income (self-employment / business tax)
-const FINANCE_FIRST_WEEK = 7;        // weeks 1–6 = Build act; 7–12 = Finance act
+const FINANCE_FIRST_WEEK = 9;        // weeks 1–8 = Build+Scale (0→1, 1→100); 9–12 = Manage (finance)
 // CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
 export const CHECKIN_TIME = "5:00–6:00 PM PST"; // 60-minute follow-up check-in (the week after the course)
 // The check-in is ONE MONTH after the cohort's final (Week 12) class, kept on the cohort's
@@ -1045,8 +1035,8 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       {/* curriculum */}
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
-          <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">two acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, two acts: <b>Build</b> (Weeks 1–6) and <b>Manage what you've earned</b> (Weeks 7–12), finishing with a capstone. Here's every week.</p>
+          <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (build the first version, Weeks 1–6), <b>1 → 100</b> (scale it into a business, Weeks 7–8), and <b>manage what you've earned</b> (Weeks 9–11), finishing with a capstone. Here's every week.</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => (
           <div key={act} style={{ marginTop: 26 }}>
@@ -1713,8 +1703,9 @@ function OverviewPanel({ s, batch, onTab, setS }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="enroll-grid">
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>What to expect</h3>
-          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — Build.</b> Find a problem worth solving and build a product, app, or service (AI is your tool). Your income comes from what you build.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–12 — Manage the money.</b> Taxes, saving, investing through real market swings, big purchases, and watching it compound — finishing with a capstone of what you built and what it's worth.</span></div>
+          <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — 0 → 1.</b> Find a problem worth solving and build a product (AI is your tool) — launch it and earn your first dollars.</span></div>
+          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–8 — 1 → 100.</b> Turn first customers into a real, scaling business. Your income comes from what you build.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 9–12 — Manage the money.</b> Taxes, saving, investing through real market swings, big purchases — finishing with a capstone of what you built and what it's worth.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
         </Card>
         <Card style={{ padding: 20 }}>

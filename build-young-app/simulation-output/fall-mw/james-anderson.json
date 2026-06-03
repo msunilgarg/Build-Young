@@ -256,7 +256,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Set Up Your Business Finances",
+      "period": "Week 7: Scale: Reach More Customers",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -272,8 +272,8 @@
       "decisionsMade": [
         "set retirement set-aside to 8% of business income (self-employed — no employer match)"
       ],
-      "netWorth": 20416.15,
-      "cash": 8655,
+      "netWorth": 23916.15,
+      "cash": 12155,
       "savings": 5641.15,
       "retirement": 1700,
       "holdings": {
@@ -294,7 +294,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Savings & Investing + Compounding",
+      "period": "Week 8: Scale: Make It a Real Business",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -311,8 +311,8 @@
         "auto-save 12% of net pay; auto-invest 45% of net pay to brokerage",
         "chose a aggressive investing style"
       ],
-      "netWorth": 25266.01,
-      "cash": 8466,
+      "netWorth": 32266.01,
+      "cash": 15466,
       "savings": 6663.63,
       "retirement": 2432.5,
       "holdings": {
@@ -333,7 +333,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Macro Forces on Investments",
+      "period": "Week 9: Set Up Your Business Finances",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -349,8 +349,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 30239.1,
-      "cash": 8277,
+      "netWorth": 37239.1,
+      "cash": 15277,
       "savings": 7701.45,
       "retirement": 3169.47,
       "holdings": {
@@ -371,7 +371,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Big Purchases: Buy, Finance & Live With It",
+      "period": "Week 10: Savings & Investing + Compounding",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -387,8 +387,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 35635.12,
-      "cash": 8088,
+      "netWorth": 42635.12,
+      "cash": 15088,
       "savings": 8711.7,
       "retirement": 4017.1,
       "holdings": {
@@ -409,7 +409,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Budgeting: Surprises & Temptations",
+      "period": "Week 11: Big Purchases: Buy, Finance & Live With It",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -426,8 +426,8 @@
         "covered the $2,500 emergency car repair from savings",
         "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 37252.28,
-      "cash": 6399,
+      "netWorth": 44252.28,
+      "cash": 13399,
       "savings": 7207.06,
       "retirement": 4658.14,
       "holdings": {
@@ -464,8 +464,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 43335.31,
-      "cash": 6210,
+      "netWorth": 50335.31,
+      "cash": 13210,
       "savings": 8212.37,
       "retirement": 5662.82,
       "holdings": {
@@ -657,10 +657,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 43335.31,
+    "finalNetWorth": 50335.31,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 6210,
+      "cash": 13210,
       "savings": 8212.37,
       "retirement": 5662.82,
       "brokerageHoldings": 23250.13,
@@ -675,6 +675,6 @@
     "carriedCardDebt": false,
     "insured": false,
     "hustled": false,
-    "narrative": "James ran a aggressive strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $43,335 and a credit score of 756. All figures simulated."
+    "narrative": "James ran a aggressive strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $50,335 and a credit score of 756. All figures simulated."
   }
 }

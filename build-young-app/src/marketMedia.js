@@ -43,11 +43,11 @@ export const WEEK_TITLES = [
   "Build: Launch & First Customers",
   "Build: Price It & Get Paid",
   "Build: Grow What's Working",
+  "Scale: Reach More Customers",
+  "Scale: Make It a Real Business",
   "Set Up Your Business Finances",
   "Savings & Investing + Compounding",
-  "Macro Forces on Investments",
   "Big Purchases: Buy, Finance & Live With It",
-  "Budgeting: Surprises & Temptations",
   "Capstone: What You Built & What It's Worth",
 ];
 
