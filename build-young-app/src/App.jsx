@@ -1559,7 +1559,7 @@ const SHAPE_EXAMPLE = {
 • A dashboard that shows your net worth, your week, and a spot for your notes.
 • A certificate at the end you can add to your LinkedIn.`,
   experience: `You log in to a clean dashboard that shows what week you're on and how you're doing. You join the live class on Zoom, then open the week to do that week's activity and hit "advance" to move your simulation forward. You jot notes right on the page and watch your net worth grow as each week unlocks. It should feel hands-on and a bit like a game — not like homework.`,
-  wow: `The first time a teen sees money show up from a product they actually built — and realizes they can grow it.`,
+  wow: `The first time a teen shares a link to their product — live on the internet, real and usable — and watches someone actually use it. Even their parents!`,
 };
 
 // Generic class-example card (the worked Build Young model the instructor presents). Generic over
