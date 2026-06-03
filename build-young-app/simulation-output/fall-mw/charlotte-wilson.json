@@ -256,7 +256,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Set Up Your Business Finances",
+      "period": "Week 7: Scale: Reach More Customers",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -272,8 +272,8 @@
       "decisionsMade": [
         "set retirement set-aside to 10% of business income (self-employed — no employer match)"
       ],
-      "netWorth": 20415.65,
-      "cash": 8545,
+      "netWorth": 23915.65,
+      "cash": 12045,
       "savings": 5590.65,
       "retirement": 1900,
       "holdings": {
@@ -294,7 +294,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Savings & Investing + Compounding",
+      "period": "Week 8: Scale: Make It a Real Business",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -311,8 +311,8 @@
         "auto-save 10% of net pay; auto-invest 45% of net pay to brokerage",
         "chose a aggressive investing style"
       ],
-      "netWorth": 25254.46,
-      "cash": 8420,
+      "netWorth": 32254.46,
+      "cash": 15420,
       "savings": 6435.76,
       "retirement": 2821.7,
       "holdings": {
@@ -333,7 +333,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Macro Forces on Investments",
+      "period": "Week 9: Set Up Your Business Finances",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -349,8 +349,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 30211.53,
-      "cash": 8295,
+      "netWorth": 37211.53,
+      "cash": 15295,
       "savings": 7293.55,
       "retirement": 3747.18,
       "holdings": {
@@ -371,7 +371,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Big Purchases: Buy, Finance & Live With It",
+      "period": "Week 10: Savings & Investing + Compounding",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -387,8 +387,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 35605.47,
-      "cash": 8170,
+      "netWorth": 42605.47,
+      "cash": 15170,
       "savings": 8123.99,
       "retirement": 4804.14,
       "holdings": {
@@ -409,7 +409,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Budgeting: Surprises & Temptations",
+      "period": "Week 11: Big Purchases: Buy, Finance & Live With It",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -426,8 +426,8 @@
         "covered the $2,500 emergency car repair from savings",
         "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 37199.44,
-      "cash": 6545,
+      "netWorth": 44199.44,
+      "cash": 13545,
       "savings": 6437.73,
       "retirement": 5612.61,
       "holdings": {
@@ -464,8 +464,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 43299.18,
-      "cash": 6420,
+      "netWorth": 50299.18,
+      "cash": 13420,
       "savings": 7259.6,
       "retirement": 6860.58,
       "holdings": {
@@ -657,10 +657,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 43299.18,
+    "finalNetWorth": 50299.18,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 6420,
+      "cash": 13420,
       "savings": 7259.6,
       "retirement": 6860.58,
       "brokerageHoldings": 22758.99,
@@ -675,6 +675,6 @@
     "carriedCardDebt": false,
     "insured": false,
     "hustled": false,
-    "narrative": "Charlotte ran a aggressive strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $43,299 and a credit score of 756. All figures simulated."
+    "narrative": "Charlotte ran a aggressive strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $50,299 and a credit score of 756. All figures simulated."
   }
 }

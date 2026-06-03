@@ -255,7 +255,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Set Up Your Business Finances",
+      "period": "Week 7: Scale: Reach More Customers",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -271,8 +271,8 @@
       "decisionsMade": [
         "set retirement set-aside to 2% of business income (self-employed — no employer match)"
       ],
-      "netWorth": 20417.65,
-      "cash": 8985,
+      "netWorth": 23917.65,
+      "cash": 12485,
       "savings": 5792.65,
       "retirement": 1100,
       "holdings": {
@@ -293,7 +293,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Savings & Investing + Compounding",
+      "period": "Week 8: Scale: Make It a Real Business",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -310,8 +310,8 @@
         "auto-save 15% of net pay; auto-invest 10% of net pay to brokerage",
         "chose a balanced investing style"
       ],
-      "netWorth": 25373.74,
-      "cash": 11710,
+      "netWorth": 32373.74,
+      "cash": 18710,
       "savings": 7143.22,
       "retirement": 1264.9,
       "holdings": {
@@ -332,7 +332,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Macro Forces on Investments",
+      "period": "Week 9: Set Up Your Business Finances",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -348,8 +348,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 30428.11,
-      "cash": 14435,
+      "netWorth": 37428.11,
+      "cash": 21435,
       "savings": 8514.04,
       "retirement": 1436.33,
       "holdings": {
@@ -370,7 +370,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Big Purchases: Buy, Finance & Live With It",
+      "period": "Week 10: Savings & Investing + Compounding",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -386,8 +386,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 35659.44,
-      "cash": 17160,
+      "netWorth": 42659.44,
+      "cash": 24160,
       "savings": 9856.63,
       "retirement": 1655.97,
       "holdings": {
@@ -408,7 +408,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Budgeting: Surprises & Temptations",
+      "period": "Week 11: Big Purchases: Buy, Finance & Live With It",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -425,8 +425,8 @@
         "put the $2,500 emergency car repair on a credit card",
         "took the $1,500 shopping spree (treat myself)"
       ],
-      "netWorth": 36405.74,
-      "cash": 18385,
+      "netWorth": 43405.74,
+      "cash": 25385,
       "savings": 11212.65,
       "retirement": 1794.72,
       "holdings": {
@@ -463,8 +463,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 41757.94,
-      "cash": 21110,
+      "netWorth": 48757.94,
+      "cash": 28110,
       "savings": 12582.22,
       "retirement": 2069.53,
       "holdings": {
@@ -656,10 +656,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 41757.94,
+    "finalNetWorth": 48757.94,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 21110,
+      "cash": 28110,
       "savings": 12582.22,
       "retirement": 2069.53,
       "brokerageHoldings": 8700.19,
@@ -674,6 +674,6 @@
     "carriedCardDebt": true,
     "insured": false,
     "hustled": false,
-    "narrative": "Noah ran a balanced strategy, rented (no home), skipped the car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $41,758 and a credit score of 756. All figures simulated."
+    "narrative": "Noah ran a balanced strategy, rented (no home), skipped the car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $48,758 and a credit score of 756. All figures simulated."
   }
 }

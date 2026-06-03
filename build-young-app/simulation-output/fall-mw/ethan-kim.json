@@ -256,7 +256,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Set Up Your Business Finances",
+      "period": "Week 7: Scale: Reach More Customers",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -272,8 +272,8 @@
       "decisionsMade": [
         "set retirement set-aside to 5% of business income (self-employed — no employer match)"
       ],
-      "netWorth": 20416.9,
-      "cash": 8820,
+      "netWorth": 23916.9,
+      "cash": 12320,
       "savings": 5716.9,
       "retirement": 1400,
       "holdings": {
@@ -294,7 +294,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Savings & Investing + Compounding",
+      "period": "Week 8: Scale: Make It a Real Business",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -311,8 +311,8 @@
         "auto-save 20% of net pay; auto-invest 30% of net pay to brokerage",
         "chose a aggressive investing style"
       ],
-      "netWorth": 25319.69,
-      "cash": 9320,
+      "netWorth": 32319.69,
+      "cash": 16320,
       "savings": 7426.66,
       "retirement": 1848.7,
       "holdings": {
@@ -333,7 +333,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Macro Forces on Investments",
+      "period": "Week 9: Set Up Your Business Finances",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -349,8 +349,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 30345.76,
-      "cash": 9820,
+      "netWorth": 37345.76,
+      "cash": 16820,
       "savings": 9162.06,
       "retirement": 2302.9,
       "holdings": {
@@ -371,7 +371,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Big Purchases: Buy, Finance & Live With It",
+      "period": "Week 10: Savings & Investing + Compounding",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -387,8 +387,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 35691.48,
-      "cash": 10320,
+      "netWorth": 42691.48,
+      "cash": 17320,
       "savings": 10869.68,
       "retirement": 2836.54,
       "holdings": {
@@ -409,7 +409,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Budgeting: Surprises & Temptations",
+      "period": "Week 11: Big Purchases: Buy, Finance & Live With It",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -426,8 +426,8 @@
         "covered the $2,500 emergency car repair from savings",
         "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 37573.52,
-      "cash": 9320,
+      "netWorth": 44573.52,
+      "cash": 16320,
       "savings": 10069.37,
       "retirement": 3226.43,
       "holdings": {
@@ -464,8 +464,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 43439.42,
-      "cash": 9820,
+      "netWorth": 50439.42,
+      "cash": 16820,
       "savings": 11786.07,
       "retirement": 3866.17,
       "holdings": {
@@ -657,10 +657,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 43439.42,
+    "finalNetWorth": 50439.42,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 9820,
+      "cash": 16820,
       "savings": 11786.07,
       "retirement": 3866.17,
       "brokerageHoldings": 17967.18,
@@ -675,6 +675,6 @@
     "carriedCardDebt": false,
     "insured": false,
     "hustled": false,
-    "narrative": "Ethan ran a aggressive strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $43,439 and a credit score of 756. All figures simulated."
+    "narrative": "Ethan ran a aggressive strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $50,439 and a credit score of 756. All figures simulated."
   }
 }

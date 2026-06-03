@@ -256,7 +256,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Set Up Your Business Finances",
+      "period": "Week 7: Scale: Reach More Customers",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -272,8 +272,8 @@
       "decisionsMade": [
         "set retirement set-aside to 0% of business income (self-employed — no employer match)"
       ],
-      "netWorth": 20418.15,
-      "cash": 9095,
+      "netWorth": 23918.15,
+      "cash": 12595,
       "savings": 5843.15,
       "retirement": 900,
       "holdings": {
@@ -294,7 +294,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Savings & Investing + Compounding",
+      "period": "Week 8: Scale: Make It a Real Business",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -311,8 +311,8 @@
         "auto-save 50% of net pay; auto-invest 0% of net pay to brokerage",
         "chose a conservative investing style"
       ],
-      "netWorth": 25447.7,
-      "cash": 9845,
+      "netWorth": 32447.7,
+      "cash": 16845,
       "savings": 10244.55,
       "retirement": 875.7,
       "holdings": {
@@ -333,7 +333,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Macro Forces on Investments",
+      "period": "Week 9: Set Up Your Business Finances",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -349,8 +349,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 30616.66,
-      "cash": 10595,
+      "netWorth": 37616.66,
+      "cash": 17595,
       "savings": 14711.97,
       "retirement": 858.62,
       "holdings": {
@@ -371,7 +371,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Big Purchases: Buy, Finance & Live With It",
+      "period": "Week 10: Savings & Investing + Compounding",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -387,8 +387,8 @@
       "decisionsMade": [
         "wanted a home ($20,000 down) but couldn't afford it yet — saving toward it"
       ],
-      "netWorth": 35890.51,
-      "cash": 11345,
+      "netWorth": 42890.51,
+      "cash": 18345,
       "savings": 19151.59,
       "retirement": 868.93,
       "holdings": {
@@ -409,7 +409,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Budgeting: Surprises & Temptations",
+      "period": "Week 11: Big Purchases: Buy, Finance & Live With It",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -426,8 +426,8 @@
         "put the $2,500 emergency car repair on a credit card",
         "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 38366.38,
-      "cash": 10595,
+      "netWorth": 45366.38,
+      "cash": 17595,
       "savings": 23635.6,
       "retirement": 840.25,
       "holdings": {
@@ -464,8 +464,8 @@
       "decisionsMade": [
         "bought a starter home ($400,000, 5% down, ~$2,500/mo mortgage)"
       ],
-      "netWorth": 48319.07,
-      "cash": 8845,
+      "netWorth": 55319.07,
+      "cash": 15845,
       "savings": 7964.46,
       "retirement": 871.76,
       "holdings": {
@@ -661,10 +661,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 48319.07,
+    "finalNetWorth": 55319.07,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 8845,
+      "cash": 15845,
       "savings": 7964.46,
       "retirement": 871.76,
       "brokerageHoldings": 6066.85,
@@ -679,6 +679,6 @@
     "carriedCardDebt": true,
     "insured": false,
     "hustled": false,
-    "narrative": "Isabella ran a conservative strategy, bought a home, skipped the car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $48,319 and a credit score of 756. All figures simulated."
+    "narrative": "Isabella ran a conservative strategy, bought a home, skipped the car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $55,319 and a credit score of 756. All figures simulated."
   }
 }

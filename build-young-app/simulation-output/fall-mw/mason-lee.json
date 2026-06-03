@@ -256,7 +256,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Set Up Your Business Finances",
+      "period": "Week 7: Scale: Reach More Customers",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -272,8 +272,8 @@
       "decisionsMade": [
         "set retirement set-aside to 5% of business income (self-employed — no employer match)"
       ],
-      "netWorth": 20416.9,
-      "cash": 8820,
+      "netWorth": 23916.9,
+      "cash": 12320,
       "savings": 5716.9,
       "retirement": 1400,
       "holdings": {
@@ -294,7 +294,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Savings & Investing + Compounding",
+      "period": "Week 8: Scale: Make It a Real Business",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -311,8 +311,8 @@
         "auto-save 30% of net pay; auto-invest 12% of net pay to brokerage",
         "chose a balanced investing style"
       ],
-      "netWorth": 25371.49,
-      "cash": 9960,
+      "netWorth": 32371.49,
+      "cash": 16960,
       "savings": 8238.66,
       "retirement": 1848.7,
       "holdings": {
@@ -333,7 +333,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Macro Forces on Investments",
+      "period": "Week 9: Set Up Your Business Finances",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -349,8 +349,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 30440.94,
-      "cash": 11100,
+      "netWorth": 37440.94,
+      "cash": 18100,
       "savings": 10798.24,
       "retirement": 2302.9,
       "holdings": {
@@ -371,7 +371,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Big Purchases: Buy, Finance & Live With It",
+      "period": "Week 10: Savings & Investing + Compounding",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -387,8 +387,8 @@
       "decisionsMade": [
         "bought a used car ($30,000, 20% down, ~$600/mo loan)"
       ],
-      "netWorth": 35036.1,
-      "cash": 11640,
+      "netWorth": 42036.1,
+      "cash": 18640,
       "savings": 7270.22,
       "retirement": 2836.54,
       "holdings": {
@@ -413,7 +413,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Budgeting: Surprises & Temptations",
+      "period": "Week 11: Big Purchases: Buy, Finance & Live With It",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -430,8 +430,8 @@
         "put the $2,500 emergency car repair on a credit card",
         "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 36544.35,
-      "cash": 10680,
+      "netWorth": 43544.35,
+      "cash": 17680,
       "savings": 9766.92,
       "retirement": 3226.43,
       "holdings": {
@@ -472,8 +472,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 41404.7,
-      "cash": 11220,
+      "netWorth": 48404.7,
+      "cash": 18220,
       "savings": 12288.59,
       "retirement": 3866.17,
       "holdings": {
@@ -669,10 +669,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 41404.7,
+    "finalNetWorth": 48404.7,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 11220,
+      "cash": 18220,
       "savings": 12288.59,
       "retirement": 3866.17,
       "brokerageHoldings": 10803.79,
@@ -687,6 +687,6 @@
     "carriedCardDebt": true,
     "insured": false,
     "hustled": false,
-    "narrative": "Mason ran a balanced strategy, rented (no home), bought a car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $41,405 and a credit score of 756. All figures simulated."
+    "narrative": "Mason ran a balanced strategy, rented (no home), bought a car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $48,405 and a credit score of 756. All figures simulated."
   }
 }
