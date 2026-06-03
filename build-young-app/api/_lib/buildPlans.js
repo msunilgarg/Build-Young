@@ -31,7 +31,7 @@ export async function listBuildPlans(limit = 1000) {
       const st = parse(await kvGet(`state:${email}`));
       const b = st && st.build ? st.build : null;
       if (!b) return null;
-      const hasContent = (nonEmpty(b.scenario) && b.scenario !== "") || nonEmpty(b.custom) || nonEmpty(b.pain) || nonEmpty(b.pr);
+      const hasContent = (nonEmpty(b.scenario) && b.scenario !== "") || nonEmpty(b.custom) || nonEmpty(b.pain) || nonEmpty(b.pr) || nonEmpty(b.productSuccess) || nonEmpty(b.financialSuccess);
       if (!hasContent) return null;
       return {
         email,
@@ -41,6 +41,8 @@ export async function listBuildPlans(limit = 1000) {
         custom: b.custom || "",
         pain: b.pain || "",
         pr: b.pr || "",
+        productSuccess: b.productSuccess || "",
+        financialSuccess: b.financialSuccess || "",
       };
     } catch { return null; }
   }));
