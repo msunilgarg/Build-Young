@@ -9,6 +9,7 @@
 import { kvConfigured, kvCommand, kvDel } from "./kv.js";
 import { normalizeEmail } from "./auth.js";
 import { sendEmail, REPLY_TO_ADDRESS } from "./sendEmail.js";
+import { loadOps } from "./settingsStore.js";
 
 const KEY = "interest:list";
 const TUTOR_KEY = "interest:tutors"; // prospective live tutors — SEPARATE from cohort interest so
@@ -50,11 +51,14 @@ export async function addTutorInterest({ email, linkedin }) {
     } catch { /* fall through to the email */ }
   }
 
-  // Send it to the founder's inbox.
+  // Send it to the founder's inbox — to the console-configured notifications address if set,
+  // otherwise the code default.
   let emailed = false;
   try {
+    const ops = await loadOps();
+    const to = (ops && ops.notifyEmail) || REPLY_TO_ADDRESS;
     const sent = await sendEmail({
-      to: REPLY_TO_ADDRESS,
+      to,
       subject: "New live-tutor interest — Build Young",
       body: `Someone is interested in becoming a Build Young live tutor.\n\nTheir email: ${e}\nLinkedIn: ${li}\n\nReply to them directly to follow up.`,
       replyTo: e, // hitting "reply" reaches the applicant

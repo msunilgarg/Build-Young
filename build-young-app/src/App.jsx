@@ -1735,11 +1735,11 @@ const MAKE_EXAMPLE = {
   firstVersion: `We didn't try to build all of Build Young at once. The first version was just the one thing that HAD to work: a teen could open a page, see their money simulation, and click "advance" to watch their net worth grow. No login, no payments, no emails yet — just the core loop on a single screen.
 
 Pick the smallest version that's still real and useful, and build that first. You can always add the rest once the heart of it works.`,
-  prompt: `We took last week's spec and handed it to AI almost word for word — that spec IS your prompt:
+  handoff: `We didn't write anything new. We took our Week 2 spec — the product description — and pasted it straight into Claude. Your spec IS the instructions you give AI; there's no separate "prompt" to write.
 
-"Build a single-page React app for a teen money simulation. Show a dashboard with net worth, cash, and investments. A button called 'Advance' moves one week forward: add income, apply a small market change, and update a chart of net worth over time. Use clean, friendly styling."
+Here's a short slice of what we handed over: "Build a single-page React app for a teen money simulation. Show a dashboard with net worth, cash, and investments. A button called 'Advance' moves one week forward: add income, apply a small market change, and update a chart of net worth over time. Use clean, friendly styling."
 
-The clearer the spec, the more it gets right on the first try — most of the screen appeared in one go. You don't start from a blank page; you start from your Week 2 spec.`,
+The clearer and more detailed the spec, the more AI gets right on the first try — most of the screen appeared in one go. You don't start from a blank page; you start from your Week 2 spec.`,
   loop: `Then the real work — describe → see → taste → refine. AI builds it, you look at it, and you judge it with taste — like someone who knows what good looks like:
 • "This looks cramped — add space between the cards."
 • "Remove this duplicate button."
@@ -1798,7 +1798,7 @@ function weekExample(week) {
   ]} />;
   if (week === 3) return <ExampleCard subtitle="A worked first build with AI — how we'd do it" fields={[
     ["What we built first", MAKE_EXAMPLE.firstVersion],
-    ["Our starting prompt to AI", MAKE_EXAMPLE.prompt],
+    ["Handing our spec to AI (the spec IS the prompt)", MAKE_EXAMPLE.handoff],
     ["The build loop (describe → see → taste → refine)", MAKE_EXAMPLE.loop],
     ["Ship it", MAKE_EXAMPLE.ship],
   ]} />;
@@ -1970,7 +1970,7 @@ function MakePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Make it — build your first version with AI 🛠️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Now you build. Hand your <b>spec</b> from last week to AI as your starting prompt, then run the loop: <b>describe → see → taste → refine</b>. You don't need to know how to code — you need <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. In an AI world, that's the skill that matters most. Build the smallest real version first, then ship it so someone can actually use it. <span style={{ color: C.muted }}>Saved automatically.</span>
+        Now you build. Your <b>Week 2 spec IS your prompt</b> — you hand it straight to AI (no separate prompt to write), then run the loop: <b>describe → see → taste → refine</b>. You don't need to know how to code — you need <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. In an AI world, that's the skill that matters most. Build the smallest real version first, then ship it so someone can actually use it. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
       {/* Pre-reqs: this is the week the build actually happens, so every build tool must be ready
@@ -2000,13 +2000,13 @@ function MakePlan({ s, setS, bare }) {
       {/* Copy-paste starter prompt for Claude — built from the student's own Week 2 spec. */}
       <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 Your copy-paste prompt for Claude</span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 Your spec — ready to hand to Claude</span>
           <button type="button" className="btn" onClick={copyPrompt} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
-            {copied ? <><Check size={14} /> Copied!</> : "Copy prompt"}
+            {copied ? <><Check size={14} /> Copied!</> : "Copy"}
           </button>
         </div>
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 8px" }}>
-          Open Claude (or Claude Code), paste this in, and send it — it's built from <b>your Week 2 spec</b>, so the more you filled in there, the better it builds. Read it over and tweak anything before you send.
+          This is <b>your Week 2 spec</b> — that's all you hand to AI; you don't write a separate prompt. Copy it, paste it into Claude, and send. The more you filled in your spec, the better it builds. Tweak anything before you send.
         </p>
         <textarea readOnly aria-label="Copy-paste AI prompt" value={aiPrompt} rows={9}
           onFocus={(e) => e.target.select()}
@@ -2014,7 +2014,6 @@ function MakePlan({ s, setS, bare }) {
       </div>
 
       {field("firstVersion", "What you'll build first", "What's the smallest version that's still real and useful? Name the one thing that HAS to work — build that before anything else.")}
-      {field("prompt", "Your starting prompt to AI", "Paste/shape your Week 2 spec into the prompt you'll give AI. Be specific — what to build, what it shows, what each button does, how it should feel.", 5)}
       {field("loop", "The build loop — what you'll change", "After AI builds it, judge it with taste — like a picky user. List the changes you'll ask for: what looks off, what's missing, what to fix. (e.g. \"add space between cards\", \"remove this duplicate button\".)", 5)}
       {field("ship", "Ship it", "How will you get it live so someone can use it today (e.g. a link)? What real problems showed up once it was live — and how did you fix them?")}
     </>
@@ -2630,11 +2629,22 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
   const action = s.phase === "course" ? wk.action : "checkin";
   const set = (fn) => setState((p) => { const ns = JSON.parse(JSON.stringify(p)); fn(ns); return ns; });
 
+  // Header matches the catch-up card for past weeks (status label + title on the left, the Zoom
+  // button on the right) so the CURRENT week aligns visually with Weeks 1–2 — no separate banner.
   const Wrap = ({ children, title, blurb }) => (
     <Card style={{ padding: 22 }}>
-      {s.phase === "course" && <div style={{ fontSize: 12, color: wk.act === 1 ? C.green : wk.act === 2 ? C.pink : C.turq, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {s.week}</div>}
-      <div className="disp" style={{ fontSize: 24, fontWeight: 800, margin: "4px 0 6px" }}>{title}</div>
-      <div style={{ color: C.muted, fontSize: 14, marginBottom: 18, lineHeight: 1.45 }}>{blurb}</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.emerald, letterSpacing: ".04em" }}>{s.phase === "course" ? `WEEK ${s.week} · THIS WEEK` : "CHECK-IN"}</div>
+          <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{title}</div>
+        </div>
+        {batch && (
+          <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "9px 14px", borderRadius: 4, fontSize: 13.5, display: "flex", alignItems: "center", gap: 7 }}><Video size={15} /> Join on Zoom</button>
+          </a>
+        )}
+      </div>
+      <div style={{ color: C.ink2, fontSize: 14, margin: "10px 0 16px", lineHeight: 1.55 }}>{blurb}</div>
       {children}
     </Card>
   );
@@ -2648,14 +2658,6 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
 
   return (
     <div className="rise">
-      {batch && (
-        <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "12px 16px", marginBottom: 12 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 13.5, fontWeight: 600, color: C.ink2 }}><Video size={16} color={C.emerald} /> {s.phase === "course" ? `Week ${s.week} class` : "Check-in"} is live on Zoom · {batch.day}</span>
-            <span className="btn" style={{ background: C.emerald, color: "#fff", padding: "8px 14px", borderRadius: 4, fontSize: 13 }}>Join →</span>
-          </div>
-        </a>
-      )}
       {action === "settings" && (
         <Wrap title="Set Up Your Business Finances" blurb={`Your build is earning now — about ${fmt(STEADY_INCOME)} a period. You're self-employed, so there's no employer and no W-4: a flat 15% goes to taxes, and YOU choose how much to pay your future self. These become your standing settings for the rest of the course.`}>
           {sliderRow("Pay yourself first (retirement)", s.settings.retire401k, (v) => set((n) => n.settings.retire401k = v), 0, 0.1, 0.01)}
@@ -3430,6 +3432,8 @@ export function FounderDashboard({ onHome }) {
         {!error && events !== null && tab === "settings" && (<>
           <h2 style={h2s}>Site settings</h2>
           <SettingsEditor />
+          <h2 style={h2s}>Notifications</h2>
+          <NotificationsEditor />
           <h2 style={h2s}>Admins</h2>
           <FoundersEditor founders={founders} />
           <h2 style={h2s}>System status</h2>
@@ -3491,6 +3495,48 @@ function SettingsEditor() {
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save settings</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
+      </div>
+    </Card>
+  );
+}
+
+// Founder-editable PRIVATE notifications address (where tutor applications etc. are emailed).
+// Read/written via the founder-gated /api/funnel?resource=ops — never exposed publicly or in the
+// client bundle (unlike the public Site settings).
+function NotificationsEditor() {
+  const [email, setEmail] = useState(null);
+  const [status, setStatus] = useState("");
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=ops"); const d = r.ok ? await r.json() : {}; if (live) setEmail((d.ops && d.ops.notifyEmail) || ""); }
+      catch { if (live) setEmail(""); }
+    })();
+    return () => { live = false; };
+  }, []);
+  if (email === null) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel?resource=ops", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ notifyEmail: email }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setEmail(d.ops.notifyEmail); setStatus("Saved — live now ✓"); }
+      else setStatus(adminSaveErr(r, d, "save notifications"));
+    } catch { setStatus(ADMIN_NET_ERR); }
+  };
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Where founder alerts are emailed — like a new <b>tutor application</b> from Careers. Private (never shown on the public site). Leave blank to use the default address. Sending also requires <code>RESEND_API_KEY</code> on the host.</div>
+      <label style={{ display: "block" }}>
+        <span style={lab}>Notifications email</span>
+        <input aria-label="Notifications email" type="email" value={email} placeholder="you@example.com"
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", maxWidth: 420, boxSizing: "border-box" }} />
+      </label>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save</button>
         {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
