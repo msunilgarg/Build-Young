@@ -1197,6 +1197,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                       "A follow-up check-in a month after the course",
                       "Your own student dashboard",
                       "Build a real product, then manage what it earns",
+                      "A certificate of completion you can add to LinkedIn",
                     ].map((t, i) => (
                       <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12.5, color: C.ink2 }}>
                         <Check size={14} color={acc} style={{ flexShrink: 0, marginTop: 1 }} /> {t}
