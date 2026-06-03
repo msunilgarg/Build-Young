@@ -1707,6 +1707,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–8 — 1 → 100.</b> Turn first customers into a real, scaling business. Your income comes from what you build.</span></div>
           <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 9–12 — Manage the money.</b> Taxes, saving, investing through real market swings, big purchases — finishing with a capstone of what you built and what it's worth.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
+          <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
         </Card>
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>How each week works</h3>
