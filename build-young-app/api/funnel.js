@@ -14,6 +14,7 @@
 import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog } from "./_lib/cohortStore.js";
 import { saveSettings } from "./_lib/settingsStore.js";
+import { saveHomework } from "./_lib/homeworkStore.js";
 import { listCerts } from "./_lib/cert.js";
 import { listBuildPlans } from "./_lib/buildPlans.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
@@ -118,6 +119,14 @@ async function saveSiteSettings(req, res) {
   res.status(result.ok ? 200 : 400).json(result);
 }
 
+// --- PUT ?resource=homework: founder saves the 12 weeks' homework/prep text ---
+async function saveCourseHomework(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const body = await readBody(req);
+  const result = await saveHomework((body && body.homework) || []);
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
 // --- DELETE: founder resets a test account (user record + sim state) by email ---
 async function resetAccount(req, res) {
   if (!(await founderGate(req, res))) return;
@@ -137,6 +146,7 @@ export default async function handler(req, res) {
   if (req.method === "PUT") {                              // founder: save cohorts, admins, or settings
     if (req.query && req.query.resource === "founders") return saveFounders(req, res);
     if (req.query && req.query.resource === "settings") return saveSiteSettings(req, res);
+    if (req.query && req.query.resource === "homework") return saveCourseHomework(req, res);
     return saveCohorts(req, res);
   }
   if (req.method === "DELETE") return resetAccount(req, res); // founder: reset a test account

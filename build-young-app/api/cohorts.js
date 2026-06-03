@@ -12,6 +12,7 @@
 
 import { loadCatalog } from "./_lib/cohortStore.js";
 import { loadSettings } from "./_lib/settingsStore.js";
+import { loadHomework } from "./_lib/homeworkStore.js";
 import { getCertById } from "./_lib/cert.js";
 
 export default async function handler(req, res) {
@@ -25,7 +26,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const [catalog, settings] = await Promise.all([loadCatalog(), loadSettings()]);
+  const [catalog, settings, homework] = await Promise.all([loadCatalog(), loadSettings(), loadHomework()]);
   res.setHeader("Cache-Control", "no-store");
-  res.status(200).json({ ...catalog, settings });
+  res.status(200).json({ ...catalog, settings, homework });
 }

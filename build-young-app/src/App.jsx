@@ -242,6 +242,9 @@ function trackVisitOnce() {
 }
 // Whether a "Talk to Sunil" call was booked earlier this session — tags the call→enroll branch.
 let _callBookedThisSession = false;
+// The 12 weeks' homework text. Defaults to the code WEEK_PREP; App hydrates it from /api/cohorts
+// (founder-editable) on load so the in-app completion email matches the real reminder email.
+let HOMEWORK = WEEK_PREP;
 
 // Key + label come from the shared ASSET_META (single-sourced with the scheduler);
 // the color + lucide icon are UI-only and layered on here, keyed by asset key.
@@ -473,7 +476,7 @@ Great work in Week ${week}: "${wk.t}." Your simulated net worth is now ${fmt(net
 
 Your next session is Week ${week + 1}: "${next.t}"
 ${batch.day}  ·  Join on Zoom: ${batch.zoom}
-${WEEK_PREP[week] ? `\nHomework — to prepare for next week:\n${WEEK_PREP[week]}\n` : ""}
+${HOMEWORK[week] ? `\nHomework — to prepare for next week:\n${HOMEWORK[week]}\n` : ""}
 See you there,
 The Team`,
     };
@@ -2576,6 +2579,7 @@ export function FounderDashboard({ onHome }) {
   const [founders, setFounders] = useState([]); // admin allowlist (effective: env ∪ KV)
   const [error, setError] = useState(null);
   const [seg, setSeg] = useState({ kind: "all", key: null }); // all | {season} | {track}
+  const [tab, setTab] = useState("funnel"); // funnel | cohorts | students | settings — keeps the console short
 
   // Authorized by the session cookie (sent automatically): the server admits only a logged-in
   // founder (email on the allowlist). 401/403 → not signed in as a founder.
@@ -2635,7 +2639,16 @@ export function FounderDashboard({ onHome }) {
         {error && <Card style={{ padding: 18, marginTop: 24, borderColor: C.goldLite, background: "#fbeede" }}><b style={{ color: C.ink }}>{error}</b></Card>}
         {!error && events === null && <Card style={{ padding: 24, marginTop: 24, color: C.muted }}>Loading analytics…</Card>}
 
-        {!error && events !== null && (<>
+        {/* section tabs — keep the console short instead of one long scroll */}
+        {!error && events !== null && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 22, borderBottom: `1px solid ${C.line}`, paddingBottom: 2 }}>
+            {[["funnel", "Funnel"], ["cohorts", "Cohorts & course"], ["students", "Students"], ["settings", "Settings"]].map(([k, label]) => (
+              <span key={k} {...act(() => setTab(k))} style={{ cursor: "pointer", fontSize: 13.5, fontWeight: 700, padding: "8px 14px", borderRadius: "4px 4px 0 0", color: tab === k ? C.ink : C.muted, borderBottom: `2px solid ${tab === k ? C.emerald : "transparent"}`, marginBottom: -2 }}>{label}</span>
+            ))}
+          </div>
+        )}
+
+        {!error && events !== null && tab === "funnel" && (<>
           {events.length === 0 && <Card style={{ padding: 14, marginTop: 18, ...muted }}>No events recorded yet — the funnel will populate as visitors move through the site.</Card>}
 
           {/* segment selector */}
@@ -2782,21 +2795,29 @@ export function FounderDashboard({ onHome }) {
           )}
         </>)}
 
-        {!error && events !== null && (<>
-          <h2 style={h2s}>Site settings</h2>
-          <SettingsEditor />
+        {!error && events !== null && tab === "cohorts" && (<>
           <h2 style={h2s}>Cohorts &amp; schedule</h2>
           <CohortEditor />
           <h2 style={h2s}>Class recordings</h2>
           <RecordingsEditor />
+          <h2 style={h2s}>Homework</h2>
+          <HomeworkEditor />
+        </>)}
+
+        {!error && events !== null && tab === "students" && (<>
           <h2 style={h2s}>Certificates</h2>
           <CertificatesAdmin />
           <h2 style={h2s}>Student build plans</h2>
           <BuildPlansAdmin />
-          <h2 style={h2s}>Admins</h2>
-          <FoundersEditor founders={founders} />
           <h2 style={h2s}>Reset a test account</h2>
           <AccountReset />
+        </>)}
+
+        {!error && events !== null && tab === "settings" && (<>
+          <h2 style={h2s}>Site settings</h2>
+          <SettingsEditor />
+          <h2 style={h2s}>Admins</h2>
+          <FoundersEditor founders={founders} />
           <h2 style={h2s}>System status</h2>
           <SystemStatus />
         </>)}
@@ -2934,6 +2955,49 @@ function RecordingsEditor() {
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save recordings</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
+      </div>
+    </Card>
+  );
+}
+
+// Founder editor for the 12 weeks' homework/prep text (week-completion email + class reminder).
+// KV-backed via PUT /api/funnel?resource=homework; live immediately.
+function HomeworkEditor() {
+  const [rows, setRows] = useState(null);
+  const [status, setStatus] = useState("");
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/cohorts"); const c = await r.json(); if (live) setRows(Array.isArray(c.homework) && c.homework.length === 12 ? c.homework : WEEK_PREP.slice(0, 12)); }
+      catch { if (live) setRows(WEEK_PREP.slice(0, 12)); }
+    })();
+    return () => { live = false; };
+  }, []);
+  if (rows === null) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
+  const set = (i, v) => setRows((rs) => rs.map((r, j) => (j === i ? v : r)));
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel?resource=homework", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ homework: rows }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setRows(d.homework); HOMEWORK = d.homework; setStatus("Saved — live now ✓"); }
+      else setStatus(adminSaveErr(r, d, "save homework"));
+    } catch { setStatus(ADMIN_NET_ERR); }
+  };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Homework for each week — sent in the week-completion email (prep for the next week) and the 2-days-before class reminder. Leave a week blank to skip its homework.</div>
+      <div style={{ display: "grid", gap: 12 }}>
+        {rows.map((v, i) => (
+          <label key={i} style={{ display: "block" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, display: "block", marginBottom: 4 }}>Week {i + 1} · {WEEKS[i].t}</span>
+            <textarea aria-label={`Week ${i + 1} homework`} value={v} onChange={(e) => set(i, e.target.value)} rows={2} style={{ width: "100%", boxSizing: "border-box", fontSize: 13.5, padding: "9px 11px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
+          </label>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save homework</button>
         {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
@@ -3326,6 +3390,7 @@ export default function App() {
         const cat = await r.json();
         if (!live) return;
         if (cat && Array.isArray(cat.batches) && cat.batches.length) setBatches(cat.batches);
+        if (cat && Array.isArray(cat.homework) && cat.homework.length === 12) HOMEWORK = cat.homework;
         if (cat && cat.settings && typeof cat.settings === "object") {
           Object.assign(CONFIG, cat.settings); // mutate the shared CONFIG, then re-render to pick it up
           bumpCfg((n) => n + 1);
