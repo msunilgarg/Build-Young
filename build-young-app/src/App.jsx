@@ -1545,8 +1545,8 @@ How it works: Over 12 weeks, each teen builds their own product with AI, earns (
 Why families love it: It's live and small-group with a standing weekly time, so "someday" becomes "done" — and kids graduate having built both a business and a net worth from zero.
 
 "My daughter went from 'I don't get money' to running her own little product and explaining compound interest at dinner." — a Build Young parent`,
-  productSuccess: `A teen finishes having built and shipped something real with AI that people actually used — and can explain how money works in their own words. Classes stay small and full, students keep building after the program ends, and parents tell other parents. The product is working when families would recommend it without being asked.`,
-  financialSuccess: `Each cohort runs full and profitable; revenue across the three seasons covers costs with healthy margin. Referrals keep the cost of finding new families low, so it's sustainable enough to grow into a real business — not a side project that breaks even at best.`,
+  productSuccess: `Real teens use it and keep coming back — and they'd be bummed if it went away. They like it enough to tell their friends, so classes keep filling up.`,
+  financialSuccess: `It makes more money than it costs to run. Most new families come from people telling their friends, so we don't have to spend much to find them — and there's enough left over to keep it going and make it bigger.`,
 };
 
 // Week 1's class material: the Build Young build plan, worked through. This is the model the
@@ -1642,14 +1642,14 @@ Why people love it: [the payoff].
       <label style={{ display: "block", marginBottom: 14 }}>
         <span style={labelStyle}>What does product success look like?</span>
         <textarea aria-label="What product success looks like" value={build.productSuccess || ""} onChange={(e) => setField("productSuccess", e.target.value)} rows={3}
-          placeholder="How will you know your product is working? (Who's using it, what they do with it, what they'd miss if it vanished.)"
+          placeholder="How will you know it's working? Who uses it, what do they do with it, and would they miss it if it disappeared?"
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
 
       <label style={{ display: "block" }}>
         <span style={labelStyle}>What does financial success look like for your business?</span>
         <textarea aria-label="What financial success looks like" value={build.financialSuccess || ""} onChange={(e) => setField("financialSuccess", e.target.value)} rows={3}
-          placeholder="What would make this a real business — revenue, profit, repeat customers, covering its costs?"
+          placeholder="What would make this a real business — like making more money than it costs, and people coming back to pay again?"
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
     </>
@@ -2000,6 +2000,25 @@ function ResLink({ r, icon: Icon = Newspaper }) {
 }
 
 /* ---- Course progress: a horizontal week stepper + the selected week's activity below ---- */
+// Per-week notes — a sticky right-rail textarea the student can jot in while reading any week.
+// Keyed by week in s.notes; persists with the rest of the sim state (server-side in auth mode).
+function WeekNotes({ week, s, setState }) {
+  const notes = (s.notes && s.notes[String(week)]) || "";
+  const set = (v) => setState((p) => ({ ...p, notes: { ...(p.notes || {}), [String(week)]: v } }));
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
+        <BookOpen size={15} color={C.emerald} />
+        <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>Your notes · Week {week}</span>
+      </div>
+      <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>Jot anything from class — saved automatically, private to you.</div>
+      <textarea aria-label={`Your notes for week ${week}`} value={notes} onChange={(e) => set(e.target.value)} rows={14}
+        placeholder="Type your notes here…"
+        style={{ width: "100%", boxSizing: "border-box", fontSize: 13.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
+    </Card>
+  );
+}
+
 function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder }) {
   // Preview (every week open + each shows its full activity) is for the FOUNDER only, for course
   // authoring — students always get normal gating (only Week 1 open on signup; later weeks unlock
@@ -2140,18 +2159,29 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
       {/* selected week, full width. Preview: render the SELECTED week's activity (so any week can
           be authored). Normal: the live week shows the activity (+ Zoom + advance); past weeks a
           catch-up; locked weeks stay hidden (no spoilers). */}
-      {previewAll ? (
-        <WeekPanel s={{ ...s, week: selected, phase: "course", started: true }} setState={setState} macroNow={macroNow} onAdvance={onAdvance} batch={batch} cert={cert} preview />
-      ) : !selUnlocked ? (
-        <Card style={{ padding: 22 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".04em" }}>WEEK {selected} · UPCOMING</div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: C.muted, background: C.paper, borderRadius: 4, padding: "12px 14px", marginTop: 12 }}>
-            <Lock size={15} style={{ flexShrink: 0 }} /> Unlocks when you reach Week {selected}. No spoilers — keep your focus on where you are now.
+      <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+        <div style={{ flex: "1 1 460px", minWidth: 0 }}>
+          {previewAll ? (
+            <WeekPanel s={{ ...s, week: selected, phase: "course", started: true }} setState={setState} macroNow={macroNow} onAdvance={onAdvance} batch={batch} cert={cert} preview />
+          ) : !selUnlocked ? (
+            <Card style={{ padding: 22 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".04em" }}>WEEK {selected} · UPCOMING</div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: C.muted, background: C.paper, borderRadius: 4, padding: "12px 14px", marginTop: 12 }}>
+                <Lock size={15} style={{ flexShrink: 0 }} /> Unlocks when you reach Week {selected}. No spoilers — keep your focus on where you are now.
+              </div>
+            </Card>
+          ) : isThisWeek ? (
+            <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={onAdvance} batch={batch} cert={cert} />
+          ) : catchUp}
+        </div>
+
+        {/* Per-week notes — a sticky rail on the right so you can jot while reading any week. */}
+        {(previewAll || selUnlocked) && (
+          <div style={{ flex: "0 1 300px", minWidth: 0, alignSelf: "flex-start", position: "sticky", top: 16 }}>
+            <WeekNotes week={selected} s={s} setState={setState} />
           </div>
-        </Card>
-      ) : isThisWeek ? (
-        <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={onAdvance} batch={batch} cert={cert} />
-      ) : catchUp}
+        )}
+      </div>
     </div>
   );
 }
