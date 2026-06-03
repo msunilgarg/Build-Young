@@ -1465,15 +1465,6 @@ function OverviewPanel({ s, batch, onTab, setS }) {
       </div>
 
       <Card style={{ padding: 20, marginTop: 14 }}>
-        <h3 style={sectionTitle}>Your dashboard, tab by tab</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 24px" }} className="enroll-grid">
-          {[["Dashboard", "Net worth, your next class, and this week at a glance."], ["This Week", "The current week's activity — and the button to advance."], ["Course", "All 12 weeks of material; weeks unlock as you reach them."], ["Portfolio", "Your simulated cash, savings, and investments."], ["Markets", "The economic events moving your money each week."]].map(([t, d]) => (
-            <div key={t} style={{ padding: "7px 0", fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}><b style={{ color: C.ink }}>{t}</b> — {d}</div>
-          ))}
-        </div>
-      </Card>
-
-      <Card style={{ padding: 20, marginTop: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
           <h3 style={{ ...sectionTitle, margin: 0 }}>Get your workshop set up before you build</h3>
           <span style={{ fontSize: 12.5, fontWeight: 700, color: doneCount === PREREQS.length ? C.green : C.muted }}>{doneCount} of {PREREQS.length} done</span>
