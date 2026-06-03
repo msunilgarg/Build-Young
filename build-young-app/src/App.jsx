@@ -1786,10 +1786,65 @@ At the end they graduate, get a certificate, and add it to LinkedIn. Throughout,
 // durable principles to keep in mind, not a long worked example. The actionable bits (pre-reqs +
 // copy-your-spec) live in the student activity below.
 const MAKE_PRINCIPLES = [
-  { t: "Hand over the full spec — but build it in slices", d: "Your Week 2 spec is the whole vision, and that's what you give AI. Don't build it all at once, though: ask AI to start with the smallest version — just the one thing that HAS to work — get that solid, then add the rest piece by piece. (Your copy-paste spec below already tells it to start small.)" },
+  { t: "Build the full product from your spec", d: "Hand AI your whole Week 2 spec and build the complete thing — every screen and feature you described. (The real accounts, payments, and emails it mentions get wired up for real over the next three weeks — this week is the product itself.)" },
   { t: "Run the loop: describe → see → taste → refine", d: "AI builds it, you look, you judge it with taste (what does GOOD look like?), you ask for the change — repeat. You don't write code; you direct it. That taste is the skill that matters most in an AI world." },
   { t: "Ship it early", d: "Put it live before it's perfect (free, one click on Vercel). Real people surface the real problems worth fixing — not imaginary ones." },
 ];
+
+// Weeks 4–6 follow the SAME pattern as Week 3 — a short, plain-language principles card (3 things)
+// + a copy-paste prompt the student hands to AI on top of what they built. Audience is teens, so
+// we stay out of the technical weeds: each week aims at one real layer of a product (accounts,
+// payments, growth) in everyday words. AI handles the how; the student knows what to ask for.
+const WEEK_INFRA = {
+  4: {
+    cardTitle: "Launching for real — 3 things to remember",
+    principles: [
+      { t: "Give people their own account", d: "Add a way to sign up and log in, so the app remembers each person and keeps their stuff private to them." },
+      { t: "Use a ready-made login — don't build your own", d: "Logins are easy to get wrong in unsafe ways. Use a service made for it (like Clerk) — it handles sign-in, passwords, and resets for you." },
+      { t: "Save what each person does", d: "Tie each person's data to their account so it's there next time — on any device." },
+    ],
+    heading: "Launch — add real accounts 🚀",
+    intro: "Now make it real for actual users: people can sign up, log in, and the app remembers each of them.",
+    need: "You'll make a free account with a login service (like Clerk) — a parent can help.",
+    promptSeed: `Add accounts to my app so people can sign up, log in, and log out, with a "forgot password" option. Use a ready-made login service (like Clerk or Supabase) so the security is handled for me — don't build it from scratch.
+
+Save each person's data to their account so it's there when they come back, on any device.
+
+Walk me through any setup I need to do.`,
+  },
+  5: {
+    cardTitle: "Getting paid — 3 things to remember",
+    principles: [
+      { t: "Use a trusted checkout", d: "Let people pay through a service like Stripe. Don't build your own form for card numbers — let Stripe handle the money part." },
+      { t: "Only unlock after it's really paid", d: "Give access once the payment truly goes through — don't just trust what the browser says." },
+      { t: "Keep your keys secret", d: "The keys that connect to Stripe stay hidden on the server, never in the app people can see. (A parent sets up payments, since you're under 18.)" },
+    ],
+    heading: "Price it — get paid 💳",
+    intro: "Add a safe way to take money for what you made.",
+    need: "You'll need a Stripe account — a parent must set this up, since real payouts need an adult.",
+    promptSeed: `Let people pay using Stripe Checkout. Only give them what they paid for after the payment really goes through — don't just trust the browser.
+
+Keep my secret keys hidden on the server, not in the app people can see.
+
+Walk me through the Stripe setup and how to test a payment.`,
+  },
+  6: {
+    cardTitle: "Grow & make it real — 3 things to remember",
+    principles: [
+      { t: "Bring people back with email", d: "Send a friendly welcome and a receipt — using an email service so they actually arrive (not from your own laptop)." },
+      { t: "See what's working", d: "Add simple, private analytics so you can tell which parts people use and where they leave — then improve those." },
+      { t: "Make it solid for everyone", d: "Check it works on phones, the text is easy to read, it loads fast, and add a short privacy + terms note." },
+    ],
+    heading: "Grow & ship for real 📈",
+    intro: "Turn the demo into a real product people can trust: bring them back, learn what works, and make it solid everywhere.",
+    need: "You'll set up a free email service (like Resend) and free, simple analytics.",
+    promptSeed: `Add a welcome email and a receipt email using an email service (like Resend).
+
+Add simple, private analytics so I can see which screens people use and where they leave.
+
+Then make sure it works well on phones, the text is easy to read, it loads fast, and add a short privacy note and a terms page.`,
+  },
+};
 
 // Generic class-example card (the worked Build Young model the instructor presents). Generic over
 // its fields so each build week can have its own. Shown by default; it's NOT the student's editor.
@@ -1836,11 +1891,19 @@ function weekExample(week) {
     ["What it's like to use (experience)", SHAPE_EXAMPLE.experience],
     ["The 'wow' moment", SHAPE_EXAMPLE.wow],
   ]} />;
-  if (week === 3) return (
+  if (week === 3) return <PrinciplesCard title="Building with AI — 3 things to remember" items={MAKE_PRINCIPLES} />;
+  if (WEEK_INFRA[week]) return <PrinciplesCard title={WEEK_INFRA[week].cardTitle} items={WEEK_INFRA[week].principles} />;
+  return null;
+}
+
+// A short, numbered principles card — the plain-language class material for the hands-on build
+// weeks (3–6). Same look as the green class-example card, but a quick "things to remember" list.
+function PrinciplesCard({ title, items }) {
+  return (
     <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px" }}>
-      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Sparkles size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />Building with AI — 3 things to remember</div>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Sparkles size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />{title}</div>
       <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
-        {MAKE_PRINCIPLES.map((p, i) => (
+        {items.map((p, i) => (
           <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
             <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.emerald, color: "#fff", fontSize: 12, fontWeight: 800, display: "grid", placeItems: "center" }}>{i + 1}</span>
             <div style={{ minWidth: 0 }}>
@@ -1852,7 +1915,6 @@ function weekExample(week) {
       </div>
     </div>
   );
-  return null;
 }
 
 // The student's activity component for a build week (null if none yet).
@@ -1860,7 +1922,53 @@ function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
   if (week === 3) return <MakePlan s={s} setS={setState} bare={bare} />;
+  if (WEEK_INFRA[week]) return <InfraBuildPlan s={s} setS={setState} bare={bare} week={week} />;
   return null;
+}
+
+// Weeks 4–6 "your turn": a short intro + the week's copy-paste prompt (editable; seeded from
+// WEEK_INFRA, stored per-week in s.infra[week].prompt). Same shape as MakePlan, minus the spec
+// generation — the prompt here is this week's GOAL, which they adapt to their own product.
+function InfraBuildPlan({ s, setS, bare, week }) {
+  const cfg = WEEK_INFRA[week];
+  const store = (s.infra && s.infra[week]) || {};
+  const [copied, setCopied] = useState(false);
+  const setPrompt = (v) => setS((p) => ({ ...p, infra: { ...(p.infra || {}), [week]: { ...((p.infra || {})[week] || {}), prompt: v } } }));
+  const edited = store.prompt;
+  const promptValue = edited !== undefined ? edited : cfg.promptSeed;
+  const copy = async () => {
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(promptValue); setCopied(true); setTimeout(() => setCopied(false), 2000); } } catch { /* selectable fallback */ }
+  };
+  const inner = (
+    <>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>{cfg.heading}</h3>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 12px" }}>{cfg.intro} <span style={{ color: C.muted }}>You'll do this live with Sunil — AI handles the how.</span></p>
+      {cfg.need && (
+        <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, background: "#eef3f0", border: `1px solid ${C.emerald}`, borderRadius: 6, padding: "9px 12px", marginBottom: 14 }}>
+          <b style={{ color: C.ink }}>You'll need:</b> {cfg.need}
+        </div>
+      )}
+      <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 This week's prompt for Claude</span>
+          <button type="button" className="btn" onClick={copy} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
+            {copied ? <><Check size={14} /> Copied!</> : "Copy"}
+          </button>
+        </div>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 8px" }}>
+          Paste this into Claude on top of what you already built. Tweak anything in <b>[brackets]</b> to fit your own product before you send. <span style={{ color: C.muted }}>Saved automatically.</span>
+        </p>
+        <textarea aria-label="This week's prompt" value={promptValue} rows={7} onChange={(e) => setPrompt(e.target.value)}
+          style={{ width: "100%", boxSizing: "border-box", fontSize: 12.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
+        {edited !== undefined && edited !== cfg.promptSeed && (
+          <div style={{ marginTop: 6 }}>
+            <span {...act(() => setPrompt(undefined))} style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>↺ Reset to the suggested prompt</span>
+          </div>
+        )}
+      </div>
+    </>
+  );
+  return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
 function BuildPlan({ s, setS, bare }) {
@@ -1995,7 +2103,7 @@ function MakePlan({ s, setS, bare }) {
   promptLines.push(
     "",
     "HOW TO BUILD IT:",
-    "1. Start with the SMALLEST working version — just the one thing that HAS to work. We'll add the rest after.",
+    "1. Build the full product described above — all the screens and features.",
     "2. Use clean, simple, friendly styling.",
     "3. When it's built, tell me exactly how to run it and see it in my browser.",
     "",
