@@ -1783,7 +1783,7 @@ function Platform({ state, setState, onExit, onFounder }) {
           )}
         </div>
       )}
-      {tab === "week" && <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} />}
+      {tab === "week" && <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} cert={cert} />}
       {tab === "course" && <CoursePanel s={s} batch={batch} />}
       {tab === "port" && <PortfolioPanel s={s} setState={setState} pieData={pieData} nw={nw} />}
       {tab === "macro" && (
@@ -2016,7 +2016,7 @@ function PortfolioPanel({ s, setState, pieData, nw }) {
 }
 
 /* ---- the weekly action panel ---- */
-function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
+function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert }) {
   const wk = WEEKS[s.week - 1];
   const action = s.phase === "course" ? wk.action : "checkin";
   const set = (fn) => setState((p) => { const ns = JSON.parse(JSON.stringify(p)); fn(ns); return ns; });
@@ -2206,12 +2206,14 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch }) {
         </Wrap>
       )}
 
-      {action === "checkin" && (
+      {action === "checkin" && (<>
+        {/* Course complete → lead with the certificate (the first thing they see on finishing). */}
+        {cert && <div style={{ marginBottom: 14 }}><CertificateCard cert={cert} /></div>}
         <Wrap title={s.done ? "You've graduated 🎓" : (CHECKINS > 1 ? `Check-in ${s.checkin + 1} of ${CHECKINS}` : "Your follow-up check-in")} blurb={s.done ? "A month of independent investing, done. Your portfolio reflects every decision you made." : `Your build keeps earning about ${fmt(STEADY_INCOME)} a period. A new market development is unfolding — rebalance in the Portfolio tab if you want, then advance to collect your income and apply it.`}>
           {!s.done && <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}><b>{macroNow.h}.</b> <span style={{ color: C.ink2 }}>{macroNow.d}</span></div>}
           {s.done && <Stat label="Net worth after one year independent" value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />}
         </Wrap>
-      )}
+      </>)}
 
       {!s.done && (
         <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
