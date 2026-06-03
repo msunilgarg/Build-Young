@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { FounderDashboard } from "../src/App.jsx";
 
 // The founder/admin dashboard is gated by the session cookie (server checks FOUNDER_EMAILS). These
@@ -20,18 +21,29 @@ describe("FounderDashboard (account-gated)", () => {
       }
       return { status: 200, json: async () => ({ events: [] }) }; // /api/funnel
     }));
+    const user = userEvent.setup();
     render(<FounderDashboard onHome={() => {}} />);
+    // Funnel tab (default): the analytics scaffold.
     await waitFor(() => expect(screen.getByText(/Drop-off — where you lose people/i)).toBeInTheDocument());
     expect(screen.getByText("Segment")).toBeInTheDocument();
     expect(screen.getByText("Traffic & engagement")).toBeInTheDocument();
     expect(screen.getByText("Where visitors come from")).toBeInTheDocument();
-    expect(screen.getByText(/Site settings/i)).toBeInTheDocument();
-    expect(screen.getByText(/Cohorts & schedule/i)).toBeInTheDocument();
+
+    // Cohorts & course tab: the cohort editor + recordings + homework.
+    await user.click(screen.getByText("Cohorts & course"));
     expect(await screen.findByDisplayValue("fall-mw")).toBeInTheDocument();
     expect(screen.getByText(/\+ Add cohort/i)).toBeInTheDocument();
-    expect(screen.getByText(/Reset a test account/i)).toBeInTheDocument();
+    expect(screen.getByText(/Class recordings/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Homework$/i)).toBeInTheDocument();
+
+    // Students tab: certificates / build plans / reset.
+    await user.click(screen.getByText("Students"));
+    expect(await screen.findByText(/Reset a test account/i)).toBeInTheDocument();
+
+    // Settings tab: site settings + admins + system status.
+    await user.click(screen.getByText("Settings"));
+    expect(await screen.findByText(/Site settings/i)).toBeInTheDocument();
     expect(screen.getByText(/System status/i)).toBeInTheDocument();
-    // the booking-link field from the settings editor (hydrated from /api/cohorts)
     expect(await screen.findByLabelText(/Booking link/i)).toBeInTheDocument();
   });
 });

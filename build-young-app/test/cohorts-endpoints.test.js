@@ -142,6 +142,28 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
     expect(g.payload.settings).toMatchObject({ calendlyUrl: "https://calendly.com/sunil/15min", contactEmail: "hi@build-young.com" });
   });
 
+  it("PUT ?resource=homework saves the 12 weeks' homework (founder-gated) and GET reflects it", async () => {
+    const homework = Array.from({ length: 12 }, (_, i) => `week ${i + 1} prep`);
+
+    // no session → 403
+    let res = makeRes();
+    await funnelHandler(req("PUT", { query: { resource: "homework" }, body: { homework } }), res);
+    expect(res.statusCode).toBe(403);
+
+    // founder → saves
+    res = makeRes();
+    await funnelHandler(req("PUT", { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "homework" }, body: { homework } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.ok).toBe(true);
+    expect(res.payload.homework).toHaveLength(12);
+
+    // GET /api/cohorts folds the homework into the public read
+    const g = makeRes();
+    await cohortsHandler(req("GET"), g);
+    expect(g.payload.homework[0]).toBe("week 1 prep");
+    expect(g.payload.homework).toHaveLength(12);
+  });
+
   it("a founder adds/removes admins on the allowlist (PUT ?resource=founders)", async () => {
     const asFounder = { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "founders" } };
     // add new@x.com
