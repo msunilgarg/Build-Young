@@ -130,11 +130,12 @@ describe("Course hub (per-week resources & catch-up)", () => {
     const user = userEvent.setup();
     await enrollToDashboard(user);
 
-    await user.click(await screen.findByRole("button", { name: "Course" }));
+    await user.click(await screen.findByRole("button", { name: "Course progress" }));
     expect(await screen.findByText(/Your course, week by week/i)).toBeInTheDocument();
 
-    // Week 1 is the current week — the build arc opens the course (build-first curriculum)
-    expect(screen.getByText(/Find a Problem Worth Solving/i)).toBeInTheDocument();
+    // Week 1 is the current week — the build arc opens the course (build-first curriculum).
+    // Appears both in the current-step panel and the week-by-week list now that they're merged.
+    expect(screen.getAllByText(/Find a Problem Worth Solving/i).length).toBeGreaterThan(0);
 
     // A future week is locked (no spoilers) until the student reaches it
     expect(screen.getByText(/Unlocks when you reach Week 12/i)).toBeInTheDocument();
@@ -151,7 +152,7 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await user.click(screen.getByRole("button", { name: /Continue to payment/i }));
     await user.click(await screen.findByRole("button", { name: /Pay \$\d+ \(demo\)/i }));
     await user.click(await screen.findByRole("button", { name: /Open my dashboard/i }));
-    await user.click(await screen.findByRole("button", { name: "Course" }));
+    await user.click(await screen.findByRole("button", { name: "Course progress" }));
     await screen.findByText(/Your course, week by week/i);
     await expectNoSeriousA11y(container);
   });

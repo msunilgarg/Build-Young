@@ -1713,8 +1713,7 @@ function Platform({ state, setState, onExit, onFounder }) {
   const tabs = [
     { id: "overview", label: "Overview", icon: Sparkles },
     { id: "dash", label: "Dashboard", icon: LineIcon },
-    { id: "week", label: s.phase === "course" ? "This Week" : "Check-in", icon: GraduationCap },
-    { id: "course", label: "Course", icon: BookOpen },
+    { id: "course", label: "Course progress", icon: GraduationCap },
     { id: "port", label: "Portfolio", icon: PiggyBank },
     { id: "macro", label: "Markets", icon: Newspaper },
   ];
@@ -1811,7 +1810,7 @@ function Platform({ state, setState, onExit, onFounder }) {
                 <div style={{ fontSize: 12, color: C.turq, fontWeight: 700, letterSpacing: ".05em" }}>{s.phase === "course" ? `WEEK ${s.week}` : `CHECK-IN ${s.checkin + 1}`}</div>
                 <div className="disp" style={{ fontSize: 22, fontWeight: 800 }}>{s.phase === "course" ? wk.t : "Manage your portfolio"}</div>
               </div>
-              {!s.done && <button className="btn" onClick={() => setTab("week")} style={{ background: C.emerald, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14 }}>Open →</button>}
+              {!s.done && <button className="btn" onClick={() => setTab("course")} style={{ background: C.emerald, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14 }}>Open →</button>}
             </div>
             <div style={{ marginTop: 14, padding: 14, background: C.paper, borderRadius: 4, display: "flex", gap: 10, alignItems: "flex-start" }}>
               <Newspaper size={18} color={C.turq} style={{ flexShrink: 0, marginTop: 2 }} />
@@ -1847,8 +1846,12 @@ function Platform({ state, setState, onExit, onFounder }) {
           )}
         </div>
       )}
-      {tab === "week" && <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} cert={cert} />}
-      {tab === "course" && <CoursePanel s={s} batch={batch} />}
+      {tab === "course" && (<>
+        {/* Course progress = your current step (advance + this week's activity) followed by the
+            full week-by-week course content (unlocks as you reach each week). */}
+        <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} cert={cert} />
+        <div style={{ marginTop: 18 }}><CoursePanel s={s} batch={batch} /></div>
+      </>)}
       {tab === "port" && <PortfolioPanel s={s} setState={setState} pieData={pieData} nw={nw} />}
       {tab === "macro" && (
         <div className="rise">
