@@ -1782,27 +1782,14 @@ At the end they graduate, get a certificate, and add it to LinkedIn. Throughout,
   wow: `The first time a teen shares a link to their product — live on the internet, real and usable — and watches someone actually use it. Even their parents!`,
 };
 
-// Week 3 "Make It (with AI)": building the first version by handing the spec to AI and running the
-// describe → see → taste → refine loop. Worked through for Build Young as the class model.
-const MAKE_EXAMPLE = {
-  firstVersion: `We didn't try to build all of Build Young at once. The first version was just the one thing that HAD to work: a teen could open a page, see their money simulation, and click "advance" to watch their net worth grow. No login, no payments, no emails yet — just the core loop on a single screen.
-
-Pick the smallest version that's still real and useful, and build that first. You can always add the rest once the heart of it works.`,
-  handoff: `We didn't write anything new. We took our Week 2 spec — the product description — and pasted it straight into Claude. Your spec IS the instructions you give AI; there's no separate "prompt" to write.
-
-Here's a short slice of what we handed over: "Build a single-page React app for a teen money simulation. Show a dashboard with net worth, cash, and investments. A button called 'Advance' moves one week forward: add income, apply a small market change, and update a chart of net worth over time. Use clean, friendly styling."
-
-The clearer and more detailed the spec, the more AI gets right on the first try — most of the screen appeared in one go. You don't start from a blank page; you start from your Week 2 spec.`,
-  loop: `Then the real work — describe → see → taste → refine. AI builds it, you look at it, and you judge it with taste — like someone who knows what good looks like:
-• "This looks cramped — add space between the cards."
-• "Remove this duplicate button."
-• "The chart is hard to read — use the brand blue."
-
-Each note goes back to AI, it makes the change, you look again. You don't need to know how to code — you need taste: knowing what GOOD looks like and asking for it until it's there. In an AI world, that's the skill that matters most.`,
-  ship: `We put it live on the internet early (one click, free — we used Vercel) instead of waiting for it to be perfect. That's when the real problems showed up: a button didn't work on a phone, some text was too small, a number formatted wrong. We fixed them one at a time.
-
-Shipping early means you fix the real problems actual people hit — not imaginary ones. Get a link you can send to someone today.`,
-};
+// Week 3 "Make It (with AI)" is a hands-on, live build week — so the class material is just three
+// durable principles to keep in mind, not a long worked example. The actionable bits (pre-reqs +
+// copy-your-spec) live in the student activity below.
+const MAKE_PRINCIPLES = [
+  { t: "Build the smallest version first", d: "Just the one thing that HAS to work — skip login, payments, and extras for now. Get the heart of it real, then add the rest." },
+  { t: "Run the loop: describe → see → taste → refine", d: "AI builds it, you look, you judge it with taste (what does GOOD look like?), you ask for the change — repeat. You don't write code; you direct it. That taste is the skill that matters most in an AI world." },
+  { t: "Ship it early", d: "Put it live before it's perfect (free, one click on Vercel). Real people surface the real problems worth fixing — not imaginary ones." },
+];
 
 // Generic class-example card (the worked Build Young model the instructor presents). Generic over
 // its fields so each build week can have its own. Shown by default; it's NOT the student's editor.
@@ -1849,12 +1836,22 @@ function weekExample(week) {
     ["What it's like to use (experience)", SHAPE_EXAMPLE.experience],
     ["The 'wow' moment", SHAPE_EXAMPLE.wow],
   ]} />;
-  if (week === 3) return <ExampleCard subtitle="A worked first build with AI — how we'd do it" fields={[
-    ["What we built first", MAKE_EXAMPLE.firstVersion],
-    ["Handing our spec to AI (the spec IS the prompt)", MAKE_EXAMPLE.handoff],
-    ["The build loop (describe → see → taste → refine)", MAKE_EXAMPLE.loop],
-    ["Ship it", MAKE_EXAMPLE.ship],
-  ]} />;
+  if (week === 3) return (
+    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px" }}>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Sparkles size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />Building with AI — 3 things to remember</div>
+      <div style={{ marginTop: 12, display: "grid", gap: 12 }}>
+        {MAKE_PRINCIPLES.map((p, i) => (
+          <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+            <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.emerald, color: "#fff", fontSize: 12, fontWeight: 800, display: "grid", placeItems: "center" }}>{i + 1}</span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>{p.t}</div>
+              <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, marginTop: 2 }}>{p.d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
   return null;
 }
 
