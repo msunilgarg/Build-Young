@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { defaultSettings, sanitizeSettings, loadSettings, saveSettings } from "../api/_lib/settingsStore.js";
+import { defaultSettings, sanitizeSettings, loadSettings, saveSettings, defaultOps, sanitizeOps, loadOps, saveOps } from "../api/_lib/settingsStore.js";
 import { SITE_DEFAULTS, SETTINGS_KEYS } from "../src/site.js";
 
 // KV is unconfigured under test (no KV_REST_API_* env), so the store falls back to code defaults
@@ -30,6 +30,24 @@ describe("site settings store", () => {
 
   it("saveSettings refuses an unconfigured store", async () => {
     const res = await saveSettings({ calendlyUrl: "https://cal.com/x" });
+    expect(res.ok).toBe(false);
+    expect(res.error).toMatch(/store not configured/);
+  });
+});
+
+describe("private ops settings store (notifications email)", () => {
+  it("defaults to an empty notifyEmail (use-site falls back to the code address)", () => {
+    expect(defaultOps()).toEqual({ notifyEmail: "" });
+  });
+
+  it("sanitizeOps keeps only notifyEmail, trims it, and drops junk", () => {
+    const clean = sanitizeOps({ notifyEmail: "  founder@x.com  ", junk: "x" });
+    expect(clean).toEqual({ notifyEmail: "founder@x.com" });
+  });
+
+  it("loadOps falls back to defaults + saveOps refuses an unconfigured store", async () => {
+    expect(await loadOps()).toEqual({ notifyEmail: "" });
+    const res = await saveOps({ notifyEmail: "a@b.com" });
     expect(res.ok).toBe(false);
     expect(res.error).toMatch(/store not configured/);
   });

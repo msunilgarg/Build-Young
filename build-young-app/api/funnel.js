@@ -13,7 +13,7 @@
 
 import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
-import { saveSettings } from "./_lib/settingsStore.js";
+import { saveSettings, loadOps, saveOps } from "./_lib/settingsStore.js";
 import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest } from "./_lib/interestStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
 import { listCerts } from "./_lib/cert.js";
@@ -90,6 +90,11 @@ async function read(req, res) {
     return;
   }
 
+  if (req.query && req.query.resource === "ops") {
+    res.status(200).json({ ops: await loadOps() });
+    return;
+  }
+
   const founders = await loadFounderEmails();
   if (!kvConfigured()) { res.status(200).json({ events: [], founders }); return; }
 
@@ -134,6 +139,13 @@ async function saveFounders(req, res) {
 async function saveSiteSettings(req, res) {
   if (!(await founderGate(req, res))) return;
   const result = await saveSettings((await readBody(req)) || {});
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
+// --- PUT ?resource=ops: founder saves the PRIVATE ops settings (notifications email). ---
+async function saveOpsSettings(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const result = await saveOps((await readBody(req)) || {});
   res.status(result.ok ? 200 : 400).json(result);
 }
 
@@ -182,6 +194,7 @@ export default async function handler(req, res) {
   if (req.method === "PUT") {                              // founder: save cohorts, admins, or settings
     if (req.query && req.query.resource === "founders") return saveFounders(req, res);
     if (req.query && req.query.resource === "settings") return saveSiteSettings(req, res);
+    if (req.query && req.query.resource === "ops") return saveOpsSettings(req, res);
     if (req.query && req.query.resource === "homework") return saveCourseHomework(req, res);
     return saveCohorts(req, res);
   }
