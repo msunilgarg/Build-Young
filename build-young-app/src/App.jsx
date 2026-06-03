@@ -1142,8 +1142,16 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const [email, setEmail] = useState("");
   const [age13, setAge13] = useState(false); // COPPA age gate — confirm the student is 13+
   const [batch, setBatch] = useState(preselect || BATCHES[0].id);
-  const b = BATCHES.find((x) => x.id === batch);
-  const canContinue = name.trim() && validEmail(email) && age13;
+  const [notified, setNotified] = useState(false); // captured interest for a full cohort
+  const b = BATCHES.find((x) => x.id === batch) || BATCHES[0];
+  const canContinue = name.trim() && validEmail(email) && age13 && !b.full;
+  const canNotify = name.trim() && validEmail(email);
+  // A full cohort doesn't take a waitlist (no mid-course additions) — we capture interest for the
+  // NEXT cohort instead, so the founder sees real overflow demand.
+  const submitInterest = async () => {
+    try { await fetch("/api/funnel?resource=interest", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, batchId: b.id, season: b.season, track: b.track }) }); } catch (e) {}
+    setNotified(true);
+  };
   const acc = b.id.includes("mw") ? C.emerald : C.green;
   const inputS = { width: "100%", padding: "12px 14px", borderRadius: 4, border: `1.5px solid ${C.line}`, background: C.paper2, fontSize: 15, marginTop: 6 };
   const label = { fontSize: 13, fontWeight: 700, color: C.ink2 };
@@ -1173,11 +1181,11 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
               {/* form column */}
               <div>
                 <div><div style={label}>Batch</div>
-                  <select aria-label="Batch" value={batch} onChange={(e) => setBatch(e.target.value)} style={inputS}>
+                  <select aria-label="Batch" value={batch} onChange={(e) => { setBatch(e.target.value); setNotified(false); }} style={inputS}>
                     {SEASONS.map((s) => (
                       <optgroup key={s.key} label={s.label}>
                         {BATCHES.filter((x) => x.season === s.key).map((x) => (
-                          <option key={x.id} value={x.id}>{x.day.split(" · ")[0]} (starts {x.start})</option>
+                          <option key={x.id} value={x.id}>{x.day.split(" · ")[0]} (starts {x.start}){x.full ? " — FULL" : ""}</option>
                         ))}
                       </optgroup>
                     ))}
@@ -1185,14 +1193,27 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                 </div>
                 <div style={{ marginTop: 14 }}><div style={label}>Student name</div><input aria-label="Student name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jordan Rivera" style={inputS} /></div>
                 <div style={{ marginTop: 14 }}><div style={label}>Email <span style={{ color: C.muted, fontWeight: 500 }}>— this is your username</span></div><input aria-label="Email (your username)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={inputS} /></div>
-                <label style={{ display: "flex", gap: 9, alignItems: "flex-start", marginTop: 14, fontSize: 13, color: C.ink2, cursor: "pointer", lineHeight: 1.45 }}>
-                  <input type="checkbox" checked={age13} onChange={(e) => setAge13(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.emerald, flexShrink: 0 }} />
-                  <span>I'm the parent/guardian enrolling, and I confirm the student is <b>13 or older</b>. <span style={{ color: C.muted }}>Build Young is for ages 13–18.</span></span>
-                </label>
-                <button className="btn" disabled={!canContinue} onClick={() => setStep(2)} style={{ width: "100%", marginTop: 18, background: canContinue ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canContinue ? "pointer" : "not-allowed" }}>Continue to payment →</button>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 12, color: C.muted, fontSize: 12.5 }}>
-                  <Lock size={13} /> Secure checkout · no charge until the next step
-                </div>
+                {b.full ? (
+                  notified ? (
+                    <div style={{ marginTop: 16, padding: 14, background: "#e7f3ee", border: `1px solid ${C.green}`, borderRadius: 4, fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>
+                      <b style={{ color: C.green }}>You're on the list ✓</b> We'll email you the moment a new {b.track} cohort opens. Thanks for your interest!
+                    </div>
+                  ) : (<>
+                    <div style={{ marginTop: 16, padding: 12, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 4, fontSize: 13, color: C.ink2, lineHeight: 1.5 }}>
+                      This cohort is <b>full</b>. Leave your name + email and we'll tell you the moment the next cohort opens. <span style={{ color: C.muted }}>(No waitlist — students don't join mid-course.)</span>
+                    </div>
+                    <button className="btn" disabled={!canNotify} onClick={submitInterest} style={{ width: "100%", marginTop: 14, background: canNotify ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canNotify ? "pointer" : "not-allowed" }}>Notify me about the next cohort →</button>
+                  </>)
+                ) : (<>
+                  <label style={{ display: "flex", gap: 9, alignItems: "flex-start", marginTop: 14, fontSize: 13, color: C.ink2, cursor: "pointer", lineHeight: 1.45 }}>
+                    <input type="checkbox" checked={age13} onChange={(e) => setAge13(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.emerald, flexShrink: 0 }} />
+                    <span>I'm the parent/guardian enrolling, and I confirm the student is <b>13 or older</b>. <span style={{ color: C.muted }}>Build Young is for ages 13–18.</span></span>
+                  </label>
+                  <button className="btn" disabled={!canContinue} onClick={() => setStep(2)} style={{ width: "100%", marginTop: 18, background: canContinue ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canContinue ? "pointer" : "not-allowed" }}>Continue to payment →</button>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 12, color: C.muted, fontSize: 12.5 }}>
+                    <Lock size={13} /> Secure checkout · no charge until the next step
+                  </div>
+                </>)}
               </div>
               {/* summary column */}
               <aside style={{ background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden" }}>
@@ -2997,6 +3018,8 @@ export function FounderDashboard({ onHome }) {
           <RecordingsEditor />
           <h2 style={h2s}>Homework</h2>
           <HomeworkEditor />
+          <h2 style={h2s}>Next-cohort interest</h2>
+          <InterestAdmin />
         </>)}
 
         {!error && events !== null && tab === "students" && (<>
@@ -3555,6 +3578,40 @@ function BuildPlansAdmin() {
           {b.pr && b.pr.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Press release</span><div style={block}>{b.pr}</div></div>}
           {b.productSuccess && b.productSuccess.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Product success</span><div style={block}>{b.productSuccess}</div></div>}
           {b.financialSuccess && b.financialSuccess.trim() && <div style={{ marginTop: 8 }}><span style={lab}>Financial success</span><div style={block}>{b.financialSuccess}</div></div>}
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+// Founder view: families who registered interest for the next cohort (a full-cohort signal). They're
+// emailed automatically when a new cohort is added; the list clears afterward. Founder-gated read.
+const interestCsv = (rows) => ["name,email,batchId,season,track,date",
+  ...rows.map((r) => ["name", "email", "batchId", "season", "track", "date"].map((c) =>
+    `"${String(c === "date" ? (r.ts ? new Date(r.ts).toISOString() : "") : (r[c] ?? "")).replace(/"/g, '""')}"`).join(","))].join("\n");
+
+function InterestAdmin() {
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=interest"); const d = r.ok ? await r.json() : {}; if (live) setList(Array.isArray(d.interest) ? d.interest : []); }
+      catch { if (live) setList([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+        <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>Families who asked to hear about the next cohort (because one was full) — your overflow demand. They're emailed automatically when you add a new cohort, then this list clears.</div>
+        {list && list.length > 0 && <span {...act(() => downloadFile("build-young-interest.csv", interestCsv(list), "text/csv"))} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.emerald, whiteSpace: "nowrap" }}>Download CSV</span>}
+      </div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
+      {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No interest captured yet — this fills as cohorts sell out.</div>}
+      {list && list.map((r, i) => (
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
+          <span style={{ minWidth: 0 }}><b style={{ color: C.ink }}>{r.name || "—"}</b> <span style={{ color: C.muted }}>· {r.email}</span></span>
+          <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.batchId || r.season || ""}{r.ts ? ` · ${new Date(r.ts).toLocaleDateString()}` : ""}</span>
         </div>
       ))}
     </Card>

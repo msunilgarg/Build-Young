@@ -225,6 +225,40 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
     expect(res.payload.builds[0]).toMatchObject({ name: "Ada", scenario: "flashcards", pain: "classmates cram and forget" });
   });
 
+  it("captures next-cohort interest (public POST) and the founder can read it", async () => {
+    // public — no session needed
+    let res = makeRes();
+    await funnelHandler(req("POST", { query: { resource: "interest" }, body: { name: "Ada", email: "ada@x.com", batchId: "fall-mw", season: "fall", track: "Builders" } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.ok).toBe(true);
+
+    // founder read
+    res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "interest" } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.interest[0]).toMatchObject({ email: "ada@x.com", name: "Ada", batchId: "fall-mw" });
+
+    // non-founder can't read the list
+    res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("nobody@x.com") }, query: { resource: "interest" } }), res);
+    expect(res.statusCode).toBe(403);
+  });
+
+  it("adding a NEW cohort notifies interested families + clears the list", async () => {
+    await funnelHandler(req("POST", { query: { resource: "interest" }, body: { email: "ada@x.com", name: "Ada" } }), makeRes());
+
+    // a founder save that introduces a brand-new cohort id
+    const body = { batches: [{ id: "fall-extra", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mon & Wed", price: 999, seats: 8, zoom: "", stripeLink: "" }], checkins: 1 };
+    let res = makeRes();
+    await funnelHandler(req("PUT", { headers: { cookie: cookieFor("founder@x.com") }, body }), res);
+    expect(res.statusCode).toBe(200);
+
+    // the interest list is cleared (everyone was emailed)
+    res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "interest" } }), res);
+    expect(res.payload.interest).toEqual([]);
+  });
+
   it("GET /api/funnel (read) is 403 without a founder session", async () => {
     const res = makeRes();
     await funnelHandler(req("GET", { headers: { cookie: cookieFor("nobody@x.com") } }), res);

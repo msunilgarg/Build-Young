@@ -14,6 +14,7 @@ import { loadCatalog } from "./_lib/cohortStore.js";
 import { loadSettings } from "./_lib/settingsStore.js";
 import { loadHomework } from "./_lib/homeworkStore.js";
 import { getCertById } from "./_lib/cert.js";
+import { countEnrollments } from "./_lib/store.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") { res.status(405).json({ error: "Method not allowed" }); return; }
@@ -27,6 +28,13 @@ export default async function handler(req, res) {
   }
 
   const [catalog, settings, homework] = await Promise.all([loadCatalog(), loadSettings(), loadHomework()]);
+  // Auto-detect full cohorts from real enrollments (enrolled >= seats) so the public site can
+  // close enrollment + offer "notify me about the next cohort" — no manual toggle.
+  const batches = await Promise.all((catalog.batches || []).map(async (b) => {
+    const enrolled = await countEnrollments(b.id);
+    const seatsLeft = Math.max(0, (b.seats || 0) - enrolled);
+    return { ...b, seatsLeft, full: (b.seats || 0) > 0 && seatsLeft <= 0 };
+  }));
   res.setHeader("Cache-Control", "no-store");
-  res.status(200).json({ ...catalog, settings, homework });
+  res.status(200).json({ ...catalog, batches, settings, homework });
 }
