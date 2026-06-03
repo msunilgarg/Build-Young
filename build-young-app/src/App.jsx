@@ -1876,12 +1876,11 @@ function Platform({ state, setState, onExit, onFounder }) {
           )}
         </div>
       )}
-      {tab === "course" && (<>
-        {/* Course progress = your current step (advance + this week's activity) followed by the
-            full week-by-week course content (unlocks as you reach each week). */}
-        <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={doAdvance} batch={batch} cert={cert} />
-        <div style={{ marginTop: 18 }}><CoursePanel s={s} setState={setState} batch={batch} /></div>
-      </>)}
+      {tab === "course" && (
+        /* Course progress: a horizontal week stepper with the selected week's activity below
+           (Zoom + advance live inside the current week — no separate panel). */
+        <CoursePanel s={s} setState={setState} batch={batch} onAdvance={doAdvance} macroNow={macroNow} cert={cert} />
+      )}
       {tab === "port" && <PortfolioPanel s={s} setState={setState} pieData={pieData} nw={nw} />}
       {tab === "macro" && (
         <div className="rise">
@@ -1922,11 +1921,11 @@ function ResLink({ r, icon: Icon = Newspaper }) {
   );
 }
 
-/* ---- Course hub: every week's materials + the resources we email, for review/catch-up ---- */
-function CoursePanel({ s, setState, batch }) {
+/* ---- Course progress: a horizontal week stepper + the selected week's activity below ---- */
+function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert }) {
   const offCourse = s.phase !== "course"; // in check-ins / graduated, the 12 weeks are all done
   const currentWeek = offCourse ? 12 : s.week;
-  const [selected, setSelected] = useState(currentWeek); // which week's content is shown in the right pane
+  const [selected, setSelected] = useState(currentWeek); // which week's content is shown below
 
   // The per-week market-event resources are server-only (the schedule isn't in the bundle).
   // Fetch them for UNLOCKED weeks only (current + past — never future), one /api/market-event
@@ -1949,10 +1948,11 @@ function CoursePanel({ s, setState, batch }) {
     return () => { live = false; };
   }, [unlockedThrough]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // The selected week's content for the right pane.
+  // The selected week's content.
   const selW = WEEKS[selected - 1];
   const selUnlocked = offCourse || selected <= currentWeek;
-  const selStatus = !selUnlocked ? "Upcoming" : (selected === currentWeek && !offCourse ? "This week" : "Completed");
+  const isThisWeek = selected === currentWeek; // the live week (the final week, once off-course)
+  const selStatus = !selUnlocked ? "Upcoming" : (isThisWeek && !offCourse ? "This week" : "Completed");
   const selStatusColor = selStatus === "This week" ? C.emerald : selStatus === "Completed" ? C.turq : C.muted;
   const selResources = selUnlocked ? (weekRes[selected] || []) : [];
   const selMaterials = selUnlocked ? (selW.materials || []) : [];
@@ -1960,92 +1960,95 @@ function CoursePanel({ s, setState, batch }) {
   const secLabel = { fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 };
   const pillWrap = { display: "flex", flexWrap: "wrap", gap: 8 };
 
+  // One week "step" in the horizontal stepper.
+  const step = (week) => {
+    const w = WEEKS[week - 1];
+    const unlocked = offCourse || week <= currentWeek;
+    const isSel = week === selected;
+    const isCur = week === currentWeek && !offCourse;
+    const bg = !unlocked ? C.paper2 : isCur ? C.emerald : C.turq;
+    const fg = unlocked ? "#fff" : C.muted;
+    return (
+      <button key={week} type="button" className="tab" aria-label={`Week ${week}${unlocked ? "" : " (locked)"}`} aria-current={isSel ? "true" : undefined}
+        title={unlocked ? w.t : `Week ${week} — locked`} onClick={() => setSelected(week)}
+        style={{ flex: "0 0 auto", width: 38, height: 38, borderRadius: 999, background: bg, color: fg, fontWeight: 800, fontSize: 14, cursor: "pointer", display: "grid", placeItems: "center", boxShadow: isSel ? `0 0 0 3px ${C.ink}` : "none", border: "none" }}>
+        {unlocked ? week : <Lock size={13} />}
+      </button>
+    );
+  };
+
+  // Catch-up view for a PAST (unlocked, non-current) week: materials + the market-event resources.
+  const catchUp = (
+    <Card style={{ padding: 22 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: selStatusColor, letterSpacing: ".04em" }}>WEEK {selected} · ACT {selW.act} · {selStatus.toUpperCase()}</div>
+          <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{selW.t}</div>
+        </div>
+        {batch && (
+          <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "9px 14px", borderRadius: 4, fontSize: 13.5, display: "flex", alignItems: "center", gap: 7 }}><Video size={15} /> Rewatch on Zoom</button>
+          </a>
+        )}
+      </div>
+      <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>
+      <div style={secLabel}>Class materials</div>
+      {selMaterials.length ? (
+        <div style={pillWrap}>{selMaterials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
+      ) : (
+        <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic" }}>Lesson materials coming soon.</div>
+      )}
+      {selResources.length > 0 && (<>
+        <div style={{ ...secLabel, marginTop: 16 }}>This week's market event — research it</div>
+        <div style={pillWrap}>{selResources.map((r, j) => <ResLink key={j} r={r} icon={Newspaper} />)}</div>
+      </>)}
+      {selParked.length > 0 && (
+        <div style={{ marginTop: 16, padding: 14, background: C.paper, borderRadius: 4, border: `1px dashed ${C.line}` }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 4 }}>More money topics — coming soon</div>
+          <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>We also cover these in the program. Where they land in the schedule is being finalized — here's a preview and some resources to get a head start.</div>
+          <div style={{ display: "grid", gap: 10 }}>
+            {selParked.map((pt, j) => (
+              <div key={j}>
+                <div className="disp" style={{ fontWeight: 700, fontSize: 14 }}>{pt.t}</div>
+                <div style={{ fontSize: 12.5, color: C.muted, margin: "2px 0 6px", lineHeight: 1.4 }}>{pt.d}</div>
+                {pt.materials && pt.materials.length > 0 && (
+                  <div style={pillWrap}>{pt.materials.map((r, k) => <ResLink key={k} r={r} icon={BookOpen} />)}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+
   return (
     <div className="rise">
       <Card style={{ padding: 20, marginBottom: 12 }}>
         <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Your course, week by week</div>
-        <div style={{ fontSize: 13.5, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>
-          Pick any week you've reached to see its activity, materials, and resources. Each week unlocks as you get there — no spoilers on what's ahead.
+        <div style={{ fontSize: 13.5, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>Tap any week you've reached to see its activity, materials, and resources. Weeks unlock as you get there.</div>
+        <div style={{ display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap", marginTop: 14 }}>
+          {WEEKS.map((w, i) => step(i + 1))}
         </div>
-        {batch && (
-          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: C.ink2, flexWrap: "wrap" }}>
-            <Video size={14} color={C.emerald} /> Missed a session? Same class Zoom link every week:
-            <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, textDecoration: "none" }}>Join / rewatch ↗</a>
-          </div>
-        )}
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 12, fontSize: 11.5, color: C.muted }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 10, height: 10, borderRadius: 999, background: C.emerald, display: "inline-block" }} /> This week</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 10, height: 10, borderRadius: 999, background: C.turq, display: "inline-block" }} /> Done</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Lock size={11} /> Upcoming</span>
+        </div>
       </Card>
-      <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
-        {/* left rail — vertical week tabs, grouped by act */}
-        <Card style={{ padding: 8, flex: "0 0 240px", minWidth: 0 }}>
-          {Object.keys(ACTS).map(Number).map((act) => (
-            <div key={act}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, color: act === 1 ? C.green : act === 2 ? C.pink : C.turq, letterSpacing: ".05em", textTransform: "uppercase", padding: "10px 10px 4px" }}>Act {act} · {ACTS[act]}</div>
-              {WEEKS.map((w, i) => {
-                const week = i + 1;
-                if (w.act !== act) return null;
-                const unlocked = offCourse || week <= currentWeek;
-                const isSel = week === selected;
-                const rStatus = !unlocked ? "Locked" : (week === currentWeek && !offCourse ? "This week" : "Done");
-                const rColor = rStatus === "This week" ? C.emerald : rStatus === "Done" ? C.turq : C.muted;
-                return (
-                  <button key={week} type="button" className="tab" aria-label={`Week ${week}`} aria-current={isSel ? "true" : undefined} onClick={() => setSelected(week)}
-                    style={{ width: "100%", textAlign: "left", border: "none", borderLeft: `3px solid ${isSel ? C.emerald : "transparent"}`, background: isSel ? C.paper2 : "transparent", padding: "9px 11px", display: "flex", gap: 8, alignItems: "center", cursor: "pointer", borderRadius: 4 }}>
-                    {!unlocked && <Lock size={12} color={C.muted} style={{ flexShrink: 0, marginTop: 2 }} />}
-                    <span style={{ minWidth: 0 }}>
-                      <span style={{ display: "block", fontSize: 10, fontWeight: 700, color: rColor, letterSpacing: ".04em" }}>WEEK {week} · {rStatus.toUpperCase()}</span>
-                      <span className="disp" style={{ display: "block", fontSize: 13, fontWeight: 700, color: isSel ? C.ink : C.ink2, lineHeight: 1.25, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{w.t}</span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          ))}
+
+      {/* selected week, full width: the live week shows the real activity (+ Zoom + advance);
+          past weeks show a catch-up; locked weeks stay hidden (no spoilers). */}
+      {!selUnlocked ? (
+        <Card style={{ padding: 22 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".04em" }}>WEEK {selected} · UPCOMING</div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: C.muted, background: C.paper, borderRadius: 4, padding: "12px 14px", marginTop: 12 }}>
+            <Lock size={15} style={{ flexShrink: 0 }} /> Unlocks when you reach Week {selected}. No spoilers — keep your focus on where you are now.
+          </div>
         </Card>
-
-        {/* right pane — the selected week's content */}
-        <Card style={{ padding: 22, flex: "1 1 320px", minWidth: 0 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: selStatusColor, letterSpacing: ".04em" }}>WEEK {selected} · {selStatus.toUpperCase()}</div>
-          <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{selW.t}</div>
-          {selUnlocked && <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>}
-
-          {!selUnlocked ? (
-            <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: C.muted, background: C.paper, borderRadius: 4, padding: "12px 14px", marginTop: 12 }}>
-              <Lock size={15} style={{ flexShrink: 0 }} /> Unlocks when you reach Week {selected}. No spoilers — keep your focus on where you are now.
-            </div>
-          ) : (<>
-            {/* Week 1's activity IS the build plan — start from the customer. */}
-            {selected === 1 && <div style={{ marginBottom: 18, paddingBottom: 18, borderBottom: `1px solid ${C.line}` }}><BuildPlan s={s} setS={setState} bare /></div>}
-
-            <div style={secLabel}>Class materials</div>
-            {selMaterials.length ? (
-              <div style={pillWrap}>{selMaterials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
-            ) : (
-              <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic" }}>Lesson materials coming soon.</div>
-            )}
-            {selResources.length > 0 && (<>
-              <div style={{ ...secLabel, marginTop: 16 }}>This week's market event — research it</div>
-              <div style={pillWrap}>{selResources.map((r, j) => <ResLink key={j} r={r} icon={Newspaper} />)}</div>
-            </>)}
-            {selParked.length > 0 && (
-              <div style={{ marginTop: 16, padding: 14, background: C.paper, borderRadius: 4, border: `1px dashed ${C.line}` }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: C.gold, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 4 }}>More money topics — coming soon</div>
-                <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>We also cover these in the program. Where they land in the schedule is being finalized — here's a preview and some resources to get a head start.</div>
-                <div style={{ display: "grid", gap: 10 }}>
-                  {selParked.map((pt, j) => (
-                    <div key={j}>
-                      <div className="disp" style={{ fontWeight: 700, fontSize: 14 }}>{pt.t}</div>
-                      <div style={{ fontSize: 12.5, color: C.muted, margin: "2px 0 6px", lineHeight: 1.4 }}>{pt.d}</div>
-                      {pt.materials && pt.materials.length > 0 && (
-                        <div style={pillWrap}>{pt.materials.map((r, k) => <ResLink key={k} r={r} icon={BookOpen} />)}</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>)}
-        </Card>
-      </div>
+      ) : isThisWeek ? (
+        <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={onAdvance} batch={batch} cert={cert} />
+      ) : catchUp}
     </div>
   );
 }
@@ -2266,13 +2269,18 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert }) {
 
       {action === "build" && (
         <Wrap title={wk.t} blurb={wk.s}>
-          <div style={{ background: C.paper, borderRadius: 4, padding: 18, textAlign: "center" }}>
-            <Sparkles size={22} color={C.gold} style={{ marginBottom: 8 }} />
-            <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Live with Sunil — interactive lesson coming soon</div>
-            <div style={{ fontSize: 13.5, color: C.muted, marginTop: 6, lineHeight: 1.5, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
-              This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built. Advancing still collects your income and applies the week's market move.
+          {s.week === 1 ? (
+            // Week 1's activity is the build plan — start from the customer.
+            <BuildPlan s={s} setS={setState} bare />
+          ) : (
+            <div style={{ background: C.paper, borderRadius: 4, padding: 18, textAlign: "center" }}>
+              <Sparkles size={22} color={C.gold} style={{ marginBottom: 8 }} />
+              <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Live with Sunil — interactive lesson coming soon</div>
+              <div style={{ fontSize: 13.5, color: C.muted, marginTop: 6, lineHeight: 1.5, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
+                This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built. Advancing still collects your income and applies the week's market move.
+              </div>
             </div>
-          </div>
+          )}
         </Wrap>
       )}
 

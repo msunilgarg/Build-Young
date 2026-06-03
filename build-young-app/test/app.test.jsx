@@ -139,7 +139,7 @@ describe("Course hub (per-week resources & catch-up)", () => {
     expect(screen.getByText(/start from the customer/i)).toBeInTheDocument();
 
     // A future week is locked: selecting it shows the no-spoilers message (no content leaked).
-    await user.click(screen.getByRole("button", { name: "Week 12" }));
+    await user.click(screen.getByRole("button", { name: /Week 12 \(locked\)/i }));
     expect(await screen.findByText(/Unlocks when you reach Week 12/i)).toBeInTheDocument();
   });
 
