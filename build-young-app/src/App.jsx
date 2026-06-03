@@ -1408,7 +1408,6 @@ function OverviewPanel({ s, batch, onTab, setS }) {
   const togglePrereq = (id) => setS && setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
   const info = cohortStartInfo(batch);
   const first = (s.student.name || "").split(" ")[0] || "there";
-  const dayName = (batch.day.split("·")[0] || "").trim();
   const sectionTitle = { fontSize: 16, fontWeight: 800, color: C.ink, margin: "0 0 8px" };
   const li = { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: C.ink2, lineHeight: 1.5, padding: "7px 0" };
   const num = (n) => (<span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.emerald, color: "#fff", fontSize: 12, fontWeight: 800, display: "grid", placeItems: "center" }}>{n}</span>);
@@ -1431,7 +1430,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
             <div className="disp" style={{ fontSize: 27, fontWeight: 800, marginTop: 8, color: "#fff" }}>You're in, {first}! 🎉</div>
             <div style={{ color: "rgba(255,255,255,.62)", fontSize: 13, fontWeight: 600, marginTop: 8 }}>{batch.track} · {batch.day}</div>
             <p style={{ color: "rgba(255,255,255,.78)", fontSize: 14.5, lineHeight: 1.7, marginTop: 14, maxWidth: 580 }}>
-              Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} Over 12 live weeks you'll <b style={{ color: "#fff" }}>build a product you believe people would pay for</b>, then learn to <b style={{ color: "#fff" }}>manage what you earn</b> — thinking like a founder, graduating with a business and a net worth grown from zero. Every dollar here is <b style={{ color: "#fff" }}>simulated</b>.
+              Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} You'll learn to <b style={{ color: "#fff" }}>think like a founder</b> — everything you need to get ready is right below. Every dollar here is <b style={{ color: "#fff" }}>simulated</b>.
             </p>
             <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
               <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
@@ -1457,7 +1456,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         </Card>
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>How each week works</h3>
-          <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> ({dayName}) — the same link works every week.</span></div>
+          <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
           <div style={li}>{num(2)}<span>Open <b>This Week</b> to do that week's activity, then <b>advance your simulation</b>.</span></div>
           <div style={li}>{num(3)}<span>Rebalance your <b>Portfolio</b> as new events unfold in <b>Markets</b>.</span></div>
           <div style={li}>{num(4)}<span>Watch your <b>net worth</b> grow on the <b>Dashboard</b>.</span></div>
