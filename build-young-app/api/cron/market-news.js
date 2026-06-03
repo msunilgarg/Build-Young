@@ -48,7 +48,7 @@ Heads-up — Week ${week} starts in 2 days. You meet twice this week (${batch.da
 Week ${week}: "${title}"
 First session: ${readableClassDate(batch, week)}
 Join on Zoom: ${batch.zoom}
-${prep ? `\nTo prepare:\n${prep}\n` : ""}
+${prep ? `\nBefore class — please complete these so you're ready:\n${prep}\n` : ""}
 See you there,
 The Build Young Team`,
   };

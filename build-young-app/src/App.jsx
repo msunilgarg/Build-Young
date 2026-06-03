@@ -1434,10 +1434,10 @@ function BookCall({ onBack, onHome, onEnroll }) {
 // state persists (s.prereqs). Edit here to change the list.
 const PREREQS = [
   { id: "computer", title: "A laptop or desktop", when: "Day one", why: "You'll install a couple of free tools, so a phone or tablet won't cut it. A modern web browser and a steady internet connection too." },
-  { id: "claude", title: "A Claude account — Pro plan recommended", when: "Week 1", why: "Your AI build partner — you describe what you want and build it together, the same way this site was made. The free tier gets you started, but Claude Pro (about $20/month) makes a real build far smoother. A parent can set this up.", link: "https://claude.ai" },
-  { id: "github", title: "A free GitHub account", when: "Week 2", why: "Where your code lives, with every version saved — so nothing ever gets lost.", link: "https://github.com" },
-  { id: "node", title: "Install Node.js + VS Code — we'll do this together", when: "Week 2", why: "The tools that run your app on your own computer. No need to set them up alone — we'll install them together in class when you get there. (Curious early? Peek at nodejs.org.)", link: "https://nodejs.org" },
-  { id: "vercel", title: "A free Vercel account", when: "Week 4", why: "Sign in with GitHub. This is how you put your app on the internet for real people to use.", link: "https://vercel.com" },
+  { id: "claude", title: "A Claude account — Pro plan recommended", when: "Week 3", build: true, why: "Your AI build partner — you describe what you want and build it together, the same way this site was made. The free tier gets you started, but Claude Pro (about $20/month) makes a real build far smoother. A parent can set this up.", link: "https://claude.ai" },
+  { id: "github", title: "A free GitHub account", when: "Week 3", build: true, why: "Where your code lives, with every version saved — so nothing ever gets lost.", link: "https://github.com" },
+  { id: "node", title: "Install Node.js + VS Code — we'll do this together", when: "Week 3", build: true, why: "The tools that run your app on your own computer. No need to set them up alone — we'll install them together in class when you get there. (Curious early? Peek at nodejs.org.)", link: "https://nodejs.org" },
+  { id: "vercel", title: "A free Vercel account", when: "Week 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — you'll ship your first version live this week.", link: "https://vercel.com" },
   { id: "ship", title: "Optional — with a parent: a domain + Stripe", when: "Later", why: "Only when you're ready to give your app its own web address or accept real payments. An adult must set up payments since you're under 18." },
 ];
 
@@ -1608,6 +1608,28 @@ At the end they graduate, get a certificate, and add it to LinkedIn — and the 
   wow: `The first time a teen shares a link to their product — live on the internet, real and usable — and watches someone actually use it. Even their parents!`,
 };
 
+// Week 3 "Make It (with AI)": building the first version by handing the spec to AI and running the
+// describe → see → react → refine loop. Worked through for Build Young as the class model.
+const MAKE_EXAMPLE = {
+  firstVersion: `We didn't try to build all of Build Young at once. The first version was just the one thing that HAD to work: a teen could open a page, see their money simulation, and click "advance" to watch their net worth grow. No login, no payments, no emails yet — just the core loop on a single screen.
+
+Pick the smallest version that's still real and useful, and build that first. You can always add the rest once the heart of it works.`,
+  prompt: `We took last week's spec and handed it to AI almost word for word — that spec IS your prompt:
+
+"Build a single-page React app for a teen money simulation. Show a dashboard with net worth, cash, and investments. A button called 'Advance' moves one week forward: add income, apply a small market change, and update a chart of net worth over time. Use clean, friendly styling."
+
+The clearer the spec, the more it gets right on the first try — most of the screen appeared in one go. You don't start from a blank page; you start from your Week 2 spec.`,
+  loop: `Then the real work — describe → see → react → refine. AI builds it, you look at it, and you react like a picky user:
+• "This looks cramped — add space between the cards."
+• "Remove this duplicate button."
+• "The chart is hard to read — use the brand blue."
+
+Each note goes back to AI, it makes the change, you look again. You don't need to know how to code — you need to know what GOOD looks like and keep asking for it until it's there.`,
+  ship: `We put it live on the internet early (one click, free — we used Vercel) instead of waiting for it to be perfect. That's when the real problems showed up: a button didn't work on a phone, some text was too small, a number formatted wrong. We fixed them one at a time.
+
+Shipping early means you fix the real problems actual people hit — not imaginary ones. Get a link you can send to someone today.`,
+};
+
 // Generic class-example card (the worked Build Young model the instructor presents). Generic over
 // its fields so each build week can have its own. Shown by default; it's NOT the student's editor.
 function ExampleCard({ subtitle, fields }) {
@@ -1653,6 +1675,12 @@ function weekExample(week) {
     ["What it's like to use (experience)", SHAPE_EXAMPLE.experience],
     ["The 'wow' moment", SHAPE_EXAMPLE.wow],
   ]} />;
+  if (week === 3) return <ExampleCard subtitle="A worked first build with AI — how we'd do it" fields={[
+    ["What we built first", MAKE_EXAMPLE.firstVersion],
+    ["Our starting prompt to AI", MAKE_EXAMPLE.prompt],
+    ["The build loop (describe → see → react → refine)", MAKE_EXAMPLE.loop],
+    ["Ship it", MAKE_EXAMPLE.ship],
+  ]} />;
   return null;
 }
 
@@ -1660,6 +1688,7 @@ function weekExample(week) {
 function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
+  if (week === 3) return <MakePlan s={s} setS={setState} bare={bare} />;
   return null;
 }
 
@@ -1758,6 +1787,63 @@ function ShapePlan({ s, setS, bare }) {
       {field("capabilities", "What it can do (its capabilities)", "List everything it can do — its features and screens. Be thorough: sign-up, the main actions, what users see. Start with the feature that matters most.", 5)}
       {field("experience", "What it's like to use (the experience)", "Walk through it start to finish: what do you open, what do you see, what do you click, what happens — and how should it feel? Step by step.", 5)}
       {field("wow", "The “wow” moment", "What's the moment a new user goes “oh, this is great”?")}
+    </>
+  );
+  return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
+}
+
+// Week 3 student activity — "Make It (with AI)": build the first version by handing your spec to
+// AI and running the describe → see → react → refine loop. Persists in s.make.
+function MakePlan({ s, setS, bare }) {
+  const make = s.make || {};
+  const setField = (k, v) => setS((p) => ({ ...p, make: { ...(p.make || {}), [k]: v } }));
+  const prereqs = (s && s.prereqs) || {};
+  const buildTools = PREREQS.filter((p) => p.build);
+  const allReady = buildTools.every((p) => prereqs[p.id]);
+  const togglePrereq = (id) => setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
+  const field = (k, label, placeholder, rows = 3) => (
+    <label style={{ display: "block", marginBottom: 14 }}>
+      <span style={labelStyle}>{label}</span>
+      <textarea aria-label={label} value={make[k] || ""} onChange={(e) => setField(k, e.target.value)} rows={rows} placeholder={placeholder} style={inputStyle} />
+    </label>
+  );
+  const inner = (
+    <>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Make it — build your first version with AI 🛠️</h3>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
+        Now you build. Hand your <b>spec</b> from last week to AI as your starting prompt, then run the loop: <b>describe → see → react → refine</b>. You don't need to know how to code — you need to know what <b>good</b> looks like and keep asking for it. Build the smallest real version first, then ship it so someone can actually use it. <span style={{ color: C.muted }}>Saved automatically.</span>
+      </p>
+
+      {/* Pre-reqs: this is the week the build actually happens, so every build tool must be ready
+          now. Same s.prereqs state as the Overview checklist, so ticking here syncs there. */}
+      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Pre-reqs — set these up before this week's build</span>
+          <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
+        </div>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
+          You'll build live with AI this week, so you need the builder's tools ready (most are free; a parent can help with sign-ups). Tick each off:
+        </p>
+        {buildTools.map((p) => {
+          const checked = !!prereqs[p.id];
+          return (
+            <div key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0" }}>
+              <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+              <span style={{ fontSize: 13, lineHeight: 1.45 }}>
+                <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
+                {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {field("firstVersion", "What you'll build first", "What's the smallest version that's still real and useful? Name the one thing that HAS to work — build that before anything else.")}
+      {field("prompt", "Your starting prompt to AI", "Paste/shape your Week 2 spec into the prompt you'll give AI. Be specific — what to build, what it shows, what each button does, how it should feel.", 5)}
+      {field("loop", "The build loop — what you'll change", "After AI builds it, react like a picky user. List the changes you'll ask for: what looks off, what's missing, what to fix. (e.g. \"add space between cards\", \"remove this duplicate button\".)", 5)}
+      {field("ship", "Ship it", "How will you get it live so someone can use it today (e.g. a link)? What real problems showed up once it was live — and how did you fix them?")}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -1915,10 +2001,10 @@ function Platform({ state, setState, onExit, onFounder }) {
 
   const tabs = [
     { id: "overview", label: "Overview", icon: Sparkles },
-    { id: "dash", label: "Dashboard", icon: LineIcon },
     { id: "course", label: "Course progress", icon: GraduationCap },
     { id: "port", label: "Portfolio", icon: PiggyBank },
     { id: "macro", label: "Markets", icon: Newspaper },
+    { id: "dash", label: "Dashboard", icon: LineIcon },
   ];
 
   return (

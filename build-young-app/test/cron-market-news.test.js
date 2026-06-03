@@ -104,7 +104,7 @@ describe("/api/cron/market-news handler", () => {
     const reminder = mwSends.find((c) => /in 2 days/.test(c[0].subject));
     expect(reminder).toBeTruthy();
     expect(reminder[0].subject).toContain("Week 8");
-    expect(reminder[0].body).toContain("To prepare:"); // Week 8 has homework
+    expect(reminder[0].body).toContain("Before class — please complete these so you're ready:"); // Week 8 has homework / pre-reqs
   });
 
   it("sends nothing on a day with no due classes", async () => {
