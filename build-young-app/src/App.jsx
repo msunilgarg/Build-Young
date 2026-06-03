@@ -1951,21 +1951,19 @@ function MakePlan({ s, setS, bare }) {
     "",
     "Then I'll look at it and tell you what to change. Let's go!"
   );
-  const aiPrompt = promptLines.join("\n");
+  const generatedPrompt = promptLines.join("\n");
+  // The student can tweak the prompt right here without going back to Week 2. We seed it from the
+  // spec; once they edit, the edited copy lives in s.make.prompt. "Reset" drops back to the spec.
+  const edited = make.prompt;
+  const promptValue = edited !== undefined ? edited : generatedPrompt;
   const copyPrompt = async () => {
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(aiPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(promptValue); setCopied(true); setTimeout(() => setCopied(false), 2000); }
     } catch { /* clipboard blocked — the textarea is selectable as a fallback */ }
   };
 
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
-  const field = (k, label, placeholder, rows = 3) => (
-    <label style={{ display: "block", marginBottom: 14 }}>
-      <span style={labelStyle}>{label}</span>
-      <textarea aria-label={label} value={make[k] || ""} onChange={(e) => setField(k, e.target.value)} rows={rows} placeholder={placeholder} style={inputStyle} />
-    </label>
-  );
   const inner = (
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Make it — build your first version with AI 🛠️</h3>
@@ -2006,16 +2004,29 @@ function MakePlan({ s, setS, bare }) {
           </button>
         </div>
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 8px" }}>
-          This is <b>your Week 2 spec</b> — that's all you hand to AI; you don't write a separate prompt. Copy it, paste it into Claude, and send. The more you filled in your spec, the better it builds. Tweak anything before you send.
+          This is <b>your Week 2 spec</b> — that's all you hand to AI; you don't write a separate prompt. <b>Edit it right here</b> if you want (no need to go back to Week 2), then copy it into Claude and send. The more detail, the better it builds.
         </p>
-        <textarea readOnly aria-label="Copy-paste AI prompt" value={aiPrompt} rows={9}
-          onFocus={(e) => e.target.select()}
-          style={{ width: "100%", boxSizing: "border-box", fontSize: 12.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
+        <textarea aria-label="Your spec / AI prompt" value={promptValue} rows={9}
+          onChange={(e) => setField("prompt", e.target.value)}
+          style={{ width: "100%", boxSizing: "border-box", fontSize: 12.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
+        {edited !== undefined && edited !== generatedPrompt && (
+          <div style={{ marginTop: 6 }}>
+            <span {...act(() => setField("prompt", undefined))} style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>↺ Reset to my Week 2 spec</span>
+          </div>
+        )}
       </div>
 
-      {field("firstVersion", "What you'll build first", "What's the smallest version that's still real and useful? Name the one thing that HAS to work — build that before anything else.")}
-      {field("loop", "The build loop — what you'll change", "After AI builds it, judge it with taste — like a picky user. List the changes you'll ask for: what looks off, what's missing, what to fix. (e.g. \"add space between cards\", \"remove this duplicate button\".)", 5)}
-      {field("ship", "Ship it", "How will you get it live so someone can use it today (e.g. a link)? What real problems showed up once it was live — and how did you fix them?")}
+      {/* The build itself happens live in Claude — not in text boxes. So the only thing we
+          capture here is the deliverable: the link to what you shipped. */}
+      <label style={{ display: "block" }}>
+        <span style={labelStyle}>Your live link 🔗</span>
+        <input type="url" aria-label="Your live link" value={make.liveLink || ""} onChange={(e) => setField("liveLink", e.target.value)}
+          placeholder="https://your-app.vercel.app"
+          style={{ ...inputStyle, resize: "none" }} />
+        <span style={{ fontSize: 12, color: C.muted, display: "block", marginTop: 5, lineHeight: 1.45 }}>
+          Once you've shipped your first version (e.g. on Vercel), paste the link here so anyone can try it — even your parents. That's the whole goal this week. <span style={{ color: C.muted }}>Saved automatically.</span>
+        </span>
+      </label>
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
