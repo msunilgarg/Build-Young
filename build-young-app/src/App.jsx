@@ -1588,6 +1588,7 @@ Why people love it: [the payoff].
 /* ============================ PLATFORM ============================ */
 function Platform({ state, setState, onExit, onFounder }) {
   const BATCHES = useCohorts(); // live catalog
+  const isFounder = !!onFounder; // a founder viewing the dashboard (for course-authoring preview)
   // Default to Overview until the course has begun (first session attended), so early enrollees
   // land on the welcome/plan rather than a misleading live "Week 1".
   const [tab, setTab] = useState(state && state.started ? "dash" : "overview");
@@ -1884,7 +1885,7 @@ function Platform({ state, setState, onExit, onFounder }) {
       {tab === "course" && (
         /* Course progress: a horizontal week stepper with the selected week's activity below
            (Zoom + advance live inside the current week — no separate panel). */
-        <CoursePanel s={s} setState={setState} batch={batch} onAdvance={doAdvance} macroNow={macroNow} cert={cert} />
+        <CoursePanel s={s} setState={setState} batch={batch} onAdvance={doAdvance} macroNow={macroNow} cert={cert} isFounder={isFounder} />
       )}
       {tab === "port" && <PortfolioPanel s={s} setState={setState} pieData={pieData} nw={nw} />}
       {tab === "macro" && (
@@ -1927,8 +1928,11 @@ function ResLink({ r, icon: Icon = Newspaper }) {
 }
 
 /* ---- Course progress: a horizontal week stepper + the selected week's activity below ---- */
-function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert }) {
-  const previewAll = CONFIG.previewAllWeeks; // DEV: every week open + shows its full activity
+function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder }) {
+  // Preview (every week open + each shows its full activity) is for the FOUNDER only, for course
+  // authoring — students always get normal gating (only Week 1 open on signup; later weeks unlock
+  // as they advance).
+  const previewAll = CONFIG.previewAllWeeks && isFounder;
   const offCourse = s.phase !== "course"; // in check-ins / graduated, the 12 weeks are all done
   const currentWeek = offCourse ? 12 : s.week;
   const [selected, setSelected] = useState(currentWeek); // which week's content is shown below
@@ -1991,11 +1995,15 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert }) {
           <div style={{ fontSize: 11, fontWeight: 700, color: selStatusColor, letterSpacing: ".04em" }}>WEEK {selected} · ACT {selW.act} · {selStatus.toUpperCase()}</div>
           <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{selW.t}</div>
         </div>
-        {batch && (
-          <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", flexShrink: 0 }}>
-            <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "9px 14px", borderRadius: 4, fontSize: 13.5, display: "flex", alignItems: "center", gap: 7 }}><Video size={15} /> Rewatch on Zoom</button>
-          </a>
-        )}
+        {batch && (() => {
+          // Use this week's class recording when the founder has posted one; otherwise the live link.
+          const rec = batch.recordings && batch.recordings[String(selected)];
+          return (
+            <a href={rec || batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", flexShrink: 0 }}>
+              <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "9px 14px", borderRadius: 4, fontSize: 13.5, display: "flex", alignItems: "center", gap: 7 }}><Video size={15} /> {rec ? "Watch recording" : "Rewatch on Zoom"}</button>
+            </a>
+          );
+        })()}
       </div>
       <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>
       <div style={secLabel}>Class materials</div>
@@ -2536,6 +2544,16 @@ function fmtDwell(ms) {
   const h = Math.floor(m / 60); return `${h}h ${m % 60}m`;
 }
 
+// Friendly, actionable status for founder-console saves: keep the user's edits, say what to do.
+const ADMIN_NET_ERR = "Network error — check your connection and try again. Your changes are kept.";
+function adminSaveErr(r, d, verb = "save") {
+  if (r && r.status === 403) return `Your founder session expired — sign in again, then ${verb} once more.`;
+  const why = (d && d.error) || `server error ${r ? r.status : ""}`.trim();
+  return `Couldn't ${verb}: ${why}. Your changes are still here — try again.`;
+}
+// Status colour: in-progress (ends "…") muted, success (Saved/Cleared/✓) green, otherwise error red.
+const adminStatusColor = (s) => (s.endsWith("…") ? C.muted : (/^(Saved|Cleared)/.test(s) || s.includes("✓")) ? C.green : C.rust);
+
 function downloadFile(filename, text, type) {
   try {
     const blob = new Blob([text], { type });
@@ -2762,6 +2780,8 @@ export function FounderDashboard({ onHome }) {
           <SettingsEditor />
           <h2 style={h2s}>Cohorts &amp; schedule</h2>
           <CohortEditor />
+          <h2 style={h2s}>Class recordings</h2>
+          <RecordingsEditor />
           <h2 style={h2s}>Certificates</h2>
           <CertificatesAdmin />
           <h2 style={h2s}>Student build plans</h2>
@@ -2808,8 +2828,8 @@ function SettingsEditor() {
       const d = await r.json().catch(() => ({}));
       if (r.ok && d.ok) {
         setVals(d.settings); Object.assign(CONFIG, d.settings); setStatus("Saved — live now ✓");
-      } else setStatus(`Error: ${d.error || r.status}`);
-    } catch { setStatus("Error: network"); }
+      } else setStatus(adminSaveErr(r, d, "save settings"));
+    } catch { setStatus(ADMIN_NET_ERR); }
   };
 
   const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
@@ -2829,7 +2849,7 @@ function SettingsEditor() {
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save settings</button>
-        {status && <span style={{ fontSize: 13, fontWeight: 700, color: status.startsWith("Error") ? C.rust : C.green }}>{status}</span>}
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
   );
@@ -2852,6 +2872,62 @@ function SystemStatus() {
       <Row label="Accounts &amp; login" on={CONFIG.authEnabled} note="needs AUTH_SECRET + KV" />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
         <span style={{ color: C.ink2 }}>Brand domain</span><b>{CONFIG.brandDomain}</b>
+      </div>
+    </Card>
+  );
+}
+
+// Per-week class-recording links, per cohort. Stored in the cohort catalog (recordings map) and
+// saved via the same founder-gated PUT /api/funnel. A student's "Rewatch" uses the week's recording
+// when present, else the live class link.
+function RecordingsEditor() {
+  const [cat, setCat] = useState(null); // { batches, checkins }
+  const [idx, setIdx] = useState(0);    // selected cohort
+  const [status, setStatus] = useState("");
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/cohorts"); const c = await r.json(); if (live) setCat({ batches: Array.isArray(c.batches) ? c.batches : [], checkins: c.checkins ?? 1 }); }
+      catch { if (live) setStatus("Couldn't load cohorts (network). Refresh to try again."); }
+    })();
+    return () => { live = false; };
+  }, []);
+
+  if (cat === null && !status) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
+  if (!cat || !cat.batches.length) return <Card style={{ padding: 18, color: C.muted }}>{status || "Add a cohort first (above), then you can post its recordings here."}</Card>;
+
+  const b = cat.batches[idx] || cat.batches[0];
+  const setRec = (w, url) => setCat((c) => ({ ...c, batches: c.batches.map((bb, j) => (j === idx ? { ...bb, recordings: { ...(bb.recordings || {}), [String(w)]: url } } : bb)) }));
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ batches: cat.batches, checkins: cat.checkins }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setCat({ batches: d.catalog.batches, checkins: d.catalog.checkins }); setStatus("Saved — live now ✓"); }
+      else setStatus(adminSaveErr(r, d, "save recordings"));
+    } catch { setStatus(ADMIN_NET_ERR); }
+  };
+  const inp = { fontSize: 12.5, padding: "7px 9px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", boxSizing: "border-box" };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Paste each session's <b>Zoom cloud-recording link</b>. When set, a student's "Rewatch" for that week opens the recording (otherwise the live class link). Goes live immediately.</div>
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 5 }}>Cohort</span>
+        <select aria-label="Cohort" value={idx} onChange={(e) => setIdx(Number(e.target.value))} style={inp}>
+          {cat.batches.map((bb, j) => <option key={bb.id || j} value={j}>{bb.id} — {bb.season} · {bb.day}</option>)}
+        </select>
+      </label>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }} className="enroll-grid">
+        {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => (
+          <label key={w} style={{ display: "block" }}>
+            <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 3 }}>Week {w} recording</span>
+            <input aria-label={`Week ${w} recording URL`} type="text" placeholder="https://…/rec/share/…" value={(b.recordings && b.recordings[String(w)]) || ""} onChange={(e) => setRec(w, e.target.value)} style={inp} />
+          </label>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save recordings</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
   );
@@ -2891,8 +2967,8 @@ function CohortEditor() {
       });
       const data = await r.json().catch(() => ({}));
       if (r.ok && data.ok) { setRows(data.catalog.batches); setCheckins(data.catalog.checkins); setStatus("Saved — live now ✓"); }
-      else setStatus(`Error: ${data.error || r.status}`);
-    } catch { setStatus("Error: network"); }
+      else setStatus(adminSaveErr(r, data, "save cohorts"));
+    } catch { setStatus(ADMIN_NET_ERR); }
   };
 
   const inp = { fontSize: 12.5, padding: "6px 8px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", boxSizing: "border-box" };
@@ -2928,7 +3004,7 @@ function CohortEditor() {
         <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.ink2 }}>Monthly check-ins
           <input aria-label="number of monthly check-ins" type="number" value={checkins} onChange={(e) => setCheckins(e.target.value)} style={{ ...inp, width: 64 }} /></label>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700, marginLeft: "auto" }}>Save changes</button>
-        {status && <span style={{ fontSize: 13, fontWeight: 700, color: status.startsWith("Error") ? C.rust : C.green }}>{status}</span>}
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
   );
@@ -2956,8 +3032,8 @@ function FoundersEditor({ founders }) {
         method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ emails: list }),
       });
       const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok) { setList(d.founders); setStatus("Saved ✓"); } else setStatus(`Error: ${d.error || r.status}`);
-    } catch { setStatus("Error: network"); }
+      if (r.ok && d.ok) { setList(d.founders); setStatus("Saved ✓"); } else setStatus(adminSaveErr(r, d, "save admins"));
+    } catch { setStatus(ADMIN_NET_ERR); }
   };
 
   return (
@@ -2977,7 +3053,7 @@ function FoundersEditor({ founders }) {
           style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, flex: 1, minWidth: 220 }} />
         <span {...act(add)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.emerald, border: `1px solid ${C.emerald}`, borderRadius: 4, padding: "9px 14px" }}>+ Add</span>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save admins</button>
-        {status && <span style={{ fontSize: 13, fontWeight: 700, color: status.startsWith("Error") ? C.rust : C.green }}>{status}</span>}
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
   );
@@ -2993,8 +3069,8 @@ function AccountReset() {
     try {
       const r = await fetch(`/api/funnel?email=${encodeURIComponent(email)}`, { method: "DELETE" });
       const d = await r.json().catch(() => ({}));
-      setStatus(r.ok && d.ok ? `Cleared ${email} ✓ (they can re-enroll fresh)` : `Error: ${d.error || r.status}`);
-    } catch { setStatus("Error: network"); }
+      setStatus(r.ok && d.ok ? `Cleared ${email} ✓ (they can re-enroll fresh)` : adminSaveErr(r, d, "reset"));
+    } catch { setStatus(ADMIN_NET_ERR); }
   };
   return (
     <Card style={{ padding: 16 }}>
@@ -3002,7 +3078,7 @@ function AccountReset() {
         <input aria-label="email to reset" type="email" placeholder="student@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, flex: 1, minWidth: 220 }} />
         <button className="btn" onClick={reset} style={{ background: C.rust, color: "#fff", padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Reset account</button>
       </div>
-      {status && <div style={{ fontSize: 13, fontWeight: 600, color: status.startsWith("Error") ? C.rust : C.green, marginTop: 8 }}>{status}</div>}
+      {status && <div style={{ fontSize: 13, fontWeight: 600, color: adminStatusColor(status), marginTop: 8 }}>{status}</div>}
     </Card>
   );
 }

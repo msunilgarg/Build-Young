@@ -32,6 +32,14 @@ describe("cohort catalog store", () => {
     expect(clean.checkins).toBe(2);
   });
 
+  it("sanitizeCatalog keeps per-week recording links (weeks 1–12, non-empty strings only)", () => {
+    const clean = sanitizeCatalog({
+      batches: [{ id: "a", price: 999, recordings: { 1: "https://rec/1", "2": "  https://rec/2  ", 3: "", 13: "https://nope", x: "junk" } }],
+    });
+    expect(clean.batches[0].recordings).toEqual({ "1": "https://rec/1", "2": "https://rec/2" }); // trimmed; week 13 + empty + junk dropped
+    expect(sanitizeCatalog({ batches: [{ id: "b", price: 999 }] }).batches[0].recordings).toEqual({}); // none → empty map, never undefined
+  });
+
   it("loadCatalog falls back to the code defaults when KV is unconfigured", async () => {
     const c = await loadCatalog();
     expect(c.batches.length).toBe(BATCHES.length);
