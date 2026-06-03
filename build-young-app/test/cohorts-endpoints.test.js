@@ -17,6 +17,20 @@ function fakeKv() {
       case "SET": store.set(key, rest[0]); result = "OK"; break;
       case "GET": result = store.has(key) ? store.get(key) : null; break;
       case "DEL": result = store.delete(key) ? 1 : 0; break;
+      case "RPUSH": {
+        const arr = store.has(key) ? JSON.parse(store.get(key)) : [];
+        rest.forEach((v) => arr.push(v));
+        store.set(key, JSON.stringify(arr));
+        result = arr.length; break;
+      }
+      case "LRANGE": {
+        const arr = store.has(key) ? JSON.parse(store.get(key)) : [];
+        const len = arr.length;
+        let s = Number(rest[0]); let e = Number(rest[1]);
+        s = s < 0 ? Math.max(0, len + s) : s;
+        e = e < 0 ? len + e : e;
+        result = arr.slice(s, e + 1); break;
+      }
       default: result = null;
     }
     return { ok: true, json: async () => ({ result }) };
@@ -145,6 +159,23 @@ describe("cohorts + founder-admin endpoints (fake KV)", () => {
     res = makeRes();
     await funnelHandler(req("PUT", { headers: { cookie: cookieFor("nobody@x.com") }, query: { resource: "founders" }, body: { emails: ["x@x.com"] } }), res);
     expect(res.statusCode).toBe(403);
+  });
+
+  it("GET /api/funnel?resource=certs lists issued certificates, newest first (founder-gated)", async () => {
+    kv._store.set("cert:c1", JSON.stringify({ certId: "c1", name: "Ada", track: "Builders", completedAt: 1 }));
+    kv._store.set("cert:c2", JSON.stringify({ certId: "c2", name: "Bo", track: "Builders", completedAt: 2 }));
+    kv._store.set("certs:index", JSON.stringify(["c1", "c2"]));
+
+    // non-founder → 403
+    let res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("nobody@x.com") }, query: { resource: "certs" } }), res);
+    expect(res.statusCode).toBe(403);
+
+    // founder → list, newest first
+    res = makeRes();
+    await funnelHandler(req("GET", { headers: { cookie: cookieFor("founder@x.com") }, query: { resource: "certs" } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload.certs.map((c) => c.certId)).toEqual(["c2", "c1"]);
   });
 
   it("GET /api/funnel (read) is 403 without a founder session", async () => {

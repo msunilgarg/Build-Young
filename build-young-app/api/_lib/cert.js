@@ -9,7 +9,7 @@
 // client-supplied sim state), so a student can't forge a cert for a different name.
 
 import crypto from "node:crypto";
-import { kvConfigured, kvGet, kvSet } from "./kv.js";
+import { kvConfigured, kvGet, kvSet, kvCommand } from "./kv.js";
 import { getUser } from "./auth.js";
 import { loadCatalog } from "./cohortStore.js";
 import { sendEmail } from "./sendEmail.js";
@@ -17,6 +17,7 @@ import { certName, certVerifyUrl, linkedInAddUrl } from "../../src/cert.js";
 
 const certKey = (id) => `cert:${id}`;
 const certForKey = (email) => `certfor:${email}`;
+const CERT_INDEX = "certs:index"; // list of issued cert ids (newest last) — for the founder view
 const BASE_URL = () => (process.env.PUBLIC_BASE_URL || "https://www.build-young.com").replace(/\/+$/, "");
 
 const parse = (raw) => { try { return typeof raw === "string" ? JSON.parse(raw) : raw; } catch { return null; } };
@@ -35,6 +36,17 @@ export async function getCertByEmail(email) {
 export async function getCertById(id) {
   if (!kvConfigured() || !id) return null;
   try { return parse(await kvGet(certKey(id))); } catch { return null; }
+}
+
+// All issued certificates (newest first) — for the founder console. Aggregate-only (name + cohort
+// + date + id, no other PII). Capped so the read stays cheap.
+export async function listCerts(limit = 500) {
+  if (!kvConfigured()) return [];
+  try {
+    const ids = (await kvCommand(["LRANGE", CERT_INDEX, String(-limit), "-1"])) || [];
+    const recs = await Promise.all(ids.map((id) => getCertById(id)));
+    return recs.filter(Boolean).reverse(); // newest first
+  } catch { return []; }
 }
 
 // Issue a completion cert for `email` and email it. IDEMPOTENT: if one already exists it's
@@ -58,6 +70,7 @@ export async function issueCertForEmail(email) {
   try {
     await kvSet(certKey(certId), JSON.stringify(rec));
     await kvSet(certForKey(email), certId);
+    await kvCommand(["RPUSH", CERT_INDEX, certId]); // index for the founder console list
   } catch { return null; }
 
   // Email the certificate (best-effort — a failed send never blocks issuance).
