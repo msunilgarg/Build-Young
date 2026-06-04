@@ -1801,6 +1801,12 @@ Behind the scenes (for the founder):
 The student logs in to a clean dashboard with a countdown to the first class. Two days before the week starts, a reminder email arrives. They join the live class on Zoom, then open the current week to do its activity — in Week 1, for example, they fill in their build plan right on the page. They hit "advance" to move the simulation forward, jot notes in the side panel, and watch their net worth grow as each week unlocks. After each week, a recap email with homework lands; if they missed a class, they can rewatch the recording.
 
 At the end they graduate, get a certificate, and add it to LinkedIn. Throughout, it should feel hands-on, encouraging, and a little like a game — never like slideware.`,
+  behind: `Accounts & login: every student signs in and it remembers them across devices, with password reset. We kept passwords safe using proven, trusted methods — we did NOT invent our own password security.
+Saving data: each student's progress, notes, and build are saved to their account.
+Payments: enrollment takes real money securely with Stripe Checkout — we didn't build our own payment handling.
+Emails: a welcome, class reminders, weekly recaps, and the certificate go out automatically.
+Findable: the site shows up in search and looks right when someone shares the link.
+Safe: it checks everything people type in, keeps secret keys off the browser, and protects students' data (they're minors).`,
   wow: `The first time a teen shares a link to their product — live on the internet, real and usable — and watches someone actually use it. Even their parents!`,
 };
 
@@ -1862,6 +1868,7 @@ function weekExample(week) {
     ["What it is", SHAPE_EXAMPLE.vision],
     ["What it does", SHAPE_EXAMPLE.capabilities],
     ["How it works", SHAPE_EXAMPLE.experience],
+    ["What makes it real", SHAPE_EXAMPLE.behind],
     ["The 'wow'", SHAPE_EXAMPLE.wow],
   ]} />;
   if (week === 3) return <PrinciplesCard title="Building with AI — 3 things to remember" items={MAKE_PRINCIPLES} />;
@@ -2038,6 +2045,7 @@ function ShapePlan({ s, setS, bare }) {
       {field("vision", "What it is", "Describe it like you're showing a friend: what is it, what's the main thing it does, and who's it for?")}
       {field("capabilities", "What it does", "List everything it does — its features and screens. Be thorough: sign-up, the main actions, what users see. Start with the feature that matters most.", 5)}
       {field("experience", "How it works", "Walk through it start to finish: what do you open, what do you see, what do you click, what happens — and how should it feel? Step by step.", 5)}
+      {field("behind", "What makes it real", "The behind-the-scenes pieces that turn a demo into a real product people can use. A real customer app has accounts & login — use a trusted, standard sign-in, never your own password code. Then: what saves for each user? Does it take a payment? Send emails? How do people find it? And it has to be safe with people's data.", 5)}
       {field("wow", "The “wow”", "What's the moment a new user goes “oh, this is great”?")}
     </>
   );
@@ -2060,7 +2068,7 @@ function MakePlan({ s, setS, bare }) {
   const shape = s.shape || {};
   const [copied, setCopied] = useState(false);
   const has = (v) => v && v.trim();
-  const specHasContent = has(shape.vision) || has(shape.capabilities) || has(shape.experience) || has(shape.wow);
+  const specHasContent = has(shape.vision) || has(shape.capabilities) || has(shape.experience) || has(shape.behind) || has(shape.wow);
   const promptLines = [
     "Please build this web app for me. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
     "",
@@ -2072,6 +2080,9 @@ function MakePlan({ s, setS, bare }) {
     "",
     "How it works:",
     has(shape.experience) ? shape.experience.trim() : "(From your Week 2 spec: walk through it step by step — what you open, see, and click, and how it should feel.)",
+    "",
+    "What makes it real:",
+    has(shape.behind) ? shape.behind.trim() : "(From your Week 2 spec: accounts & login, saving each user's data, payments, emails, being findable, and keeping data safe. Use trusted, standard building blocks — never homemade password/security code.)",
   ];
   if (has(shape.wow)) promptLines.push("", "The “wow”:", shape.wow.trim());
   promptLines.push(
@@ -2152,6 +2163,7 @@ function MakePlan({ s, setS, bare }) {
         {specField("vision", "What it is")}
         {specField("capabilities", "What it does", 4)}
         {specField("experience", "How it works", 4)}
+        {specField("behind", "What makes it real", 4)}
         {specField("wow", "The “wow”")}
         {/* read-only preview of exactly what Copy hands to Claude */}
         <details style={{ marginTop: 12 }}>
