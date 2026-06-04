@@ -1298,7 +1298,7 @@ function CareersModal({ onClose }) {
 // Source-cited "why this matters" stats. Each links to its PRIMARY source — keep these
 // honest and current; update the numbers AND links together if you refresh them.
 const WHY_STATS = [
-  { n: "73%", t: "of teens say they'd likely take a money-management course if it were offered to them", src: "Junior Achievement / Citizens · Wakefield Research, 2024", url: "https://www.prnewswire.com/news-releases/survey-money-worries-weigh-on-americas-teens-education-key-path-to-financial-wellness-302110920.html" },
+  { n: "62%", t: "of teens would consider a side hustle, starting a business, or launching a nonprofit as part of their career", src: "Junior Achievement / Citizens, 2025", url: "https://www.citizensbank.com/about-us/community/citizens-impact/citizens-junior-achievement-survey-teens-about-future-of-work.aspx" },
   { n: "42%", t: "report having actually taken a class in school on how to manage money", src: "Junior Achievement / Citizens · Wakefield Research, 2024", url: "https://www.prnewswire.com/news-releases/survey-money-worries-weigh-on-americas-teens-education-key-path-to-financial-wellness-302110920.html" },
   { n: "65%", t: "of teens believe their future happiness depends on how much money they make", src: "Junior Achievement / Citizens · Wakefield Research, 2024", url: "https://www.prnewswire.com/news-releases/survey-money-worries-weigh-on-americas-teens-education-key-path-to-financial-wellness-302110920.html" },
   { n: "And it works", t: "teens from states that require personal-finance education go on to higher savings rates and net worth as a share of earnings", src: "U.S. Dept. of the Treasury", url: "https://www.financialeducatorscouncil.org/financial-literacy-statistics/", proof: true },
