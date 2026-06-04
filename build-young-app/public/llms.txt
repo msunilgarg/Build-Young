@@ -16,7 +16,8 @@ Act 1 — 0 to 1: build the first version (Weeks 1–6):
 - Prioritize the feedback that rolls in — bugs vs. feature requests
 Act 2 — 1 to 100: scale it into a business (Weeks 7–9):
 - Understand your funnel: how people find you, try you, and stick
-- Scale and grow what's working — repeatable ways to reach more people
+- Go-to-market: pick the channels and message to reach the people who need it
+- Product-led growth: build growth into the product itself
 Act 3 — Manage what you've earned (Weeks 10–11) + a capstone (Week 12):
 - Saving, investing, diversification, and compounding through real market moves
 - Big purchases: buying and financing a home and a car; good vs. bad debt
