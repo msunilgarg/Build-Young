@@ -1614,7 +1614,8 @@ const PREREQS = [
   { id: "claude", title: "A Claude account, for Claude Code — Claude Pro recommended", when: "Week 3", build: true, why: "Claude Code is your AI build partner — the coding agent that writes and edits your whole app as you describe what you want (it's how this very site was built). It runs right in your browser at claude.ai/code — you sign in with your Claude account. Claude Pro (about $20/month) is recommended for real building. A parent can set this up.", link: "https://claude.ai/code" },
   { id: "github", title: "A free GitHub account", when: "Week 3", build: true, why: "Where your code lives, with every version saved — so nothing ever gets lost. Vercel connects to it to put your app online.", link: "https://github.com" },
   { id: "vercel", title: "A free Vercel account", when: "Week 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — it builds and hosts it for you (no installs on your computer), and gives you a free web address (like your-app.vercel.app).", link: "https://vercel.com" },
-  { id: "ship", title: "Optional — with a parent: your own domain + Stripe", when: "Later", why: "A free Vercel link works for the whole course. Only later — when you want your app's OWN web address (like build-young.com) — you can BUY a domain (this one isn't free: usually ~$10–20/year). You can buy it right on Vercel, which is where we got build-young.com. Accepting real payments (Stripe) is separate, and a parent must set it up since you're under 18." },
+  { id: "ship", title: "Optional — with a parent: your own domain + Stripe", when: "Later", why: "A free Vercel link works for the whole course. Only later — when you want your app's OWN web address (like build-young.com) — you can BUY a domain (this one isn't free: usually ~$10–20/year). You can buy it right on Vercel, which is where we got build-young.com. Accepting real payments (Stripe) is separate, and a parent must set it up since you're under 18.",
+    links: [{ label: "Buy a domain on Vercel", url: "https://vercel.com/domains" }, { label: "Stripe", url: "https://stripe.com" }] },
 ];
 
 /* ============================ OVERVIEW (first-login landing) ============================
@@ -1689,6 +1690,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
                 <div style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, marginTop: 3 }}>
                   {p.why}
                   {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
+                  {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
                 </div>
               </div>
             </div>
@@ -2148,6 +2150,7 @@ function MakePlan({ s, setS, bare }) {
               <span style={{ fontSize: 13, lineHeight: 1.45 }}>
                 <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
                 {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
+                {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
               </span>
             </div>
           );
