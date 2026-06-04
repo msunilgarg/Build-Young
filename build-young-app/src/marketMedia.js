@@ -37,17 +37,17 @@ export const ASSET_META = [
 // The 12 weekly lesson titles (Act/curriculum order). App.jsx's richer WEEKS array carries
 // subtitles + actions; the scheduler only needs the title for email subjects/body.
 export const WEEK_TITLES = [
-  "Build: Find a Problem Worth Solving",
-  "Build: Shape the Idea",
+  "Find a Problem Worth Solving",
+  "Shape the Idea — write your spec",
   "Build: Make It (with AI)",
-  "Build: Launch & First Customers",
-  "Build: Price It & Get Paid",
-  "Build: Grow What's Working",
-  "Scale: Reach More Customers",
-  "Scale: Make It a Real Business",
-  "Set Up Your Business Finances",
-  "Savings & Investing + Compounding",
-  "Big Purchases: Buy, Finance & Live With It",
+  "Build: Keep Building",
+  "Build: Make It Solid",
+  "Prioritize: Issues & Requests",
+  "The Funnel: Get & Keep Users",
+  "Scale & Grow",
+  "Scale & Grow — Double Down",
+  "Money: Saving & Investing",
+  "Money: Big Purchases",
   "Capstone: What You Built & What It's Worth",
 ];
 

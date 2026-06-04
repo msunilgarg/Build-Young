@@ -246,20 +246,21 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   simulation** (12 weeks, ending with a capstone) where decisions compound and mistakes are safe.
   Closes on "money is a skill you practice" → "raising builders, not consumers." Renders as
   sibling `<p>`s sharing the founder paragraph's style.
-- **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks:** causal narrative:
-  **Act 1 · 0→1 (Weeks 1–6)** — build the first version (find a problem → shape → make → launch →
-  price → grow); **Act 2 · 1→100 (Weeks 7–8)** — scale first customers into a real business
-  (`action:"build"` placeholders, content TBD); **Act 3 · Manage (Weeks 9–11) + Capstone (Week
-  12)** — business finances (settings), saving/investing (allocation), big purchases (buy), then
-  the capstone. `ACTS` is now a 3-entry map; each week carries `act: 1|2|3`. **Income/finance
-  boundary moved:** `FINANCE_FIRST_WEEK=9` (build+scale weeks 1–8 earn; LIVING costs + the
-  finance act start at week 9). Markets/media intentionally still run **Weeks 8–12**
-  (`MARKET_FIRST_WEEK`=8, `MEDIA_WEEKS`={8,12}) — holdings barely exist before the week-10
-  investing week, so this avoided a large market/schedule test churn; a future pass could move
-  them to week 10. The old standalone `macro` + `budget` action weeks were **dropped** to fit 3
-  manage weeks (their `WeekPanel` branches remain unrouted; EMERGENCY/SPREE constants unused);
-  the `parked` retired-topics list was removed. `WEEK_TITLES` in `marketMedia.js` stays in sync
-  with `WEEKS` titles (updated). Still 12 weeks → no pricing/refund ripple; 215 tests pass.
+- **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks (6/3/3):** founder's outline:
+  **Act 1 · 0→1 (Weeks 1–6)** — find a problem → spec → build (3 build weeks) → **prioritize**
+  feedback; **Act 2 · 1→100 (Weeks 7–9)** — **funnel** → scale & grow (×2); **Act 3 · Manage
+  (Weeks 10–11) + Capstone (Week 12)** — saving/investing (`allocation`), big purchases (`buy`),
+  capstone. Weeks **4–9 are `action:"build"` "coming soon" placeholders** — content per week is
+  built next; `WEEK_INFRA` is currently **empty** (the old auth/payments/grow content was removed
+  when the outline changed; `InfraBuildPlan`/`PrinciplesCard` stay for when it's rebuilt). Only
+  **Week 3** has a full build activity (`MakePlan`), and the two finance weeks have sim panels.
+  `ACTS` is a 3-entry map; each week carries `act: 1|2|3`. **Income/finance boundary:**
+  `FINANCE_FIRST_WEEK=10` (build+scale weeks 1–9 earn; LIVING + the money act start week 10). The
+  standalone `settings` (taxes), `macro`, and `budget` weeks were **dropped** to fit 2 money weeks
+  (their `WeekPanel` branches stay unrouted; defaults apply for retire401k etc.). Markets/media
+  intentionally still run **Weeks 8–12** (`MARKET_FIRST_WEEK`=8) — avoids a large market-test
+  churn; holdings barely exist before week 10. `WEEK_TITLES` (`marketMedia.js`) stays in sync with
+  `WEEKS`. Still 12 weeks → no pricing/refund ripple; 215 tests pass.
 - Microsoft is framed as **ex-Microsoft** in short credential tags.
 - Keep the design calm and credible (no gimmicky floating widgets). Centered section headers.
 - **Typography:** display/headings/wordmark use **Space Grotesk** (`.disp` class); body uses

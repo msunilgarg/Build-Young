@@ -27,7 +27,7 @@
   ],
   "weekByWeek": [
     {
-      "period": "Week 1: Build: Find a Problem Worth Solving",
+      "period": "Week 1: Find a Problem Worth Solving",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -65,7 +65,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 2: Build: Shape the Idea",
+      "period": "Week 2: Shape the Idea — write your spec",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -141,7 +141,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 4: Build: Launch & First Customers",
+      "period": "Week 4: Build: Keep Building",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -179,7 +179,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 5: Build: Price It & Get Paid",
+      "period": "Week 5: Build: Make It Solid",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -217,7 +217,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 6: Build: Grow What's Working",
+      "period": "Week 6: Prioritize: Issues & Requests",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -255,7 +255,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: Scale: Reach More Customers",
+      "period": "Week 7: The Funnel: Get & Keep Users",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -293,7 +293,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Scale: Make It a Real Business",
+      "period": "Week 8: Scale & Grow",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -332,7 +332,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Set Up Your Business Finances",
+      "period": "Week 9: Scale & Grow — Double Down",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -348,8 +348,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 37446.12,
-      "cash": 23545,
+      "netWorth": 40946.12,
+      "cash": 27045,
       "savings": 7758.2,
       "retirement": 858.62,
       "holdings": {
@@ -370,7 +370,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Savings & Investing + Compounding",
+      "period": "Week 10: Money: Saving & Investing",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -386,8 +386,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 42634.83,
-      "cash": 27270,
+      "netWorth": 46134.83,
+      "cash": 30770,
       "savings": 8694.29,
       "retirement": 868.93,
       "holdings": {
@@ -408,7 +408,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Big Purchases: Buy, Finance & Live With It",
+      "period": "Week 11: Money: Big Purchases",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -425,8 +425,8 @@
         "covered the $2,500 emergency car repair from savings",
         "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 45032.69,
-      "cash": 29495,
+      "netWorth": 48532.69,
+      "cash": 32995,
       "savings": 7114.73,
       "retirement": 840.25,
       "holdings": {
@@ -463,8 +463,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 50369.64,
-      "cash": 33220,
+      "netWorth": 53869.64,
+      "cash": 36720,
       "savings": 8044.38,
       "retirement": 871.76,
       "holdings": {
@@ -656,10 +656,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 50369.64,
+    "finalNetWorth": 53869.64,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 33220,
+      "cash": 36720,
       "savings": 8044.38,
       "retirement": 871.76,
       "brokerageHoldings": 8233.5,
@@ -674,6 +674,6 @@
     "carriedCardDebt": false,
     "insured": false,
     "hustled": false,
-    "narrative": "Lucas ran a conservative strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $50,370 and a credit score of 756. All figures simulated."
+    "narrative": "Lucas ran a conservative strategy, rented (no home), skipped the car, never opened a credit card — finishing with a simulated net worth of $53,870 and a credit score of 756. All figures simulated."
   }
 }

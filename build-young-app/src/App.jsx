@@ -303,25 +303,24 @@ async function fetchMarketEvent(phase, week, checkin) {
 // the Capstone (Week 12) — manage the money your build earns. Build/scale lesson content is the
 // per-week activity (weekActivity); the finance weeks have interactive sim panels.
 const WEEKS = [
-  // ─── Act 1 · 0 → 1 (Weeks 1–6): from nothing to a launched, earning product ───
-  { act: 1, t: "Build: Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your build starts here.", action: "build", comingSoon: true },
-  { act: 1, t: "Build: Shape the Idea", s: "Turn the need into a concrete product or service you could make.", action: "build", comingSoon: true },
-  { act: 1, t: "Build: Make It (with AI)", s: "Use your skills and AI as a tool to build a first version.", action: "build", comingSoon: true },
-  { act: 1, t: "Build: Launch & First Customers", s: "Put it in front of real people — and earn your first dollars.", action: "build", comingSoon: true },
-  { act: 1, t: "Build: Price It & Get Paid", s: "Charge for the value you create; turn interest into income.", action: "build", comingSoon: true },
-  { act: 1, t: "Build: Grow What's Working", s: "Double down on what sells — your build is now earning.", action: "build", comingSoon: true },
-  // ─── Act 2 · 1 → 100 (Weeks 7–8): scale first customers into a real business ───
-  { act: 2, t: "Scale: Reach More Customers", s: "Repeatable ways to find and win customers — turn a trickle into a stream.", action: "build", comingSoon: true },
-  { act: 2, t: "Scale: Make It a Real Business", s: "Systems, pricing, and the few numbers that show what's working as you grow.", action: "build", comingSoon: true },
-  // ─── Act 3 · MANAGE (Weeks 9–11) + Capstone (Week 12): manage the money your build earns ───
-  { act: 3, t: "Set Up Your Business Finances", s: "Self-employment tax, paying yourself, setting aside for the future.", action: "settings",
-    materials: [{ label: "IRS — Self-Employed Individuals Tax Center", url: "https://www.irs.gov/businesses/small-businesses-self-employed/self-employed-individuals-tax-center" }] },
-  { act: 3, t: "Savings & Investing + Compounding", s: "Auto-fund accounts; pick your risk style and asset mix; ride real market moves.", action: "allocation",
+  // ─── Act 1 · 0 → 1 (Weeks 1–6): find a problem → spec → build → prioritize ───
+  { act: 1, t: "Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your build starts here.", action: "build", comingSoon: true },
+  { act: 1, t: "Shape the Idea — write your spec", s: "Turn the need into a clear spec: what it is, what it does, how it works.", action: "build", comingSoon: true },
+  { act: 1, t: "Build: Make It (with AI)", s: "Hand your spec to Claude Code and build the first version.", action: "build", comingSoon: true },
+  { act: 1, t: "Build: Keep Building", s: "Add the next pieces and bring your product to life, one feature at a time.", action: "build", comingSoon: true },
+  { act: 1, t: "Build: Make It Solid", s: "Polish it, fix the rough edges, and get it ready for real people.", action: "build", comingSoon: true },
+  { act: 1, t: "Prioritize: Issues & Requests", s: "Real feedback rolls in — bugs and feature ideas. Learn what to do first.", action: "build", comingSoon: true },
+  // ─── Act 2 · 1 → 100 (Weeks 7–9): funnel → scale & grow ───
+  { act: 2, t: "The Funnel: Get & Keep Users", s: "How people find you, try you, and stick — and where you lose them.", action: "build", comingSoon: true },
+  { act: 2, t: "Scale & Grow", s: "Repeatable ways to reach more people and grow what's working.", action: "build", comingSoon: true },
+  { act: 2, t: "Scale & Grow — Double Down", s: "Find your best channel and pour fuel on it — turn a trickle into a stream.", action: "build", comingSoon: true },
+  // ─── Act 3 · MANAGE (Weeks 10–11) + Capstone (Week 12): manage the money your build earns ───
+  { act: 3, t: "Money: Saving & Investing", s: "Pay yourself first; auto-fund accounts; pick a risk style and ride real market moves.", action: "allocation",
     materials: [
       { label: "Investor.gov — Compound Interest Calculator", url: "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator" },
       { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
     ] },
-  { act: 3, t: "Big Purchases: Buy, Finance & Live With It", s: "Buy vs. rent, good vs. bad debt — choose and finance a home and a car.", action: "buy" },
+  { act: 3, t: "Money: Big Purchases", s: "Buy vs. rent, good vs. bad debt — choose and finance a home and a car.", action: "buy" },
   { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the build you made and the net worth it earned.", action: "capstone" },
 ];
 const ACTS = { 1: "0 → 1 · Build the first version", 2: "1 → 100 · Scale it into a business", 3: "Manage what you've earned" };
@@ -330,15 +329,15 @@ const ACTS = { 1: "0 → 1 · Build the first version", 2: "1 → 100 · Scale i
 // One place for every dollar figure, re-tuned to a realistic young-adult budget around a
 // $10,000 paycheck per class. Keep purchases funds-gated against this so the "save toward a
 // goal / live with the payments" lessons hold. Change PAY here and the rest stays in scale.
-// Income comes from the student's BUILD, not a flat paycheck. Build + scale (weeks 1–8, Acts
-// 1–2): you create the product, launch it, and scale it — revenue ramps from zero to steady.
-// Manage act (weeks 9–12): the established build earns a steady income you now learn to manage
-// (taxes, investing, big purchases). INCOME[courseWeek-1] is the business revenue that period.
+// Income comes from the student's BUILD, not a flat paycheck. Build + scale (weeks 1–9, Acts
+// 1–2): you find a problem, build the product, and scale it — revenue ramps from zero to steady.
+// Manage act (weeks 10–12): the established build earns a steady income you now learn to manage
+// (investing, big purchases). INCOME[courseWeek-1] is the business revenue that period.
 export const INCOME = [0, 0, 0, 3000, 6000, 9000, 10000, 10000, 10000, 10000, 10000, 10000];
 export const STEADY_INCOME = 10000;  // per-period business income once the build is established
 export const PAY = STEADY_INCOME;    // back-comat alias (steady business income, not a paycheck)
 const TAX_RATE = 0.15;               // tax on business income (self-employment / business tax)
-const FINANCE_FIRST_WEEK = 9;        // weeks 1–8 = Build+Scale (0→1, 1→100); 9–12 = Manage (finance)
+const FINANCE_FIRST_WEEK = 10;       // weeks 1–9 = Build (1–6) + Scale (7–9); 10–12 = Manage (money)
 // CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
 export const CHECKIN_TIME = "5:00–6:00 PM PST"; // 60-minute follow-up check-in (the week after the course)
 // The check-in is ONE MONTH after the cohort's final (Week 12) class, kept on the cohort's
@@ -1036,7 +1035,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (build the first version, Weeks 1–6), <b>1 → 100</b> (scale it into a business, Weeks 7–8), and <b>manage what you've earned</b> (Weeks 9–11), finishing with a capstone. Here's every week.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, build it, and prioritize feedback, Weeks 1–6), <b>1 → 100</b> (funnel, scale &amp; grow, Weeks 7–9), and <b>manage what you've earned</b> (Weeks 10–11), finishing with a capstone. Here's every week.</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => (
           <div key={act} style={{ marginTop: 26 }}>
@@ -1704,9 +1703,9 @@ function OverviewPanel({ s, batch, onTab, setS }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="enroll-grid">
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>What to expect</h3>
-          <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — 0 → 1.</b> Find a problem worth solving and build a product (AI is your tool) — launch it and earn your first dollars.</span></div>
-          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–8 — 1 → 100.</b> Turn first customers into a real, scaling business. Your income comes from what you build.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 9–12 — Manage the money.</b> Taxes, saving, investing through real market swings, big purchases — finishing with a capstone of what you built and what it's worth.</span></div>
+          <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — 0 → 1.</b> Find a problem, write a spec, build your product with AI, and learn to prioritize the feedback that rolls in.</span></div>
+          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–9 — 1 → 100.</b> Understand your funnel, then scale and grow what's working. Your income comes from what you build.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 10–12 — Manage the money.</b> Saving, investing through real market swings, big purchases — finishing with a capstone of what you built and what it's worth.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
           <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
         </Card>
@@ -1794,60 +1793,11 @@ const MAKE_PRINCIPLES = [
   { t: "Ship it early", d: "Put it live before it's perfect (free, one click on Vercel). Real people surface the real problems worth fixing — not imaginary ones." },
 ];
 
-// Weeks 4–6 follow the SAME pattern as Week 3 — a short, plain-language principles card (3 things)
-// + a copy-paste prompt the student hands to AI on top of what they built. Audience is teens, so
-// we stay out of the technical weeds: each week aims at one real layer of a product (accounts,
-// payments, growth) in everyday words. AI handles the how; the student knows what to ask for.
-const WEEK_INFRA = {
-  4: {
-    cardTitle: "Launching for real — 3 things to remember",
-    principles: [
-      { t: "Give people their own account", d: "Add a way to sign up and log in, so the app remembers each person and keeps their stuff private to them." },
-      { t: "Use a ready-made login — don't build your own", d: "Logins are easy to get wrong in unsafe ways. Use a service made for it (like Clerk) — it handles sign-in, passwords, and resets for you." },
-      { t: "Save what each person does", d: "Tie each person's data to their account so it's there next time — on any device." },
-    ],
-    heading: "Launch — add real accounts 🚀",
-    intro: "Now make it real for actual users: people can sign up, log in, and the app remembers each of them.",
-    need: "You'll make a free account with a login service (like Clerk) — a parent can help.",
-    promptSeed: `Add accounts to my app so people can sign up, log in, and log out, with a "forgot password" option. Use a ready-made login service (like Clerk or Supabase) so the security is handled for me — don't build it from scratch.
-
-Save each person's data to their account so it's there when they come back, on any device.
-
-Walk me through any setup I need to do.`,
-  },
-  5: {
-    cardTitle: "Getting paid — 3 things to remember",
-    principles: [
-      { t: "Use a trusted checkout", d: "Let people pay through a service like Stripe. Don't build your own form for card numbers — let Stripe handle the money part." },
-      { t: "Only unlock after it's really paid", d: "Give access once the payment truly goes through — don't just trust what the browser says." },
-      { t: "Keep your keys secret", d: "The keys that connect to Stripe stay hidden on the server, never in the app people can see. (A parent sets up payments, since you're under 18.)" },
-    ],
-    heading: "Price it — get paid 💳",
-    intro: "Add a safe way to take money for what you made.",
-    need: "You'll need a Stripe account — a parent must set this up, since real payouts need an adult.",
-    promptSeed: `Let people pay using Stripe Checkout. Only give them what they paid for after the payment really goes through — don't just trust the browser.
-
-Keep my secret keys hidden on the server, not in the app people can see.
-
-Walk me through the Stripe setup and how to test a payment.`,
-  },
-  6: {
-    cardTitle: "Grow & make it real — 3 things to remember",
-    principles: [
-      { t: "Bring people back with email", d: "Send a friendly welcome and a receipt — using an email service so they actually arrive (not from your own laptop)." },
-      { t: "See what's working", d: "Add simple, private analytics so you can tell which parts people use and where they leave — then improve those." },
-      { t: "Make it solid for everyone", d: "Check it works on phones, the text is easy to read, it loads fast, and add a short privacy + terms note." },
-    ],
-    heading: "Grow & ship for real 📈",
-    intro: "Turn the demo into a real product people can trust: bring them back, learn what works, and make it solid everywhere.",
-    need: "You'll set up a free email service (like Resend) and free, simple analytics.",
-    promptSeed: `Add a welcome email and a receipt email using an email service (like Resend).
-
-Add simple, private analytics so I can see which screens people use and where they leave.
-
-Then make sure it works well on phones, the text is easy to read, it loads fast, and add a short privacy note and a terms page.`,
-  },
-};
+// Per-week build-activity content for weeks 4–9 (build / prioritize / funnel / scale). Each entry
+// (when present) drives a principles card + copy-paste prompt via PrinciplesCard + InfraBuildPlan,
+// same pattern as Week 3. Currently EMPTY — these weeks show the "coming soon" placeholder while
+// the outline settles; content is built per week next. (Week 3's full build activity is separate.)
+const WEEK_INFRA = {};
 
 // Generic class-example card (the worked Build Young model the instructor presents). Generic over
 // its fields so each build week can have its own. Shown by default; it's NOT the student's editor.
