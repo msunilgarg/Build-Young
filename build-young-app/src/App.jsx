@@ -1048,23 +1048,23 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       </section>
 
       {/* curriculum */}
-      <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
+      <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "44px 6vw 22px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
           <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, write a spec, build it in four layers, then go live — Weeks 1–7), <b>1 → 100</b> (funnel, metrics, and product-led growth — Weeks 8–10), and <b>manage what you've earned</b> (Week 11), finishing with a capstone. Here's every week.</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => (
-          <div key={act} style={{ marginTop: 26 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <div key={act} style={{ marginTop: 18 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
               <Pill bg={act === 1 ? C.green : act === 2 ? C.pink : C.turq}>Act {act}</Pill>
               <span className="disp" style={{ fontSize: 20, fontWeight: 700 }}>{ACTS[act]}</span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(250px,1fr))", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 10 }}>
               {WEEKS.map((w, i) => w.act === act && (
-                <Card key={i} style={{ padding: 16 }}>
-                  <div style={{ fontSize: 11, color: act === 1 ? C.green : act === 2 ? C.pink : C.turq, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {i + 1}</div>
-                  <div className="disp" style={{ fontWeight: 700, fontSize: 16, margin: "4px 0 6px" }}>{w.t}</div>
-                  <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.4 }}>{w.s}</div>
+                <Card key={i} style={{ padding: "11px 13px" }}>
+                  <div style={{ fontSize: 10.5, color: act === 1 ? C.green : act === 2 ? C.pink : C.turq, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {i + 1}</div>
+                  <div className="disp" style={{ fontWeight: 700, fontSize: 15, margin: "2px 0 4px" }}>{w.t}</div>
+                  <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{w.s}</div>
                 </Card>
               ))}
             </div>
@@ -1636,8 +1636,9 @@ const PREREQS = [
   { id: "claude", title: "A Claude account with Claude Pro, for Claude Code", when: "Week 3", build: true, why: "Claude Code is your AI build partner — the coding agent that writes and edits your whole app as you describe what you want (it's how this very site was built). It runs right in your browser at claude.ai/code — you sign in with your Claude account. You'll need Claude Pro (about $20/month) for real building — a free account won't keep up with a full project. A parent can set this up.", link: "https://claude.ai/code" },
   { id: "github", title: "A free GitHub account", when: "Week 3", build: true, why: "Where your code lives, with every version saved — so nothing ever gets lost. Vercel connects to it to put your app online.", link: "https://github.com" },
   { id: "vercel", title: "A free Vercel account", when: "Week 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — it builds and hosts it for you (no installs on your computer), and gives you a free web address (like your-app.vercel.app).", link: "https://vercel.com" },
-  { id: "ship", title: "Optional — with a parent: your own domain + Stripe", when: "Later", why: "A free Vercel link works for the whole course. Only later — when you want your app's OWN web address (like build-young.com) — you can BUY a domain (this one isn't free: usually ~$10–20/year). You can buy it right on Vercel, which is where we got build-young.com. Accepting real payments (Stripe) is separate, and a parent must set it up since you're under 18.",
-    links: [{ label: "Buy a domain on Vercel", url: "https://vercel.com/domains" }, { label: "Stripe", url: "https://stripe.com" }] },
+  { id: "stripe", title: "A Stripe account — a parent sets this up", when: "Week 5", why: "When you add payments in Week 5, Stripe is how your product takes real money safely — you never handle card details yourself. A parent must set it up since you're under 18 (free to start; Stripe takes a small fee per sale).", link: "https://stripe.com" },
+  { id: "domain", title: "Optional — your own web address (domain)", when: "Week 7", why: "A free Vercel link (your-app.vercel.app) works the whole course. When you go live in Week 7, you can optionally BUY your app's OWN web address (like build-young.com) — usually ~$10–20/year, bought right on Vercel (where we got build-young.com).",
+    links: [{ label: "Buy a domain on Vercel", url: "https://vercel.com/domains" }] },
 ];
 
 /* ============================ OVERVIEW (first-login landing) ============================
@@ -2130,7 +2131,7 @@ function ShapePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Your spec is your product, planned out — <b>the four parts you'll build</b> (one per week, 3–6), <b>plus what success looks like</b> so you know what you're aiming for. The more specific and complete you are, the better. <span style={{ color: C.muted }}>Saved automatically.</span>
+        Your spec is your product, planned out — <b>what you'll build, plus what success looks like</b> so you know what you're aiming for. The more specific and complete you are, the better. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
       {field("product", "Week 3 · The core product", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough to build the core product you can ship live. (Just the core — no accounts or payments yet.)", 6)}
       {field("accounts", "Week 4 · Accounts & saved data", "Who signs in, and what's saved for each person — what does a user see that's theirs?", 4)}
@@ -2141,7 +2142,7 @@ function ShapePlan({ s, setS, bare }) {
       {/* Build tools — set up ONCE here, before building starts (not repeated each build week). */}
       <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginTop: 4 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Set up your build tools</span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Set up your tools</span>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
         </div>
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
@@ -2309,7 +2310,7 @@ function ShowcaseCapture({ s }) {
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, lineHeight: 1.5 };
   return (
     <div style={{ marginTop: 16, border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "14px 16px" }}>
-      <div style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>🌟 Share what you built</div>
+      <div style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>🌟 Share what you made</div>
       {status === "done" ? (
         <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, marginTop: 8 }}>
           <Check size={16} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
@@ -2321,7 +2322,7 @@ function ShowcaseCapture({ s }) {
             You did the whole journey — built something real and learned to manage what it earns. Share your product and a line about how it went; with your OK, we'd love to feature it as a testimonial.
           </p>
           <label style={{ display: "block", marginBottom: 12 }}>
-            <span style={labelStyle}>Your build's link</span>
+            <span style={labelStyle}>Your product's link</span>
             <input type="url" aria-label="Your build's link" value={link} onChange={(e) => setLink(e.target.value)} placeholder="https://your-app.vercel.app" style={inputStyle} />
           </label>
           <label style={{ display: "block", marginBottom: 12 }}>
@@ -2348,10 +2349,10 @@ function ShowcaseCapture({ s }) {
           </div>
           <label style={{ display: "flex", gap: 9, alignItems: "flex-start", fontSize: 12.5, color: C.ink2, lineHeight: 1.45, marginBottom: 12, cursor: "pointer" }}>
             <input type="checkbox" aria-label="Consent to feature" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ width: 16, height: 16, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
-            <span>Build Young may feature my build{claimingPrize ? ", video," : ""} and first name on their site. <b>I've checked with my parent/guardian.</b></span>
+            <span>Build Young may feature my product{claimingPrize ? ", video," : ""} and first name on their site. <b>I've checked with my parent/guardian.</b></span>
           </label>
           <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.turq : C.line, color: "#fff", padding: "10px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700, cursor: canSend ? "pointer" : "not-allowed" }}>
-            {status === "sending" ? "Sending…" : (claimingPrize ? "Submit my entry" : "Share my build")}
+            {status === "sending" ? "Sending…" : (claimingPrize ? "Submit my entry" : "Share my product")}
           </button>
         </>
       )}
@@ -2980,7 +2981,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
   return (
     <div className="rise">
       {action === "settings" && (
-        <Wrap title="Set Up Your Business Finances" blurb={`Your build is earning now — about ${fmt(STEADY_INCOME)} a period. You're self-employed, so there's no employer and no W-4: a flat 15% goes to taxes, and YOU choose how much to pay your future self. These become your standing settings for the rest of the course.`}>
+        <Wrap title="Set Up Your Business Finances" blurb={`Your product is earning now — about ${fmt(STEADY_INCOME)} a period. You're self-employed, so there's no employer and no W-4: a flat 15% goes to taxes, and YOU choose how much to pay your future self. These become your standing settings for the rest of the course.`}>
           {sliderRow("Pay yourself first (retirement)", s.settings.retire401k, (v) => set((n) => n.settings.retire401k = v), 0, 0.1, 0.01)}
           <div style={{ background: C.paper, borderRadius: 4, padding: 12, fontSize: 13, color: C.ink2 }}>
             On {fmt(STEADY_INCOME)} of business income: ~{fmt(STEADY_INCOME * s.settings.retire401k)} set aside for your future (a SEP/solo retirement account). No employer match when you work for yourself — but no boss taking a cut either.
@@ -3093,7 +3094,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
         <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a product you own creates value while you sleep. Make a small product, app, or service — with AI as your tool — that you believe people would pay for, and watch it earn in the simulation.">
           {!s.hustle
             ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your product (−{fmt(HUSTLE_START)} to start)</button>
-            : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your build is live — people are paying for the value it creates, so it earns every time you advance. That's building economic value: solve a real problem, own the upside.</div>}
+            : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your product is live — people are paying for the value it creates, so it earns every time you advance. That's building economic value: solve a real problem, own the upside.</div>}
         </Wrap>
       )}
 
@@ -4161,7 +4162,7 @@ function buildCertSvg(cert) {
   <text x="500" y="248" text-anchor="middle" font-size="16" fill="#605e5c">This certifies that</text>
   <text x="500" y="312" text-anchor="middle" font-size="44" font-weight="bold" fill="#242424">${name}</text>
   <text x="500" y="372" text-anchor="middle" font-size="20" fill="#424242">has completed the ${title}</text>
-  <text x="500" y="406" text-anchor="middle" font-size="15" fill="#605e5c">building a product with AI as a tool, then learning to grow and manage what it earns.</text>
+  <text x="500" y="406" text-anchor="middle" font-size="15" fill="#605e5c">building and shipping a real product with Claude Code, then learning to grow and manage what it earns.</text>
   <line x1="180" y1="560" x2="420" y2="560" stroke="#242424"/>
   <text x="300" y="585" text-anchor="middle" font-size="16" fill="#242424">Sunil Garg</text>
   <text x="300" y="605" text-anchor="middle" font-size="12" fill="#605e5c">Founder, Build Young</text>
@@ -4184,7 +4185,7 @@ function CertificateView({ cert, compact }) {
         <div style={{ fontSize: 13, color: C.muted, marginTop: 16 }}>This certifies that</div>
         <div className="disp" style={{ fontSize: compact ? 26 : 34, fontWeight: 800, color: C.ink, margin: "6px 0" }}>{name}</div>
         <div style={{ fontSize: 14.5, color: C.ink2, lineHeight: 1.6, maxWidth: 520, margin: "8px auto 0" }}>
-          has completed the <b>{certName(cert.track)}</b> — building a product with AI as a tool, then learning to grow and manage what it earns.
+          has completed the <b>{certName(cert.track)}</b> — building and shipping a real product with Claude Code, then learning to grow and manage what it earns.
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20, marginTop: 28, textAlign: "left", flexWrap: "wrap" }}>
           <div>
