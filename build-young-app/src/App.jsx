@@ -1610,11 +1610,10 @@ function BookCall({ onBack, onHome, onEnroll }) {
 // help with sign-ups (several services require an adult under 18). Students tick these off and the
 // state persists (s.prereqs). Edit here to change the list.
 const PREREQS = [
-  { id: "computer", title: "A laptop or desktop", when: "Day one", why: "You'll install a couple of free tools, so a phone or tablet won't cut it. A modern web browser and a steady internet connection too." },
+  { id: "computer", title: "A laptop or desktop", when: "Day one", why: "You'll be writing, building, and checking your app — much easier on a real keyboard and screen than a phone or tablet. A modern web browser and a steady internet connection too.", },
   { id: "claude", title: "A Claude account — Pro plan recommended", when: "Week 3", build: true, why: "Your AI build partner — you describe what you want and build it together, the same way this site was made. The free tier gets you started, but Claude Pro (about $20/month) makes a real build far smoother. A parent can set this up.", link: "https://claude.ai" },
-  { id: "github", title: "A free GitHub account", when: "Week 3", build: true, why: "Where your code lives, with every version saved — so nothing ever gets lost.", link: "https://github.com" },
-  { id: "node", title: "Install Node.js + VS Code — we'll do this together", when: "Week 3", build: true, why: "The tools that run your app on your own computer. No need to set them up alone — we'll install them together in class when you get there. (Curious early? Peek at nodejs.org.)", link: "https://nodejs.org" },
-  { id: "vercel", title: "A free Vercel account", when: "Week 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — you'll ship your first version live this week. Vercel gives you a free web address (like your-app.vercel.app).", link: "https://vercel.com" },
+  { id: "github", title: "A free GitHub account", when: "Week 3", build: true, why: "Where your code lives, with every version saved — so nothing ever gets lost. Vercel connects to it to put your app online.", link: "https://github.com" },
+  { id: "vercel", title: "A free Vercel account", when: "Week 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — it builds and hosts it for you (no installs on your computer), and gives you a free web address (like your-app.vercel.app).", link: "https://vercel.com" },
   { id: "ship", title: "Optional — with a parent: your own domain + Stripe", when: "Later", why: "A free Vercel link works for the whole course. Only later — when you want your app's OWN web address (like build-young.com) — you can BUY a domain (this one isn't free: usually ~$10–20/year). You can buy it right on Vercel, which is where we got build-young.com. Accepting real payments (Stripe) is separate, and a parent must set it up since you're under 18." },
 ];
 
