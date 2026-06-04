@@ -11,14 +11,13 @@ Teens ages 15–18 (the "Builders" program). Each season you choose a schedule �
 
 ## What students learn
 Act 1 — 0 to 1: build the first version (Weeks 1–6):
-- Find a real problem people will pay to solve
-- Shape it into a product or service and make a first version with AI as a tool
-- Launch, get first customers, and price it — your build becomes your income
-Act 2 — 1 to 100: scale it into a business (Weeks 7–8):
-- Reach more customers with repeatable ways to find and win them
-- Turn it into a real business: systems, pricing, and the numbers that show what's working
-Act 3 — Manage what you've earned (Weeks 9–11) + a capstone (Week 12):
-- Business finances: self-employment taxes and paying yourself
+- Find a real problem people will pay to solve, and write a clear spec
+- Build the product with AI (Claude Code) and keep building it solid
+- Prioritize the feedback that rolls in — bugs vs. feature requests
+Act 2 — 1 to 100: scale it into a business (Weeks 7–9):
+- Understand your funnel: how people find you, try you, and stick
+- Scale and grow what's working — repeatable ways to reach more people
+Act 3 — Manage what you've earned (Weeks 10–11) + a capstone (Week 12):
 - Saving, investing, diversification, and compounding through real market moves
 - Big purchases: buying and financing a home and a car; good vs. bad debt
 - A capstone tallying what you built and what it's worth
