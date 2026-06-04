@@ -1611,7 +1611,7 @@ function BookCall({ onBack, onHome, onEnroll }) {
 // state persists (s.prereqs). Edit here to change the list.
 const PREREQS = [
   { id: "computer", title: "A laptop or desktop", when: "Day one", why: "You'll be writing, building, and checking your app — much easier on a real keyboard and screen than a phone or tablet. A modern web browser and a steady internet connection too.", },
-  { id: "claude", title: "A Claude account — Pro plan recommended", when: "Week 3", build: true, why: "Your AI build partner — you describe what you want and build it together, the same way this site was made. The free tier gets you started, but Claude Pro (about $20/month) makes a real build far smoother. A parent can set this up.", link: "https://claude.ai" },
+  { id: "claude", title: "A Claude account, for Claude Code — Claude Pro recommended", when: "Week 3", build: true, why: "Claude Code is your AI build partner — the coding agent that writes and edits your whole app as you describe what you want (it's how this very site was built). It runs right in your browser at claude.ai/code — you sign in with your Claude account. Claude Pro (about $20/month) is recommended for real building. A parent can set this up.", link: "https://claude.ai/code" },
   { id: "github", title: "A free GitHub account", when: "Week 3", build: true, why: "Where your code lives, with every version saved — so nothing ever gets lost. Vercel connects to it to put your app online.", link: "https://github.com" },
   { id: "vercel", title: "A free Vercel account", when: "Week 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — it builds and hosts it for you (no installs on your computer), and gives you a free web address (like your-app.vercel.app).", link: "https://vercel.com" },
   { id: "ship", title: "Optional — with a parent: your own domain + Stripe", when: "Later", why: "A free Vercel link works for the whole course. Only later — when you want your app's OWN web address (like build-young.com) — you can BUY a domain (this one isn't free: usually ~$10–20/year). You can buy it right on Vercel, which is where we got build-young.com. Accepting real payments (Stripe) is separate, and a parent must set it up since you're under 18." },
@@ -2158,10 +2158,13 @@ function MakePlan({ s, setS, bare }) {
           button hands Claude the assembled prompt (your spec + a short build instruction). */}
       <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 Your spec — ready to hand to Claude</span>
-          <button type="button" className="btn" onClick={copyPrompt} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
-            {copied ? <><Check size={14} /> Copied!</> : "Copy"}
-          </button>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 Your spec — ready to hand to Claude Code</span>
+          <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+            <button type="button" className="btn" onClick={copyPrompt} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
+              {copied ? <><Check size={14} /> Copied!</> : "Copy"}
+            </button>
+            <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none", whiteSpace: "nowrap" }}>Open Claude Code ↗</a>
+          </span>
         </div>
         {specHasContent ? (
           <div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={13} /> Pulled from your Week 2 spec — edits here update Week 2 too</div>
@@ -2171,7 +2174,7 @@ function MakePlan({ s, setS, bare }) {
           </div>
         )}
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 2px" }}>
-          This IS your prompt — no separate writing. Edit any part and it updates your spec everywhere, then <b>Copy</b> it into Claude.
+          This IS your prompt — no separate writing. Edit any part and it updates your spec everywhere, then <b>Copy</b> it and paste it into <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700 }}>Claude Code</a>.
         </p>
         {specField("vision", "What it is")}
         {specField("capabilities", "What it does", 4)}
