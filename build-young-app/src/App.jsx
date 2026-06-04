@@ -1752,7 +1752,7 @@ Why families love it: It's live and small-group with a standing weekly time, so 
 const SHAPE_EXAMPLE = {
   vision: `Build Young is a live, online money-skills program for teens 15–18, delivered through one web app. A family discovers it, can talk to the founder first, then enrolls and pays online — and the teen gets their own login. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income, learning to grow and manage it. It's hands-on and a bit like a game, and it ends with a certificate they can show off.
 
-(This whole thing IS your spec — your project's guide. Real builders keep a document like this (often a file called CLAUDE.md) that tells the AI what they're making, so it can build confidently. Write yours in enough detail that AI could build most of it in one go — the more specific and complete, the more it gets right the first time. In Week 3, you'll hand exactly this to Claude.)`,
+(This whole thing IS your spec — a clear, complete picture of your product. Write it in enough detail that someone could understand exactly what you're making and why. The more specific and complete, the better.)`,
   capabilities: `Getting in:
 • Marketing website that explains the program, the curriculum, the price, and the founder, and lists the upcoming class options (cohorts) to choose from.
 • "Talk first": book a free 15-minute call with the founder before deciding.
@@ -2062,7 +2062,7 @@ function ShapePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        This week you write your product's <b>spec</b> — what it is, what it does, and how it works. Real builders keep a doc like this (often a file called <b>CLAUDE.md</b>) and hand it straight to AI. So be specific: the more detail, the more it builds correctly in one go. <span style={{ color: C.muted }}>This IS your Week 3 prompt — saved automatically.</span>
+        This week you write your product's <b>spec</b> — a clear picture of <b>what it is</b>, <b>what it does</b>, and <b>how it works</b>. The more specific and complete you are, the better: this is the blueprint everything else is built from. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
       {field("vision", "What it is", "Describe it like you're showing a friend: what is it, what's the main thing it does, and who's it for?")}
       {field("capabilities", "What it does", "List everything it does — its features and screens. Be thorough: sign-up, the main actions, what users see. Start with the feature that matters most.", 5)}
