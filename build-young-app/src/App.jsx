@@ -1894,7 +1894,7 @@ function weekActivity(week, s, setState, bare) {
 const BUILD_LAYERS = {
   3: { key: "product",
     heading: "Build the core product 🛠️",
-    lead: "This week you build Layer 1 — the core product. Your Week 2 spec IS your prompt: hand it to Claude, then run the loop — describe → see → taste → refine. Build just the core (no accounts or payments yet), then ship it so someone can actually use it.",
+    lead: "Your Week 2 spec IS your prompt — no separate writing. Run the loop: describe → see → taste → refine. Just the core for now; accounts and payments come later.",
     fieldLabel: "The core product",
     promptLabel: "What to build — the core product:",
     placeholder: "(From your Week 2 spec — the core product: what it is, who it's for, the main things it does, and the 'wow' moment.)",
@@ -1903,7 +1903,7 @@ const BUILD_LAYERS = {
     prereqs: true },
   4: { key: "accounts",
     heading: "Make it yours — accounts & saved data 🔐",
-    lead: "Layer 2 — make it personal. Add sign-in and save each user's own data, on top of the product you built in Week 3.",
+    lead: "Build this onto the product you shipped in Week 3 — without breaking what already works.",
     fieldLabel: "Accounts & saved data",
     promptLabel: "What to add — accounts & saved data:",
     placeholder: "(From your Week 2 spec — accounts & saved data: who signs in, and what's saved for each person.)",
@@ -1911,7 +1911,7 @@ const BUILD_LAYERS = {
     instruction: "Use a trusted, standard sign-in — do NOT write your own password or security code. Save each user's data so they pick up where they left off. When it's done, tell me how to test signing in and that my data is saved." },
   5: { key: "payments",
     heading: "Get paid — add payments 💳",
-    lead: "Layer 3 — get paid. Add a real checkout so your product can charge for the value it delivers.",
+    lead: "Layer payments onto your existing product — the first real way to charge for the value you deliver.",
     fieldLabel: "Payments",
     promptLabel: "What to add — payments:",
     placeholder: "(From your Week 2 spec — payments: what people pay for, how much, and what they get.)",
@@ -1919,7 +1919,7 @@ const BUILD_LAYERS = {
     instruction: "Use a trusted checkout (like Stripe) — never handle card details yourself. Unlock the paid features only after payment is confirmed. When it's done, tell me how to test a payment safely." },
   6: { key: "production",
     heading: "Make it real — production-ready ✨",
-    lead: "Layer 4 — make it real. Add the finishing pieces that make it safe, findable, and ready for real users.",
+    lead: "The finishing layer on what you've built — the polish that gets it ready for real strangers.",
     fieldLabel: "Production-ready",
     promptLabel: "What to make production-ready:",
     placeholder: "(From your Week 2 spec — production-ready: emails, being findable, and keeping data safe.)",
@@ -1930,7 +1930,7 @@ const BUILD_LAYERS = {
   // edits persist in s.grow[week].
   7: { key: null,
     heading: "Go live — open for business 🚀",
-    lead: "Your product works — now make it real to the world. Point a real web address at it, switch payments from test to live, and put your secret keys somewhere safe.",
+    lead: "Your product works — now flip the switches that make it real to the world (a parent helps with the live payment keys).",
     fieldLabel: "Your go-live checklist",
     promptLabel: "Take it live:",
     intro: "Help me take my app live for real users. You guide me step by step; go slowly and confirm each step before the next.",
@@ -1941,7 +1941,7 @@ const BUILD_LAYERS = {
     instruction: "Tell me exactly what to click. Flag anything that needs a real account or a parent's help (like live payment keys)." },
   8: { key: null,
     heading: "Build the funnel into your product 🧲",
-    lead: "Now make growth part of the product. The funnel is how people find it, try it, and come back — the path to the product success you defined in Week 1.",
+    lead: "Build this into the product you've launched — growth becomes part of the product itself, not a separate ad campaign.",
     fieldLabel: "The funnel to build in",
     promptLabel: "Build this funnel into my product:",
     intro: "Add a simple growth funnel to the app I've already built — don't break what works.",
@@ -1952,7 +1952,7 @@ const BUILD_LAYERS = {
     instruction: "Measure each step so I can see where people drop off. Keep it simple." },
   9: { key: null,
     heading: "Measure it — find the bottleneck 📊",
-    lead: "Track the product numbers that show whether it's really growing — daily and monthly active users (DAU/MAU) and retention — to see what's working and find the one thing holding growth back.",
+    lead: "Add the instrumentation to see how your product is really doing — the numbers behind the growth.",
     fieldLabel: "The metrics to add",
     promptLabel: "Add these metrics:",
     intro: "Add basic, privacy-respecting analytics to the app I've already built.",
@@ -1964,7 +1964,7 @@ Show me a small dashboard of these and help me read it to find the ONE biggest b
     instruction: "Don't collect anything you don't need — especially since some users may be minors." },
   10: { key: null,
     heading: "Product-led growth 🌱",
-    lead: "Make the product itself the engine of growth — so good, and so shareable, it spreads on its own.",
+    lead: "The kind of growth that comes from the product itself, not from ads — built on top of what you have.",
     fieldLabel: "The growth to build in",
     promptLabel: "Build growth into the product:",
     intro: "Help me build growth into the app itself — on top of what I already have.",
@@ -2162,8 +2162,7 @@ function BuildLayer({ week, s, setS, bare }) {
 
   const inner = (
     <>
-      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>{cfg.heading}</h3>
-      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 14px" }}>
         {cfg.lead} You direct; AI writes the code — your job is <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
