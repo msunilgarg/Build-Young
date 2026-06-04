@@ -218,15 +218,11 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
 ## House style (from the build so far)
 - **Tagline / mission:** "**Raising builders, not consumers.**" This is the canonical line —
   it appears as the hero headline, in the footer, and in the SEO/JSON-LD. The full mission
-  paragraph lives in the "More than money" section: *"Raising builders, not consumers. Building
-  something people value has always mattered — but AI just collapsed the barrier: what once took
-  a team, a budget, and years of permission, a motivated teenager can now do alone. When anyone
-  can build, the scarce skill flips — not writing the code, but taste: knowing what's worth
-  making, and what good looks like. So the edge isn't a credential. It's taste, and starting
-  early — in founder mode, hands-on and owning the outcome instead of waiting to be ready. We
-  teach it by letting them live it: they build, they earn, then they grow and protect what
-  they've made — because their future rests on what they can make, not what they were
-  credentialed to do."*
+  paragraph lives in the "More than money" section: *"Raising builders, not consumers. AI just
+  collapsed the barrier to building — what once took a team and a budget, a motivated teenager
+  can now do alone. So the edge isn't a credential; it's taste — knowing what's worth making —
+  and starting early. We teach it by letting them live it: they build, they earn, then they grow
+  what they've made."*
   It is BUILD-LED, and the KEY ARGUMENT is causal: **AI collapsed the barrier to entry** (teams/
   budgets/permission no longer needed) → therefore **the edge is starting early** (ties to the
   brand name *Build Young*). Keep that "always mattered, but the barrier just dropped, so start
