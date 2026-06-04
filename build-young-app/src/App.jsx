@@ -303,13 +303,14 @@ async function fetchMarketEvent(phase, week, checkin) {
 // the Capstone (Week 12) — manage the money your build earns. Build/scale lesson content is the
 // per-week activity (weekActivity); the finance weeks have interactive sim panels.
 const WEEKS = [
-  // ─── Act 1 · 0 → 1 (Weeks 1–6): find a problem → spec → build → prioritize ───
+  // ─── Act 1 · 0 → 1 (Weeks 1–6): find a problem → write the 4-prompt spec → build it in 4 layers
+  // (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) ───
   { act: 1, t: "Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your build starts here.", action: "build", comingSoon: true },
   { act: 1, t: "Shape the Idea — write your spec", s: "Turn the need into a clear spec: what it is, what it does, how it works.", action: "build", comingSoon: true },
-  { act: 1, t: "Build: Make It (with AI)", s: "Hand your spec to Claude Code and build the first version.", action: "build", comingSoon: true },
-  { act: 1, t: "Build: Keep Building", s: "Add the next pieces and bring your product to life, one feature at a time.", action: "build", comingSoon: true },
-  { act: 1, t: "Build: Make It Solid", s: "Polish it, fix the rough edges, and get it ready for real people.", action: "build", comingSoon: true },
-  { act: 1, t: "Prioritize: Issues & Requests", s: "Real feedback rolls in — bugs and feature ideas. Learn what to do first.", action: "build", comingSoon: true },
+  { act: 1, t: "Build the First Version", s: "Hand Claude your spec and build the core product — the main thing it does — then ship it live.", action: "build", comingSoon: true },
+  { act: 1, t: "Make It Yours", s: "Add sign-in and save each user's data, so it's personal and remembers them.", action: "build", comingSoon: true },
+  { act: 1, t: "Get Paid", s: "Add real payments so your product can charge for the value it delivers.", action: "build", comingSoon: true },
+  { act: 1, t: "Make It Real", s: "Emails, being findable, and keeping data safe — everything that makes it ready for real users.", action: "build", comingSoon: true },
   // ─── Act 2 · 1 → 100 (Weeks 7–9): funnel → scale & grow ───
   { act: 2, t: "The Funnel: Get & Keep Users", s: "How people find you, try you, and stick — and where you lose them.", action: "build", comingSoon: true },
   { act: 2, t: "Go-To-Market (GTM)", s: "Pick your channels and your message — how you actually reach the people who need it.", action: "build", comingSoon: true },
@@ -1050,7 +1051,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, build it, and prioritize feedback, Weeks 1–6), <b>1 → 100</b> (funnel, scale &amp; grow, Weeks 7–9), and <b>manage what you've earned</b> (Weeks 10–11), finishing with a capstone. Here's every week.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, write a spec, then build it in four layers — product, accounts, payments, launch — Weeks 1–6), <b>1 → 100</b> (funnel, scale &amp; grow, Weeks 7–9), and <b>manage what you've earned</b> (Weeks 10–11), finishing with a capstone. Here's every week.</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => (
           <div key={act} style={{ marginTop: 26 }}>
@@ -1723,7 +1724,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="enroll-grid">
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>What to expect</h3>
-          <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — 0 → 1.</b> Find a problem, write a spec, build your product with AI, and learn to prioritize the feedback that rolls in.</span></div>
+          <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — 0 → 1.</b> Find a problem, write a spec, then build your product with AI in four layers — the core product, accounts, payments, and a production-ready launch.</span></div>
           <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–9 — 1 → 100.</b> Understand your funnel, then scale and grow what's working. Your income comes from what you build.</span></div>
           <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 10–12 — Manage the money.</b> Saving, investing through real market swings, big purchases — finishing with a capstone of what you built and what it's worth.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
@@ -1767,54 +1768,37 @@ Why families love it: It's live and small-group with a standing weekly time, so 
   financialSuccess: `It makes more money than it costs to run. Most new families come from people telling their friends, so we don't have to spend much to find them — and there's enough left over to keep it going and make it bigger.`,
 };
 
-// Week 2 "Shape the Idea": envisioning the product — what it can do (capabilities) and what it's
-// like to use (experience). Worked through for Build Young as the class model.
+// Week 2 "Shape the Idea": the spec, organized as FOUR build prompts — one per week (3–6). Each
+// prompt adds the next layer: the core product (Wk3) → accounts & data (Wk4) → payments (Wk5) →
+// production-ready (Wk6). Worked through for Build Young itself as the class model.
 const SHAPE_EXAMPLE = {
-  vision: `Build Young is a live, online money-skills program for teens 15–18, delivered through one web app. A family discovers it, can talk to the founder first, then enrolls and pays online — and the teen gets their own login. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income, learning to grow and manage it. It's hands-on and a bit like a game, and it ends with a certificate they can show off.
+  product: `What it is: a live, online money-skills program for teens 15–18, delivered as one web app. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income. It's hands-on and a bit like a game.
 
-(This whole thing IS your spec — a clear, complete picture of your product. Write it in enough detail that someone could understand exactly what you're making and why. The more specific and complete, the better.)`,
-  capabilities: `Getting in:
-• Marketing website that explains the program, the curriculum, the price, and the founder, and lists the upcoming class options (cohorts) to choose from.
-• "Talk first": book a free 15-minute call with the founder before deciding.
-• Enroll & pay: pick a cohort (Mon & Wed, or Tue & Thu), enter the student's name + email, confirm they're 15 or older, and pay securely online (we use Stripe). Each cohort has its own price, dates, and number of seats.
-• Accounts: after payment, the student gets an email to set a password, then a login that works on any device, with password reset if they forget.
-
-Emails along the way (no spam — just what helps):
-• A welcome when they enroll, a reminder 2 days before each week's first class, a recap with homework after each week, market-news during the investing weeks, and a certificate at the end.
-
-The student dashboard:
-• Before class starts: a friendly overview with a countdown to the first session.
-• Course progress: a week-by-week stepper (1–12). Each week shows its class material, that week's activity, a Zoom link (or a recording to rewatch), and a private notes area. Weeks unlock as you reach them.
-• Build weeks (1–6): guided activities to find a problem, shape the idea, build it with AI, launch, price it, and grow it — your build becomes your income.
-• Money weeks (7–12): set up business taxes, save and invest, react to real market events, buy and finance a home and a car, budget for surprises, and a capstone.
+What to build first (the core product):
+• A marketing site that explains the program, the curriculum, the price, and the founder, and lists the upcoming cohorts to choose from.
+• An enroll flow: pick a cohort, enter the student's name + email, confirm they're 15+.
+• The student dashboard: a week-by-week stepper (1–12). Each week shows its lesson, that week's activity, a Zoom link, and a private notes area; weeks unlock as you reach them.
 • The simulation: hit "advance" to collect your income, apply the week's market move, and watch your net worth change. Mistakes are safe — the money is simulated.
-• Portfolio & markets pages to rebalance your investments and see the events moving them.
 
-At the end:
-• A shareable certificate of completion with a verify page and an "Add to LinkedIn" button.
-• Full refund before the cohort starts; prorated through the first week.
+The "wow": the first time a teen shares a link to their live product and watches someone actually use it. Even their parents!
 
-Behind the scenes (for the founder):
-• A console to edit cohorts, prices, recordings, and homework, see the signup funnel + analytics, and view what students built — all without touching code.`,
-  experience: `A parent lands on the website and reads what it is and how it works. If they're unsure, they book a free 15-minute call with the founder. When they're ready, they pick a cohort, enter the student's name and email, confirm the student is 15+, and pay — a secure checkout, no charge until that step. They get a confirmation, and the student gets an email to set a password.
+(This is Prompt 1 — what Claude builds in Week 3. Write it in enough detail that it could build a working first version from this alone. No accounts or payments yet — just the core.)`,
+  accounts: `After they're set up, each student gets their own login that works on any device, with password reset. Their dashboard remembers everything that's theirs: which week they're on, their notes, their build plan and spec, and their simulation progress (cash, holdings, net worth) — so they pick up right where they left off.
 
-The student logs in to a clean dashboard with a countdown to the first class. Two days before the week starts, a reminder email arrives. They join the live class on Zoom, then open the current week to do its activity — in Week 1, for example, they fill in their build plan right on the page. They hit "advance" to move the simulation forward, jot notes in the side panel, and watch their net worth grow as each week unlocks. After each week, a recap email with homework lands; if they missed a class, they can rewatch the recording.
+Use a trusted, standard sign-in — never homemade password code.`,
+  payments: `Families pay tuition to enroll — a secure checkout, with no charge until they confirm. Each cohort has its own price and number of seats; paying unlocks the student's account (they get an email to set their password). Enrollment closes the day before a cohort starts.
 
-At the end they graduate, get a certificate, and add it to LinkedIn. Throughout, it should feel hands-on, encouraging, and a little like a game — never like slideware.`,
-  behind: `Accounts & login: every student signs in and it remembers them across devices, with password reset. We kept passwords safe using proven, trusted methods — we did NOT invent our own password security.
-Saving data: each student's progress, notes, and build are saved to their account.
-Payments: enrollment takes real money securely with Stripe Checkout — we didn't build our own payment handling.
-Emails: a welcome, class reminders, weekly recaps, and the certificate go out automatically.
-Findable: the site shows up in search and looks right when someone shares the link.
-Safe: it checks everything people type in, keeps secret keys off the browser, and protects students' data (they're minors).`,
-  wow: `The first time a teen shares a link to their product — live on the internet, real and usable — and watches someone actually use it. Even their parents!`,
+Use a trusted checkout (like Stripe) — never handle card details yourself.`,
+  production: `Emails: a welcome when they enroll, a reminder 2 days before each week's first class, a recap with homework after each week, and a certificate at the end.
+Findable: the site shows up in search and looks right when someone shares the link (title, description, share image).
+Safe: it checks everything people type in, keeps secret keys off the browser, and protects students' data — they're minors.`,
 };
 
 // Week 3 "Make It (with AI)" is a hands-on, live build week — so the class material is just three
 // durable principles to keep in mind, not a long worked example. The actionable bits (pre-reqs +
 // copy-your-spec) live in the student activity below.
 const MAKE_PRINCIPLES = [
-  { t: "Build the full product from your spec", d: "Hand AI your whole Week 2 spec and build the complete thing — every screen and feature you described. (The real accounts, payments, and emails it mentions get wired up for real over the next three weeks — this week is the product itself.)" },
+  { t: "Build one layer at a time", d: "This week is just Layer 1 — the core product. Don't try to build the whole thing at once. Accounts (Wk4), payments (Wk5), and the production-ready polish (Wk6) each get their own week and their own prompt." },
   { t: "Run the loop: describe → see → taste → refine", d: "AI builds it, you look, you judge it with taste (what does GOOD look like?), you ask for the change — repeat. You don't write code; you direct it. That taste is the skill that matters most in an AI world." },
   { t: "Ship it early", d: "Put it live before it's perfect (free, one click on Vercel). Real people surface the real problems worth fixing — not imaginary ones." },
 ];
@@ -1864,15 +1848,13 @@ function weekExample(week) {
     ["What product success looks like", EXAMPLE_BUILD.productSuccess],
     ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
   ]} />;
-  if (week === 2) return <ExampleCard subtitle="A worked spec — how we'd fill this in" fields={[
-    ["What it is", SHAPE_EXAMPLE.vision],
-    ["What it does", SHAPE_EXAMPLE.capabilities],
-    ["How it works", SHAPE_EXAMPLE.experience],
-    ["What makes it real", SHAPE_EXAMPLE.behind],
-    ["The 'wow'", SHAPE_EXAMPLE.wow],
+  if (week === 2) return <ExampleCard subtitle="A worked spec — four build prompts, one per week (3–6)" fields={[
+    ["Prompt 1 · Build the First Version (Wk3)", SHAPE_EXAMPLE.product],
+    ["Prompt 2 · Make It Yours (Wk4)", SHAPE_EXAMPLE.accounts],
+    ["Prompt 3 · Get Paid (Wk5)", SHAPE_EXAMPLE.payments],
+    ["Prompt 4 · Make It Real (Wk6)", SHAPE_EXAMPLE.production],
   ]} />;
   if (week === 3) return <PrinciplesCard title="Building with AI — 3 things to remember" items={MAKE_PRINCIPLES} />;
-  if (WEEK_INFRA[week]) return <PrinciplesCard title={WEEK_INFRA[week].cardTitle} items={WEEK_INFRA[week].principles} />;
   return null;
 }
 
@@ -1901,10 +1883,48 @@ function PrinciplesCard({ title, items }) {
 function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
-  if (week === 3) return <MakePlan s={s} setS={setState} bare={bare} />;
-  if (WEEK_INFRA[week]) return <InfraBuildPlan s={s} setS={setState} bare={bare} week={week} />;
+  if (BUILD_LAYERS[week]) return <BuildLayer week={week} s={s} setS={setState} bare={bare} />;
   return null;
 }
+
+// The four build layers (Weeks 3–6). Each is ONE prompt that adds the next layer to the SAME app:
+// core product (Wk3) → accounts & data (Wk4) → payments (Wk5) → production-ready (Wk6). The student
+// writes all four in their Week 2 spec (s.shape); each build week shows ONLY its own layer's prompt.
+const BUILD_LAYERS = {
+  3: { key: "product",
+    heading: "Build the first version 🛠️",
+    lead: "This week you build Layer 1 — the core product. Your Week 2 spec IS your prompt: hand it to Claude, then run the loop — describe → see → taste → refine. Build just the core (no accounts or payments yet), then ship it so someone can actually use it.",
+    fieldLabel: "Prompt 1 · The core product",
+    promptLabel: "What to build — the core product:",
+    placeholder: "(From your Week 2 spec, Prompt 1: what it is, who it's for, the main things it does, and the 'wow' moment.)",
+    intro: "Please build the first version of this web app. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
+    instruction: "Build just this core product — the main thing it does — with clean, simple, friendly styling. Don't add accounts or payments yet; those come in the next weeks. When it's built, tell me exactly how to run it and see it in my browser. Then I'll tell you what to change. Let's go!",
+    prereqs: true },
+  4: { key: "accounts",
+    heading: "Make it yours — accounts & saved data 🔐",
+    lead: "Layer 2 — make it personal. Add sign-in and save each user's own data, on top of the product you built in Week 3.",
+    fieldLabel: "Prompt 2 · Accounts & saved data",
+    promptLabel: "What to add — accounts & saved data:",
+    placeholder: "(From your Week 2 spec, Prompt 2: who signs in, and what's saved for each person.)",
+    intro: "Please add accounts and saved data to the app I've already built. You write the code; I'll tell you what's good and what to change — don't break what already works.",
+    instruction: "Use a trusted, standard sign-in — do NOT write your own password or security code. Save each user's data so they pick up where they left off. When it's done, tell me how to test signing in and that my data is saved." },
+  5: { key: "payments",
+    heading: "Get paid — add payments 💳",
+    lead: "Layer 3 — get paid. Add a real checkout so your product can charge for the value it delivers.",
+    fieldLabel: "Prompt 3 · Payments",
+    promptLabel: "What to add — payments:",
+    placeholder: "(From your Week 2 spec, Prompt 3: what people pay for, how much, and what they get.)",
+    intro: "Please add payments to the app I've already built. You write the code; I'll tell you what's good and what to change — don't break what already works.",
+    instruction: "Use a trusted checkout (like Stripe) — never handle card details yourself. Unlock the paid features only after payment is confirmed. When it's done, tell me how to test a payment safely." },
+  6: { key: "production",
+    heading: "Make it real — production-ready ✨",
+    lead: "Layer 4 — make it real. Add the finishing pieces that make it safe, findable, and ready for real users.",
+    fieldLabel: "Prompt 4 · Production-ready",
+    promptLabel: "What to make production-ready:",
+    placeholder: "(From your Week 2 spec, Prompt 4: emails, being findable, and keeping data safe.)",
+    intro: "Please make the app I've already built production-ready. You write the code; I'll tell you what's good and what to change — don't break what already works.",
+    instruction: "Use trusted services to send emails; keep every secret key off the browser; check everything users type in; and make it findable (a clear title, description, and share image). When it's done, give me a short checklist to confirm it's ready for real users." },
+};
 
 // Weeks 4–6 "your turn": a short intro + the week's copy-paste prompt (editable; seeded from
 // WEEK_INFRA, stored per-week in s.infra[week].prompt). Same shape as MakePlan, minus the spec
@@ -2040,13 +2060,12 @@ function ShapePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        This week you write your product's <b>spec</b> — a clear picture of <b>what it is</b>, <b>what it does</b>, and <b>how it works</b>. The more specific and complete you are, the better: this is the blueprint everything else is built from. <span style={{ color: C.muted }}>Saved automatically.</span>
+        Your spec is your build plan — <b>four prompts, one per week</b>. Plan all four now; then each week (3–6) you hand the next one to Claude and add that layer on top of what you already built. The more specific you are, the better Claude builds. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
-      {field("vision", "What it is", "Describe it like you're showing a friend: what is it, what's the main thing it does, and who's it for?")}
-      {field("capabilities", "What it does", "List everything it does — its features and screens. Be thorough: sign-up, the main actions, what users see. Start with the feature that matters most.", 5)}
-      {field("experience", "How it works", "Walk through it start to finish: what do you open, what do you see, what do you click, what happens — and how should it feel? Step by step.", 5)}
-      {field("behind", "What makes it real", "The behind-the-scenes pieces that turn a demo into a real product people can use. A real customer app has accounts & login — use a trusted, standard sign-in, never your own password code. Then: what saves for each user? Does it take a payment? Send emails? How do people find it? And it has to be safe with people's data.", 5)}
-      {field("wow", "The “wow”", "What's the moment a new user goes “oh, this is great”?")}
+      {field("product", "Prompt 1 · Build the First Version — the core product (Week 3)", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough for Claude to build a working first version you can ship live. (Just the core — no accounts or payments yet.)", 6)}
+      {field("accounts", "Prompt 2 · Make It Yours — accounts & saved data (Week 4)", "Who signs in, and what's saved for each person — what does a user see that's theirs? (Use a trusted, standard sign-in — never your own password code.)", 4)}
+      {field("payments", "Prompt 3 · Get Paid — payments (Week 5)", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay? (Use a trusted checkout like Stripe — never handle card details yourself.)", 4)}
+      {field("production", "Prompt 4 · Make It Real — production-ready (Week 6)", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -2055,43 +2074,27 @@ function ShapePlan({ s, setS, bare }) {
 // Week 3 student activity — "Make It (with AI)": hand your Week 2 spec to AI and run the
 // describe → see → taste → refine loop. The spec is the SAME data as Week 2 (s.shape) — editing it
 // here updates Week 2 too; no separate copy, single source of truth.
-function MakePlan({ s, setS, bare }) {
+// One build week (3–6). Shows ONLY that week's layer prompt, pulled live from the student's Week 2
+// spec (s.shape[cfg.key]) so edits here sync back to Week 2. Week 3 also shows the build pre-reqs.
+function BuildLayer({ week, s, setS, bare }) {
+  const cfg = BUILD_LAYERS[week];
   const setShapeField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
   const prereqs = (s && s.prereqs) || {};
   const buildTools = PREREQS.filter((p) => p.build);
   const allReady = buildTools.every((p) => prereqs[p.id]);
   const togglePrereq = (id) => setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
 
-  // A ready-to-paste prompt for Claude, assembled from the student's OWN Week 2 spec (s.shape) so
-  // it builds THEIR product. Empty fields fall back to a clear placeholder so the prompt still
-  // makes sense (and nudges them to go finish the spec).
   const shape = s.shape || {};
   const [copied, setCopied] = useState(false);
   const has = (v) => v && v.trim();
-  const specHasContent = has(shape.vision) || has(shape.capabilities) || has(shape.experience) || has(shape.behind) || has(shape.wow);
-  const promptLines = [
-    "Please build this web app for me. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
-    "",
-    "What it is:",
-    has(shape.vision) ? shape.vision.trim() : "(From your Week 2 spec: what it is, the main thing it does, and who it's for.)",
-    "",
-    "What it does:",
-    has(shape.capabilities) ? shape.capabilities.trim() : "(From your Week 2 spec: the features and screens — start with the most important one.)",
-    "",
-    "How it works:",
-    has(shape.experience) ? shape.experience.trim() : "(From your Week 2 spec: walk through it step by step — what you open, see, and click, and how it should feel.)",
-    "",
-    "What makes it real:",
-    has(shape.behind) ? shape.behind.trim() : "(From your Week 2 spec: accounts & login, saving each user's data, payments, emails, being findable, and keeping data safe. Use trusted, standard building blocks — never homemade password/security code.)",
-  ];
-  if (has(shape.wow)) promptLines.push("", "The “wow”:", shape.wow.trim());
-  promptLines.push(
-    "",
-    "Build the full product described above — all the screens and features. Use clean, simple, friendly styling. When it's built, tell me exactly how to run it and see it in my browser. Then I'll tell you what to change. Let's go!"
-  );
-  const generatedPrompt = promptLines.join("\n");
-  // generatedPrompt is assembled live from s.shape (the Week 2 spec) every render, so it always
-  // reflects the current spec — including edits made right here in Week 3 (they write to s.shape).
+  const value = shape[cfg.key];
+  const hasLayer = has(value);
+  // The ready-to-paste prompt for THIS week's layer, assembled live from the relevant spec field.
+  const generatedPrompt = [
+    cfg.intro, "", cfg.promptLabel,
+    hasLayer ? value.trim() : cfg.placeholder,
+    "", cfg.instruction,
+  ].join("\n");
   const copyPrompt = async () => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }
@@ -2099,50 +2102,46 @@ function MakePlan({ s, setS, bare }) {
   };
   const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
   const fieldS = { width: "100%", boxSizing: "border-box", fontSize: 13, padding: "9px 11px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
-  const specField = (k, label, rows = 3) => (
-    <label style={{ display: "block", marginTop: 10 }}>
-      <span style={lab}>{label}</span>
-      <textarea aria-label={label} value={(s.shape || {})[k] || ""} onChange={(e) => setShapeField(k, e.target.value)} rows={rows} placeholder={`(From Week 2 — ${label.toLowerCase()})`} style={fieldS} />
-    </label>
-  );
 
   const inner = (
     <>
-      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Make it — build your first version with AI 🛠️</h3>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>{cfg.heading}</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Now you build. Your <b>Week 2 spec IS your prompt</b> — you hand it straight to AI (no separate prompt to write), then run the loop: <b>describe → see → taste → refine</b>. You don't need to know how to code — you need <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. In an AI world, that's the skill that matters most. Build the full product from your spec, then ship it so someone can actually use it. <span style={{ color: C.muted }}>Saved automatically.</span>
+        {cfg.lead} You direct; AI writes the code — your job is <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
-      {/* Pre-reqs: this is the week the build actually happens, so every build tool must be ready
-          now. Same s.prereqs state as the Overview checklist, so ticking here syncs there. */}
-      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginBottom: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Pre-reqs — you'll need these for this week's build</span>
-          <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
+      {/* Pre-reqs (Week 3 only): the build tools must be ready before the first build. Same
+          s.prereqs state as the Overview checklist, so ticking here syncs there. */}
+      {cfg.prereqs && (
+        <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+            <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Pre-reqs — you'll need these for this week's build</span>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
+          </div>
+          <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
+            You'll build live with AI this week, so you need the builder's tools ready (all free except <b>Claude Pro</b>, ~$20/month; a parent can help with sign-ups). Tick each off:
+          </p>
+          {buildTools.map((p) => {
+            const checked = !!prereqs[p.id];
+            return (
+              <div key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0" }}>
+                <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+                <span style={{ fontSize: 13, lineHeight: 1.45 }}>
+                  <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
+                  {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
+                  {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
+                </span>
+              </div>
+            );
+          })}
         </div>
-        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
-          You'll build live with AI this week, so you need the builder's tools ready (all free except <b>Claude Pro</b>, ~$20/month; a parent can help with sign-ups). Tick each off:
-        </p>
-        {buildTools.map((p) => {
-          const checked = !!prereqs[p.id];
-          return (
-            <div key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0" }}>
-              <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
-              <span style={{ fontSize: 13, lineHeight: 1.45 }}>
-                <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
-                {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
-                {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      )}
 
-      {/* Your spec — the SAME data as Week 2 (s.shape). Editing here updates Week 2 too. The Copy
-          button hands Claude the assembled prompt (your spec + a short build instruction). */}
+      {/* This week's prompt — the matching slice of the Week 2 spec (s.shape[cfg.key]). Editing here
+          syncs back to Week 2. Copy hands Claude this layer's prompt (the spec slice + instruction). */}
       <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 Your spec — ready to hand to Claude Code</span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 This week's prompt — {cfg.fieldLabel}</span>
           <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
             <button type="button" className="btn" onClick={copyPrompt} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
               {copied ? <><Check size={14} /> Copied!</> : "Copy"}
@@ -2150,21 +2149,22 @@ function MakePlan({ s, setS, bare }) {
             <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none", whiteSpace: "nowrap" }}>Open Claude Code ↗</a>
           </span>
         </div>
-        {specHasContent ? (
+        {hasLayer ? (
           <div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={13} /> Pulled from your Week 2 spec — edits here update Week 2 too</div>
         ) : (
           <div style={{ fontSize: 12.5, color: C.ink, lineHeight: 1.5, marginTop: 8, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 5, padding: "9px 11px" }}>
-            <b>Your Week 2 spec is empty.</b> Fill it in below (or in Week 2) so AI builds <i>your</i> product — they're the same spec.
+            <b>This part of your Week 2 spec is empty.</b> Fill it in below (or back in Week 2) so AI builds <i>your</i> product — it's the same spec.
           </div>
         )}
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 2px" }}>
-          This IS your prompt — no separate writing. Edit any part and it updates your spec everywhere, then <b>Copy</b> it and paste it into <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700 }}>Claude Code</a>.
+          {week === 3
+            ? "This IS your prompt — no separate writing. Edit it and it updates your Week 2 spec too, then Copy it into Claude Code."
+            : "This builds on top of what you already shipped. Edit it (it syncs to Week 2), then Copy it into Claude Code on top of your existing app."}
         </p>
-        {specField("vision", "What it is")}
-        {specField("capabilities", "What it does", 4)}
-        {specField("experience", "How it works", 4)}
-        {specField("behind", "What makes it real", 4)}
-        {specField("wow", "The “wow”")}
+        <label style={{ display: "block", marginTop: 10 }}>
+          <span style={lab}>{cfg.fieldLabel}</span>
+          <textarea aria-label={cfg.fieldLabel} value={value || ""} onChange={(e) => setShapeField(cfg.key, e.target.value)} rows={6} placeholder={cfg.placeholder} style={fieldS} />
+        </label>
         {/* read-only preview of exactly what Copy hands to Claude */}
         <details style={{ marginTop: 12 }}>
           <summary style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>Preview the full prompt Copy sends →</summary>
@@ -2172,7 +2172,6 @@ function MakePlan({ s, setS, bare }) {
             style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 12, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.5 }} />
         </details>
       </div>
-
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;

@@ -245,13 +245,17 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   Closes on "money is a skill you practice" → "raising builders, not consumers." Renders as
   sibling `<p>`s sharing the founder paragraph's style.
 - **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks (6/3/3):** founder's outline:
-  **Act 1 · 0→1 (Weeks 1–6)** — find a problem → spec → build (3 build weeks) → **prioritize**
-  feedback; **Act 2 · 1→100 (Weeks 7–9)** — **funnel** → scale & grow (×2); **Act 3 · Manage
+  **Act 1 · 0→1 (Weeks 1–6)** — find a problem → write the **4-prompt spec** → **build it in four
+  layers** (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready);
+  **Act 2 · 1→100 (Weeks 7–9)** — **funnel** → scale & grow (×2); **Act 3 · Manage
   (Weeks 10–11) + Capstone (Week 12)** — saving/investing (`allocation`), big purchases (`buy`),
-  capstone. Weeks **4–9 are `action:"build"` "coming soon" placeholders** — content per week is
-  built next; `WEEK_INFRA` is currently **empty** (the old auth/payments/grow content was removed
-  when the outline changed; `InfraBuildPlan`/`PrinciplesCard` stay for when it's rebuilt). Only
-  **Week 3** has a full build activity (`MakePlan`), and the two finance weeks have sim panels.
+  capstone. **The 4-layer build spec** is the spine of Act 1: the Week 2 spec (`s.shape`) has four
+  fields — `product`/`accounts`/`payments`/`production` — one per build week. `BUILD_LAYERS` (a
+  4-entry map keyed by week 3–6) drives the per-week build activity `BuildLayer`, which shows ONLY
+  that week's layer prompt (pulled live from its spec field, so edits sync back to Week 2) + the
+  copy-to-Claude box; Week 3 also shows the build pre-reqs. `SHAPE_EXAMPLE` is the worked Build-Young
+  spec, organized as the same four prompts. (`WEEK_INFRA`/`InfraBuildPlan` are now unused/legacy.)
+  Weeks **7–9 are `action:"build"` "coming soon" placeholders**; the two finance weeks have sim panels.
   `ACTS` is a 3-entry map; each week carries `act: 1|2|3`. **Income/finance boundary:**
   `FINANCE_FIRST_WEEK=10` (build+scale weeks 1–9 earn; LIVING + the money act start week 10). The
   standalone `settings` (taxes), `macro`, and `budget` weeks were **dropped** to fit 2 money weeks
