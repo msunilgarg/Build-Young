@@ -314,7 +314,7 @@ const WEEKS = [
   { act: 1, t: "Go Live", s: "Point a real web address at it, switch on live payments, and run your launch checklist — your product is open for business.", action: "build", comingSoon: true },
   // ─── Act 2 · 1 → 100 (Weeks 8–10): grow it — funnel → metrics & scaling → product-led growth ───
   { act: 2, t: "The Funnel", s: "Build the funnel into your product: how people find it, try it, and come back — the path to the success you defined in Week 1.", action: "build", comingSoon: true },
-  { act: 2, t: "Metrics & Scaling", s: "Track active users (DAU/MAU) and retention to find what's holding growth back — then decide where to invest to grow.", action: "build", comingSoon: true },
+  { act: 2, t: "Metrics & Scaling", s: "Track active users (DAU/MAU) and retention to see what's working and find the one thing holding growth back — your product's real health check.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "Build growth INTO the product — make it so good (and shareable) it spreads itself.", action: "build", comingSoon: true },
   // ─── Act 3 · MANAGE (Week 11) + Capstone (Week 12): manage the money your product earns ───
   { act: 3, t: "Money: Manage What You Earn", s: "Your product earns a steady income — pay yourself first, invest it to compound, and finance big purchases without wrecking your budget.", action: "money",
@@ -1952,7 +1952,7 @@ const BUILD_LAYERS = {
     instruction: "Measure each step so I can see where people drop off. Keep it simple." },
   9: { key: null,
     heading: "Measure it — find the bottleneck 📊",
-    lead: "Track the numbers that show whether it's growing — daily and monthly active users (DAU/MAU) and retention — to find what's holding growth back, then decide where to invest to grow 1 → 100.",
+    lead: "Track the product numbers that show whether it's really growing — daily and monthly active users (DAU/MAU) and retention — to see what's working and find the one thing holding growth back.",
     fieldLabel: "The metrics to add",
     promptLabel: "Add these metrics:",
     intro: "Add basic, privacy-respecting analytics to the app I've already built.",
