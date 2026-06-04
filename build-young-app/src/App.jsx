@@ -312,8 +312,8 @@ const WEEKS = [
   { act: 1, t: "Prioritize: Issues & Requests", s: "Real feedback rolls in — bugs and feature ideas. Learn what to do first.", action: "build", comingSoon: true },
   // ─── Act 2 · 1 → 100 (Weeks 7–9): funnel → scale & grow ───
   { act: 2, t: "The Funnel: Get & Keep Users", s: "How people find you, try you, and stick — and where you lose them.", action: "build", comingSoon: true },
-  { act: 2, t: "Scale & Grow", s: "Repeatable ways to reach more people and grow what's working.", action: "build", comingSoon: true },
-  { act: 2, t: "Scale & Grow — Double Down", s: "Find your best channel and pour fuel on it — turn a trickle into a stream.", action: "build", comingSoon: true },
+  { act: 2, t: "Product-Led Growth", s: "Build growth INTO the product — make it so good (and shareable) it spreads itself.", action: "build", comingSoon: true },
+  { act: 2, t: "Go-To-Market (GTM)", s: "Pick your channels and your message — how you actually reach the people who need it.", action: "build", comingSoon: true },
   // ─── Act 3 · MANAGE (Weeks 10–11) + Capstone (Week 12): manage the money your build earns ───
   { act: 3, t: "Money: Saving & Investing", s: "Pay yourself first; auto-fund accounts; pick a risk style and ride real market moves.", action: "allocation",
     materials: [
