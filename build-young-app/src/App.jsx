@@ -1015,7 +1015,8 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
-            { icon: Sparkles, t: "Build something people need", d: "First, make a small product, app, or service (with AI as your tool) that solves a real problem — learning the one skill AI can't replace: taste, knowing what good looks like.", c: C.gold },
+            { icon: Sparkles, t: "Build something people need", d: "First, build a real product, app, or service (with AI as your tool) that solves a real problem — learning the one skill AI can't replace: taste, knowing what good looks like.", c: C.gold },
+            { icon: TrendingUp, t: "Grow it into a business", d: "Get users and grow — understand your funnel, reach the right people (go-to-market), and build growth right into the product.", c: C.emerald },
             { icon: Wallet, t: "Your build earns the income", d: `That's where the money comes from — your venture grows to about ${fmt(STEADY_INCOME)} a period. No paycheck handed to you.`, c: C.emerald },
             { icon: LineIcon, t: "Markets move like the real world", d: "Once you're investing, live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
             { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car with what you've earned. Live with the payments.", c: C.green },
