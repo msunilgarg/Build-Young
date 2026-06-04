@@ -419,6 +419,20 @@ export function sessionDate(batch, week, session) {
   const base = dayNum(start) + (week - 1) * 7 + (session === 2 ? 2 : 0);
   return new Date(base * 86400000);
 }
+// Enrollment closes the day before a cohort starts: the LAST day to enroll is start − 1 day, so on
+// the start date (and after) enrollment is closed. `now` is injectable for tests. Unparseable start
+// → never auto-closes (founder can still close manually via the `full` flag).
+export function enrollClosed(batch, now = new Date()) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime())) return false;
+  return dayNum(now) >= dayNum(start);
+}
+// A cohort is unavailable to enroll in if it's sold out (`full`, founder-set) OR past its
+// enrollment cutoff (the day before it starts). Single source of truth for the landing card +
+// the enroll screen so they can't disagree.
+export function cohortClosed(batch, now = new Date()) {
+  return !!(batch && batch.full) || enrollClosed(batch, now);
+}
 // The next class strictly on/after `day` → { week, session, date } or null if the course is done.
 export function nextClass(batch, day = new Date()) {
   const today = dayNum(day);
@@ -1167,6 +1181,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16, marginTop: 20 }}>
           {BATCHES.filter((b) => b.season === season).map((b) => {
             const acc = b.id.includes("mw") ? C.emerald : C.green;
+            const closed = cohortClosed(b);
             return (
             <Card key={b.id} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", height: "100%" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: acc }} />
@@ -1179,9 +1194,9 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
-                <span style={{ fontSize: 13, color: b.seats < 5 ? C.rust : C.muted, fontWeight: 600 }}>{b.seats} seats left</span>
+                <span style={{ fontSize: 13, color: closed ? C.rust : (b.seats < 5 ? C.rust : C.muted), fontWeight: 600 }}>{closed ? "Enrollment full" : `${b.seats} seats left`}</span>
               </div>
-              <button className="btn" onClick={() => onEnroll(b.id)} style={{ width: "100%", background: acc, color: "#fff", padding: "12px", borderRadius: 4, fontSize: 15 }}>Enroll in this batch</button>
+              <button className="btn" onClick={() => onEnroll(b.id)} style={{ width: "100%", background: closed ? C.line : acc, color: "#fff", padding: "12px", borderRadius: 4, fontSize: 15 }}>{closed ? "Join the next cohort →" : "Enroll in this batch"}</button>
             </Card>
             );
           })}
@@ -1315,7 +1330,8 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const [batch, setBatch] = useState(preselect || BATCHES[0].id);
   const [notified, setNotified] = useState(false); // captured interest for a full cohort
   const b = BATCHES.find((x) => x.id === batch) || BATCHES[0];
-  const canContinue = name.trim() && validEmail(email) && age15 && !b.full;
+  const closed = cohortClosed(b); // sold out, or past the enrollment cutoff (day before start)
+  const canContinue = name.trim() && validEmail(email) && age15 && !closed;
   const canNotify = name.trim() && validEmail(email);
   // A full cohort doesn't take a waitlist (no mid-course additions) — we capture interest for the
   // NEXT cohort instead, so the founder sees real overflow demand.
@@ -1356,7 +1372,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     {SEASONS.map((s) => (
                       <optgroup key={s.key} label={s.label}>
                         {BATCHES.filter((x) => x.season === s.key).map((x) => (
-                          <option key={x.id} value={x.id}>{x.day.split(" · ")[0]} (starts {x.start}){x.full ? " — FULL" : ""}</option>
+                          <option key={x.id} value={x.id}>{x.day.split(" · ")[0]} (starts {x.start}){cohortClosed(x) ? " — ENROLLMENT FULL" : ""}</option>
                         ))}
                       </optgroup>
                     ))}
@@ -1364,14 +1380,17 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                 </div>
                 <div style={{ marginTop: 14 }}><div style={label}>Student name</div><input aria-label="Student name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jordan Rivera" style={inputS} /></div>
                 <div style={{ marginTop: 14 }}><div style={label}>Email <span style={{ color: C.muted, fontWeight: 500 }}>— this is your username</span></div><input aria-label="Email (your username)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={inputS} /></div>
-                {b.full ? (
+                {closed ? (
                   notified ? (
                     <div style={{ marginTop: 16, padding: 14, background: "#e7f3ee", border: `1px solid ${C.green}`, borderRadius: 4, fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>
                       <b style={{ color: C.green }}>You're on the list ✓</b> We'll email you the moment a new {b.track} cohort opens. Thanks for your interest!
                     </div>
                   ) : (<>
                     <div style={{ marginTop: 16, padding: 12, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 4, fontSize: 13, color: C.ink2, lineHeight: 1.5 }}>
-                      This cohort is <b>full</b>. Leave your name + email and we'll tell you the moment the next cohort opens. <span style={{ color: C.muted }}>(No waitlist — students don't join mid-course.)</span>
+                      {b.full
+                        ? <>Enrollment for this cohort is <b>full</b>.</>
+                        : <>Enrollment for this cohort has <b>closed</b> — it starts {b.start}.</>}{" "}
+                      Leave your name + email and we'll tell you the moment the next cohort opens. <span style={{ color: C.muted }}>(No waitlist — students don't join mid-course.)</span>
                     </div>
                     <button className="btn" disabled={!canNotify} onClick={submitInterest} style={{ width: "100%", marginTop: 14, background: canNotify ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canNotify ? "pointer" : "not-allowed" }}>Notify me about the next cohort →</button>
                   </>)

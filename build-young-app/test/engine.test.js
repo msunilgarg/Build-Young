@@ -3,7 +3,7 @@ import {
   validEmail, newState, advance, netWorth, holdingsTotal,
   takeSpree, investInstead, RISK_PRESETS, ASSETS, BATCHES, PAY,
   nextClassLabel, checkinDateLabel, classDateLabel, withdrawalEmail, refundFor,
-  canWithdrawNow, REFUND_WEEKS, cohortStartInfo,
+  canWithdrawNow, REFUND_WEEKS, cohortStartInfo, enrollClosed, cohortClosed,
 } from "../src/App.jsx";
 // The market SCHEDULE (marketEventFor) + server-side mediaDrip moved to the server-only
 // module so the future schedule never ships in the client bundle (anti-gaming). These engine
@@ -105,6 +105,26 @@ describe("cohortStartInfo (pre-start awareness)", () => {
   it("handles an unparseable start date gracefully", () => {
     expect(cohortStartInfo({ start: "nope" }).beforeStart).toBe(false);
     expect(cohortStartInfo(null).days).toBe(null);
+  });
+});
+
+describe("enrollClosed / cohortClosed (last day to enroll = day before start)", () => {
+  const batch = BATCHES.find((b) => b.id === "fall-mw"); // starts Sep 7, 2026
+  it("stays open up to and including the day before the start", () => {
+    expect(enrollClosed(batch, new Date("2026-09-06T23:00:00"))).toBe(false); // day before
+    expect(enrollClosed(batch, new Date("2026-08-01T12:00:00"))).toBe(false); // weeks before
+    expect(cohortClosed(batch, new Date("2026-09-06T12:00:00"))).toBe(false);
+  });
+  it("closes on the start date and after", () => {
+    expect(enrollClosed(batch, new Date("2026-09-07T00:01:00"))).toBe(true);  // start day
+    expect(enrollClosed(batch, new Date("2026-09-20T12:00:00"))).toBe(true);  // after
+    expect(cohortClosed(batch, new Date("2026-09-07T12:00:00"))).toBe(true);
+  });
+  it("honors the founder-set `full` flag regardless of date", () => {
+    expect(cohortClosed({ ...batch, full: true }, new Date("2026-08-01T12:00:00"))).toBe(true);
+  });
+  it("never auto-closes on an unparseable start", () => {
+    expect(enrollClosed({ start: "nope" }, new Date("2030-01-01T12:00:00"))).toBe(false);
   });
 });
 
