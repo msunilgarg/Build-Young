@@ -1588,7 +1588,7 @@ function BookCall({ onBack, onHome, onEnroll }) {
                     ))}
                   </div>
                   <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 14, paddingTop: 12, fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                    I'm <b style={{ color: C.ink2 }}>Sunil</b> — I spent 20 years in product at Microsoft, I'm a dad of two teens, and I built this for my own kids first.
+                    I'm <b style={{ color: C.ink2 }}>Sunil</b> — I spent 20 years in product at Microsoft, I'm a dad of two daughters, and I built this for my own kids first.
                     <a href={CONFIG.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 8, color: A, fontWeight: 700, textDecoration: "none" }}><Linkedin size={13} /> See my LinkedIn</a>
                   </div>
                   <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 12, paddingTop: 12, display: "grid", gap: 7 }}>
@@ -1784,8 +1784,8 @@ What to build first (the core product):
 
 The "wow": the first time a teen shares a link to their live product and watches someone actually use it. Even their parents!
 
-(This is what you build first, in Week 3 — the core product. Write it in enough detail that it could be built from this alone. No accounts or payments yet — just the core.)`,
-  accounts: `After they're set up, each student gets their own login that works on any device, with password reset. Their dashboard remembers everything that's theirs: which week they're on, their notes, their build plan and spec, and their simulation progress (cash, holdings, net worth) — so they pick up right where they left off.
+(This is the core product — what you build first. Write it in enough detail that it could be built from this alone. No accounts or payments yet — just the core.)`,
+  accounts: `After they're set up, each student gets their own login that works on any device, with password reset. Their dashboard remembers everything that's theirs: which week they're on, their notes, their plans and spec, and their simulation progress (cash, holdings, net worth) — so they pick up right where they left off.
 
 Use a trusted, standard sign-in — never homemade password code.`,
   payments: `Families pay tuition to enroll — a secure checkout, with no charge until they confirm. Each cohort has its own price and number of seats; paying unlocks the student's account (they get an email to set their password). Enrollment closes the day before a cohort starts.
@@ -1794,7 +1794,7 @@ Use a trusted checkout (like Stripe) — never handle card details yourself.`,
   production: `Emails: a welcome when they enroll, a reminder 2 days before each week's first class, a recap with homework after each week, and a certificate at the end.
 Findable: the site shows up in search and looks right when someone shares the link (title, description, share image).
 Safe: it checks everything people type in, keeps secret keys off the browser, and protects students' data — they're minors.`,
-  success: `Building on what success looked like in Week 1, here's how we'll measure it (we track these in Week 9):
+  success: `Here's how we'll know it's working:
 Product success: real teens use it weekly and keep coming back through the whole course — they'd be bummed if it went away, and they tell friends, so cohorts keep filling.
 • Active user = a student who opens their dashboard and advances their week.
 • Retention = they come back week after week, not just once.
@@ -1861,8 +1861,15 @@ function weekExample(week) {
     ["Week 4 · Accounts & saved data", SHAPE_EXAMPLE.accounts],
     ["Week 5 · Payments", SHAPE_EXAMPLE.payments],
     ["Week 6 · Production-ready", SHAPE_EXAMPLE.production],
-    ["What success looks like (you'll measure it in Week 9)", SHAPE_EXAMPLE.success],
+    ["What success looks like", SHAPE_EXAMPLE.success],
   ]} />;
+  // Build weeks (3–10): the class material is a SAMPLE prompt — a worked model the student adapts.
+  // Weeks 3–6 show Build Young's own spec slice; weeks 7–10 show the seeded growth prompt.
+  const bl = BUILD_LAYERS[week];
+  if (bl) {
+    const sample = bl.key ? SHAPE_EXAMPLE[bl.key] : bl.seed;
+    return <ExampleCard subtitle="A sample prompt — a model to adapt for your own product" fields={[[bl.fieldLabel, sample]]} />;
+  }
   return null;
 }
 
@@ -1906,8 +1913,7 @@ const BUILD_LAYERS = {
     promptLabel: "What to build — the core product:",
     placeholder: "(From your Week 2 spec — the core product: what it is, who it's for, the main things it does, and the 'wow' moment.)",
     intro: "Please build this web app for me — just the core product to start. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
-    instruction: "Build just this core product — the main thing it does — with clean, simple, friendly styling. Don't add accounts or payments yet; those come in the next weeks. When it's built, tell me exactly how to run it and see it in my browser. Then I'll tell you what to change. Let's go!",
-    prereqs: true },
+    instruction: "Build just this core product — the main thing it does — with clean, simple, friendly styling. Don't add accounts or payments yet. When it's built, tell me exactly how to run it and see it in my browser. Then I'll tell you what to change. Let's go!" },
   4: { key: "accounts",
     heading: "Make it yours — accounts & saved data 🔐",
     lead: "Build this onto the product you shipped in Week 3 — without breaking what already works.",
@@ -1963,7 +1969,7 @@ const BUILD_LAYERS = {
     fieldLabel: "The metrics to add",
     promptLabel: "Add these metrics:",
     intro: "Add basic, privacy-respecting analytics to the app I've already built.",
-    seed: `Add simple analytics so I can measure the success I defined in my Week 2 spec:
+    seed: `Add simple analytics so I can measure how my product is really doing:
 - Daily and monthly active users (DAU / MAU).
 - Retention: how many people come back after day 1 and day 7.
 - Where in the funnel people drop off.
@@ -2105,6 +2111,12 @@ Why people love it: [the payoff].
 function ShapePlan({ s, setS, bare }) {
   const shape = s.shape || {};
   const setField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
+  // The build tools (Claude Pro, GitHub, Vercel) are set up ONCE here in Week 2 — before building
+  // starts — rather than repeated on every build week. Same s.prereqs state as the Overview.
+  const prereqs = (s && s.prereqs) || {};
+  const buildTools = PREREQS.filter((p) => p.build);
+  const allReady = buildTools.every((p) => prereqs[p.id]);
+  const togglePrereq = (id) => setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
   const field = (k, label, placeholder, rows = 3) => (
@@ -2123,7 +2135,31 @@ function ShapePlan({ s, setS, bare }) {
       {field("accounts", "Week 4 · Accounts & saved data", "Who signs in, and what's saved for each person — what does a user see that's theirs?", 4)}
       {field("payments", "Week 5 · Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
       {field("production", "Week 6 · Production-ready", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
-      {field("success", "What success looks like", "Take the product + financial success you sketched in Week 1 and make it measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run. (You'll track these in Week 9.)", 5)}
+      {field("success", "What success looks like", "Take the product + financial success you sketched in Week 1 and make it measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run.", 5)}
+
+      {/* Build tools — set up ONCE here, before building starts (not repeated each build week). */}
+      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginTop: 4 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Set up your build tools</span>
+          <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
+        </div>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
+          Get these ready before you start building (all free except <b>Claude Pro</b>, ~$20/month; a parent can help with sign-ups). Tick each off:
+        </p>
+        {buildTools.map((p) => {
+          const checked = !!prereqs[p.id];
+          return (
+            <div key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0" }}>
+              <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+              <span style={{ fontSize: 13, lineHeight: 1.45 }}>
+                <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
+                {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
+                {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -2149,7 +2185,9 @@ function BuildLayer({ week, s, setS, bare }) {
   // prompts (added after launch, not part of the product spec), stored per-week in s.grow[week].
   const fromSpec = !!cfg.key;
   const grow = s.grow && s.grow[week];
-  const value = fromSpec ? shape[cfg.key] : (grow !== undefined ? grow : cfg.seed);
+  // Weeks 3–6: from the Week 2 spec. Weeks 7–10: the student's own adaptation (starts empty — the
+  // seed is shown above as the class-material sample, and the prompt falls back to it if left blank).
+  const value = fromSpec ? shape[cfg.key] : (grow !== undefined ? grow : "");
   const hasLayer = has(value);
   const onChangeLayer = (v) => (fromSpec
     ? setS((p) => ({ ...p, shape: { ...(p.shape || {}), [cfg.key]: v } }))
@@ -2157,7 +2195,7 @@ function BuildLayer({ week, s, setS, bare }) {
   // The ready-to-paste prompt for THIS week's layer, assembled live from the field below.
   const generatedPrompt = [
     cfg.intro, "", cfg.promptLabel,
-    hasLayer ? value.trim() : cfg.placeholder,
+    hasLayer ? value.trim() : (fromSpec ? cfg.placeholder : cfg.seed),
     "", cfg.instruction,
   ].join("\n");
   const copyPrompt = async () => {
@@ -2220,18 +2258,18 @@ function BuildLayer({ week, s, setS, bare }) {
             <b>This part of your Week 2 spec is empty.</b> Fill it in below (or back in Week 2) so AI builds <i>your</i> product — it's the same spec.
           </div>
         )) : (
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.turq, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Sparkles size={13} /> Starter prompt — tweak it to fit your product</div>
+          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.turq, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Sparkles size={13} /> Make the sample above your own</div>
         )}
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 2px" }}>
           {!fromSpec
-            ? "A starter prompt for this week — tweak it to fit your product, then Copy it into Claude Code on top of your existing app."
+            ? "Adapt the sample above to your product here, then Copy it into Claude Code on top of your existing app. (Leave it blank and Copy still sends the sample.)"
             : week === 3
               ? "This IS your prompt — no separate writing. Edit it and it updates your Week 2 spec too, then Copy it into Claude Code."
               : "This builds on top of what you already shipped. Edit it (it syncs to Week 2), then Copy it into Claude Code on top of your existing app."}
         </p>
         <label style={{ display: "block", marginTop: 10 }}>
           <span style={lab}>{cfg.fieldLabel}</span>
-          <textarea aria-label={cfg.fieldLabel} value={value || ""} onChange={(e) => onChangeLayer(e.target.value)} rows={6} placeholder={cfg.placeholder || cfg.seed} style={fieldS} />
+          <textarea aria-label={cfg.fieldLabel} value={value || ""} onChange={(e) => onChangeLayer(e.target.value)} rows={6} placeholder={cfg.placeholder || "Adapt the sample above to your own product…"} style={fieldS} />
         </label>
         {/* read-only preview of exactly what Copy hands to Claude */}
         <details style={{ marginTop: 12 }}>
