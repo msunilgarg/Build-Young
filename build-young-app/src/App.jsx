@@ -1794,6 +1794,12 @@ Use a trusted checkout (like Stripe) — never handle card details yourself.`,
   production: `Emails: a welcome when they enroll, a reminder 2 days before each week's first class, a recap with homework after each week, and a certificate at the end.
 Findable: the site shows up in search and looks right when someone shares the link (title, description, share image).
 Safe: it checks everything people type in, keeps secret keys off the browser, and protects students' data — they're minors.`,
+  success: `Building on what success looked like in Week 1, here's how we'll measure it (we track these in Week 9):
+Product success: real teens use it weekly and keep coming back through the whole course — they'd be bummed if it went away, and they tell friends, so cohorts keep filling.
+• Active user = a student who opens their dashboard and advances their week.
+• Retention = they come back week after week, not just once.
+• Referral = they tell a friend who enrolls (the "magic moment" is sharing a link to their live product).
+Financial success: it earns more than it costs to run, and most new families come from word of mouth — so we spend little to find them, with enough left over to keep going and make it bigger.`,
 };
 
 // Week 3 "Make It (with AI)" is a hands-on, live build week — so the class material is just three
@@ -1855,6 +1861,7 @@ function weekExample(week) {
     ["Week 4 · Accounts & saved data", SHAPE_EXAMPLE.accounts],
     ["Week 5 · Payments", SHAPE_EXAMPLE.payments],
     ["Week 6 · Production-ready", SHAPE_EXAMPLE.production],
+    ["What success looks like (you'll measure it in Week 9)", SHAPE_EXAMPLE.success],
   ]} />;
   return null;
 }
@@ -1956,7 +1963,7 @@ const BUILD_LAYERS = {
     fieldLabel: "The metrics to add",
     promptLabel: "Add these metrics:",
     intro: "Add basic, privacy-respecting analytics to the app I've already built.",
-    seed: `Add simple analytics so I can see how my product is doing:
+    seed: `Add simple analytics so I can measure the success I defined in my Week 2 spec:
 - Daily and monthly active users (DAU / MAU).
 - Retention: how many people come back after day 1 and day 7.
 - Where in the funnel people drop off.
@@ -2110,12 +2117,13 @@ function ShapePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Your spec is your product, planned out — <b>four parts, one per week (3–6)</b>. Plan all four now; you'll build them one at a time, each adding the next layer on top of what you've already made. The more specific and complete you are, the better. <span style={{ color: C.muted }}>Saved automatically.</span>
+        Your spec is your product, planned out — <b>the four parts you'll build</b> (one per week, 3–6), <b>plus what success looks like</b> so you know what you're aiming for. The more specific and complete you are, the better. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
       {field("product", "Week 3 · The core product", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough to build the core product you can ship live. (Just the core — no accounts or payments yet.)", 6)}
       {field("accounts", "Week 4 · Accounts & saved data", "Who signs in, and what's saved for each person — what does a user see that's theirs?", 4)}
       {field("payments", "Week 5 · Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
       {field("production", "Week 6 · Production-ready", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
+      {field("success", "What success looks like", "Take the product + financial success you sketched in Week 1 and make it measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run. (You'll track these in Week 9.)", 5)}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
