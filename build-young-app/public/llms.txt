@@ -10,7 +10,7 @@ Teens ages 15–18 (the "Builders" program). Each season you choose a schedule �
 - Builders program (ages 15–18) — $999
 
 ## What students learn
-Act 1 — 0 to 1: build the first version (Weeks 1–6):
+Act 1 — 0 to 1: build the core product (Weeks 1–6):
 - Find a real problem people will pay to solve, and write a clear spec as four build prompts
 - Build the product with AI (Claude Code) in four layers, one per week: the core product, then accounts & saved data, then payments, then a production-ready launch (emails, findability, safety)
 Act 2 — 1 to 100: scale it into a business (Weeks 7–9):

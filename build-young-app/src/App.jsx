@@ -305,9 +305,9 @@ async function fetchMarketEvent(phase, week, checkin) {
 const WEEKS = [
   // ─── Act 1 · 0 → 1 (Weeks 1–6): find a problem → write the 4-prompt spec → build it in 4 layers
   // (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) ───
-  { act: 1, t: "Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your build starts here.", action: "build", comingSoon: true },
+  { act: 1, t: "Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your product starts here.", action: "build", comingSoon: true },
   { act: 1, t: "Shape the Idea — write your spec", s: "Turn the need into a clear spec: what it is, what it does, how it works.", action: "build", comingSoon: true },
-  { act: 1, t: "Build the First Version", s: "Hand Claude your spec and build the core product — the main thing it does — then ship it live.", action: "build", comingSoon: true },
+  { act: 1, t: "Build the Core Product", s: "Hand Claude your spec and build the core product — the main thing it does — then ship it live.", action: "build", comingSoon: true },
   { act: 1, t: "Make It Yours", s: "Add sign-in and save each user's data, so it's personal and remembers them.", action: "build", comingSoon: true },
   { act: 1, t: "Get Paid", s: "Add real payments so your product can charge for the value it delivers.", action: "build", comingSoon: true },
   { act: 1, t: "Make It Real", s: "Emails, being findable, and keeping data safe — everything that makes it ready for real users.", action: "build", comingSoon: true },
@@ -322,9 +322,9 @@ const WEEKS = [
       { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
     ] },
   { act: 3, t: "Money: Big Purchases", s: "Buy vs. rent, good vs. bad debt — choose and finance a home and a car.", action: "buy" },
-  { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the build you made and the net worth it earned.", action: "capstone" },
+  { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the product you made and the net worth it earned.", action: "capstone" },
 ];
-const ACTS = { 1: "0 → 1 · Build the first version", 2: "1 → 100 · Scale it into a business", 3: "Manage what you've earned" };
+const ACTS = { 1: "0 → 1 · Build the core product", 2: "1 → 100 · Scale it into a business", 3: "Manage what you've earned" };
 
 // ============================ SIM ECONOMY ============================
 // One place for every dollar figure, re-tuned to a realistic young-adult budget around a
@@ -869,7 +869,7 @@ const HeroPreview = () => {
         <g transform="translate(40,92)">
           <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR NET WORTH</text>
           <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>${nw.toLocaleString()}</text>
-          <g key={"chip" + i} className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +{fmt(STEADY_INCOME)} from your build</text></g>
+          <g key={"chip" + i} className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +{fmt(STEADY_INCOME)} from your product</text></g>
           <defs>
             <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#0067b8" stopOpacity="0.28" /><stop offset="100%" stopColor="#0067b8" stopOpacity="0" />
@@ -940,7 +940,7 @@ function Testimonials({ items = [] }) {
           </p>
           <div className="disp" style={{ fontSize: 14.5, fontWeight: 800, color: C.emerald, marginTop: 14 }}>
             — {t.name || "A Build Young builder"}
-            {t.link && <> · <a href={t.link} target="_blank" rel="noopener noreferrer" style={{ color: C.turq, fontWeight: 700, textDecoration: "none" }}>See their build ↗</a></>}
+            {t.link && <> · <a href={t.link} target="_blank" rel="noopener noreferrer" style={{ color: C.turq, fontWeight: 700, textDecoration: "none" }}>See their product ↗</a></>}
           </div>
         </div>
         {/* count + dots */}
@@ -1032,7 +1032,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           {[
             { icon: Sparkles, t: "Build something people need", d: "First, build a real product, app, or service (with AI as your tool) that solves a real problem — learning the one skill AI can't replace: taste, knowing what good looks like.", c: C.gold },
             { icon: TrendingUp, t: "Grow it into a business", d: "Get users and grow — understand your funnel, reach the right people (go-to-market), and build growth right into the product.", c: C.emerald },
-            { icon: Wallet, t: "Your build earns the income", d: `That's where the money comes from — your venture grows to about ${fmt(STEADY_INCOME)} a period. No paycheck handed to you.`, c: C.emerald },
+            { icon: Wallet, t: "Your product earns the income", d: `That's where the money comes from — your venture grows to about ${fmt(STEADY_INCOME)} a period. No paycheck handed to you.`, c: C.emerald },
             { icon: LineIcon, t: "Markets move like the real world", d: "Once you're investing, live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
             { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car with what you've earned. Live with the payments.", c: C.green },
             { icon: Shield, t: "Watch it compound", d: "Your savings and investments grow through every market move — and you graduate knowing your own net worth.", c: C.pink },
@@ -1143,7 +1143,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
                 These days I build AI products for a living, so I've watched this shift up close — and I wanted my daughters on the right side of it. So I went looking for a class that taught both: how to build something real, and how to handle the money it earns. There's plenty of free material out there; banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. The paid classes that are live mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life. And not one of them teaches building. So I made one.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                It's the thing I couldn't find: not more content to ignore or slides to sit through, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It's run the way real work is — hands-on and agile, where you try something, see what happens, and adjust, not a lecture you forget by Friday. It starts where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that people would pay for — and in the simulation, that's where the income comes from. Then it gets practical — business taxes, a budget that breaks and gets fixed, big purchases, investing so it compounds — learning to manage and grow what the build earns. Not a one-off lesson, but one continuous simulation your kid carries for twelve weeks, where the decisions compound and the mistakes are safe because the money isn't real yet.
+                It's the thing I couldn't find: not more content to ignore or slides to sit through, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It's run the way real work is — hands-on and agile, where you try something, see what happens, and adjust, not a lecture you forget by Friday. It starts where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that people would pay for — and in the simulation, that's where the income comes from. Then it gets practical — business taxes, a budget that breaks and gets fixed, big purchases, investing so it compounds — learning to manage and grow what the product earns. Not a one-off lesson, but one continuous simulation your kid carries for twelve weeks, where the decisions compound and the mistakes are safe because the money isn't real yet.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 That's the whole idea: money isn't a subject you study, it's a skill you practice — and so is building. We're raising builders, not consumers — kids who reach adulthood having already lived it. I called it Build Young because the one advantage they have that no one can buy is time, and it compounds — habits, character, taste, and even a few invested dollars all grow with it.
@@ -1782,7 +1782,7 @@ What to build first (the core product):
 
 The "wow": the first time a teen shares a link to their live product and watches someone actually use it. Even their parents!
 
-(This is Prompt 1 — what Claude builds in Week 3. Write it in enough detail that it could build a working first version from this alone. No accounts or payments yet — just the core.)`,
+(This is what you build first, in Week 3 — the core product. Write it in enough detail that it could be built from this alone. No accounts or payments yet — just the core.)`,
   accounts: `After they're set up, each student gets their own login that works on any device, with password reset. Their dashboard remembers everything that's theirs: which week they're on, their notes, their build plan and spec, and their simulation progress (cash, holdings, net worth) — so they pick up right where they left off.
 
 Use a trusted, standard sign-in — never homemade password code.`,
@@ -1848,13 +1848,12 @@ function weekExample(week) {
     ["What product success looks like", EXAMPLE_BUILD.productSuccess],
     ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
   ]} />;
-  if (week === 2) return <ExampleCard subtitle="A worked spec — four build prompts, one per week (3–6)" fields={[
-    ["Prompt 1 · Build the First Version (Wk3)", SHAPE_EXAMPLE.product],
-    ["Prompt 2 · Make It Yours (Wk4)", SHAPE_EXAMPLE.accounts],
-    ["Prompt 3 · Get Paid (Wk5)", SHAPE_EXAMPLE.payments],
-    ["Prompt 4 · Make It Real (Wk6)", SHAPE_EXAMPLE.production],
+  if (week === 2) return <ExampleCard subtitle="A worked spec — four parts, one per week (3–6)" fields={[
+    ["Week 3 · The core product", SHAPE_EXAMPLE.product],
+    ["Week 4 · Accounts & saved data", SHAPE_EXAMPLE.accounts],
+    ["Week 5 · Payments", SHAPE_EXAMPLE.payments],
+    ["Week 6 · Production-ready", SHAPE_EXAMPLE.production],
   ]} />;
-  if (week === 3) return <PrinciplesCard title="Building with AI — 3 things to remember" items={MAKE_PRINCIPLES} />;
   return null;
 }
 
@@ -1892,36 +1891,36 @@ function weekActivity(week, s, setState, bare) {
 // writes all four in their Week 2 spec (s.shape); each build week shows ONLY its own layer's prompt.
 const BUILD_LAYERS = {
   3: { key: "product",
-    heading: "Build the first version 🛠️",
+    heading: "Build the core product 🛠️",
     lead: "This week you build Layer 1 — the core product. Your Week 2 spec IS your prompt: hand it to Claude, then run the loop — describe → see → taste → refine. Build just the core (no accounts or payments yet), then ship it so someone can actually use it.",
-    fieldLabel: "Prompt 1 · The core product",
+    fieldLabel: "The core product",
     promptLabel: "What to build — the core product:",
-    placeholder: "(From your Week 2 spec, Prompt 1: what it is, who it's for, the main things it does, and the 'wow' moment.)",
-    intro: "Please build the first version of this web app. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
+    placeholder: "(From your Week 2 spec — the core product: what it is, who it's for, the main things it does, and the 'wow' moment.)",
+    intro: "Please build this web app for me — just the core product to start. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
     instruction: "Build just this core product — the main thing it does — with clean, simple, friendly styling. Don't add accounts or payments yet; those come in the next weeks. When it's built, tell me exactly how to run it and see it in my browser. Then I'll tell you what to change. Let's go!",
     prereqs: true },
   4: { key: "accounts",
     heading: "Make it yours — accounts & saved data 🔐",
     lead: "Layer 2 — make it personal. Add sign-in and save each user's own data, on top of the product you built in Week 3.",
-    fieldLabel: "Prompt 2 · Accounts & saved data",
+    fieldLabel: "Accounts & saved data",
     promptLabel: "What to add — accounts & saved data:",
-    placeholder: "(From your Week 2 spec, Prompt 2: who signs in, and what's saved for each person.)",
+    placeholder: "(From your Week 2 spec — accounts & saved data: who signs in, and what's saved for each person.)",
     intro: "Please add accounts and saved data to the app I've already built. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use a trusted, standard sign-in — do NOT write your own password or security code. Save each user's data so they pick up where they left off. When it's done, tell me how to test signing in and that my data is saved." },
   5: { key: "payments",
     heading: "Get paid — add payments 💳",
     lead: "Layer 3 — get paid. Add a real checkout so your product can charge for the value it delivers.",
-    fieldLabel: "Prompt 3 · Payments",
+    fieldLabel: "Payments",
     promptLabel: "What to add — payments:",
-    placeholder: "(From your Week 2 spec, Prompt 3: what people pay for, how much, and what they get.)",
+    placeholder: "(From your Week 2 spec — payments: what people pay for, how much, and what they get.)",
     intro: "Please add payments to the app I've already built. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use a trusted checkout (like Stripe) — never handle card details yourself. Unlock the paid features only after payment is confirmed. When it's done, tell me how to test a payment safely." },
   6: { key: "production",
     heading: "Make it real — production-ready ✨",
     lead: "Layer 4 — make it real. Add the finishing pieces that make it safe, findable, and ready for real users.",
-    fieldLabel: "Prompt 4 · Production-ready",
+    fieldLabel: "Production-ready",
     promptLabel: "What to make production-ready:",
-    placeholder: "(From your Week 2 spec, Prompt 4: emails, being findable, and keeping data safe.)",
+    placeholder: "(From your Week 2 spec — production-ready: emails, being findable, and keeping data safe.)",
     intro: "Please make the app I've already built production-ready. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use trusted services to send emails; keep every secret key off the browser; check everything users type in; and make it findable (a clear title, description, and share image). When it's done, give me a short checklist to confirm it's ready for real users." },
 };
@@ -1986,14 +1985,14 @@ Why people love it: [the payoff].
 
   const inner = (
     <>
-      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your build — start from the customer 🧭</h3>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your product — start from the customer 🧭</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
         Before you build anything, get clear on <b>who it's for</b> and <b>why</b>. Pick an idea to start from (or write your own), name the pain you're solving, then write a short <b>press release</b> as if it already launched. Writing it first forces the idea to be clear. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
       <label style={{ display: "block", marginBottom: 14 }}>
         <span style={labelStyle}>Your idea</span>
-        <select aria-label="Choose a build idea" value={build.scenario || ""} onChange={(e) => setField("scenario", e.target.value)} style={inputStyle}>
+        <select aria-label="Choose an idea" value={build.scenario || ""} onChange={(e) => setField("scenario", e.target.value)} style={inputStyle}>
           <option value="">Choose an idea to start from…</option>
           {SCENARIO_GROUPS.map((g) => (
             <optgroup key={g.group} label={g.group}>
@@ -2060,12 +2059,12 @@ function ShapePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Your spec is your build plan — <b>four prompts, one per week</b>. Plan all four now; then each week (3–6) you hand the next one to Claude and add that layer on top of what you already built. The more specific you are, the better Claude builds. <span style={{ color: C.muted }}>Saved automatically.</span>
+        Your spec is your product, planned out — <b>four parts, one per week (3–6)</b>. Plan all four now; you'll build them one at a time, each adding the next layer on top of what you've already made. The more specific and complete you are, the better. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
-      {field("product", "Prompt 1 · Build the First Version — the core product (Week 3)", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough for Claude to build a working first version you can ship live. (Just the core — no accounts or payments yet.)", 6)}
-      {field("accounts", "Prompt 2 · Make It Yours — accounts & saved data (Week 4)", "Who signs in, and what's saved for each person — what does a user see that's theirs? (Use a trusted, standard sign-in — never your own password code.)", 4)}
-      {field("payments", "Prompt 3 · Get Paid — payments (Week 5)", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay? (Use a trusted checkout like Stripe — never handle card details yourself.)", 4)}
-      {field("production", "Prompt 4 · Make It Real — production-ready (Week 6)", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
+      {field("product", "Week 3 · The core product", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough to build the core product you can ship live. (Just the core — no accounts or payments yet.)", 6)}
+      {field("accounts", "Week 4 · Accounts & saved data", "Who signs in, and what's saved for each person — what does a user see that's theirs?", 4)}
+      {field("payments", "Week 5 · Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
+      {field("production", "Week 6 · Production-ready", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -2211,7 +2210,7 @@ function ShowcaseCapture({ s }) {
       ) : (
         <>
           <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 12px" }}>
-            You did the whole journey — built something real and learned to manage what it earns. Share your build and a line about how it went; with your OK, we'd love to feature it as a testimonial.
+            You did the whole journey — built something real and learned to manage what it earns. Share your product and a line about how it went; with your OK, we'd love to feature it as a testimonial.
           </p>
           <label style={{ display: "block", marginBottom: 12 }}>
             <span style={labelStyle}>Your build's link</span>
@@ -2965,7 +2964,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
       )}
 
       {action === "review" && (
-        <Wrap title="Same Start, Different Results" blurb={`Everyone's build earns the same ${fmt(PAY)} a period. Here's what your choices built so far — and there's still time to adjust before the final stretch.`}>
+        <Wrap title="Same Start, Different Results" blurb={`Everyone's product earns the same ${fmt(PAY)} a period. Here's what your choices built so far — and there's still time to adjust before the final stretch.`}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <Stat label="Net worth" value={fmt(netWorth(s))} color={C.emerald} />
             <Stat label="Invested" value={fmt(holdingsTotal(s) + s.retirement)} />
@@ -2983,9 +2982,9 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
       )}
 
       {action === "hustle" && (
-        <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a build you own creates value while you sleep. Make a small product, app, or service — with AI as your tool — that you believe people would pay for, and watch it earn in the simulation.">
+        <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a product you own creates value while you sleep. Make a small product, app, or service — with AI as your tool — that you believe people would pay for, and watch it earn in the simulation.">
           {!s.hustle
-            ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your build (−{fmt(HUSTLE_START)} to start)</button>
+            ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your product (−{fmt(HUSTLE_START)} to start)</button>
             : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your build is live — people are paying for the value it creates, so it earns every time you advance. That's building economic value: solve a real problem, own the upside.</div>}
         </Wrap>
       )}
@@ -4323,7 +4322,7 @@ function ShowcaseAdmin() {
   }, []);
   return (
     <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 660 }}>What graduating students shared at the capstone — their build link + feedback (potential testimonials). “Consent” = they confirmed a parent/guardian is OK to feature it. <b>Get explicit parental consent before any public use</b> (they're minors). Enable/disable collection under <b>Settings → Student showcase capture</b>.</div>
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 660 }}>What graduating students shared at the capstone — their product link + feedback (potential testimonials). “Consent” = they confirmed a parent/guardian is OK to feature it. <b>Get explicit parental consent before any public use</b> (they're minors). Enable/disable collection under <b>Settings → Student showcase capture</b>.</div>
       {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
       {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No submissions yet.</div>}
       {list && list.map((r, i) => (
