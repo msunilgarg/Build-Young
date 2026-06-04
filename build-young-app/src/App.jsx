@@ -298,47 +298,47 @@ async function fetchMarketEvent(phase, week, checkin) {
 // team adds weekly class content as it's built (verified, primary-source links only, per the
 // statistics-integrity bar). A few are seeded as examples; the rest show "coming soon" in the
 // Course hub until filled in.
-// THREE ACTS: Act 1 · 0→1 (Weeks 1–6) — go from nothing to a launched, earning product. Act 2 ·
-// 1→100 (Weeks 7–8) — scale first customers into a real business. Act 3 · MANAGE (Weeks 9–11) +
-// the Capstone (Week 12) — manage the money your build earns. Build/scale lesson content is the
+// THREE ACTS: Act 1 · 0→1 (Weeks 1–7) — go from nothing to a launched, earning product. Act 2 ·
+// 1→100 (Weeks 8–10) — grow first customers into a real business. Act 3 · MANAGE (Week 11) +
+// the Capstone (Week 12) — manage the money your product earns. Build/grow lesson content is the
 // per-week activity (weekActivity); the finance weeks have interactive sim panels.
 const WEEKS = [
-  // ─── Act 1 · 0 → 1 (Weeks 1–6): find a problem → write the 4-prompt spec → build it in 4 layers
-  // (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) ───
+  // ─── Act 1 · 0 → 1 (Weeks 1–7): find a problem → write the spec → build it in 4 layers
+  // (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → Wk7 go live ───
   { act: 1, t: "Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your product starts here.", action: "build", comingSoon: true },
   { act: 1, t: "Shape the Idea — write your spec", s: "Turn the need into a clear spec: what it is, what it does, how it works.", action: "build", comingSoon: true },
   { act: 1, t: "Build the Core Product", s: "Hand Claude your spec and build the core product — the main thing it does — then ship it live.", action: "build", comingSoon: true },
   { act: 1, t: "Make It Yours", s: "Add sign-in and save each user's data, so it's personal and remembers them.", action: "build", comingSoon: true },
   { act: 1, t: "Get Paid", s: "Add real payments so your product can charge for the value it delivers.", action: "build", comingSoon: true },
   { act: 1, t: "Make It Real", s: "Emails, being findable, and keeping data safe — everything that makes it ready for real users.", action: "build", comingSoon: true },
-  // ─── Act 2 · 1 → 100 (Weeks 7–9): funnel → scale & grow ───
-  { act: 2, t: "The Funnel: Get & Keep Users", s: "How people find you, try you, and stick — and where you lose them.", action: "build", comingSoon: true },
-  { act: 2, t: "Go-To-Market (GTM)", s: "Pick your channels and your message — how you actually reach the people who need it.", action: "build", comingSoon: true },
+  { act: 1, t: "Go Live", s: "Point a real web address at it, switch on live payments, and run your launch checklist — your product is open for business.", action: "build", comingSoon: true },
+  // ─── Act 2 · 1 → 100 (Weeks 8–10): grow it — funnel → metrics & scaling → product-led growth ───
+  { act: 2, t: "The Funnel", s: "Build the funnel into your product: how people find it, try it, and come back — the path to the success you defined in Week 1.", action: "build", comingSoon: true },
+  { act: 2, t: "Metrics & Scaling", s: "Track active users (DAU/MAU) and retention to find what's holding growth back — then decide where to invest to grow.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "Build growth INTO the product — make it so good (and shareable) it spreads itself.", action: "build", comingSoon: true },
-  // ─── Act 3 · MANAGE (Weeks 10–11) + Capstone (Week 12): manage the money your build earns ───
-  { act: 3, t: "Money: Saving & Investing", s: "Pay yourself first; auto-fund accounts; pick a risk style and ride real market moves.", action: "allocation",
+  // ─── Act 3 · MANAGE (Week 11) + Capstone (Week 12): manage the money your product earns ───
+  { act: 3, t: "Money: Manage What You Earn", s: "Your product earns a steady income — pay yourself first, invest it to compound, and finance big purchases without wrecking your budget.", action: "money",
     materials: [
       { label: "Investor.gov — Compound Interest Calculator", url: "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator" },
       { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
     ] },
-  { act: 3, t: "Money: Big Purchases", s: "Buy vs. rent, good vs. bad debt — choose and finance a home and a car.", action: "buy" },
   { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the product you made and the net worth it earned.", action: "capstone" },
 ];
-const ACTS = { 1: "0 → 1 · Build the core product", 2: "1 → 100 · Scale it into a business", 3: "Manage what you've earned" };
+const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Manage what you've earned" };
 
 // ============================ SIM ECONOMY ============================
 // One place for every dollar figure, re-tuned to a realistic young-adult budget around a
 // $10,000 paycheck per class. Keep purchases funds-gated against this so the "save toward a
 // goal / live with the payments" lessons hold. Change PAY here and the rest stays in scale.
-// Income comes from the student's BUILD, not a flat paycheck. Build + scale (weeks 1–9, Acts
-// 1–2): you find a problem, build the product, and scale it — revenue ramps from zero to steady.
-// Manage act (weeks 10–12): the established build earns a steady income you now learn to manage
-// (investing, big purchases). INCOME[courseWeek-1] is the business revenue that period.
+// Income comes from the student's PRODUCT, not a flat paycheck. Build + launch + grow (weeks 1–10,
+// Acts 1–2): you find a problem, build the product, take it live, and grow it — revenue ramps from
+// zero to steady. Manage act (weeks 11–12): the established product earns a steady income you now
+// learn to manage (investing, big purchases). INCOME[courseWeek-1] is the business revenue that period.
 export const INCOME = [0, 0, 0, 3000, 6000, 9000, 10000, 10000, 10000, 10000, 10000, 10000];
-export const STEADY_INCOME = 10000;  // per-period business income once the build is established
-export const PAY = STEADY_INCOME;    // back-comat alias (steady business income, not a paycheck)
+export const STEADY_INCOME = 10000;  // per-period business income once the product is established
+export const PAY = STEADY_INCOME;    // back-compat alias (steady business income, not a paycheck)
 const TAX_RATE = 0.15;               // tax on business income (self-employment / business tax)
-const FINANCE_FIRST_WEEK = 10;       // weeks 1–9 = Build (1–6) + Scale (7–9); 10–12 = Manage (money)
+const FINANCE_FIRST_WEEK = 11;       // weeks 1–10 = Build (1–7) + Grow (8–10); 11–12 = Manage (money)
 // CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
 export const CHECKIN_TIME = "5:00–6:00 PM PST"; // 60-minute follow-up check-in (the week after the course)
 // The check-in is ONE MONTH after the cohort's final (Week 12) class, kept on the cohort's
@@ -810,7 +810,7 @@ const HeroBackdrop = () => (
 
 // A stylized peek at the student simulation — cycles through the FINANCE-act weeks (8/10/12),
 // when there's actually income from the build, a portfolio, and the $10k steady build income.
-// (Weeks 1–6 are the build act: pre-revenue, nothing invested yet — so we don't show them.)
+// (Weeks 1–10 are build + grow: pre-investment, nothing invested yet — so we don't show them.)
 const HP_SNAPS = [
   { week: 8, nw: 24800, pts: "0,196 70,184 140,188 210,170 280,176 350,156 420,162 490,142 540,130", alloc: [0.45, 0.30, 0.15, 0.10] },
   { week: 10, nw: 48200, pts: "0,184 70,166 140,176 210,140 280,148 350,112 420,120 490,84 540,66", alloc: [0.55, 0.25, 0.12, 0.08] },
@@ -1031,7 +1031,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
             { icon: Sparkles, t: "Build something people need", d: "First, build a real product, app, or service (with AI as your tool) that solves a real problem — learning the one skill AI can't replace: taste, knowing what good looks like.", c: C.gold },
-            { icon: TrendingUp, t: "Grow it into a business", d: "Get users and grow — understand your funnel, reach the right people (go-to-market), and build growth right into the product.", c: C.emerald },
+            { icon: TrendingUp, t: "Grow it into a business", d: "Take it live, then grow — build a funnel, track what's working (active users + retention), and bake growth right into the product.", c: C.emerald },
             { icon: Wallet, t: "Your product earns the income", d: `That's where the money comes from — your venture grows to about ${fmt(STEADY_INCOME)} a period. No paycheck handed to you.`, c: C.emerald },
             { icon: LineIcon, t: "Markets move like the real world", d: "Once you're investing, live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
             { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car with what you've earned. Live with the payments.", c: C.green },
@@ -1051,7 +1051,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, write a spec, then build it in four layers — product, accounts, payments, launch — Weeks 1–6), <b>1 → 100</b> (funnel, scale &amp; grow, Weeks 7–9), and <b>manage what you've earned</b> (Weeks 10–11), finishing with a capstone. Here's every week.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, write a spec, build it in four layers, then go live — Weeks 1–7), <b>1 → 100</b> (funnel, metrics, and product-led growth — Weeks 8–10), and <b>manage what you've earned</b> (Week 11), finishing with a capstone. Here's every week.</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => (
           <div key={act} style={{ marginTop: 26 }}>
@@ -1143,7 +1143,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
                 These days I build AI products for a living, so I've watched this shift up close — and I wanted my daughters on the right side of it. So I went looking for a class that taught both: how to build something real, and how to handle the money it earns. There's plenty of free material out there; banks and nonprofits have whole libraries of it. But it sits unwatched, because a video doesn't make a teenager show up. The paid classes that are live mostly teach stock-picking — the flashy 10%, not the part that actually shapes a life. And not one of them teaches building. So I made one.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                It's the thing I couldn't find: not more content to ignore or slides to sit through, but a live class with a real teacher, a small group, and a standing time each week — the things that turn “available” into “actually done.” It's run the way real work is — hands-on and agile, where you try something, see what happens, and adjust, not a lecture you forget by Friday. It starts where almost no class does: actually <b>building something of your own</b>, with AI as your tool, that people would pay for — and in the simulation, that's where the income comes from. Then it gets practical — business taxes, a budget that breaks and gets fixed, big purchases, investing so it compounds — learning to manage and grow what the product earns. Not a one-off lesson, but one continuous simulation your kid carries for twelve weeks, where the decisions compound and the mistakes are safe because the money isn't real yet.
+                It's the thing I couldn't find: a live class, a small group, a standing weekly time — what turns “available” into “actually done.” It starts where almost none do — actually <b>building something of your own</b> with AI, that people would pay for — then turns practical: taxes, budgeting, investing, big purchases. One continuous twelve-week simulation where the decisions compound and the mistakes are safe, because the money isn't real yet.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 That's the whole idea: money isn't a subject you study, it's a skill you practice — and so is building. We're raising builders, not consumers — kids who reach adulthood having already lived it. I called it Build Young because the one advantage they have that no one can buy is time, and it compounds — habits, character, taste, and even a few invested dollars all grow with it.
@@ -1151,9 +1151,11 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 Start building young, and time does the rest.
               </p>
-              <div style={{ fontWeight: 700, marginTop: 12 }}>Sunil Garg <span style={{ color: C.muted, fontWeight: 500 }}>· Founder</span></div>
-              <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4 }}>Ex-Microsoft · two decades in product · financial education, not licensed financial advice.</div>
-              <a href={CONFIG.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, color: C.emerald, fontWeight: 700, fontSize: 13.5, textDecoration: "none" }}><Linkedin size={15} /> Connect with me on LinkedIn</a>
+              <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 18, paddingTop: 14 }}>
+                <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Sunil Garg</div>
+                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2, letterSpacing: ".01em" }}>Founder · Ex-Microsoft · two decades in product</div>
+                <a href={CONFIG.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 12, color: C.emerald, fontWeight: 700, fontSize: 13.5, textDecoration: "none" }}><Linkedin size={16} /> Connect on LinkedIn</a>
+              </div>
             </div>
           </Card>
         </div>
@@ -1624,7 +1626,7 @@ function BookCall({ onBack, onHome, onEnroll }) {
   );
 }
 
-// Pre-class setup checklist. In Act 1 (Weeks 1–6) the student builds their OWN app with AI as the
+// Pre-class setup checklist. In Act 1 (Weeks 1–7) the student builds their OWN app with AI as the
 // tool, so they need the same builder's "workshop" set up first — the same accounts/tools used to
 // build Build Young itself. Each item says WHEN it's needed so nothing's a surprise; a parent can
 // help with sign-ups (several services require an adult under 18). Students tick these off and the
@@ -1724,9 +1726,9 @@ function OverviewPanel({ s, batch, onTab, setS }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="enroll-grid">
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>What to expect</h3>
-          <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–6 — 0 → 1.</b> Find a problem, write a spec, then build your product with AI in four layers — the core product, accounts, payments, and a production-ready launch.</span></div>
-          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 7–9 — 1 → 100.</b> Understand your funnel, then scale and grow what's working. Your income comes from what you build.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 10–12 — Manage the money.</b> Saving, investing through real market swings, big purchases — finishing with a capstone of what you built and what it's worth.</span></div>
+          <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — 0 → 1.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
+          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Build your funnel, measure what's working (active users + retention), and grow with product-led growth. Your income comes from your product.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Manage the money.</b> Pay yourself first, invest through real market swings, and finance big purchases — then a capstone of what you built and what it's worth.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
           <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
         </Card>
@@ -1923,6 +1925,55 @@ const BUILD_LAYERS = {
     placeholder: "(From your Week 2 spec — production-ready: emails, being findable, and keeping data safe.)",
     intro: "Please make the app I've already built production-ready. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use trusted services to send emails; keep every secret key off the browser; check everything users type in; and make it findable (a clear title, description, and share image). When it's done, give me a short checklist to confirm it's ready for real users." },
+  // Weeks 7–10 are GROWTH layers — features added after launch, so they aren't part of the Week 2
+  // product spec. Each is a starter prompt (`seed`) the student adapts to their own product;
+  // edits persist in s.grow[week].
+  7: { key: null,
+    heading: "Go live — open for business 🚀",
+    lead: "Your product works — now make it real to the world. Point a real web address at it, switch payments from test to live, and put your secret keys somewhere safe.",
+    fieldLabel: "Your go-live checklist",
+    promptLabel: "Take it live:",
+    intro: "Help me take my app live for real users. You guide me step by step; go slowly and confirm each step before the next.",
+    seed: `Help me take my app live for real users:
+- Connect my own web address (domain) on Vercel and make sure the secure padlock (HTTPS) works.
+- Switch payments from TEST keys to LIVE keys, and move every secret key into environment variables — never in the code or the browser.
+- Run a launch checklist with me: sign-up works, a real payment works, emails send, and nothing secret is exposed.`,
+    instruction: "Tell me exactly what to click. Flag anything that needs a real account or a parent's help (like live payment keys)." },
+  8: { key: null,
+    heading: "Build the funnel into your product 🧲",
+    lead: "Now make growth part of the product. The funnel is how people find it, try it, and come back — the path to the product success you defined in Week 1.",
+    fieldLabel: "The funnel to build in",
+    promptLabel: "Build this funnel into my product:",
+    intro: "Add a simple growth funnel to the app I've already built — don't break what works.",
+    seed: `Add a simple growth funnel to my product:
+- A clear landing page that explains what it does and gets people to try it fast.
+- A smooth first run, so a new user reaches the "magic moment" quickly.
+- An easy reason and way to come back (save their work, send a helpful email, etc.).`,
+    instruction: "Measure each step so I can see where people drop off. Keep it simple." },
+  9: { key: null,
+    heading: "Measure it — find the bottleneck 📊",
+    lead: "Track the numbers that show whether it's growing — daily and monthly active users (DAU/MAU) and retention — to find what's holding growth back, then decide where to invest to grow 1 → 100.",
+    fieldLabel: "The metrics to add",
+    promptLabel: "Add these metrics:",
+    intro: "Add basic, privacy-respecting analytics to the app I've already built.",
+    seed: `Add simple analytics so I can see how my product is doing:
+- Daily and monthly active users (DAU / MAU).
+- Retention: how many people come back after day 1 and day 7.
+- Where in the funnel people drop off.
+Show me a small dashboard of these and help me read it to find the ONE biggest bottleneck to fix next.`,
+    instruction: "Don't collect anything you don't need — especially since some users may be minors." },
+  10: { key: null,
+    heading: "Product-led growth 🌱",
+    lead: "Make the product itself the engine of growth — so good, and so shareable, it spreads on its own.",
+    fieldLabel: "The growth to build in",
+    promptLabel: "Build growth into the product:",
+    intro: "Help me build growth into the app itself — on top of what I already have.",
+    seed: `Help me build growth into the product itself:
+- An easy, natural way for users to share it or invite others (a share link, an invite, public results).
+- A reason sharing helps them, not just me.
+- Small touches that make people want to tell a friend.
+First suggest 2–3 product-led-growth ideas that fit MY product, then build the best one.`,
+    instruction: "Keep it genuine — no spammy or manipulative tricks." },
 };
 
 // Weeks 4–6 "your turn": a short intro + the week's copy-paste prompt (editable; seeded from
@@ -2086,9 +2137,16 @@ function BuildLayer({ week, s, setS, bare }) {
   const shape = s.shape || {};
   const [copied, setCopied] = useState(false);
   const has = (v) => v && v.trim();
-  const value = shape[cfg.key];
+  // Weeks 3–6 pull from the Week 2 product spec (s.shape[key]). Weeks 7–10 are seeded GROWTH
+  // prompts (added after launch, not part of the product spec), stored per-week in s.grow[week].
+  const fromSpec = !!cfg.key;
+  const grow = s.grow && s.grow[week];
+  const value = fromSpec ? shape[cfg.key] : (grow !== undefined ? grow : cfg.seed);
   const hasLayer = has(value);
-  // The ready-to-paste prompt for THIS week's layer, assembled live from the relevant spec field.
+  const onChangeLayer = (v) => (fromSpec
+    ? setS((p) => ({ ...p, shape: { ...(p.shape || {}), [cfg.key]: v } }))
+    : setS((p) => ({ ...p, grow: { ...(p.grow || {}), [week]: v } })));
+  // The ready-to-paste prompt for THIS week's layer, assembled live from the field below.
   const generatedPrompt = [
     cfg.intro, "", cfg.promptLabel,
     hasLayer ? value.trim() : cfg.placeholder,
@@ -2148,21 +2206,25 @@ function BuildLayer({ week, s, setS, bare }) {
             <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none", whiteSpace: "nowrap" }}>Open Claude Code ↗</a>
           </span>
         </div>
-        {hasLayer ? (
+        {fromSpec ? (hasLayer ? (
           <div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={13} /> Pulled from your Week 2 spec — edits here update Week 2 too</div>
         ) : (
           <div style={{ fontSize: 12.5, color: C.ink, lineHeight: 1.5, marginTop: 8, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 5, padding: "9px 11px" }}>
             <b>This part of your Week 2 spec is empty.</b> Fill it in below (or back in Week 2) so AI builds <i>your</i> product — it's the same spec.
           </div>
+        )) : (
+          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.turq, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Sparkles size={13} /> Starter prompt — tweak it to fit your product</div>
         )}
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 2px" }}>
-          {week === 3
-            ? "This IS your prompt — no separate writing. Edit it and it updates your Week 2 spec too, then Copy it into Claude Code."
-            : "This builds on top of what you already shipped. Edit it (it syncs to Week 2), then Copy it into Claude Code on top of your existing app."}
+          {!fromSpec
+            ? "A starter prompt for this week — tweak it to fit your product, then Copy it into Claude Code on top of your existing app."
+            : week === 3
+              ? "This IS your prompt — no separate writing. Edit it and it updates your Week 2 spec too, then Copy it into Claude Code."
+              : "This builds on top of what you already shipped. Edit it (it syncs to Week 2), then Copy it into Claude Code on top of your existing app."}
         </p>
         <label style={{ display: "block", marginTop: 10 }}>
           <span style={lab}>{cfg.fieldLabel}</span>
-          <textarea aria-label={cfg.fieldLabel} value={value || ""} onChange={(e) => setShapeField(cfg.key, e.target.value)} rows={6} placeholder={cfg.placeholder} style={fieldS} />
+          <textarea aria-label={cfg.fieldLabel} value={value || ""} onChange={(e) => onChangeLayer(e.target.value)} rows={6} placeholder={cfg.placeholder || cfg.seed} style={fieldS} />
         </label>
         {/* read-only preview of exactly what Copy hands to Claude */}
         <details style={{ marginTop: 12 }}>
@@ -2880,7 +2942,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
         </Wrap>
       )}
 
-      {action === "allocation" && (
+      {(action === "allocation" || action === "money") && (
         <Wrap title="Savings & Investing" blurb="Decide how much of your income flows automatically into savings and your brokerage, and pick an investing style. Starting now means decades of compounding.">
           {sliderRow("Auto-save to savings", s.settings.savingsRate, (v) => set((n) => n.settings.savingsRate = v), 0, 0.5, 0.05)}
           {sliderRow("Auto-invest to brokerage", s.settings.brokerageRate, (v) => set((n) => n.settings.brokerageRate = v), 0, 0.5, 0.05)}
@@ -2916,7 +2978,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
         </Wrap>
       )}
 
-      {action === "buy" && (
+      {(action === "buy" || action === "money") && (
         <Wrap title="Big Purchases: Making the Call" blurb="Use your savings for down payments and finance the rest. The monthly payments will autopay from your account for the rest of the course.">
           <div style={{ display: "grid", gap: 12 }}>
             <BuyCard icon={Home} color={C.gold} title={`Starter home — ${fmt(HOME.price)}`} detail={`5% down (${fmt(HOME.down)}) · ~${fmt(HOME.payment)}/mo mortgage`} owned={!!s.home}

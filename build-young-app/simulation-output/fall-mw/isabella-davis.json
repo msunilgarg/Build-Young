@@ -256,7 +256,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: The Funnel: Get & Keep Users",
+      "period": "Week 7: Go Live",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -294,7 +294,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Go-To-Market (GTM)",
+      "period": "Week 8: The Funnel",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -333,7 +333,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Product-Led Growth",
+      "period": "Week 9: Metrics & Scaling",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -371,7 +371,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Money: Saving & Investing",
+      "period": "Week 10: Product-Led Growth",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -387,8 +387,8 @@
       "decisionsMade": [
         "wanted a home ($20,000 down) but couldn't afford it yet — saving toward it"
       ],
-      "netWorth": 46390.51,
-      "cash": 21845,
+      "netWorth": 49890.51,
+      "cash": 25345,
       "savings": 19151.59,
       "retirement": 868.93,
       "holdings": {
@@ -409,7 +409,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Money: Big Purchases",
+      "period": "Week 11: Money: Manage What You Earn",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -426,8 +426,8 @@
         "put the $2,500 emergency car repair on a credit card",
         "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 48866.38,
-      "cash": 21095,
+      "netWorth": 52366.38,
+      "cash": 24595,
       "savings": 23635.6,
       "retirement": 840.25,
       "holdings": {
@@ -464,8 +464,8 @@
       "decisionsMade": [
         "bought a starter home ($400,000, 5% down, ~$2,500/mo mortgage)"
       ],
-      "netWorth": 58819.07,
-      "cash": 19345,
+      "netWorth": 62319.07,
+      "cash": 22845,
       "savings": 7964.46,
       "retirement": 871.76,
       "holdings": {
@@ -661,10 +661,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 58819.07,
+    "finalNetWorth": 62319.07,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 19345,
+      "cash": 22845,
       "savings": 7964.46,
       "retirement": 871.76,
       "brokerageHoldings": 6066.85,
@@ -679,6 +679,6 @@
     "carriedCardDebt": true,
     "insured": false,
     "hustled": false,
-    "narrative": "Isabella ran a conservative strategy, bought a home, skipped the car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $58,819 and a credit score of 756. All figures simulated."
+    "narrative": "Isabella ran a conservative strategy, bought a home, skipped the car, finished carrying $2,704 in card debt — finishing with a simulated net worth of $62,319 and a credit score of 756. All figures simulated."
   }
 }

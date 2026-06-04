@@ -244,25 +244,25 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   simulation** (12 weeks, ending with a capstone) where decisions compound and mistakes are safe.
   Closes on "money is a skill you practice" → "raising builders, not consumers." Renders as
   sibling `<p>`s sharing the founder paragraph's style.
-- **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks (6/3/3):** founder's outline:
-  **Act 1 · 0→1 (Weeks 1–6)** — find a problem → write the **4-prompt spec** → **build it in four
-  layers** (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready);
-  **Act 2 · 1→100 (Weeks 7–9)** — **funnel** → scale & grow (×2); **Act 3 · Manage
-  (Weeks 10–11) + Capstone (Week 12)** — saving/investing (`allocation`), big purchases (`buy`),
-  capstone. **The 4-layer build spec** is the spine of Act 1: the Week 2 spec (`s.shape`) has four
-  fields — `product`/`accounts`/`payments`/`production` — one per build week. `BUILD_LAYERS` (a
-  4-entry map keyed by week 3–6) drives the per-week build activity `BuildLayer`, which shows ONLY
-  that week's layer prompt (pulled live from its spec field, so edits sync back to Week 2) + the
-  copy-to-Claude box; Week 3 also shows the build pre-reqs. `SHAPE_EXAMPLE` is the worked Build-Young
-  spec, organized as the same four prompts. (`WEEK_INFRA`/`InfraBuildPlan` are now unused/legacy.)
-  Weeks **7–9 are `action:"build"` "coming soon" placeholders**; the two finance weeks have sim panels.
-  `ACTS` is a 3-entry map; each week carries `act: 1|2|3`. **Income/finance boundary:**
-  `FINANCE_FIRST_WEEK=10` (build+scale weeks 1–9 earn; LIVING + the money act start week 10). The
-  standalone `settings` (taxes), `macro`, and `budget` weeks were **dropped** to fit 2 money weeks
-  (their `WeekPanel` branches stay unrouted; defaults apply for retire401k etc.). Markets/media
-  intentionally still run **Weeks 8–12** (`MARKET_FIRST_WEEK`=8) — avoids a large market-test
-  churn; holdings barely exist before week 10. `WEEK_TITLES` (`marketMedia.js`) stays in sync with
-  `WEEKS`. Still 12 weeks → no pricing/refund ripple; 215 tests pass.
+- **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks (7/3/2):** founder's outline:
+  **Act 1 · 0→1 (Weeks 1–7)** — find a problem → write the spec → **build it in four layers**
+  (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → **Wk7 Go Live**;
+  **Act 2 · 1→100 (Weeks 8–10)** — **The Funnel** → **Metrics & Scaling** (DAU/MAU, retention) →
+  **Product-Led Growth**; **Act 3 · Manage (Week 11, ONE combined money week) + Capstone (Week 12)**.
+  **The build spec** is the spine of Act 1: the **Week 2 spec is AI-agnostic** (no "prompt"/Claude —
+  those appear from Week 3 on) and `s.shape` has four fields — `product`/`accounts`/`payments`/
+  `production`, one per build week (3–6). `BUILD_LAYERS` (keyed by week **3–10**) drives the per-week
+  build activity `BuildLayer`, which shows ONLY that week's prompt + copy-to-Claude box. Weeks **3–6
+  pull from the Week 2 spec** (`key`, edits sync back to Week 2); weeks **7–10 are seeded GROWTH
+  prompts** (`seed`, no spec key — stored per-week in `s.grow[week]`). Week 3 also shows the build
+  pre-reqs. `SHAPE_EXAMPLE` is the worked Build-Young spec (four parts). (`WEEK_INFRA`/`InfraBuildPlan`/
+  `MAKE_PRINCIPLES`/`PrinciplesCard` are now unused/legacy.) **Income/finance boundary:**
+  `FINANCE_FIRST_WEEK=11` (build+grow weeks 1–10 earn; LIVING + the money week start week 11). The
+  single money week (Wk11) uses **`action:"money"`**, which renders BOTH the Savings & Investing
+  (`allocation`) and Big Purchases (`buy`) panels in one week. Markets/media still run **Weeks 8–12**
+  (`MARKET_FIRST_WEEK`=8, server-only) — holdings don't exist until Wk11 so it's a no-op before then;
+  kept to avoid market-test churn. `WEEK_TITLES` (`marketMedia.js`) stays in sync with `WEEKS`. Still
+  12 weeks → no pricing/refund ripple; 219 tests pass.
 - Microsoft is framed as **ex-Microsoft** in short credential tags.
 - Keep the design calm and credible (no gimmicky floating widgets). Centered section headers.
 - **Typography:** display/headings/wordmark use **Space Grotesk** (`.disp` class); body uses
