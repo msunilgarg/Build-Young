@@ -15,8 +15,8 @@ export const SITE_DEFAULTS = {
   contactEmail: "team@build-young.com",               // shown in the footer + legal copy
   linkedinUrl: "https://www.linkedin.com/in/msunilgarg",
   showcaseEnabled: false,                             // OFF by default; founder flips it on once there
-                                                      // are builds worth showing. Gates the capstone
-                                                      // "share your build + feedback" capture.
+                                                      // are products worth showing. Gates the capstone
+                                                      // "share your product + feedback" capture.
 };
 
 // The keys a founder may edit (the store allowlist + the console editor iterate these).
@@ -29,5 +29,5 @@ export const SETTINGS_FIELDS = [
   { key: "calendlyUrl", label: "Booking link (Calendly)", placeholder: "https://calendly.com/you/15min", hint: "Empty = the built-in demo scheduler is shown instead." },
   { key: "contactEmail", label: "Contact email", placeholder: "team@build-young.com", hint: "Shown in the footer and legal copy." },
   { key: "linkedinUrl", label: "LinkedIn URL", placeholder: "https://www.linkedin.com/in/you", hint: "Linked from the founder section + footer." },
-  { key: "showcaseEnabled", label: "Student showcase capture", type: "boolean", hint: "When on, graduating students can share their build link + feedback at the capstone. Turn on once you have builds worth collecting." },
+  { key: "showcaseEnabled", label: "Student showcase capture", type: "boolean", hint: "When on, graduating students can share their product link + feedback at the capstone. Turn on once you have products worth collecting." },
 ];
