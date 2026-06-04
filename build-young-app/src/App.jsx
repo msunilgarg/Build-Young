@@ -1887,11 +1887,11 @@ function weekExample(week) {
     ["What product success looks like", EXAMPLE_BUILD.productSuccess],
     ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
   ]} />;
-  if (week === 2) return <ExampleCard subtitle="A worked product vision — how we'd fill this in" fields={[
-    ["Picture the product", SHAPE_EXAMPLE.vision],
-    ["What it can do (capabilities)", SHAPE_EXAMPLE.capabilities],
-    ["What it's like to use (experience)", SHAPE_EXAMPLE.experience],
-    ["The 'wow' moment", SHAPE_EXAMPLE.wow],
+  if (week === 2) return <ExampleCard subtitle="A worked spec — how we'd fill this in" fields={[
+    ["What it is", SHAPE_EXAMPLE.vision],
+    ["What it does", SHAPE_EXAMPLE.capabilities],
+    ["How it works", SHAPE_EXAMPLE.experience],
+    ["The 'wow'", SHAPE_EXAMPLE.wow],
   ]} />;
   if (week === 3) return <PrinciplesCard title="Building with AI — 3 things to remember" items={MAKE_PRINCIPLES} />;
   if (WEEK_INFRA[week]) return <PrinciplesCard title={WEEK_INFRA[week].cardTitle} items={WEEK_INFRA[week].principles} />;
@@ -2062,12 +2062,12 @@ function ShapePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        This week you write your product's <b>spec</b> — a clear picture of <b>what it can do</b> (its features) and <b>what it's like to use</b> (the experience). This is the description you'll hand to AI to build it, so <b>be specific</b>: the more detail, the more it builds correctly in one go. <span style={{ color: C.muted }}>Saved automatically.</span>
+        This week you write your product's <b>spec</b> — what it is, what it does, and how it works. Real builders keep a doc like this (often a file called <b>CLAUDE.md</b>) and hand it straight to AI. So be specific: the more detail, the more it builds correctly in one go. <span style={{ color: C.muted }}>This IS your Week 3 prompt — saved automatically.</span>
       </p>
-      {field("vision", "Picture your product", "Describe it like you're showing a friend: what is it, what's the main thing it does, and who's it for?")}
-      {field("capabilities", "What it can do (its capabilities)", "List everything it can do — its features and screens. Be thorough: sign-up, the main actions, what users see. Start with the feature that matters most.", 5)}
-      {field("experience", "What it's like to use (the experience)", "Walk through it start to finish: what do you open, what do you see, what do you click, what happens — and how should it feel? Step by step.", 5)}
-      {field("wow", "The “wow” moment", "What's the moment a new user goes “oh, this is great”?")}
+      {field("vision", "What it is", "Describe it like you're showing a friend: what is it, what's the main thing it does, and who's it for?")}
+      {field("capabilities", "What it does", "List everything it does — its features and screens. Be thorough: sign-up, the main actions, what users see. Start with the feature that matters most.", 5)}
+      {field("experience", "How it works", "Walk through it start to finish: what do you open, what do you see, what do you click, what happens — and how should it feel? Step by step.", 5)}
+      {field("wow", "The “wow”", "What's the moment a new user goes “oh, this is great”?")}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -2090,26 +2090,21 @@ function MakePlan({ s, setS, bare }) {
   const [copied, setCopied] = useState(false);
   const has = (v) => v && v.trim();
   const promptLines = [
-    "I'm building my very first web app, and I'd like you to build a first version with me — you write the code, I'll tell you what's good and what to change. I don't code, so please keep explanations simple and tell me exactly what to do.",
+    "Please build this web app for me. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
     "",
-    "WHAT IT IS:",
-    has(shape.vision) ? shape.vision.trim() : "(Describe your product — what it is, the main thing it does, and who it's for. From your Week 2 spec.)",
+    "What it is:",
+    has(shape.vision) ? shape.vision.trim() : "(From your Week 2 spec: what it is, the main thing it does, and who it's for.)",
     "",
-    "WHAT IT SHOULD DO (features):",
-    has(shape.capabilities) ? shape.capabilities.trim() : "(List the features — sign-up, the main actions, what users see. Start with the most important one.)",
+    "What it does:",
+    has(shape.capabilities) ? shape.capabilities.trim() : "(From your Week 2 spec: the features and screens — start with the most important one.)",
     "",
-    "WHAT IT SHOULD BE LIKE TO USE:",
-    has(shape.experience) ? shape.experience.trim() : "(Walk through it step by step — what you open, see, and click, what happens, and how it should feel.)",
+    "How it works:",
+    has(shape.experience) ? shape.experience.trim() : "(From your Week 2 spec: walk through it step by step — what you open, see, and click, and how it should feel.)",
   ];
-  if (has(shape.wow)) promptLines.push("", "THE “WOW” MOMENT:", shape.wow.trim());
+  if (has(shape.wow)) promptLines.push("", "The “wow”:", shape.wow.trim());
   promptLines.push(
     "",
-    "HOW TO BUILD IT:",
-    "1. Build the full product described above — all the screens and features.",
-    "2. Use clean, simple, friendly styling.",
-    "3. When it's built, tell me exactly how to run it and see it in my browser.",
-    "",
-    "Then I'll look at it and tell you what to change. Let's go!"
+    "Build the full product described above — all the screens and features. Use clean, simple, friendly styling. When it's built, tell me exactly how to run it and see it in my browser. Then I'll tell you what to change. Let's go!"
   );
   const generatedPrompt = promptLines.join("\n");
   // The student can tweak the prompt right here without going back to Week 2. We seed it from the
@@ -2126,7 +2121,7 @@ function MakePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Make it — build your first version with AI 🛠️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Now you build. Your <b>Week 2 spec IS your prompt</b> — you hand it straight to AI (no separate prompt to write), then run the loop: <b>describe → see → taste → refine</b>. You don't need to know how to code — you need <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. In an AI world, that's the skill that matters most. Build the smallest real version first, then ship it so someone can actually use it. <span style={{ color: C.muted }}>Saved automatically.</span>
+        Now you build. Your <b>Week 2 spec IS your prompt</b> — you hand it straight to AI (no separate prompt to write), then run the loop: <b>describe → see → taste → refine</b>. You don't need to know how to code — you need <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. In an AI world, that's the skill that matters most. Build the full product from your spec, then ship it so someone can actually use it. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
       {/* Pre-reqs: this is the week the build actually happens, so every build tool must be ready
