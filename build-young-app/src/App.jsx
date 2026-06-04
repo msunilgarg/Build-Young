@@ -2073,11 +2073,11 @@ function ShapePlan({ s, setS, bare }) {
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// Week 3 student activity — "Make It (with AI)": build the first version by handing your spec to
-// AI and running the describe → see → taste → refine loop. Persists in s.make.
+// Week 3 student activity — "Make It (with AI)": hand your Week 2 spec to AI and run the
+// describe → see → taste → refine loop. The spec is the SAME data as Week 2 (s.shape) — editing it
+// here updates Week 2 too; no separate copy, single source of truth.
 function MakePlan({ s, setS, bare }) {
-  const make = s.make || {};
-  const setField = (k, v) => setS((p) => ({ ...p, make: { ...(p.make || {}), [k]: v } }));
+  const setShapeField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
   const prereqs = (s && s.prereqs) || {};
   const buildTools = PREREQS.filter((p) => p.build);
   const allReady = buildTools.every((p) => prereqs[p.id]);
@@ -2089,6 +2089,7 @@ function MakePlan({ s, setS, bare }) {
   const shape = s.shape || {};
   const [copied, setCopied] = useState(false);
   const has = (v) => v && v.trim();
+  const specHasContent = has(shape.vision) || has(shape.capabilities) || has(shape.experience) || has(shape.wow);
   const promptLines = [
     "Please build this web app for me. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
     "",
@@ -2107,15 +2108,21 @@ function MakePlan({ s, setS, bare }) {
     "Build the full product described above — all the screens and features. Use clean, simple, friendly styling. When it's built, tell me exactly how to run it and see it in my browser. Then I'll tell you what to change. Let's go!"
   );
   const generatedPrompt = promptLines.join("\n");
-  // The student can tweak the prompt right here without going back to Week 2. We seed it from the
-  // spec; once they edit, the edited copy lives in s.make.prompt. "Reset" drops back to the spec.
-  const edited = make.prompt;
-  const promptValue = edited !== undefined ? edited : generatedPrompt;
+  // generatedPrompt is assembled live from s.shape (the Week 2 spec) every render, so it always
+  // reflects the current spec — including edits made right here in Week 3 (they write to s.shape).
   const copyPrompt = async () => {
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(promptValue); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }
     } catch { /* clipboard blocked — the textarea is selectable as a fallback */ }
   };
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
+  const fieldS = { width: "100%", boxSizing: "border-box", fontSize: 13, padding: "9px 11px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
+  const specField = (k, label, rows = 3) => (
+    <label style={{ display: "block", marginTop: 10 }}>
+      <span style={lab}>{label}</span>
+      <textarea aria-label={label} value={(s.shape || {})[k] || ""} onChange={(e) => setShapeField(k, e.target.value)} rows={rows} placeholder={`(From Week 2 — ${label.toLowerCase()})`} style={fieldS} />
+    </label>
+  );
 
   const inner = (
     <>
@@ -2148,7 +2155,8 @@ function MakePlan({ s, setS, bare }) {
         })}
       </div>
 
-      {/* Copy-paste starter prompt for Claude — built from the student's own Week 2 spec. */}
+      {/* Your spec — the SAME data as Week 2 (s.shape). Editing here updates Week 2 too. The Copy
+          button hands Claude the assembled prompt (your spec + a short build instruction). */}
       <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 Your spec — ready to hand to Claude</span>
@@ -2156,17 +2164,26 @@ function MakePlan({ s, setS, bare }) {
             {copied ? <><Check size={14} /> Copied!</> : "Copy"}
           </button>
         </div>
-        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 8px" }}>
-          This is <b>your Week 2 spec</b> — that's all you hand to AI; you don't write a separate prompt. <b>Edit it right here</b> if you want (no need to go back to Week 2), then copy it into Claude and send. The more detail, the better it builds.
-        </p>
-        <textarea aria-label="Your spec / AI prompt" value={promptValue} rows={9}
-          onChange={(e) => setField("prompt", e.target.value)}
-          style={{ width: "100%", boxSizing: "border-box", fontSize: 12.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
-        {edited !== undefined && edited !== generatedPrompt && (
-          <div style={{ marginTop: 6 }}>
-            <span {...act(() => setField("prompt", undefined))} style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>↺ Reset to my Week 2 spec</span>
+        {specHasContent ? (
+          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={13} /> Pulled from your Week 2 spec — edits here update Week 2 too</div>
+        ) : (
+          <div style={{ fontSize: 12.5, color: C.ink, lineHeight: 1.5, marginTop: 8, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 5, padding: "9px 11px" }}>
+            <b>Your Week 2 spec is empty.</b> Fill it in below (or in Week 2) so AI builds <i>your</i> product — they're the same spec.
           </div>
         )}
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 2px" }}>
+          This IS your prompt — no separate writing. Edit any part and it updates your spec everywhere, then <b>Copy</b> it into Claude.
+        </p>
+        {specField("vision", "What it is")}
+        {specField("capabilities", "What it does", 4)}
+        {specField("experience", "How it works", 4)}
+        {specField("wow", "The “wow”")}
+        {/* read-only preview of exactly what Copy hands to Claude */}
+        <details style={{ marginTop: 12 }}>
+          <summary style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>Preview the full prompt Copy sends →</summary>
+          <textarea readOnly aria-label="Full prompt preview" value={generatedPrompt} rows={8} onFocus={(e) => e.target.select()}
+            style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 12, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.5 }} />
+        </details>
       </div>
 
     </>
