@@ -1112,7 +1112,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
               <CompoundGraphic />
             </Card>
             <p style={{ color: C.ink2, fontSize: 16.5, lineHeight: 1.6 }}>
-              Money compounds with time — but so does the skill of building. A teenager who learns to make things people value, in the era when AI is rewriting every career, isn't just getting a financial head start; they're learning the survival skill of the next decade while their peers are still memorizing for tests. That's the real compounding: <b style={{ color: C.ink }}>start building young, and time does the rest.</b>
+              The chart shows money compounding — but the bigger thing compounding is the skill itself. A teenager who learns to make things people value, in the era when AI is rewriting every career, isn't just getting a financial head start; they're building the judgment and the habit of shipping years before their peers. <b style={{ color: C.ink }}>That head start is the whole reason to start young.</b>
             </p>
           </div>
 
