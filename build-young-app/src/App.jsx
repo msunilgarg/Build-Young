@@ -1692,7 +1692,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <span style={{ fontSize: 12.5, fontWeight: 700, color: doneCount === PREREQS.length ? C.green : C.muted }}>{doneCount} of {PREREQS.length} done</span>
         </div>
         <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 8px" }}>
-          In your first weeks you'll build your <b>own</b> app with AI — so you need the same tools we used to build this one (most are free). Tick each off as you set it up, and bring them to the class where they're needed. <span style={{ color: C.muted }}>A parent can help with sign-ups.</span>
+          In your first weeks you'll build your <b>own</b> app with AI — so you need the same tools we used to build this one (all free except <b>Claude Pro</b>, ~$20/month). Tick each off as you set it up, and bring them to the class where they're needed. <span style={{ color: C.muted }}>A parent can help with sign-ups.</span>
         </p>
         {PREREQS.map((p) => {
           const checked = !!prereqs[p.id];
@@ -2110,7 +2110,7 @@ function MakePlan({ s, setS, bare }) {
           <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
         </div>
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
-          You'll build live with AI this week, so you need the builder's tools ready (most are free; a parent can help with sign-ups). Tick each off:
+          You'll build live with AI this week, so you need the builder's tools ready (all free except <b>Claude Pro</b>, ~$20/month; a parent can help with sign-ups). Tick each off:
         </p>
         {buildTools.map((p) => {
           const checked = !!prereqs[p.id];
