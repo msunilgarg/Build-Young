@@ -43,11 +43,11 @@ export const WEEK_TITLES = [
   "Make It Yours",
   "Get Paid",
   "Make It Real",
-  "The Funnel: Get & Keep Users",
-  "Go-To-Market (GTM)",
+  "Go Live",
+  "The Funnel",
+  "Metrics & Scaling",
   "Product-Led Growth",
-  "Money: Saving & Investing",
-  "Money: Big Purchases",
+  "Money: Manage What You Earn",
   "Capstone: What You Built & What It's Worth",
 ];
 
@@ -62,11 +62,11 @@ export const WEEK_PREP = [
   "Have your core product working. This week we add sign-in and saving each user's data — so come knowing who logs in and what should be saved for them.",
   "Your product works and remembers users — this week we add real payments. Come knowing what people pay for and what they get.",
   "It works and can take payment — this week we make it real (emails, being findable, keeping data safe). Note anything that still feels rough.",
-  "Bring a rough guess at what your product could earn in a month. We'll set up self-employment taxes and paying yourself.",
-  "Think about one short-term goal (something you want) and one long-term goal. We'll set your auto-save + investing style.",
-  "Skim one recent headline about inflation, interest rates, or the economy — we'll watch it move your portfolio.",
-  "Pick a big thing you'd buy one day (a car, a place) and a rough price. We'll learn to finance it without wrecking your budget.",
-  "Jot your typical monthly wants vs. needs. We'll handle a surprise expense and a tempting splurge.",
+  "Your product's built — make sure your payment account is set up (a parent helps). This week we take it live: a real web address, live payments, and a launch checklist.",
+  "Think about how a stranger would first find and try your product. This week we build the funnel — find → try → come back — right into it.",
+  "Jot what 'active' means for your product (a daily user? a weekly one?). This week we add metrics — active users + retention — to find your biggest growth bottleneck.",
+  "Think of one reason someone would tell a friend about your product. This week we build that kind of growth into the product itself.",
+  "Your product earns a steady income now — this week we manage it: pay yourself first, invest to compound, and finance a big purchase. Bring one short-term and one long-term money goal.",
   "Be ready to show what you built and what it's worth — and to say what you'd build next.",
 ];
 

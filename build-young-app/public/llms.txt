@@ -10,16 +10,16 @@ Teens ages 15–18 (the "Builders" program). Each season you choose a schedule �
 - Builders program (ages 15–18) — $999
 
 ## What students learn
-Act 1 — 0 to 1: build the core product (Weeks 1–6):
-- Find a real problem people will pay to solve, and write a clear spec as four build prompts
-- Build the product with AI (Claude Code) in four layers, one per week: the core product, then accounts & saved data, then payments, then a production-ready launch (emails, findability, safety)
-Act 2 — 1 to 100: scale it into a business (Weeks 7–9):
-- Understand your funnel: how people find you, try you, and stick
-- Go-to-market: pick the channels and message to reach the people who need it
+Act 1 — 0 to 1: build & launch the product (Weeks 1–7):
+- Find a real problem people will pay to solve, and write a clear spec
+- Build the product with AI (Claude Code) in four layers, one per week: the core product, then accounts & saved data, then payments, then a production-ready pass (emails, findability, safety)
+- Go live: a real web address, live payments, and a launch checklist
+Act 2 — 1 to 100: grow it into a business (Weeks 8–10):
+- Build the funnel into the product: how people find it, try it, and come back
+- Metrics & scaling: active users (DAU/MAU) and retention to find the growth bottleneck
 - Product-led growth: build growth into the product itself
-Act 3 — Manage what you've earned (Weeks 10–11) + a capstone (Week 12):
-- Saving, investing, diversification, and compounding through real market moves
-- Big purchases: buying and financing a home and a car; good vs. bad debt
+Act 3 — Manage what you've earned (Week 11) + a capstone (Week 12):
+- Saving, investing, compounding through real market moves, and financing big purchases
 - A capstone tallying what you built and what it's worth
 
 ## Enrolling

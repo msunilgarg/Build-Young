@@ -7,17 +7,17 @@
   "seats": 10,
   "studentCount": 15,
   "seed": 12345,
-  "averageNetWorth": 53736.75,
-  "minNetWorth": 50553.03,
-  "maxNetWorth": 58819.07,
+  "averageNetWorth": 57236.75,
+  "minNetWorth": 54053.03,
+  "maxNetWorth": 62319.07,
   "prizeWinner": {
     "name": "Isabella Davis",
-    "netWorth": 58819.07
+    "netWorth": 62319.07
   },
   "distributionByRiskStyle": {
     "aggressive": {
       "count": 5,
-      "totalNetWorth": 269240.81,
+      "totalNetWorth": 286740.81,
       "students": [
         "Ava Thompson",
         "Maya Robinson",
@@ -25,11 +25,11 @@
         "Charlotte Wilson",
         "James Anderson"
       ],
-      "avgNetWorth": 53848.16
+      "avgNetWorth": 57348.16
     },
     "balanced": {
       "count": 6,
-      "totalNetWorth": 311159.06999999995,
+      "totalNetWorth": 332159.06999999995,
       "students": [
         "Liam Patel",
         "Noah Garcia",
@@ -38,18 +38,18 @@
         "Elijah Moore",
         "Harper Thomas"
       ],
-      "avgNetWorth": 51859.84
+      "avgNetWorth": 55359.84
     },
     "conservative": {
       "count": 4,
-      "totalNetWorth": 225651.44,
+      "totalNetWorth": 239651.44,
       "students": [
         "Sofia Nguyen",
         "Lucas Brown",
         "Isabella Davis",
         "Amelia Taylor"
       ],
-      "avgNetWorth": 56412.86
+      "avgNetWorth": 59912.86
     }
   },
   "notableOutcomes": {
@@ -92,105 +92,105 @@
       "rank": 1,
       "name": "Isabella Davis",
       "riskStyle": "conservative",
-      "finalNetWorth": 58819.07,
+      "finalNetWorth": 62319.07,
       "creditScore": 756
     },
     {
       "rank": 2,
       "name": "Amelia Taylor",
       "riskStyle": "conservative",
-      "finalNetWorth": 58819.07,
+      "finalNetWorth": 62319.07,
       "creditScore": 756
     },
     {
       "rank": 3,
       "name": "Sofia Nguyen",
       "riskStyle": "conservative",
-      "finalNetWorth": 54143.66,
+      "finalNetWorth": 57643.66,
       "creditScore": 756
     },
     {
       "rank": 4,
       "name": "Ethan Kim",
       "riskStyle": "aggressive",
-      "finalNetWorth": 53939.42,
+      "finalNetWorth": 57439.42,
       "creditScore": 756
     },
     {
       "rank": 5,
       "name": "Lucas Brown",
       "riskStyle": "conservative",
-      "finalNetWorth": 53869.64,
+      "finalNetWorth": 57369.64,
       "creditScore": 756
     },
     {
       "rank": 6,
       "name": "Maya Robinson",
       "riskStyle": "aggressive",
-      "finalNetWorth": 53867.72,
+      "finalNetWorth": 57367.72,
       "creditScore": 756
     },
     {
       "rank": 7,
       "name": "James Anderson",
       "riskStyle": "aggressive",
-      "finalNetWorth": 53835.31,
+      "finalNetWorth": 57335.31,
       "creditScore": 756
     },
     {
       "rank": 8,
       "name": "Ava Thompson",
       "riskStyle": "aggressive",
-      "finalNetWorth": 53799.18,
+      "finalNetWorth": 57299.18,
       "creditScore": 756
     },
     {
       "rank": 9,
       "name": "Charlotte Wilson",
       "riskStyle": "aggressive",
-      "finalNetWorth": 53799.18,
+      "finalNetWorth": 57299.18,
       "creditScore": 756
     },
     {
       "rank": 10,
       "name": "Noah Garcia",
       "riskStyle": "balanced",
-      "finalNetWorth": 52257.94,
+      "finalNetWorth": 55757.94,
       "creditScore": 756
     },
     {
       "rank": 11,
       "name": "Liam Patel",
       "riskStyle": "balanced",
-      "finalNetWorth": 52183.1,
+      "finalNetWorth": 55683.1,
       "creditScore": 756
     },
     {
       "rank": 12,
       "name": "Elijah Moore",
       "riskStyle": "balanced",
-      "finalNetWorth": 52134.81,
+      "finalNetWorth": 55634.81,
       "creditScore": 756
     },
     {
       "rank": 13,
       "name": "Olivia Martinez",
       "riskStyle": "balanced",
-      "finalNetWorth": 52125.49,
+      "finalNetWorth": 55625.49,
       "creditScore": 756
     },
     {
       "rank": 14,
       "name": "Mason Lee",
       "riskStyle": "balanced",
-      "finalNetWorth": 51904.7,
+      "finalNetWorth": 55404.7,
       "creditScore": 756
     },
     {
       "rank": 15,
       "name": "Harper Thomas",
       "riskStyle": "balanced",
-      "finalNetWorth": 50553.03,
+      "finalNetWorth": 54053.03,
       "creditScore": 756
     }
   ],

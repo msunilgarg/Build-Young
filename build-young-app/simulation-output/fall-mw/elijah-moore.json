@@ -255,7 +255,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 7: The Funnel: Get & Keep Users",
+      "period": "Week 7: Go Live",
       "phase": "course",
       "marketEvent": {
         "headline": "Markets are quiet",
@@ -293,7 +293,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 8: Go-To-Market (GTM)",
+      "period": "Week 8: The Funnel",
       "phase": "course",
       "marketEvent": {
         "headline": "The Fed hikes rates",
@@ -332,7 +332,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 9: Product-Led Growth",
+      "period": "Week 9: Metrics & Scaling",
       "phase": "course",
       "marketEvent": {
         "headline": "Inflation runs hot",
@@ -370,7 +370,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 10: Money: Saving & Investing",
+      "period": "Week 10: Product-Led Growth",
       "phase": "course",
       "marketEvent": {
         "headline": "Housing boom",
@@ -386,8 +386,8 @@
       "decisionsMade": [
         "bought a used car ($30,000, 20% down, ~$600/mo loan)"
       ],
-      "netWorth": 45576.69,
-      "cash": 21154,
+      "netWorth": 49076.69,
+      "cash": 24654,
       "savings": 8634.41,
       "retirement": 2443.01,
       "holdings": {
@@ -412,7 +412,7 @@
       "hustleActive": false
     },
     {
-      "period": "Week 11: Money: Big Purchases",
+      "period": "Week 11: Money: Manage What You Earn",
       "phase": "course",
       "marketEvent": {
         "headline": "Recession fears spike",
@@ -429,8 +429,8 @@
         "covered the $2,500 emergency car repair from savings",
         "invested the $1,500 instead of spending it"
       ],
-      "netWorth": 47192.44,
-      "cash": 19847,
+      "netWorth": 50692.44,
+      "cash": 23347,
       "savings": 9059.11,
       "retirement": 2749.19,
       "holdings": {
@@ -471,8 +471,8 @@
       "decisionsMade": [
         "attended class; no portfolio changes this week"
       ],
-      "netWorth": 52134.81,
-      "cash": 20040,
+      "netWorth": 55634.81,
+      "cash": 23540,
       "savings": 12013.05,
       "retirement": 3267.29,
       "holdings": {
@@ -668,10 +668,10 @@
     }
   ],
   "final": {
-    "finalNetWorth": 52134.81,
+    "finalNetWorth": 55634.81,
     "totalPaychecksReceived": 180000,
     "breakdown": {
-      "cash": 20040,
+      "cash": 23540,
       "savings": 12013.05,
       "retirement": 3267.29,
       "brokerageHoldings": 10884.33,
@@ -686,6 +686,6 @@
     "carriedCardDebt": false,
     "insured": false,
     "hustled": false,
-    "narrative": "Elijah ran a balanced strategy, rented (no home), bought a car, never opened a credit card — finishing with a simulated net worth of $52,135 and a credit score of 756. All figures simulated."
+    "narrative": "Elijah ran a balanced strategy, rented (no home), bought a car, never opened a credit card — finishing with a simulated net worth of $55,635 and a credit score of 756. All figures simulated."
   }
 }
