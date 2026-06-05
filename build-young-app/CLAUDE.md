@@ -247,9 +247,11 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
 - **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks (7/3/2):** founder's outline:
   **Act 1 · 0→1 (Weeks 1–7)** — find a problem → write the spec → **build it in four layers**
   (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → **Wk7 Go Live**;
-  **Act 2 · 1→100 (Weeks 8–10)** — **The Funnel** (Wk8: spec a connected funnel + tracking — the only
-  Act-2 build prompt) → **Metrics & Scaling** (Wk9: read the real numbers, NO prompt — editable
-  `MetricsLog`, saved to `s.reflect[9]`) → **Product-Led Growth** (Wk10: a guided discussion with
+  **Act 2 · 1→100 (Weeks 8–10)** — **The Funnel** (Wk8: spec a connected funnel + tracking via
+  `BuildLayer`, PLUS list the funnel steps you track via `FunnelStages` → `s.funnelStages`) →
+  **Metrics & Scaling** (Wk9: NO prompt — `FunnelScenarios` renders several seeded PRACTICE funnels
+  built from `s.funnelStages`, each shaped to a different story; the student writes a read per funnel
+  and reveals the system's answer, saved to `s.reflect[9].notes`) → **Product-Led Growth** (Wk10: a guided discussion with
   thought-provoking topics, NO prompt — `ReflectionPanel` from `REFLECT_WEEKS[10]`, saved to
   `s.reflect[10]`); **Act 3 · Manage (Week 11, ONE combined money week) + Capstone (Week 12)**.
   **The build spec** is the spine of Act 1: the **Week 2 spec is AI-agnostic** (no "prompt"/Claude —
