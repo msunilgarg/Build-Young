@@ -57,6 +57,7 @@ export function sanitizeCatalog(input) {
       seats: Math.max(0, Math.round(num(b && b.seats, 0))),
       price: Math.max(0, Math.round(num(b && b.price, 0))),
       zoom: str(b && b.zoom).trim(),
+      groupEmail: str(b && b.groupEmail).trim(),
       stripeLink: str(b && b.stripeLink).trim(),
       recordings: sanitizeRecordings(b && b.recordings),
     }))
