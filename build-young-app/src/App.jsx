@@ -1803,10 +1803,12 @@ Product success: real teens use it weekly and keep coming back through the whole
 • Retention = they come back week after week, not just once.
 • Referral = they tell a friend who enrolls (the "magic moment" is sharing a link to their live product).
 Financial success: it earns more than it costs to run, and most new families come from word of mouth — so we spend little to find them, with enough left over to keep going and make it bigger.`,
-  funnel: `The steps a new visitor takes through Build Young, in order:
-1. FIND IT — the landing page: "Raising builders, not consumers," what it is (teens 15–18 build a real product with AI, then learn the money basics), and clear "Enroll" / "Talk to Sunil" buttons.
-2. TRY IT (the "aha") — a parent books a free 15-minute call, or starts the enroll flow and sees exactly what their kid will build and learn.
-3. COME BACK — after enrolling, the student lands in their dashboard and gets a reminder email before each class, so they keep showing up week after week.`,
+  funnel: `Build Young's funnel — the stages a family moves through (the find → try → come back journey), measured as ONE connected funnel:
+1. Visited — landed on the site (FIND IT).
+2. Enroll started — opened the enroll flow, or booked a free "Talk to Sunil" call (TRY IT).
+3. Enrolled — paid and reserved a seat.
+4. Class started → Graduated — showed up to the first class and kept coming back through all 12 weeks (COME BACK).
+For each stage, show the count AND the conversion rate to the next (visited → enroll-started, enroll-started → enrolled, enrolled → graduated), so it's obvious where families drop off — with revenue (tuition − refunds) alongside.`,
 };
 
 // Week 3 "Make It (with AI)" is a hands-on, live build week — so the class material is just three
@@ -1928,11 +1930,19 @@ const PLG_PRIMER = [
 // student jots answers to (saved in s.reflect[10]). (Week 9 is the editable MetricsLog — see below.)
 const REFLECT_WEEKS = {
   10: {
-    intro: "This week is a discussion — no building. Product-led growth means the product grows itself: people share it because it's genuinely good. We'll talk through how yours could spread — jot your ideas here.",
+    intro: "This week is a discussion — no building. Product-led growth means the product grows itself: people share it because it's genuinely good, so you don't have to pay to find every new user. We'll talk through the topics below as a group, then you jot what it means for YOUR product.",
+    topics: [
+      "Think of the last app you started using because a friend told you about it. Why did your friend bother to share it — what did THEY get out of telling you?",
+      "Why do some products spread on their own while others have to buy ads to get noticed? What's different about the ones that spread?",
+      "Name a product that gets better the more of your friends are on it (a group chat, a game, a shared doc). Would you still use it if you were the only one there? (That's a network effect.)",
+      "What actually makes YOU share something — bragging rights, helping a friend, a reward, or it just being fun? Which reason is strongest?",
+      "Some products are impossible to use alone — sharing IS the product. Others just bolt a \"refer a friend\" bonus on top. Which kind grows faster, and why?",
+      "When does growth start to feel spammy or manipulative? Where's the line between a product people love to share and one that nags them into it?",
+    ],
     fields: [
-      { key: "shareWhy", label: "Why would someone share it?", ph: "What about your product would make a happy user want to tell a friend or invite someone?" },
-      { key: "shareWhen", label: "The natural moment to share", ph: "Where in your product is the natural point to invite a friend or share a result?" },
-      { key: "idea", label: "Your best PLG idea to try", ph: "The one product-led-growth idea you'd build next (a share link, an invite, public results…)." },
+      { key: "shareWhy", label: "Why would someone share YOUR product?", ph: "After the discussion — what's the real reason a happy user would tell a friend or invite someone?" },
+      { key: "shareWhen", label: "The natural moment to share", ph: "Where in your product is the natural point to invite a friend or show a result?" },
+      { key: "idea", label: "Your best PLG idea to try", ph: "The one product-led-growth idea you'd build next (a share link, an invite, results others can see…)." },
     ],
   },
 };
@@ -1945,6 +1955,16 @@ function ReflectionPanel({ week, s, setS, bare }) {
   const inner = (
     <>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 14px" }}>{cfg.intro} <span style={{ color: C.muted }}>Saved automatically.</span></p>
+      {cfg.topics && (
+        <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px", marginBottom: 16 }}>
+          <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Users size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />Topics we'll discuss in class</div>
+          <ol style={{ margin: "10px 0 0", paddingLeft: 20, display: "grid", gap: 9 }}>
+            {cfg.topics.map((t, i) => (
+              <li key={i} style={{ fontSize: 13, lineHeight: 1.5, color: C.ink2 }}>{t}</li>
+            ))}
+          </ol>
+        </div>
+      )}
       {cfg.fields.map((f) => (
         <label key={f.key} style={{ display: "block", marginBottom: 12 }}>
           <span style={labelStyle}>{f.label}</span>
