@@ -4445,7 +4445,7 @@ function ScenarioAgentEditor() {
         <div style={{ color: C.muted, marginTop: 4 }}>
           {keyPresent
             ? <>An <code>ANTHROPIC_API_KEY</code> is set on the host. {ops.enabled ? "The agent is live — each click bills your key." : "Flip the toggle on to use it."}</>
-            : <>No <code>ANTHROPIC_API_KEY</code> detected. The key is a <b>secret</b>, so it's set on the host — not here: in <b>Vercel → your project → Settings → Environment Variables</b> (then redeploy). Until then this stays free.</>}
+            : <>No <code>ANTHROPIC_API_KEY</code> detected, so this stays free. To turn it on: get a key from the <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700 }}>Anthropic Console</a> (console.anthropic.com → Settings → API Keys → Create Key), then add it as <code>ANTHROPIC_API_KEY</code> in <b>Vercel → your project → Settings → Environment Variables</b> and redeploy. It's a secret, so it lives on the host — not in this dashboard.</>}
         </div>
       </div>
       <label style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 14, color: C.ink, cursor: "pointer", marginBottom: 14 }}>
