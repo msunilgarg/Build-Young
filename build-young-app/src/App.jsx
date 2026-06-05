@@ -514,7 +514,7 @@ function followupEmail(s, week, batch) {
 
 You finished all 12 weeks of Build Young — your simulated net worth is ${fmt(netWorth(s))}.
 
-You built something real and learned to manage what it earns. Your certificate of completion is waiting in your dashboard — download it and add it to LinkedIn.
+You built something real, took it to market, and got your first customers. Your certificate of completion is waiting in your dashboard — download it and add it to LinkedIn.
 
 Proud of you,
 The Team`
@@ -1170,7 +1170,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <div className="rise" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 26 }}>
           {[
             { icon: Video, t: "Live & instructor-led on Zoom" },
-            { icon: Lock, t: "Simulated money — no real funds, ever" },
+            { icon: Lock, t: "A safe sandbox — build for real, low stakes" },
             { icon: GraduationCap, t: "Led by Sunil · ex-Microsoft" },
             { icon: Check, t: "Full refund before class starts" },
           ].map((x, i) => (
@@ -1179,7 +1179,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             </div>
           ))}
         </div>
-        <p className="rise" style={{ fontSize: 12, color: C.muted, marginTop: 12 }}>Financial education — not licensed financial advice.</p>
+        <p className="rise" style={{ fontSize: 12, color: C.muted, marginTop: 12 }}>Hands-on entrepreneurship — build a real product, no real money involved.</p>
         </div>
       </header>
 
@@ -1331,7 +1331,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
                 We went looking for a class that actually taught that — building something real with AI and putting it in front of people — and couldn't find one. The free material sits unwatched, because a video doesn't make a teenager show up. So we made the one we wanted for our own kids: a small group, live, a standing weekly time — what turns “available” into “actually done.”
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                It starts where almost none do — you actually <b>build something of your own</b> with AI, take it live, and grow it into a real business. One continuous twelve-week simulation where the decisions compound and the mistakes are safe. They learn to handle what it earns, too — but that comes after the building, never instead of it.
+                It starts where almost none do — you actually <b>build something of your own</b> with AI, take it live, grow it, and go land your first real customers. Twelve weeks where the work is real and the mistakes are safe.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 That's the whole idea: building is a skill you practice, not a subject you study. We're raising builders, not consumers — kids who reach adulthood having already lived it. We called it Build Young because the one advantage they have that no one can buy is time, and it compounds: habits, character, taste, and everything they build all grow with it.
@@ -1416,7 +1416,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.muted }}>{CONFIG.contactEmail}</a>
           <a href={CONFIG.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.muted, display: "inline-flex", alignItems: "center", gap: 5 }}><Linkedin size={13} /> Sunil on LinkedIn</a>
         </div>
-        <div style={{ marginTop: 8, fontSize: 12 }}>Financial education, not licensed financial advice. Simulation figures are not real money.</div>
+        <div style={{ marginTop: 8, fontSize: 12 }}>Hands-on entrepreneurship education. Students build a real product with AI; no real money is involved.</div>
       </footer>
 
       {careers && <CareersModal onClose={() => setCareers(false)} />}
@@ -1632,7 +1632,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     {[
                       "12 weeks of live classes — 2 sessions a week (~3 hrs), taught by me",
                       "Your own student dashboard",
-                      "Build a real product, then manage what it earns",
+                      "Build a real product, grow it, and get your first customers",
                       "A certificate of completion you can add to LinkedIn",
                       "A shot at the builder prize — land a real paying customer in a year, get your tuition back",
                     ].map((t, i) => (
@@ -1644,7 +1644,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 12, paddingTop: 12, display: "grid", gap: 7 }}>
                     {[
                       { icon: Video, t: "100% live online over Zoom" },
-                      { icon: Lock, t: "Simulated money — no real funds" },
+                      { icon: Lock, t: "A safe sandbox — no real money involved" },
                       { icon: GraduationCap, t: "Capped at 10 students" },
                     ].map((x, i) => (
                       <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, color: C.muted, fontWeight: 600 }}>
@@ -1957,7 +1957,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
  * work-backwards move. Persists in s.build (auto-saved with the rest of the sim state). */
 // A fully worked Week-1 build plan — Build Young itself — so students see what "good" looks like.
 const EXAMPLE_BUILD = {
-  idea: "Build Young — a live program where teens 15–18 build a real product with AI, then learn to grow and manage what it earns, all inside one money simulation.",
+  idea: "Build Young — a live program where teens 15–18 build a real product with AI, grow it into a business, and go get their first customers.",
   pain: `Teens aren't taught how money or the real world actually works — it's not on any test, and the free videos out there go unwatched.
 Parents worry that in an AI world a degree won't be the edge — but there's no hands-on way for their kid to learn to build, or to handle money, before adulthood.
 The "investing classes" that exist only teach stock-picking (the flashy 10%) — not earning, taxes, budgeting, or big purchases, which are the parts that actually shape a life.`,
@@ -2853,7 +2853,7 @@ function ShowcaseCapture({ s }) {
       ) : (
         <>
           <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 12px" }}>
-            You did the whole journey — built something real and learned to manage what it earns. Share your product and a line about how it went; with your OK, we'd love to feature it as a testimonial.
+            You did the whole journey — built something real, took it to market, and got your first customers. Share your product and a line about how it went; with your OK, we'd love to feature it as a testimonial.
           </p>
           <label style={{ display: "block", marginBottom: 12 }}>
             <span style={labelStyle}>Your product's link</span>
@@ -3028,11 +3028,11 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
     setTab("dash");
   };
 
+  // Finance removed: no Portfolio/Markets tabs. The investing/markets engine still exists under the
+  // hood (kept for the sim harness + tests) but is never surfaced to students.
   const tabs = [
     { id: "overview", label: "Overview", icon: Sparkles },
     { id: "course", label: "Course progress", icon: GraduationCap },
-    { id: "port", label: "Portfolio", icon: PiggyBank },
-    { id: "macro", label: "Markets", icon: Newspaper },
     { id: "dash", label: "Dashboard", icon: LineIcon },
   ];
 
@@ -3124,14 +3124,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
               <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}><Video size={16} /> Join class on Zoom</button>
             </a>
           </Card>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 12 }}>
-            <Stat label="Net Worth" value={fmt(nw)} icon={Sparkles} color={C.emerald} sub={s.history.length > 1 ? `${fmt(nw - last)} since last · simulated` : "Simulated money"} />
-            <Stat label="Cash" value={fmt(s.cash)} icon={Wallet} />
-            <Stat label="Savings" value={fmt(s.savings)} icon={PiggyBank} />
-            <Stat label="Investments" value={fmt(holdingsTotal(s) + s.retirement + (s.pe || 0))} icon={TrendingUp} color={C.emerald} />
-          </div>
-
-          <Card style={{ padding: 20, marginTop: 14 }}>
+          <Card style={{ padding: 20, marginTop: 0 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
               <div style={{ fontWeight: 700 }}>Course progress</div>
               <div style={{ fontSize: 13, color: C.muted }}>{s.done ? "Complete 🎓" : `Week ${s.week} of 12`}</div>
@@ -3147,21 +3140,12 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
             {!s.done && (
               <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.line}` }}>
                 <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                  Done with this week's class &amp; activity? Advance the simulation to collect your income and apply any market move.
+                  Done with this week's class &amp; activity? Move on to the next week.
                 </div>
                 <AdvanceButton s={s} onAdvance={doAdvance} />
               </div>
             )}
           </Card>
-
-          {s.history.length > 1 && (
-            <Card style={{ padding: 20, marginTop: 14 }}>
-              <div style={{ fontWeight: 700, marginBottom: 10 }}>Net worth over time</div>
-              <React.Suspense fallback={<div style={{ height: 180, display: "grid", placeItems: "center", color: C.muted, fontSize: 13 }}>Loading chart…</div>}>
-                <Charts kind="line" data={s.history} color={C.emerald} mutedColor={C.muted} fmt={fmt} />
-              </React.Suspense>
-            </Card>
-          )}
 
           {canWithdraw && (
             <Card style={{ padding: 16, marginTop: 14, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
@@ -3679,10 +3663,9 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
         <Wrap
           title={s.done ? "You've graduated 🎓" : "Capstone: What You Built"}
           blurb={s.done
-            ? "That's the program. You built something real and learned to manage what it earns — your final net worth reflects every decision you made."
-            : "You started with nothing but an idea. Here's the business and net worth you built — this is the finish line."}>
-          <Stat label={s.done ? "Your final net worth" : "Final net worth"} value={fmt(netWorth(s))} color={C.emerald} icon={Sparkles} />
-          {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 12 }}>This is your last class. Advance once more to <b>finish the course</b> and unlock your certificate.</div>}
+            ? "That's the program. You built something real, took it live, and went to market for your first customers — this is what you made."
+            : "You started with nothing but an idea. Tally it up — the product you built, who's using it, and what it's worth as a business. This is the finish line."}>
+          {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 4 }}>This is your last class. <b>Finish the course</b> to unlock your certificate.</div>}
           {/* Capture the build + a testimonial at the finale (gated by the founder showcase toggle). */}
           {CONFIG.showcaseEnabled && <ShowcaseCapture s={s} />}
         </Wrap>
@@ -3692,14 +3675,11 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
   );
 }
 
-// The simulation-advance button. Lives on the Dashboard (the money-simulation home) — NOT inside
-// the per-week Course-progress panels, which are about class materials + your activity. Mirrors
-// the income/phase label logic. Hidden once graduated.
+// The "move to the next week" button on the Dashboard. (Finance removed: no income/net-worth — it's
+// pure week progression. `advance()` still runs under the hood for funnel events + the sim harness.)
 function AdvanceButton({ s, onAdvance }) {
   if (s.done) return null;
-  const inc = incomeFor(s.phase, s.week);
-  const earn = inc > 0 ? `Collect ${fmt(inc)} & ` : "";
-  const label = s.week >= 12 ? "Finish the course 🎓" : `${earn}advance to Week ${s.week + 1}`;
+  const label = s.week >= 12 ? "Finish the course 🎓" : `Move to Week ${s.week + 1}`;
   return (
     <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
       {label} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
@@ -4763,7 +4743,7 @@ function buildCertSvg(cert) {
   <text x="500" y="248" text-anchor="middle" font-size="16" fill="#605e5c">This certifies that</text>
   <text x="500" y="312" text-anchor="middle" font-size="44" font-weight="bold" fill="#242424">${name}</text>
   <text x="500" y="372" text-anchor="middle" font-size="20" fill="#424242">has completed the ${title}</text>
-  <text x="500" y="406" text-anchor="middle" font-size="15" fill="#605e5c">building and shipping a real product with Claude Code, then learning to grow and manage what it earns.</text>
+  <text x="500" y="406" text-anchor="middle" font-size="15" fill="#605e5c">building and shipping a real product with Claude Code, then learning to grow it and get its first customers.</text>
   <line x1="180" y1="560" x2="420" y2="560" stroke="#242424"/>
   <text x="300" y="585" text-anchor="middle" font-size="16" fill="#242424">Sunil Garg</text>
   <text x="300" y="605" text-anchor="middle" font-size="12" fill="#605e5c">Founder, Build Young</text>
@@ -4786,7 +4766,7 @@ function CertificateView({ cert, compact }) {
         <div style={{ fontSize: 13, color: C.muted, marginTop: 16 }}>This certifies that</div>
         <div className="disp" style={{ fontSize: compact ? 26 : 34, fontWeight: 800, color: C.ink, margin: "6px 0" }}>{name}</div>
         <div style={{ fontSize: 14.5, color: C.ink2, lineHeight: 1.6, maxWidth: 520, margin: "8px auto 0" }}>
-          has completed the <b>{certName(cert.track)}</b> — building and shipping a real product with Claude Code, then learning to grow and manage what it earns.
+          has completed the <b>{certName(cert.track)}</b> — building and shipping a real product with Claude Code, then learning to grow it and get its first customers.
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20, marginTop: 28, textAlign: "left", flexWrap: "wrap" }}>
           <div>
@@ -4864,7 +4844,7 @@ function CertifyVerify({ certId, onHome }) {
           <CertificateView cert={cert} />
           <div style={{ marginTop: 16 }}><CertActions cert={cert} /></div>
           <div style={{ fontSize: 13, color: C.muted, marginTop: 18, lineHeight: 1.6 }}>
-            {CERT_ORG} is a live program where teens build a product with AI and learn to grow and manage what it earns. <span {...act(onHome)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Learn more →</span>
+            {CERT_ORG} is a live program where teens build a product with AI, grow it, and get its first customers. <span {...act(onHome)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Learn more →</span>
           </div>
         </>)}
       </div>
