@@ -27,6 +27,15 @@ export async function addEnrollment({ email, name, batchId }) {
   return { ok: res !== null };
 }
 
+// Remove one enrollment (e.g. on cancellation/refund). Idempotent: deleting a missing field is
+// a no-op. Returns { ok } — ok:false when the store isn't configured.
+export async function removeEnrollment({ email, batchId }) {
+  if (!storeConfigured()) return { ok: false, reason: "store not configured" };
+  if (!email || !batchId) return { ok: false, reason: "missing email or batchId" };
+  const res = await command(["HDEL", keyFor(batchId), email]);
+  return { ok: res !== null };
+}
+
 // List enrollments for a cohort → [{ email, name, batchId }]. [] when unconfigured/empty.
 // Number of students enrolled in a cohort (cheap HLEN). 0 when unconfigured/empty. Used to
 // auto-detect a full cohort (enrolled >= seats) on the public catalog read.

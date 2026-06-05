@@ -19,10 +19,33 @@
 //   3. Configure the store env vars (see api/_lib/store.js).
 
 import crypto from "node:crypto";
-import { addEnrollment } from "./_lib/store.js";
+import { addEnrollment, removeEnrollment } from "./_lib/store.js";
 import { kvConfigured } from "./_lib/kv.js";
 import { putUser, getUser } from "./_lib/auth.js";
 import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
+import { loadCatalog } from "./_lib/cohortStore.js";
+import { addContact, removeContact } from "./_lib/resendAudience.js";
+
+// A refund = a cancellation: pull the student out of the cohort's enrollment store AND its Resend
+// audience (group). Best-effort; never makes Stripe retry. The cohort id comes from the user record
+// written at enrollment (getUser), with the charge metadata as a fallback.
+async function handleCancellation(charge, res) {
+  const email = (charge && charge.billing_details && charge.billing_details.email) || (charge && charge.receipt_email) || "";
+  if (!email) { res.status(200).json({ received: true, removed: false, reason: "no email on charge" }); return; }
+  let batchId = (charge && charge.metadata && charge.metadata.batchId) || "";
+  if (!batchId && kvConfigured()) {
+    try { const u = await getUser(email); batchId = (u && u.batchId) || ""; } catch { /* ignore */ }
+  }
+  if (!batchId) { res.status(200).json({ received: true, removed: false, reason: "no batchId for email" }); return; }
+  let removed = false;
+  try { const r = await removeEnrollment({ email, batchId }); removed = !!(r && r.ok); } catch { /* ignore */ }
+  try {
+    const cat = await loadCatalog();
+    const cohort = (cat.batches || []).find((b) => b.id === batchId);
+    if (cohort && cohort.groupAudienceId) await removeContact(cohort.groupAudienceId, email);
+  } catch { /* group removal is best-effort */ }
+  res.status(200).json({ received: true, removed, batchId });
+}
 
 // Vercel: give us the raw body (needed to verify the Stripe signature).
 export const config = { api: { bodyParser: false } };
@@ -108,7 +131,12 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Only enrollment completions matter; acknowledge everything else so Stripe stops retrying.
+  // A refund cancels the enrollment → remove the student from the cohort group + store.
+  if (event.type === "charge.refunded") {
+    return handleCancellation((event.data && event.data.object) || {}, res);
+  }
+
+  // Beyond that, only enrollment completions matter; acknowledge everything else so Stripe stops retrying.
   if (event.type !== "checkout.session.completed") {
     res.status(200).json({ received: true, ignored: event.type });
     return;
@@ -126,6 +154,19 @@ export default async function handler(req, res) {
   }
 
   const result = await addEnrollment({ email, name, batchId });
+
+  // Add the student to their cohort's Resend audience (the group/broadcast list). Best-effort:
+  // looks up the cohort's groupAudienceId from the catalog; no-ops if Resend isn't configured or
+  // the cohort has no audience yet. Never blocks the webhook.
+  try {
+    const cat = await loadCatalog();
+    const cohort = (cat.batches || []).find((b) => b.id === batchId);
+    if (cohort && cohort.groupAudienceId) {
+      const first = String(name || "").trim().split(" ")[0] || "";
+      const last = String(name || "").trim().split(" ").slice(1).join(" ");
+      await addContact(cohort.groupAudienceId, { email, firstName: first, lastName: last });
+    }
+  } catch { /* group add is best-effort — enrollment already stored */ }
 
   // Provision the student's account and email them a set-password link (server-side, after a
   // verified payment — this is where account creation belongs). No-op when KV isn't configured,
