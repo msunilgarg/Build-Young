@@ -2137,13 +2137,13 @@ const BUILD_LAYERS = {
   8: { key: "funnel",
     lead: "Build a smooth funnel into the product you've launched — and instrument it, so next week you can see how it's working. Growth becomes part of the product itself, not an ad campaign.",
     fieldLabel: "The funnel",
-    seed: `My app already lets people [the main thing it does], but new visitors don't get it and most don't come back. Build a smooth funnel into it, on top of what I already have, without breaking anything:
+    seed: `I want new visitors to understand [my app] fast and have a reason to come back. Build a clear funnel into it, on top of what I already have, without breaking anything:
 
 1. FIND IT — a landing page that says in one line what [my app] does for [who it's for], shows the single biggest benefit, and has one clear "Try it" button into the app.
-2. TRY IT (the "aha") — a smoother first run: take a brand-new user straight to [the main action] with a one-line nudge so they hit the wow — [the wow moment] — on their first visit, not an empty screen.
+2. TRY IT (the "aha") — a smooth first run: take a brand-new user straight to [the main action] with a one-line nudge so they hit the wow — [the wow moment] — on their first visit, not an empty screen.
 3. COME BACK — a reason and an easy way to return, like [save their work / email them their result].
 
-Keep my current styling. Then add simple, privacy-friendly tracking so next week I can see how it's doing: active users, who comes back, and how many people reach each step (find → try → come back). Tell me how to test it.` },
+Keep my current styling. Then add simple, privacy-friendly tracking so I can see how it's doing: how many people use it (active users), how many come back (retention), and how many reach each step of the funnel (find → try → come back). Tell me how to test it.` },
 };
 
 // Weeks 4–6 "your turn": a short intro + the week's copy-paste prompt (editable; seeded from
