@@ -32,10 +32,10 @@ describe("cohort catalog store", () => {
     expect(clean.checkins).toBe(2);
   });
 
-  it("sanitizeCatalog keeps + trims the per-cohort group email", () => {
-    const clean = sanitizeCatalog({ batches: [{ id: "a", price: 999, groupEmail: "  fall-mw@build-young.com  " }] });
-    expect(clean.batches[0].groupEmail).toBe("fall-mw@build-young.com");
-    expect(sanitizeCatalog({ batches: [{ id: "b", price: 999 }] }).batches[0].groupEmail).toBe(""); // absent → empty string, never undefined
+  it("sanitizeCatalog keeps + trims the group email, and derives <id>@domain when absent", () => {
+    const clean = sanitizeCatalog({ batches: [{ id: "a", price: 999, groupEmail: "  custom@build-young.com  " }] });
+    expect(clean.batches[0].groupEmail).toBe("custom@build-young.com"); // explicit value trimmed + kept
+    expect(sanitizeCatalog({ batches: [{ id: "fall-mw", price: 999 }] }).batches[0].groupEmail).toBe("fall-mw@build-young.com"); // absent → derived, never empty
   });
 
   it("sanitizeCatalog keeps per-week recording links (weeks 1–12, non-empty strings only)", () => {
