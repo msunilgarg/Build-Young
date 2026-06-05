@@ -1869,7 +1869,7 @@ function weekExample(week) {
   // Weeks 3–6 show Build Young's own spec slice; weeks 7–10 show the seeded growth prompt.
   const bl = BUILD_LAYERS[week];
   if (bl) {
-    const sample = bl.key ? SHAPE_EXAMPLE[bl.key] : bl.seed;
+    const sample = bl.seed ? bl.seed : SHAPE_EXAMPLE[bl.key];
     const sampleCard = <ExampleCard subtitle="A sample prompt — a model to adapt for your own product" fields={[[bl.fieldLabel, sample]]} />;
     // Week 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
     if (week === 9) return (<><GlossaryCard title="First — the metrics, in plain English" items={METRICS_PRIMER} /><div style={{ height: 14 }} />{sampleCard}</>);
@@ -1967,7 +1967,7 @@ const BUILD_LAYERS = {
   // Weeks 7–10 are GROWTH layers — features added after launch, so they aren't part of the Week 2
   // product spec. Each is a starter prompt (`seed`) the student adapts to their own product;
   // edits persist in s.grow[week].
-  7: { key: null,
+  7: { key: "golive",
     heading: "Go live — open for business 🚀",
     lead: "Your product works — now flip the switches that make it real to the world (a parent helps with the live payment keys).",
     fieldLabel: "Your go-live checklist",
@@ -1978,7 +1978,7 @@ const BUILD_LAYERS = {
 - Switch payments from TEST keys to LIVE keys, and move every secret key into environment variables — never in the code or the browser.
 - Run a launch checklist with me: sign-up works, a real payment works, emails send, and nothing secret is exposed.`,
     instruction: "Tell me exactly what to click. Flag anything that needs a real account or a parent's help (like live payment keys)." },
-  8: { key: null,
+  8: { key: "funnel",
     heading: "Build the funnel into your product 🧲",
     lead: "Build this into the product you've launched — growth becomes part of the product itself, not a separate ad campaign.",
     fieldLabel: "The funnel to build in",
@@ -1989,7 +1989,7 @@ const BUILD_LAYERS = {
 - A smooth first run, so a new user reaches the "magic moment" quickly.
 - An easy reason and way to come back (save their work, send a helpful email, etc.).`,
     instruction: "Measure each step so I can see where people drop off. Keep it simple." },
-  9: { key: null,
+  9: { key: "metrics",
     heading: "Measure it — find the bottleneck 📊",
     lead: "Add the instrumentation to see how your product is really doing — the numbers behind the growth.",
     fieldLabel: "The metrics to add",
@@ -2001,7 +2001,7 @@ const BUILD_LAYERS = {
 - Where in the funnel people drop off.
 Show me a small dashboard of these and help me read it to find the ONE biggest bottleneck to fix next.`,
     instruction: "Don't collect anything you don't need — especially since some users may be minors." },
-  10: { key: null,
+  10: { key: "plg",
     heading: "Product-led growth 🌱",
     lead: "The kind of growth that comes from the product itself, not from ads — built on top of what you have.",
     fieldLabel: "The growth to build in",
@@ -2207,17 +2207,15 @@ function BuildLayer({ week, s, setS, bare }) {
   const shape = s.shape || {};
   const [copied, setCopied] = useState(false);
   const has = (v) => v && v.trim();
-  // Weeks 3–6 pull from the Week 2 product spec (s.shape[key]). Weeks 7–10 are seeded GROWTH
-  // prompts (added after launch, not part of the product spec), stored per-week in s.grow[week].
-  const fromSpec = !!cfg.key;
-  const grow = s.grow && s.grow[week];
-  // Weeks 3–6: from the Week 2 spec. Weeks 7–10: the student's own adaptation (starts empty — the
-  // seed is shown above as the class-material sample, and the prompt falls back to it if left blank).
-  const value = fromSpec ? shape[cfg.key] : (grow !== undefined ? grow : "");
+  // The WHOLE 12-week plan is ONE object — s.shape. Every build week (3–10) reads + writes its own
+  // s.shape[key], so it's a single source of truth. Weeks 3–6 are filled from the Week 2 product
+  // spec; weeks 7–10 ship a starter prompt (`seed`) used as the default until the student edits it.
+  const seeded = !!cfg.seed;        // weeks 7–10 (growth) come with a starter prompt
+  const fromSpec = !seeded;         // weeks 3–6 are pulled from the Week 2 product spec
+  const stored = shape[cfg.key];
+  const value = stored !== undefined ? stored : (cfg.seed || "");
   const hasLayer = has(value);
-  const onChangeLayer = (v) => (fromSpec
-    ? setS((p) => ({ ...p, shape: { ...(p.shape || {}), [cfg.key]: v } }))
-    : setS((p) => ({ ...p, grow: { ...(p.grow || {}), [week]: v } })));
+  const onChangeLayer = (v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [cfg.key]: v } }));
   // The ready-to-paste prompt for THIS week's layer, assembled live from the field below.
   const generatedPrompt = [
     cfg.intro, "", cfg.promptLabel,
