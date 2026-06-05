@@ -41,7 +41,7 @@ export const WEEK_TITLES = [
   "Shape the Idea — write your spec",
   "Build the Core Product",
   "Make It Yours",
-  "Get Paid",
+  "Add E-commerce",
   "Make It Real",
   "Go Live",
   "The Funnel",
