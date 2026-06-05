@@ -20,6 +20,7 @@ import { saveHomework } from "./_lib/homeworkStore.js";
 import { listCerts } from "./_lib/cert.js";
 import { listBuildPlans } from "./_lib/buildPlans.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
+import { generateScenarios } from "./_lib/scenarioAgent.js";
 
 const KEY = "funnel:events";
 const CAP = 100000; // keep only the most recent N events (LTRIM after each push)
@@ -119,6 +120,20 @@ async function readBody(req) {
   return body;
 }
 
+// --- POST ?resource=scenarios: the Week-9 agent. Generates practice funnels from the student's own
+// funnel metrics. Public (no PII — just stage labels). Key-gated like send-email: returns
+// {configured:false} when ANTHROPIC_API_KEY isn't set, so the client falls back to a local generator. ---
+async function makeScenarios(req, res) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) { res.status(200).json({ configured: false, scenarios: [] }); return; }
+  const body = (await readBody(req)) || {};
+  const stages = Array.isArray(body.stages) ? body.stages : [];
+  const level = body.level === "advanced" ? "advanced" : "standard";
+  let scenarios = [];
+  try { scenarios = await generateScenarios({ stages, level, apiKey }); } catch { scenarios = []; }
+  res.status(200).json({ configured: true, scenarios });
+}
+
 // --- PUT (default): founder saves the cohort catalog. If this introduces a NEW cohort, everyone
 // who registered interest (when something was full) is emailed automatically that it opened. ---
 async function saveCohorts(req, res) {
@@ -202,6 +217,7 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "interest") return saveInterest(req, res); // public
     if (req.query && req.query.resource === "tutor") return saveTutorInterest(req, res); // public
     if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
+    if (req.query && req.query.resource === "scenarios") return makeScenarios(req, res); // public, AI-generated
     return ingest(req, res);     // public: track an event
   }
   if (req.method === "GET") return read(req, res);        // founder: read funnel events

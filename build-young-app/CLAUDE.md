@@ -249,9 +249,16 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → **Wk7 Go Live**;
   **Act 2 · 1→100 (Weeks 8–10)** — **The Funnel** (Wk8: spec a connected funnel + tracking via
   `BuildLayer`, PLUS list the funnel steps you track via `FunnelStages` → `s.funnelStages`) →
-  **Metrics & Scaling** (Wk9: NO prompt — `FunnelScenarios` renders several seeded PRACTICE funnels
-  built from `s.funnelStages`, each shaped to a different story; the student writes a read per funnel
-  and reveals the system's answer, saved to `s.reflect[9].notes`) → **Product-Led Growth** (Wk10: a guided discussion with
+  **Metrics & Scaling** (Wk9: NO prompt — `FunnelScenarios` renders several PRACTICE funnels built
+  from `s.funnelStages`, each shaped to a different story; the student writes a read per funnel and
+  reveals the system's answer, saved to `s.reflect[9].notes`. The 4 built-ins are seeded/local; a
+  **"Simulate more advanced scenarios"** button calls the **agent** — `POST /api/funnel?resource=scenarios`
+  → `api/_lib/scenarioAgent.js` → Claude (`claude-opus-4-8`, via `fetch`, **`ANTHROPIC_API_KEY`** server-side)
+  — to generate fresh, harder funnels from the student's own metrics; output is run through
+  `sanitizeScenarios` (one count per stage + a short read) so a bad model reply can't reach the UI,
+  and it falls back to a local generator when no key is set. A day-before-class cron can reuse the same
+  `generateScenarios()` to pre-make per-student funnels once auth+KV+key are live. Test: `scenarioAgent.test.js`.)
+  → **Product-Led Growth** (Wk10: a guided discussion with
   thought-provoking topics, NO prompt — `ReflectionPanel` from `REFLECT_WEEKS[10]`, saved to
   `s.reflect[10]`); **Act 3 · Manage (Week 11, ONE combined money week) + Capstone (Week 12)**.
   **The build spec** is the spine of Act 1: the **Week 2 spec is AI-agnostic** (no "prompt"/Claude —
