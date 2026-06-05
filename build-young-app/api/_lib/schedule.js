@@ -1,28 +1,17 @@
 // ============================ SCHEDULE (pure date math) ============================
 //
 // Pure, side-effect-free helpers that turn a cohort's `start` date + weekly cadence into
-// concrete class dates, and decide which media emails are due to go out "today".
+// concrete class dates, and decide which class reminders are due to go out "today".
 //
-// Why this exists: the in-app simulation is click-driven (a student clicks "advance" and
-// the whole 3-email drip fires at once). For the real program we instead want one email
-// per real calendar day on days -3, -2, -1 before each weekly class (Weeks 3–12). A daily
-// cron calls dueSends(today) and sends only what's due that day.
+// A daily cron calls dueReminders(today) and sends a "prepare for next week" heads-up two
+// days before each weekly class.
 //
 // Date handling: we work in whole calendar days. `start` (e.g. "Sep 9, 2026") is the Week-1
 // class date; Week N is start + (N-1)*7 days. We normalize every date to a UTC midnight
-// "day number" so DST / timezone shifts can never throw the 3/2/1-day window off by one.
-
-// Weeks that carry a live market event (and therefore a media drip). FLIPPED CURRICULUM:
-// Weeks 1–7 are the Build act + finance setup (no portfolio yet, no event/drip); the live
-// market arc runs Weeks 8–12 — matching marketEventFor() in _lib/marketSchedule.js.
-export const MEDIA_WEEKS = { first: 8, last: 12 };
-
-// The day-offsets a drip goes out on, relative to class day: -3 (breaking), -2 (analysis),
-// -1 (challenge). Stored as positive "days before class".
-export const DRIP_OFFSETS = [3, 2, 1];
+// "day number" so DST / timezone shifts can never throw the reminder window off by one.
 
 // A class reminder goes out this many days before EVERY weekly class (weeks 1–12) — a heads-up
-// with what to prepare, separate from the market-news drip.
+// with what to prepare for the upcoming class.
 export const REMINDER_OFFSET = 2;
 
 // Parse a date string/Date into a UTC-midnight Date (time-of-day stripped). Returns null
@@ -55,31 +44,6 @@ export function classDateForWeek(batch, week) {
 export function classISOForWeek(batch, week) {
   const d = classDateForWeek(batch, week);
   return d ? d.toISOString().slice(0, 10) : null;
-}
-
-// Given "today" (ISO yyyy-mm-dd or any Date-parseable value) and the cohort list, return the
-// list of media sends due today: { batchId, week, dayOffset } where dayOffset ∈ {3,2,1} means
-// the Week-N class is exactly 3/2/1 days from today, for weeks 3..12 only.
-//
-// Sorted deterministically (by batchId, then week, then descending dayOffset) so the cron's
-// behavior — and tests — are stable.
-export function dueSends(today, batches) {
-  const out = [];
-  for (const batch of batches || []) {
-    for (let week = MEDIA_WEEKS.first; week <= MEDIA_WEEKS.last; week++) {
-      const classDate = classDateForWeek(batch, week);
-      if (!classDate) continue;
-      const daysUntil = daysBetween(today, classDate);
-      if (DRIP_OFFSETS.includes(daysUntil)) {
-        out.push({ batchId: batch.id, week, dayOffset: daysUntil });
-      }
-    }
-  }
-  out.sort((a, b) =>
-    a.batchId < b.batchId ? -1 : a.batchId > b.batchId ? 1 :
-    a.week - b.week || b.dayOffset - a.dayOffset
-  );
-  return out;
 }
 
 // Class reminders due today: { batchId, week } for every week 1–12 whose class is exactly

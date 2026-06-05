@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  toUtcMidnight, daysBetween, classDateForWeek, classISOForWeek, dueSends, dueReminders,
-  MEDIA_WEEKS, DRIP_OFFSETS, REMINDER_OFFSET,
+  toUtcMidnight, daysBetween, classDateForWeek, classISOForWeek, dueReminders, REMINDER_OFFSET,
 } from "../api/_lib/schedule.js";
 import { BATCHES } from "../src/cohorts.js";
 
@@ -42,60 +41,6 @@ describe("classDateForWeek", () => {
   });
 });
 
-describe("dueSends — picks the right sends for a given day", () => {
-  it("emits a send when a Week 8–12 class is exactly 3 / 2 / 1 days out", () => {
-    // Week 8 class for fall-mw is Oct 26, 2026 (first investing week).
-    expect(dueSends("2026-10-23", [MW])).toEqual([{ batchId: "fall-mw", week: 8, dayOffset: 3 }]);
-    expect(dueSends("2026-10-24", [MW])).toEqual([{ batchId: "fall-mw", week: 8, dayOffset: 2 }]);
-    expect(dueSends("2026-10-25", [MW])).toEqual([{ batchId: "fall-mw", week: 8, dayOffset: 1 }]);
-  });
-
-  it("emits nothing on the class day itself or 4+ days out", () => {
-    expect(dueSends("2026-10-26", [MW])).toEqual([]); // class day
-    expect(dueSends("2026-10-22", [MW])).toEqual([]); // 4 days out
-  });
-
-  it("never schedules a drip for the build/setup weeks (1–7)", () => {
-    // Week 7 class is Oct 19 → 3 days before is Oct 16. No sends before the investing act.
-    expect(dueSends("2026-09-04", [MW])).toEqual([]); // before week 1
-    expect(dueSends("2026-10-16", [MW])).toEqual([]); // 3 days before week 7
-  });
-
-  it("walks a full cohort window: every Week 8–12 class yields exactly 3 send-days", () => {
-    const counts = {}; // "week:offset" -> times seen across the season
-    // Scan a wide date range covering the whole fall-mw run (Sep 2026 → Dec 2026).
-    const start = toUtcMidnight("2026-09-01");
-    const DAY = 24 * 60 * 60 * 1000;
-    for (let i = 0; i < 120; i++) {
-      const iso = new Date(start.getTime() + i * DAY).toISOString().slice(0, 10);
-      for (const s of dueSends(iso, [MW])) {
-        const k = `${s.week}:${s.dayOffset}`;
-        counts[k] = (counts[k] || 0) + 1;
-        expect(DRIP_OFFSETS).toContain(s.dayOffset);
-        expect(s.week).toBeGreaterThanOrEqual(MEDIA_WEEKS.first);
-        expect(s.week).toBeLessThanOrEqual(MEDIA_WEEKS.last);
-      }
-    }
-    // Weeks 8..12 (5 weeks) × offsets {3,2,1} = 15 distinct (week,offset) send-days, each once.
-    expect(Object.keys(counts)).toHaveLength(15);
-    for (const k of Object.keys(counts)) expect(counts[k]).toBe(1);
-  });
-
-  it("handles multiple cohorts on one day and sorts deterministically", () => {
-    // Oct 24, 2026: fall-mw W8 (Oct 26) is 2 days out; fall-tt W8 (Oct 27) is 3 days out.
-    const due = dueSends("2026-10-24", BATCHES);
-    expect(due).toEqual([
-      { batchId: "fall-mw", week: 8, dayOffset: 2 },
-      { batchId: "fall-tt", week: 8, dayOffset: 3 },
-    ]);
-  });
-
-  it("tolerates an empty / missing batch list", () => {
-    expect(dueSends("2026-09-20", [])).toEqual([]);
-    expect(dueSends("2026-09-20", undefined)).toEqual([]);
-  });
-});
-
 describe("dueReminders (2 days before every weekly class)", () => {
   it("flags a cohort's week when its class is exactly REMINDER_OFFSET days out", () => {
     expect(REMINDER_OFFSET).toBe(2);
@@ -105,8 +50,13 @@ describe("dueReminders (2 days before every weekly class)", () => {
     // applies to later weeks too: Week 3 class = Sep 21 → reminder Sep 19.
     expect(dueReminders("2026-09-19", [MW])).toContainEqual({ batchId: "fall-mw", week: 3 });
   });
+  it("handles multiple cohorts and sorts by batchId then week", () => {
+    // Oct 24, 2026: fall-mw W8 (Oct 26) is exactly 2 days out; fall-tt W8 (Oct 27) is 3 days out.
+    expect(dueReminders("2026-10-24", BATCHES)).toEqual([{ batchId: "fall-mw", week: 8 }]);
+  });
   it("is empty when no class is 2 days out, and tolerates no batches", () => {
     expect(dueReminders("2026-09-06", [MW])).toEqual([]); // 1 day out, not 2
     expect(dueReminders("2026-09-05", [])).toEqual([]);
+    expect(dueReminders("2026-09-05", undefined)).toEqual([]);
   });
 });

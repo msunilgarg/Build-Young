@@ -4,9 +4,10 @@ This file orients you (Claude Code) to the project so you can build new function
 confidently. Read it fully before making changes.
 
 ## What this is
-**Build Young** is a live, online money-skills program for teens (ages 15–18), plus a
-single-page React marketing site + enrollment flow + an interactive "money simulation"
-dashboard students use after enrolling. Tagline: *"Raising builders, not consumers."*
+**Build Young** is a live, online entrepreneurship program for teens (ages 15–18): over 12 weeks
+they build a real product with AI, take it live, grow it, and go to market for their first
+customers — plus a single-page React marketing site + enrollment flow + a post-enrollment
+course dashboard (week stepper + per-week activities). Tagline: *"Raising builders, not consumers."*
 Founder: **Sunil Garg** (ex-Microsoft, 20 years in product). LinkedIn:
 https://www.linkedin.com/in/msunilgarg
 
@@ -71,7 +72,12 @@ Top-to-bottom, the major pieces:
   founder, batches/pricing, footer).
 - **`Enroll`** — 3-step enrollment (checkout-style step 1, payment, confirmation).
 - **`BookCall`** — free 15-min call booking (two-column: scheduler + "what you'll get from me").
-- **`Platform`** + panels (`WeekPanel`, `PortfolioPanel`, markets) — the post-enrollment dashboard.
+- **`Platform`** + panels (`CoursePanel`, `WeekPanel`) — the post-enrollment dashboard (Overview /
+  Course progress / Dashboard tabs). NOTE: the old finance/markets/portfolio simulation engine
+  (`advance(prev,macro)` income/market/net-worth math, `PortfolioPanel`, `BuyCard`, `RISK_PRESETS`,
+  `ASSETS`, the `api/_lib/marketSchedule.js` + `/api/market-event` server modules) was **fully
+  removed** — the program is pure entrepreneurship now, no money simulation. `advance(prev)` is now
+  just week progression (week++ / `started` / `done` at Week 12).
 - **`App`** (default export) — owns routing, history/scroll, the nav lock, persistence,
   and the legal modal.
 
@@ -91,8 +97,14 @@ This keeps the landing-page initial JS ~90 KB gzip. Don't statically import rech
 App.jsx — that would undo it. `npm run build` (Vite) preserves this split automatically.
 
 - **Refund policy (in code):** full refund before the cohort starts (state flag `started:false`, flips true on first `doAdvance`); prorated refund through the first **`REFUND_WEEKS`** (= **1**) course week; non-refundable after (shown explicitly once that window passes). Eligibility is the single helper **`canWithdrawNow(s)`** (gates the Cancel/Withdraw button AND `doWithdraw` itself) — change `REFUND_WEEKS` to move the window; copy uses `REFUND_WEEKS`/`REFUND_WEEKS+1` so it follows. **Proration basis = "weeks not yet held"** (matches the Terms): the sim advances by WEEK (a 12-week course; the program runs **24 sessions** = two a week, but refunds prorate by week). `week` increments on each advance (attending the first week → "Week 2"), so weeks held = `week−1` and `refund = refundFor(batch, started, week) = price × (12 − (week−1)) / 12`. Don't reintroduce `price×(12−week)/12` — that's the old off-by-one that under-refunded one week and overstated attendance. NOTE: refund copy refers to "the first week" (`REFUND_WINDOW`), NOT "Act 1" — after the build-first flip, Act 1 is the 7-week build-and-launch arc (Weeks 1–7). Logic lives in `Platform` + `withdrawalEmail`; Terms copy in `LEGAL` (in-app) and `public/terms.html` must stay in sync.
-- **Income model (BUILD-EARNED, not a paycheck):** income comes from the student's *build*, not employment. `INCOME[]` in `App.jsx` is the per-course-week revenue curve — **$0 in the early build weeks**, ramping to a steady `STEADY_INCOME` (= `PAY` = **$10,000**) once the build lands customers (≈week 6) and through the finance act. `incomeFor(phase, week)` is the single source; `advance()` uses it. **There is NO employer 401(k) match** (self-employed builder — `advance` adds only the student's own retirement set-aside, no match). **Taxes stay** (15%, framed as self-employment/business tax). **Living costs** (`LIVING`) apply only once independent (finance act, week ≥ `FINANCE_FIRST_WEEK`=7). Other dollar constants (`HOME`/`CAR`/`EMERGENCY`/`SPREE`/`INSURANCE`/`ALT_BUY`/`PE_BUY`) unchanged. All income/cost COPY derives from these; the batch-sim harness imports them. Tests assert relationships, not literals.
-- **Program shape (12 weeks; NO check-in):** the program is **12 weeks flat** — finishing the **Week 12 capstone** graduates the student (`doAdvance` sets `done:true` at week 12; cert mints on `done===true`). There is **no separate follow-up check-in** (removed). The simulated-portfolio prize was removed; in its place is a **real-world "First-year builder prize"** — per cohort, the FIRST student to land a **real, arms-length paying customer within a year of enrolling** gets tuition refunded, contingent on (a) payment-receipt proof + founder verification and (b) a parent-consented ~2-min video. Surfaced on the landing pricing, the **Terms** ("First-year builder prize" in `LEGAL` + `public/terms.html`), and the **showcase capture** (capstone collects an optional `videoLink` + `claimingPrize` flag → founder console "Student showcase"). Contest involving minors + likeness → keep the attorney-review + media-release flag in Terms. `CHECKINS` (cohorts.js) is **0**; the check-in phase, `checkin_completed` event, and `checkinCurve` are dormant (kept generic for analytics, never reached). The former prize copy is gone from the landing pricing, the dashboard capstone, and the Terms. **Fairness / anti-gaming (still good practice):** the market schedule (`FLAT_MACRO`/`MACRO`/`CHECKIN_MACRO`/`marketEventFor` + the `MEDIA` map) lives **server-only** in `api/_lib/marketSchedule.js` and does NOT ship in the client bundle, so students can't read future events from devtools. The client learns the **single current** event by fetching `/api/market-event` (server-only lookup; never the full array); offline/demo/tests fall back to a **non-revealing placeholder** ("Markets are moving", neutral effects). Per-student randomization is intentionally NOT used — a fair cohort shares one market. The schedule modules `src/marketMedia.js` (client-safe builders/metadata) and `api/_lib/marketSchedule.js` (server-only schedule) MUST stay separate — never import the latter from anything under `src/`.
+- **Finance/money simulation — REMOVED:** the program no longer has any income/markets/net-worth
+  simulation. The entire engine is gone: `INCOME`/`STEADY_INCOME`/`PAY`/`TAX_RATE`/`LIVING`/
+  `FINANCE_FIRST_WEEK`, `incomeFor`, `netWorth`/`holdingsTotal`, `takeSpree`/`investInstead`,
+  `RISK_PRESETS`/`ASSETS`, the dollar constants (`HOME`/`CAR`/`EMERGENCY`/`SPREE`/`INSURANCE`/
+  `ALT_BUY`/`PE_BUY`/`HUSTLE_*`), the `PortfolioPanel`/`BuyCard` UI, the Portfolio/Markets tabs, and
+  the server market modules (`api/_lib/marketSchedule.js`, `api/market-event.js`). Don't reintroduce
+  them — the dashboard is just the course (week stepper + per-week build/capstone activities).
+- **Program shape (12 weeks; NO check-in):** the program is **12 weeks flat** — finishing the **Week 12 capstone** graduates the student (`doAdvance` sets `done:true` at week 12; cert mints on `done===true`). There is **no separate follow-up check-in** (removed). The simulated-portfolio prize was removed; in its place is a **real-world "First-year builder prize"** — per cohort, the FIRST student to land a **real, arms-length paying customer within a year of enrolling** gets tuition refunded, contingent on (a) payment-receipt proof + founder verification and (b) a parent-consented ~2-min video. Surfaced on the landing pricing, the **Terms** ("First-year builder prize" in `LEGAL` + `public/terms.html`), and the **showcase capture** (capstone collects an optional `videoLink` + `claimingPrize` flag → founder console "Student showcase"). Contest involving minors + likeness → keep the attorney-review + media-release flag in Terms. `CHECKINS` (cohorts.js) is **0**; the check-in phase, `checkin_completed` event, and `checkinCurve` are dormant (kept generic for analytics, never reached). The former prize copy is gone from the landing pricing, the dashboard capstone, and the Terms. The daily cron (`api/cron/market-news.js`) is now **class-reminders only** — a "prepare for next week" email 2 days before each weekly class (`dueReminders` in `api/_lib/schedule.js`, homework from `api/_lib/homeworkStore.js`); the old market-news drip + server schedule were removed. `src/marketMedia.js` now holds just `WEEK_TITLES` + `WEEK_PREP` (dependency-free course copy shared by the app + cron).
 
 ## Founder funnel analytics (hidden `?founder` route, account-gated)
 
@@ -281,13 +293,10 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   pre-reqs. Each Act-2 week prepends plain-English `GlossaryCard`s (Wk8: `FUNNEL_PRIMER` +
   `METRICS_PRIMER`; Wk9: `METRICS_PRIMER`; Wk10: `PLG_PRIMER`). `SHAPE_EXAMPLE`
   is the worked Build-Young spec (`product`/`accounts`/`payments`/`production`/`success`/`funnel`). (`WEEK_INFRA`/`InfraBuildPlan`/`MAKE_PRINCIPLES`/
-  `PrinciplesCard` are now unused/legacy.) **Income/finance boundary:**
-  `FINANCE_FIRST_WEEK=11` (build+grow weeks 1–10 earn; LIVING + the money week start week 11). The
-  single money week (Wk11) uses **`action:"money"`**, which renders BOTH the Savings & Investing
-  (`allocation`) and Big Purchases (`buy`) panels in one week. Markets/media still run **Weeks 8–12**
-  (`MARKET_FIRST_WEEK`=8, server-only) — holdings don't exist until Wk11 so it's a no-op before then;
-  kept to avoid market-test churn. `WEEK_TITLES` (`marketMedia.js`) stays in sync with `WEEKS`. Still
-  12 weeks → no pricing/refund ripple; 219 tests pass.
+  `PrinciplesCard` are now unused/legacy.) **No finance weeks:** Act 3 is **Week 11 "Get Your First
+  Customers"** (go-to-market, `action:"build"`) + the **Week 12 capstone** (`action:"capstone"`) — there
+  are NO money/investing/markets weeks (all that was removed). Every week is `action:"build"` except
+  Week 12. `WEEK_TITLES` (`marketMedia.js`) stays in sync with `WEEKS`. 12 weeks; 180 tests pass.
 - Microsoft is framed as **ex-Microsoft** in short credential tags.
 - Keep the design calm and credible (no gimmicky floating widgets). Centered section headers.
 - **Typography:** display/headings/wordmark use **Space Grotesk** (`.disp` class); body uses
@@ -301,8 +310,8 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   what keeps it credible rather than cheap. The SVG dashboard-mock wordmark uses an equivalent
   `<linearGradient id="bygrad">` fill. Gradient text keeps its real text content underneath
   (transparent fill only), so screen readers and axe are unaffected — preserve that.
-- Always note money is **simulated** — no real funds. The site is **financial education,
-  not licensed financial advice.**
+- The site is **entrepreneurship education** — it teaches teens to build and sell a real product.
+  It is **not** financial/investment advice, and there is no money simulation.
 - **Statistics integrity:** every stat in `WHY_STATS` (and any new claim) must link to its
   PRIMARY source, be dated, and be current. When editing: re-open each link, confirm the number
   and year, and check for a newer edition before shipping. Update the number AND its `url`
