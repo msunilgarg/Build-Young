@@ -319,7 +319,7 @@ const WEEKS = [
   { act: 2, t: "Metrics & Scaling", s: "No new building — read the real numbers from last week's funnel: active users, retention, and where people drop off. Pick the one thing to fix.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "A discussion: how could your product grow itself? People share what's genuinely good — work out how yours spreads.", action: "build", comingSoon: true },
   // ─── Act 3 · MANAGE (Week 11) + Capstone (Week 12): manage the money your product earns ───
-  { act: 3, t: "Money: The Basics", s: "Your one money class — the basics of what to do with what you earn: pay yourself first, invest so it compounds, and a first big purchase done right.", action: "money",
+  { act: 3, t: "Money: The Basics", s: "Your one money week — the basics of what to do with what you earn: pay yourself first, invest so it compounds, and a first big purchase done right.", action: "money",
     materials: [
       { label: "Investor.gov — Compound Interest Calculator", url: "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator" },
       { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
@@ -549,7 +549,7 @@ export const cancelReasonLabel = (v) => (CANCEL_REASONS.find((r) => r.value === 
 
 export function withdrawalEmail(s, batch, refund, notStarted, reasonText) {
   const first = s.student.name.split(" ")[0] || "there";
-  // week increments on each advance, so sessions held = week − 1 once started; the rest are
+  // week increments on each advance, so weeks held = week − 1 once started; the rest are
   // "not yet held" (the prorated refund basis — matches the Terms).
   const attended = notStarted ? 0 : s.week - 1;
   const unheld = 12 - attended;
@@ -570,10 +570,10 @@ Take care,
 The Build Young Team`
       : `Hi ${first},
 
-We've processed your withdrawal from the ${batch.track} cohort. A prorated refund of ${fmt(refund)} — covering the ${unheld} sessions not yet held — is on its way back to your original payment method, typically within 5–10 business days.
+We've processed your withdrawal from the ${batch.track} cohort. A prorated refund of ${fmt(refund)} — covering the ${unheld} weeks not yet held — is on its way back to your original payment method, typically within 5–10 business days.
 
   •  Cohort: ${batch.track} — ${batch.day}
-  •  Attended: ${attended} of 12 sessions
+  •  Attended: ${attended} of 12 weeks
   •  Refund: ${fmt(refund)} (prorated)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
 
 Thanks for giving it a try — you're welcome back anytime. Just reply to this email if anything looks off.
@@ -583,12 +583,12 @@ The Build Young Team`,
   };
 }
 // The refund a student gets if they cancel now. Full price before the cohort starts; otherwise
-// prorated by SESSIONS NOT YET HELD (the Terms basis). `week` increments on each advance, so
+// prorated by WEEKS NOT YET HELD (the Terms basis). `week` increments on each advance, so
 // sessions held = week − 1 once started. The 3-week eligibility window is enforced separately
 // by `canWithdraw` in Platform — this just computes the amount.
 export function refundFor(batch, started, week) {
   if (!started) return batch.price;
-  const unheld = 12 - (week - 1); // sessions not yet held
+  const unheld = 12 - (week - 1); // weeks not yet held (sim advances by week; 12-week course)
   return Math.round((batch.price * unheld) / 12);
 }
 // The prorated-refund window: a cancellation is only allowed during the first N weeks of class
@@ -1935,7 +1935,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <h3 style={sectionTitle}>What to expect</h3>
           <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — 0 → 1.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
           <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth. Your income comes from your product.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Money, the basics.</b> One class on what to do with what you earn — pay yourself first, invest so it compounds, and a first big purchase done right.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Money, the basics.</b> One week on what to do with what you earn — pay yourself first, invest so it compounds, and a first big purchase done right.</span></div>
           <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Tally everything up — what you built and what it's worth — and say what you'd build next.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
           <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
@@ -2820,7 +2820,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
   const canWithdraw = canWithdrawNow(s); // pre-start, or within the first REFUND_WEEKS weeks
   // `week` increments on each advance (attending session 1 moves you to "Week 2"), so sessions
   // actually held = week − 1 once started. Refund covers every session NOT yet held — matching
-  // the Terms ("the fraction of sessions not yet held").
+  // the Terms ("the fraction of the program's weeks not yet held").
   const attended = notStarted ? 0 : s.week - 1;
   const unheld = 12 - attended;
   const refund = refundFor(batch, s.started, s.week);
@@ -2960,7 +2960,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
                 <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>
                   {notStarted
                     ? <>Your cohort hasn't started yet, so you'll receive a <b>full refund of {fmt(refund)}</b> — no questions asked. This frees up your seat for someone else.</>
-                    : <>You've attended {attended} of 12 sessions. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {unheld} sessions not yet held. Refunds are available only through the {REFUND_WINDOW}, so this can't be reversed.</>}
+                    : <>You've attended {attended} of 12 weeks. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {unheld} weeks not yet held. Refunds are available only through the {REFUND_WINDOW}, so this can't be reversed.</>}
                 </p>
                 <label style={{ display: "block", marginTop: 16 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: C.ink2, display: "block", marginBottom: 5 }}>Reason for cancelling <span style={{ color: C.rust }}>*</span></span>
@@ -3644,11 +3644,11 @@ const LEGAL = {
   terms: {
     title: "Terms of Service",
     sections: [
-      ["The program", "Build Young offers live, online money-skills classes — 12 weekly sessions (two live sessions per week) — delivered over video conference. Class activities use a learning simulation."],
+      ["The program", "Build Young offers a live, online program — a 12-week course meeting twice a week, so 24 live sessions in all — delivered over video conference. Class activities use a learning simulation."],
       ["Eligibility", "Students must be 15 to 18 years old. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
       ["Education, not financial advice", "Build Young is financial education. It is not licensed financial, investment, tax, or legal advice. All money, accounts, prices, and returns shown in the simulation are simulated; no real funds are ever involved."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
-      ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first week — the refund equals the tuition multiplied by the fraction of sessions not yet held. After the first week, tuition is non-refundable."],
+      ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first week — the refund equals the tuition multiplied by the fraction of the program's weeks not yet held. After the first week, tuition is non-refundable."],
       ["First-year builder prize", "In each cohort, the FIRST enrolled student to make a real, arms-length sale of their own product or service — a genuine paying customer, not a friend or family member — within one year of their enrollment date is eligible to have their tuition refunded. To claim, the student must (1) provide proof of the sale (e.g., a payment receipt from Stripe, PayPal, or a similar processor) for Build Young to verify, and (2) submit a short video (about 2 minutes) describing their product and experience, together with a parent or guardian's written consent for Build Young to use the student's name, likeness, and the video for promotional purposes. One award per cohort, to the first student who both qualifies and completes these steps; Build Young verifies eligibility and resolves any questions in good faith, and its decision is final. The award equals the tuition paid for that cohort and is issued after verification. Build Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; because the prize is a contest involving minors and the use of a minor's name and likeness, it — and an appropriate parental media-release — must be reviewed by counsel before launch.)"],
       ["Conduct", "We ask students and families to be respectful in live sessions. We may remove anyone whose conduct disrupts the class, consistent with the refund policy above."],
       ["Changes & contact", `We may update these terms and will post the new date above. Questions: ${CONFIG.contactEmail}.`],
