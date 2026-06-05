@@ -2133,7 +2133,7 @@ const PLG_PRIMER = [
 // Weeks 9 (analyze your real metrics) and 10 (discuss product-led growth) are NO-PROMPT weeks — the
 // student reads/reflects and jots answers (saved in s.reflect[week]); there's nothing to build with AI.
 // Week 10 (discuss product-led growth) is a NO-PROMPT reflection week — fixed discussion prompts the
-// student jots answers to (saved in s.reflect[10]). (Week 9 is the practice-data MetricsLab — see below.)
+// student jots answers to (saved in s.reflect[10]). (Week 9 is the FunnelScenarios exercise — see below.)
 const REFLECT_WEEKS = {
   10: {
     intro: "This week is a discussion — no building. Product-led growth means the product grows itself: people share it because it's genuinely good, so you don't have to pay to find every new user. We'll talk through the topics below as a group, then you jot what it means for YOUR product.",
@@ -2182,101 +2182,143 @@ function ReflectionPanel({ week, s, setS, bare }) {
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// Week 9 "Metrics & Scaling" — a NO-BUILD analysis week. Each student's real analytics live in their
-// OWN product (Vercel + the Week-8 funnel events), so here we show a believable PRACTICE snapshot —
-// seeded from the student so it's stable + personal, and clearly labeled as modeled (not live) — then
-// have them find the bottleneck and decide the one thing to fix. Saved in s.reflect[9] = { cause, fix }.
-function practiceMetrics(seedStr) {
+// ===== Weeks 8–9: the funnel the student tracks, then reading it =====
+// Week 8 (FunnelStages): the student lists the steps they track in their funnel (top → bottom),
+// saved to s.funnelStages so Week 9 can use the student's OWN labels.
+// Week 9 (FunnelScenarios): a NO-BUILD analysis week. We render a few PRACTICE funnels (modeled, not
+// live) built from those stages, each shaped to tell a different story (weak activation, weak
+// retention, low traffic, healthy). For each, the student writes what the data is telling them, then
+// reveals the system's read to check themselves. Saved in s.reflect[9] = { notes: { scenarioId } }.
+const DEFAULT_FUNNEL_STAGES = ["Visited", "Tried it", "Came back"];
+// Cleaned, ordered funnel stages for this student (falls back to a sensible default funnel).
+function funnelStagesOf(s) {
+  const raw = (s && Array.isArray(s.funnelStages)) ? s.funnelStages.map((x) => (x || "").trim()).filter(Boolean) : [];
+  return raw.length >= 2 ? raw.slice(0, 5) : DEFAULT_FUNNEL_STAGES;
+}
+// Tiny stable PRNG seeded from a string (same numbers every visit, different per student/scenario).
+function seededRng(seedStr) {
   let h = 2166136261 >>> 0;
   const str = seedStr || "build-young-demo";
   for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
-  const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; h >>>= 0; return h / 4294967296; };
-  const visited = 160 + Math.round(rnd() * 360);                       // 160–520 visitors
-  const tried = Math.max(8, Math.round(visited * (0.48 + rnd() * 0.24))); // 48–72% try it
-  const back = Math.max(3, Math.round(tried * (0.26 + rnd() * 0.22)));    // 26–48% come back
-  const weeks = []; let base = Math.max(3, Math.round(back * 0.4));    // a rising 4-week trend ending at `back`
-  for (let w = 0; w < 3; w++) { weeks.push(base); base = Math.max(base + 1, Math.round(base * (1.25 + rnd() * 0.3))); }
-  weeks.push(back);
-  return { visited, tried, back, weeks };
+  return () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; h >>>= 0; return h / 4294967296; };
 }
-function MetricsLab({ s, setS, bare }) {
-  const seed = (s.student && (s.student.email || s.student.name)) || "demo";
-  const m = React.useMemo(() => practiceMetrics(seed), [seed]);
-  const data = (s.reflect && s.reflect[9]) || {};
-  const write = (patch) => setS((p) => ({ ...p, reflect: { ...(p.reflect || {}), 9: { ...((p.reflect || {})[9] || {}), ...patch } } }));
-  const pctOf = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
-  const t2t = pctOf(m.tried, m.visited);   // visited → tried
-  const t2b = pctOf(m.back, m.tried);      // tried → came back
-  const stages = [
-    { t: "Visited", sub: "found your product", v: m.visited, w: 100, conv: null, c: C.emerald },
-    { t: "Tried it", sub: "signed up / used it", v: m.tried, w: pctOf(m.tried, m.visited), conv: t2t, c: C.turq },
-    { t: "Came back", sub: "returned later", v: m.back, w: pctOf(m.back, m.visited), conv: t2b, c: C.green },
-  ];
-  const bottleneck = (100 - t2b) >= (100 - t2t) ? "Came back" : "Tried it";
-  const wkMax = Math.max(...m.weeks);
-  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
-  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
-  const card = (label, value, note) => (
-    <div style={{ flex: "1 1 120px", background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 8, padding: "11px 13px" }}>
-      <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: ".04em", textTransform: "uppercase" }}>{label}</div>
-      <div className="disp" style={{ fontSize: 24, fontWeight: 800, color: C.ink, marginTop: 3 }}>{value}</div>
-      {note && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>{note}</div>}
-    </div>
-  );
+// Each scenario: a base top-of-funnel count + the step-to-step conversion rates that shape the story
+// (rates() returns n−1 rates for n stages), and a model answer written against the student's labels.
+const FUNNEL_SCENARIOS = [
+  { id: "activation", title: "A crowd at the door", base: 820,
+    rates: (n) => [0.18, ...Array(Math.max(0, n - 2)).fill(0.72)],
+    answer: (st) => `Tons of people reach “${st[0]},” but almost none get to “${st[1]}.” The leak is right at the start — that's an activation problem: the first step isn't clear or rewarding enough, fast enough. Fix the very first thing a new user does so they hit the “aha” sooner. Everything downstream is fine; it's just starved because so few get past step one.` },
+  { id: "retention", title: "They try it, then vanish", base: 600,
+    rates: (n) => [...Array(Math.max(0, n - 2)).fill(0.68), 0.22],
+    answer: (st) => `People move through the funnel fine, but hardly anyone reaches “${st[st.length - 1]}” — they don't come back. That's a retention problem, the hardest and most important one. A product people use once isn't working yet. Give them a reason to return before you spend a cent getting more people in.` },
+  { id: "acquisition", title: "Small but mighty", base: 110,
+    rates: (n) => Array(Math.max(1, n - 1)).fill(0.72),
+    answer: (st) => `The conversions are strong all the way down — the people who find it stick. The only problem is the top: too few ever reach “${st[0]}.” That's an acquisition problem, and a good one to have — the product works, you just need more of the right people to find it (a clearer landing page, sharing, word of mouth).` },
+  { id: "healthy", title: "Quietly working", base: 680,
+    rates: (n) => Array(Math.max(1, n - 1)).fill(0.6),
+    answer: (st) => `No single step is hemorrhaging people, and the numbers hold up top to bottom — this funnel is working. There's no fire to put out, so the move is to grow: keep more people arriving at “${st[0]},” and chip away at whichever step has the biggest drop to make a good thing better.` },
+];
+function scenarioCounts(sc, n, rnd) {
+  const base = Math.max(12, Math.round(sc.base * (0.9 + rnd() * 0.2)));
+  const rates = sc.rates(n);
+  const counts = [base];
+  for (let i = 0; i < n - 1; i++) counts.push(Math.max(1, Math.round(counts[i] * (rates[i] != null ? rates[i] : 0.6))));
+  return counts;
+}
+
+// Week 8 add-on: the student lists the steps in their funnel — used to build Week 9's practice data.
+function FunnelStages({ s, setS, bare }) {
+  const stages = (s && Array.isArray(s.funnelStages) && s.funnelStages.length) ? s.funnelStages : ["", "", ""];
+  const write = (next) => setS((p) => ({ ...p, funnelStages: next }));
+  const update = (i, v) => write(stages.map((x, idx) => (idx === i ? v : x)));
+  const add = () => write([...stages, ""]);
+  const remove = (i) => write(stages.filter((_, idx) => idx !== i));
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
   const inner = (
     <>
-      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 8px" }}>
-        Nothing to build this week — <b>read the numbers</b>. Here's a snapshot for a product like yours a few weeks after launch. Find where you lose the most people, then decide the one thing to fix. <span style={{ color: C.muted }}>(In real life you'd read these from your own analytics — Vercel + the funnel you built last week.) Saved automatically.</span>
+      <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink, marginBottom: 4 }}>📊 The funnel you'll track</div>
+      <p style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55, margin: "0 0 12px" }}>
+        List the steps you're tracking, <b>top to bottom</b> — from the moment someone finds your product to the moment they come back. Have your AI count people at each step. <b>We'll use these next week</b> to read your numbers. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
-      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 99, padding: "3px 10px", marginBottom: 14 }}>Practice data · modeled, not live</div>
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-        {card("Visitors / week", m.visited.toLocaleString(), "people who landed")}
-        {card("Active users", m.back.toLocaleString(), "came back this week")}
-        {card("Retention", t2b + "%", "of triers returned")}
-      </div>
-
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", margin: "18px 0 10px" }}>Your funnel — where people drop off</div>
-      <div style={{ display: "grid", gap: 12 }}>
-        {stages.map((st) => {
-          const isNeck = st.t === bottleneck;
-          return (
-          <div key={st.t}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
-              <span style={{ fontSize: 13 }}><b style={{ color: C.ink }}>{st.t}</b> <span style={{ color: C.muted, fontSize: 12 }}>· {st.sub}</span></span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: C.ink }}>{st.v.toLocaleString()}{st.conv != null && <span style={{ color: C.muted, fontWeight: 600 }}> · {st.conv}% of prev</span>}</span>
-            </div>
-            <div style={{ height: 26, borderRadius: 6, background: C.paper2, position: "relative", overflow: "hidden" }}>
-              <div style={{ height: "100%", width: Math.max(6, st.w) + "%", borderRadius: 6, background: st.c, opacity: isNeck ? 1 : 0.82 }} />
-              {isNeck && <span style={{ position: "absolute", right: 8, top: 5, fontSize: 10.5, fontWeight: 800, color: C.rust, background: "#fff", borderRadius: 99, padding: "1px 8px", border: `1px solid ${C.rust}` }}>biggest drop-off</span>}
-            </div>
-          </div>
-          );
-        })}
-      </div>
-
-      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", margin: "18px 0 8px" }}>Active users — last 4 weeks</div>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 72 }}>
-        {m.weeks.map((wv, i) => (
-          <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.ink }}>{wv}</span>
-            <div style={{ width: "100%", maxWidth: 54, height: Math.round((wv / wkMax) * 42) + 6, background: i === m.weeks.length - 1 ? C.emerald : C.emeraldLite, borderRadius: 4 }} />
-            <span style={{ fontSize: 10.5, color: C.muted }}>{i === m.weeks.length - 1 ? "now" : "wk " + (i + 1)}</span>
+      <div style={{ display: "grid", gap: 8 }}>
+        {stages.map((st, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: C.turq, width: 18, flexShrink: 0 }}>{i + 1}</span>
+            <input aria-label={`Funnel step ${i + 1}`} value={st} onChange={(e) => update(i, e.target.value)} placeholder={DEFAULT_FUNNEL_STAGES[i] || "e.g. Made a booking"} style={inputStyle} />
+            {stages.length > 2 && <span {...act(() => remove(i))} title="Remove" style={{ color: C.muted, fontSize: 16, lineHeight: 1, cursor: "pointer", padding: "2px 4px" }}>×</span>}
           </div>
         ))}
       </div>
-
-      <div style={{ marginTop: 18, background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 6, padding: "12px 14px", fontSize: 13, color: C.ink2, lineHeight: 1.5 }}>
-        Your biggest drop is at <b>“{bottleneck}.”</b> That's your bottleneck — fix the step you lose the most people at first, and everything downstream improves with it.
+      <div style={{ marginTop: 9 }}>
+        <span {...act(add)} style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>+ Add a step</span>
       </div>
-      <label style={{ display: "block", marginTop: 14 }}>
-        <span style={labelStyle}>Why do you think people drop off there?</span>
-        <textarea aria-label="Why do you think people drop off there?" value={data.cause || ""} onChange={(e) => write({ cause: e.target.value })} rows={2} placeholder="Your best guess — confusing first screen? no reason to come back? too many steps?" style={inputStyle} />
-      </label>
-      <label style={{ display: "block", marginTop: 12 }}>
-        <span style={labelStyle}>The one thing to improve next</span>
-        <textarea aria-label="The one thing to improve next" value={data.fix || ""} onChange={(e) => write({ fix: e.target.value })} rows={2} placeholder="The single change you'd make to lift that number." style={inputStyle} />
-      </label>
+    </>
+  );
+  return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
+}
+
+// Week 9: read several practice funnels built from the student's own stages, then reveal the answer.
+function FunnelScenarios({ s, setS, bare }) {
+  const stages = funnelStagesOf(s);
+  const seed = (s.student && (s.student.email || s.student.name)) || "demo";
+  const notes = ((s.reflect && s.reflect[9]) || {}).notes || {};
+  const writeNote = (id, v) => setS((p) => {
+    const r9 = (p.reflect && p.reflect[9]) || {};
+    return { ...p, reflect: { ...(p.reflect || {}), 9: { ...r9, notes: { ...(r9.notes || {}), [id]: v } } } };
+  });
+  const [shown, setShown] = useState({});
+  const pctOf = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
+  const inner = (
+    <>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 8px" }}>
+        Nothing to build this week — <b>read the numbers</b>. Below are a few funnels for a product like yours, using the steps <b>you</b> said you'd track. Each tells a different story. For each, work out what's going on, write it down, then reveal the system's read to check yourself. <span style={{ color: C.muted }}>(In real life these come from your own analytics — Vercel + the funnel you built last week.) Saved automatically.</span>
+      </p>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 99, padding: "3px 10px", marginBottom: 6 }}>Practice data · modeled, not live</div>
+      <div style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Your funnel: {stages.join(" → ")}</div>
+      <div style={{ display: "grid", gap: 16 }}>
+        {FUNNEL_SCENARIOS.map((sc, idx) => {
+          const counts = scenarioCounts(sc, stages.length, seededRng(seed + ":" + sc.id));
+          const convs = counts.map((c, i) => (i === 0 ? null : pctOf(c, counts[i - 1])));
+          let neck = 1; for (let i = 2; i < convs.length; i++) if ((convs[i] != null ? convs[i] : 100) < (convs[neck] != null ? convs[neck] : 100)) neck = i;
+          const neckActive = convs.length > 1 && convs[neck] != null && convs[neck] < 40;
+          const open = !!shown[sc.id];
+          return (
+            <div key={sc.id} style={{ border: `1px solid ${C.line}`, borderRadius: 8, padding: "14px 16px", background: C.card }}>
+              <div style={{ fontSize: 10.5, fontWeight: 800, color: C.turq, letterSpacing: ".05em", textTransform: "uppercase" }}>Funnel {idx + 1}</div>
+              <div className="disp" style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: "1px 0 12px" }}>{sc.title}</div>
+              <div style={{ display: "grid", gap: 9 }}>
+                {stages.map((name, i) => {
+                  const isNeck = neckActive && i === neck;
+                  return (
+                    <div key={i}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 3 }}>
+                        <span style={{ fontSize: 12.5, color: C.ink }}><b>{name}</b></span>
+                        <span style={{ fontSize: 12.5, fontWeight: 700, color: C.ink }}>{counts[i].toLocaleString()}{convs[i] != null && <span style={{ color: isNeck ? C.rust : C.muted, fontWeight: 600 }}> · {convs[i]}% of prev</span>}</span>
+                      </div>
+                      <div style={{ height: 22, borderRadius: 6, background: C.paper2, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: Math.max(5, pctOf(counts[i], counts[0])) + "%", borderRadius: 6, background: isNeck ? C.rust : C.turq, opacity: isNeck ? 0.95 : 0.8 }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <label style={{ display: "block", marginTop: 12 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 }}>What is this funnel telling you?</span>
+                <textarea aria-label={`What is funnel ${idx + 1} telling you?`} value={notes[sc.id] || ""} onChange={(e) => writeNote(sc.id, e.target.value)} rows={2} placeholder="Where do people drop off, what does that mean, and what would you do about it?" style={inputStyle} />
+              </label>
+              <button onClick={() => setShown((p) => ({ ...p, [sc.id]: !p[sc.id] }))} aria-expanded={open} className="btn" style={{ marginTop: 8, background: "transparent", border: "none", color: C.emerald, fontSize: 13, fontWeight: 700, cursor: "pointer", padding: "2px 0" }}>
+                {open ? "Hide the answer ▴" : "Show the system's read ▾"}
+              </button>
+              {open && (
+                <div style={{ marginTop: 8, background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 6, padding: "11px 13px", fontSize: 13, color: C.ink2, lineHeight: 1.55 }}>
+                  {sc.answer(stages)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -2308,7 +2350,9 @@ function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
   if (week === 7) return <GoLiveChecklist s={s} setS={setState} bare={bare} />; // Go Live = an editable checklist, not a prompt
-  if (week === 9) return <MetricsLab s={s} setS={setState} bare={bare} />; // seeded practice funnel/metrics to analyze, no prompt
+  // Week 8 = build the funnel (BuildLayer) PLUS list the steps you'll track (FunnelStages, used in wk 9).
+  if (week === 8) return <>{<BuildLayer week={8} s={s} setS={setState} bare={bare} />}{<FunnelStages s={s} setS={setState} bare={bare} />}</>;
+  if (week === 9) return <FunnelScenarios s={s} setS={setState} bare={bare} />; // read practice funnels built from the student's stages
   if (REFLECT_WEEKS[week]) return <ReflectionPanel week={week} s={s} setS={setState} bare={bare} />; // wk 10 (discuss) — no prompt
   if (BUILD_LAYERS[week]) return <BuildLayer week={week} s={s} setS={setState} bare={bare} />;
   return null;
