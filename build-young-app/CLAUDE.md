@@ -247,7 +247,7 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
 - **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks (7/3/2):** founder's outline:
   **Act 1 · 0→1 (Weeks 1–7)** — find a problem → write the spec → **build it in four layers**
   (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → **Wk7 Go Live**;
-  **Act 2 · 1→100 (Weeks 8–10)** — **The Funnel** → **Metrics & Scaling** (DAU/MAU, retention) →
+  **Act 2 · 1→100 (Weeks 8–10)** — **Metrics & Scaling** (DAU/MAU, retention) → **The Funnel** →
   **Product-Led Growth**; **Act 3 · Manage (Week 11, ONE combined money week) + Capstone (Week 12)**.
   **The build spec** is the spine of Act 1: the **Week 2 spec is AI-agnostic** (no "prompt"/Claude —
   those appear from Week 3 on) and `s.shape` has four fields — `product`/`accounts`/`payments`/

@@ -15,8 +15,8 @@ Act 1 — 0 to 1: build & launch the product (Weeks 1–7):
 - Build the product with AI (Claude Code) in four layers, one per week: the core product, then accounts & saved data, then payments, then a production-ready pass (emails, findability, safety)
 - Go live: a real web address, live payments, and a launch checklist
 Act 2 — 1 to 100: grow it into a business (Weeks 8–10):
-- Build the funnel into the product: how people find it, try it, and come back
-- Metrics & scaling: active users (DAU/MAU) and retention to find the growth bottleneck
+- Metrics & scaling: active users (DAU/MAU), retention, and where people drop off — to see how it's used
+- Build the funnel into the product to fix the drop-off: how people find it, try it, and come back
 - Product-led growth: build growth into the product itself
 Act 3 — Manage what you've earned (Week 11) + a capstone (Week 12):
 - One class on the money basics: pay yourself first, invest so it compounds (through real market moves), and a first big purchase done right
