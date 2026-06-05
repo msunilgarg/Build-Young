@@ -2269,8 +2269,82 @@ function FunnelScenarios({ s, setS, bare }) {
     return { ...p, reflect: { ...(p.reflect || {}), 9: { ...r9, notes: { ...(r9.notes || {}), [id]: v } } } };
   });
   const [shown, setShown] = useState({});
+  const [extra, setExtra] = useState([]);   // agent- or locally-generated "advanced" funnels
+  const [loading, setLoading] = useState(false);
+  const [genNote, setGenNote] = useState("");
   const pctOf = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
+
+  // One funnel card — shared by the built-in scenarios and the agent/local "advanced" ones.
+  const funnelCard = (rkey, label, counts, answerText) => {
+    const c0 = counts[0] || 1;
+    const convs = counts.map((c, i) => (i === 0 ? null : pctOf(c, counts[i - 1] || 1)));
+    let neck = 1; for (let i = 2; i < convs.length; i++) if ((convs[i] != null ? convs[i] : 100) < (convs[neck] != null ? convs[neck] : 100)) neck = i;
+    const neckActive = convs.length > 1 && convs[neck] != null && convs[neck] < 40;
+    const open = !!shown[rkey];
+    return (
+      <div key={rkey} style={{ border: `1px solid ${C.line}`, borderRadius: 8, padding: "14px 16px", background: C.card }}>
+        <div className="disp" style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: "0 0 12px" }}>{label}</div>
+        <div style={{ display: "grid", gap: 9 }}>
+          {stages.map((name, i) => {
+            const isNeck = neckActive && i === neck;
+            return (
+              <div key={i}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 3 }}>
+                  <span style={{ fontSize: 12.5, color: C.ink }}><b>{name}</b></span>
+                  <span style={{ fontSize: 12.5, fontWeight: 700, color: C.ink }}>{(counts[i] != null ? counts[i] : 0).toLocaleString()}{convs[i] != null && <span style={{ color: isNeck ? C.rust : C.muted, fontWeight: 600 }}> · {convs[i]}% of prev</span>}</span>
+                </div>
+                <div style={{ height: 22, borderRadius: 6, background: C.paper2, overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: Math.max(5, pctOf(counts[i] || 0, c0)) + "%", borderRadius: 6, background: isNeck ? C.rust : C.turq, opacity: isNeck ? 0.95 : 0.8 }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <label style={{ display: "block", marginTop: 12 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 }}>What is this funnel telling you?</span>
+          <textarea aria-label={`What is ${label} telling you?`} value={notes[rkey] || ""} onChange={(e) => writeNote(rkey, e.target.value)} rows={2} placeholder="Where do people drop off, what does that mean, and what would you do about it?" style={inputStyle} />
+        </label>
+        <button onClick={() => setShown((p) => ({ ...p, [rkey]: !p[rkey] }))} aria-expanded={open} className="btn" style={{ marginTop: 8, background: "transparent", border: "none", color: C.emerald, fontSize: 13, fontWeight: 700, cursor: "pointer", padding: "2px 0" }}>
+          {open ? "Hide the answer ▴" : "Show the system's read ▾"}
+        </button>
+        {open && (
+          <div style={{ marginTop: 8, background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 6, padding: "11px 13px", fontSize: 13, color: C.ink2, lineHeight: 1.55 }}>
+            {answerText}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Local fallback (when the agent isn't configured): two subtler patterns over the student's stages.
+  const localAdvanced = () => {
+    const n = stages.length;
+    const rnd = seededRng(seed + ":adv:" + (extra.length + 1));
+    const mk = (base, rates) => { const c = [Math.round(base)]; for (let i = 0; i < n - 1; i++) c.push(Math.max(1, Math.round(c[i] * (rates[i] != null ? rates[i] : 0.6)))); return c; };
+    const mid = Math.min(Math.max(1, Math.floor((n - 1) / 2)), n - 2);
+    const leaky = Array(Math.max(1, n - 1)).fill(0.72); if (n - 1 > 0) leaky[mid] = 0.22;
+    const spike = Array(Math.max(1, n - 1)).fill(0.62); if (n - 1 > 0) spike[n - 2] = 0.28;
+    return [
+      { counts: mk(480 + Math.round(rnd() * 320), leaky), answer: `People start strong and a fair number come back, but you lose a big chunk in the middle — around “${stages[Math.min(mid + 1, n - 1)]}.” A drop buried in the middle is easy to miss when you only glance at the top and bottom. Find what trips people up at that exact step and smooth it.` },
+      { counts: mk(680 + Math.round(rnd() * 320), spike), answer: `A healthy crowd makes it most of the way, then falls off right at “${stages[n - 1]}.” The top of your funnel is doing its job; the last mile isn't. Make the final step easier, or give people a clear reason to finish.` },
+    ];
+  };
+
+  const simulate = async () => {
+    setLoading(true); setGenNote("");
+    let got = [];
+    try {
+      const r = await fetch("/api/funnel?resource=scenarios", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ stages, level: "advanced" }) });
+      const d = r.ok ? await r.json() : {};
+      got = Array.isArray(d.scenarios) ? d.scenarios.filter((x) => x && Array.isArray(x.counts) && x.counts.length === stages.length && x.answer) : [];
+    } catch { got = []; }
+    if (got.length) setGenNote("agent");
+    else { got = localAdvanced(); setGenNote("local"); }
+    setExtra((prev) => [...prev, ...got]);
+    setLoading(false);
+  };
+
   const inner = (
     <>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 8px" }}>
@@ -2279,46 +2353,16 @@ function FunnelScenarios({ s, setS, bare }) {
       <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 99, padding: "3px 10px", marginBottom: 6 }}>Practice data · modeled, not live</div>
       <div style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Your funnel: {stages.join(" → ")}</div>
       <div style={{ display: "grid", gap: 16 }}>
-        {FUNNEL_SCENARIOS.map((sc, idx) => {
-          const counts = scenarioCounts(sc, stages.length, seededRng(seed + ":" + sc.id));
-          const convs = counts.map((c, i) => (i === 0 ? null : pctOf(c, counts[i - 1])));
-          let neck = 1; for (let i = 2; i < convs.length; i++) if ((convs[i] != null ? convs[i] : 100) < (convs[neck] != null ? convs[neck] : 100)) neck = i;
-          const neckActive = convs.length > 1 && convs[neck] != null && convs[neck] < 40;
-          const open = !!shown[sc.id];
-          return (
-            <div key={sc.id} style={{ border: `1px solid ${C.line}`, borderRadius: 8, padding: "14px 16px", background: C.card }}>
-              <div className="disp" style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: "0 0 12px" }}>Funnel {idx + 1}</div>
-              <div style={{ display: "grid", gap: 9 }}>
-                {stages.map((name, i) => {
-                  const isNeck = neckActive && i === neck;
-                  return (
-                    <div key={i}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 3 }}>
-                        <span style={{ fontSize: 12.5, color: C.ink }}><b>{name}</b></span>
-                        <span style={{ fontSize: 12.5, fontWeight: 700, color: C.ink }}>{counts[i].toLocaleString()}{convs[i] != null && <span style={{ color: isNeck ? C.rust : C.muted, fontWeight: 600 }}> · {convs[i]}% of prev</span>}</span>
-                      </div>
-                      <div style={{ height: 22, borderRadius: 6, background: C.paper2, overflow: "hidden" }}>
-                        <div style={{ height: "100%", width: Math.max(5, pctOf(counts[i], counts[0])) + "%", borderRadius: 6, background: isNeck ? C.rust : C.turq, opacity: isNeck ? 0.95 : 0.8 }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <label style={{ display: "block", marginTop: 12 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 }}>What is this funnel telling you?</span>
-                <textarea aria-label={`What is funnel ${idx + 1} telling you?`} value={notes[sc.id] || ""} onChange={(e) => writeNote(sc.id, e.target.value)} rows={2} placeholder="Where do people drop off, what does that mean, and what would you do about it?" style={inputStyle} />
-              </label>
-              <button onClick={() => setShown((p) => ({ ...p, [sc.id]: !p[sc.id] }))} aria-expanded={open} className="btn" style={{ marginTop: 8, background: "transparent", border: "none", color: C.emerald, fontSize: 13, fontWeight: 700, cursor: "pointer", padding: "2px 0" }}>
-                {open ? "Hide the answer ▴" : "Show the system's read ▾"}
-              </button>
-              {open && (
-                <div style={{ marginTop: 8, background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 6, padding: "11px 13px", fontSize: 13, color: C.ink2, lineHeight: 1.55 }}>
-                  {sc.answer(stages)}
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {FUNNEL_SCENARIOS.map((sc, idx) => funnelCard(sc.id, `Funnel ${idx + 1}`, scenarioCounts(sc, stages.length, seededRng(seed + ":" + sc.id)), sc.answer(stages)))}
+        {extra.map((sc, i) => funnelCard("adv-" + i, `Funnel ${FUNNEL_SCENARIOS.length + i + 1}`, sc.counts || [], sc.answer || ""))}
+      </div>
+      <div style={{ marginTop: 16, textAlign: "center" }}>
+        <button onClick={simulate} disabled={loading} className="btn" style={{ background: loading ? C.line : C.emerald, color: "#fff", padding: "10px 18px", borderRadius: 6, fontSize: 14, fontWeight: 700, cursor: loading ? "default" : "pointer" }}>
+          {loading ? "Generating…" : "✨ Simulate more advanced scenarios"}
+        </button>
+        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 7, lineHeight: 1.5 }}>
+          {genNote === "agent" ? "Fresh, harder funnels generated for your own metrics." : genNote === "local" ? "Generated from your metrics — your instructor reviews tougher cases live in class." : "Harder, less-obvious funnels, built from your own metrics."}
+        </div>
       </div>
     </>
   );
