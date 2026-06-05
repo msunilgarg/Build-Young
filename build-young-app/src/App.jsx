@@ -975,7 +975,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         </h1>
         <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build a real product, then learn to grow it into a real business.</p>
         <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
-          AI just put the power to build a real product — once a team-and-a-budget job — into a motivated teenager's hands. The edge isn't a credential anymore; it's what you can build, and the time to start is now. Build Young is a <b>live, instructor-led course</b> where teens build a product they believe people would pay for — a small app, tool, or service, made with AI — and <b>learn to grow it into a real business</b>, thinking like <b>founders</b> the whole way.
+          Build Young is a <b>live, instructor-led course</b> where teens build a product they believe people would pay for — a small app, tool, or service, made with AI — and <b>learn to grow it into a real business</b>, thinking like <b>founders</b> the whole way.
         </p>
         <HeroPreview />
         <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
