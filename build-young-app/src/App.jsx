@@ -320,7 +320,7 @@ const WEEKS = [
   { act: 2, t: "Product-Led Growth", s: "A discussion: how could your product grow itself? People share what's genuinely good — work out how yours spreads.", action: "build", comingSoon: true },
   // ─── Act 3 · GO TO MARKET (Week 11) + Capstone (Week 12): land real customers, then tally what you built ───
   { act: 3, t: "Get Your First Customers", s: "No more building — go to market. Find who your product is for, pitch it, share it where they are, and land your first real users or sales.", action: "build", comingSoon: true },
-  { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the product you made, who's using it, and what it's worth as a business.", action: "capstone" },
+  { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Present it all — the product you made, who's using it, and what it's worth as a business. Parents are welcome to join this final call to watch.", action: "capstone" },
 ];
 const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Land your first customers" };
 
@@ -1195,7 +1195,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and e-commerce, so a stranger can use it and buy."
             : act === 2
             ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. You learn to read the numbers on practice funnels built from YOUR own product — personalized to what you shipped, not textbook examples, with AI to spin up tougher ones on demand. There's no paycheck handed to you — the product you built is the income."
-            : "Go to market and land your first real customers — find who it's for, pitch it, and get people using or paying — then graduate with a product you shipped, real customers, and a certificate to show for it.";
+            : "Go to market and land your first real customers — find who it's for, pitch it, and get people using or paying — then present what you built (parents are welcome to join the final call) and graduate with a product you shipped, real customers, and a certificate.";
           const weeks = WEEKS.map((w, i) => ({ w, n: i + 1 })).filter((x) => x.w.act === act);
           const open = !!openActs[act];
           return (
@@ -1931,7 +1931,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — 0 → 1.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
           <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth. Your income comes from your product.</span></div>
           <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Get your first customers.</b> Go to market: find who it's for, pitch it, and land your first real users or sales.</span></div>
-          <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Tally everything up — what you built and what it's worth — and say what you'd build next.</span></div>
+          <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Present everything — what you built, who's using it, and what you'd build next. Parents are welcome to join this final call to watch.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
           <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
         </Card>
@@ -3664,7 +3664,7 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
           blurb={s.done
             ? "That's the program. You built something real, took it live, and went to market for your first customers — this is what you made."
             : "You started with nothing but an idea. Tally it up — the product you built, who's using it, and what it's worth as a business. This is the finish line."}>
-          {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 4 }}>This is your last class. <b>Finish the course</b> to unlock your certificate.</div>}
+          {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 4 }}>This is your last class — you'll present what you built. <b>Parents are welcome to join this call</b> to watch (share the Zoom link). <b>Finish the course</b> to unlock your certificate.</div>}
           {/* Capture the build + a testimonial at the finale (gated by the founder showcase toggle). */}
           {CONFIG.showcaseEnabled && <ShowcaseCapture s={s} />}
         </Wrap>
