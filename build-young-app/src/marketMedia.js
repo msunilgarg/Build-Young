@@ -64,7 +64,7 @@ export const WEEK_PREP = [
   "It works and can take payment — this week we make it real (emails, being findable, keeping data safe). Note anything that still feels rough.",
   "Your product's built — make sure your payment account is set up (a parent helps). This week we take it live: a real web address, live payments, and a launch checklist.",
   "Think about how a stranger first finds and tries your product. This week we build a funnel — find → try → come back — and add the tracking so we can measure it.",
-  "Come ready to read your numbers — we'll look at your real active users, retention, and where people drop off, and pick the one thing to fix. (No building this week.)",
+  "Come ready to read the numbers — we'll work through a funnel snapshot together: active users, retention, and where people drop off, and pick the one thing to fix. (No building this week.)",
   "Think of one reason someone would tell a friend about your product. This week is a discussion: how your product could grow itself (product-led growth).",
   "Your product earns a steady income now — this week is the money basics: pay yourself first, invest so it compounds, and a first big purchase done right. Bring one short-term and one long-term money goal.",
   "Be ready to show what you built and what it's worth — and to say what you'd build next.",
