@@ -1918,16 +1918,9 @@ const PLG_PRIMER = [
 ];
 // Weeks 9 (analyze your real metrics) and 10 (discuss product-led growth) are NO-PROMPT weeks — the
 // student reads/reflects and jots answers (saved in s.reflect[week]); there's nothing to build with AI.
+// Week 10 (discuss product-led growth) is a NO-PROMPT reflection week — fixed discussion prompts the
+// student jots answers to (saved in s.reflect[10]). (Week 9 is the editable MetricsLog — see below.)
 const REFLECT_WEEKS = {
-  9: {
-    intro: "Nothing new to build this week — open the analytics you added last week and read what your product is actually doing. In class we'll talk through the numbers and pick the one thing to improve.",
-    fields: [
-      { key: "active", label: "Active users", ph: "How many people actually use it — per day? per week? per month?" },
-      { key: "retention", label: "Retention", ph: "Of the people who try it, how many come back after a day? a week?" },
-      { key: "dropoff", label: "Biggest drop-off", ph: "Where do most people fall away — find → try → come back?" },
-      { key: "takeaway", label: "The one thing to improve", ph: "Based on the numbers, what's the single biggest thing to fix or improve next?" },
-    ],
-  },
   10: {
     intro: "This week is a discussion — no building. Product-led growth means the product grows itself: people share it because it's genuinely good. We'll talk through how yours could spread — jot your ideas here.",
     fields: [
@@ -1952,6 +1945,47 @@ function ReflectionPanel({ week, s, setS, bare }) {
           <textarea aria-label={f.label} value={data[f.key] || ""} onChange={(e) => setField(f.key, e.target.value)} rows={2} placeholder={f.ph} style={inputStyle} />
         </label>
       ))}
+    </>
+  );
+  return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
+}
+
+// Week 9 "Metrics & Scaling" — the student reads their real analytics and logs them. Every product
+// tracks different things, so this is an EDITABLE metric → value list (add/remove rows), not fixed
+// fields. Saved in s.reflect[9] = { rows: [{metric, value}], takeaway }.
+function MetricsLog({ s, setS, bare }) {
+  const data = (s.reflect && s.reflect[9]) || {};
+  const rows = (data.rows && data.rows.length) ? data.rows : [{ metric: "", value: "" }, { metric: "", value: "" }, { metric: "", value: "" }];
+  const write = (patch) => setS((p) => ({ ...p, reflect: { ...(p.reflect || {}), 9: { ...((p.reflect || {})[9] || {}), ...patch } } }));
+  const updateRow = (i, k, v) => write({ rows: rows.map((r, idx) => (idx === i ? { ...r, [k]: v } : r)) });
+  const addRow = () => write({ rows: [...rows, { metric: "", value: "" }] });
+  const removeRow = (i) => write({ rows: rows.filter((_, idx) => idx !== i) });
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 4 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
+  const inner = (
+    <>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 14px" }}>
+        Nothing to build this week — open the analytics you added last week and read what your product is doing. <b>Every product tracks different things</b>, so add each metric you're watching and the number you saw. Then pick the one thing to improve. <span style={{ color: C.muted }}>Saved automatically.</span>
+      </p>
+      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr auto", columnGap: 8, rowGap: 8, alignItems: "center" }}>
+        <span style={labelStyle}>Metric</span>
+        <span style={labelStyle}>What you saw</span>
+        <span />
+        {rows.map((r, i) => (
+          <React.Fragment key={i}>
+            <input aria-label="Metric" value={r.metric} onChange={(e) => updateRow(i, "metric", e.target.value)} placeholder="e.g. Active users / week" style={inputStyle} />
+            <input aria-label="Value" value={r.value} onChange={(e) => updateRow(i, "value", e.target.value)} placeholder="the number you saw" style={inputStyle} />
+            <span {...act(() => removeRow(i))} title="Remove" style={{ color: C.muted, fontSize: 16, lineHeight: 1, cursor: "pointer", padding: "2px 4px" }}>×</span>
+          </React.Fragment>
+        ))}
+      </div>
+      <div style={{ marginTop: 9 }}>
+        <span {...act(addRow)} style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>+ Add a metric</span>
+      </div>
+      <label style={{ display: "block", marginTop: 16 }}>
+        <span style={labelStyle}>The one thing to improve</span>
+        <textarea aria-label="The one thing to improve" value={data.takeaway || ""} onChange={(e) => write({ takeaway: e.target.value })} rows={2} placeholder="Based on the numbers, what's the single biggest thing to fix or improve next?" style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -1983,7 +2017,8 @@ function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
   if (week === 7) return <GoLiveChecklist s={s} setS={setState} bare={bare} />; // Go Live = an editable checklist, not a prompt
-  if (REFLECT_WEEKS[week]) return <ReflectionPanel week={week} s={s} setS={setState} bare={bare} />; // wks 9 (analyze) & 10 (discuss) — no prompt
+  if (week === 9) return <MetricsLog s={s} setS={setState} bare={bare} />; // editable metric → value log, no prompt
+  if (REFLECT_WEEKS[week]) return <ReflectionPanel week={week} s={s} setS={setState} bare={bare} />; // wk 10 (discuss) — no prompt
   if (BUILD_LAYERS[week]) return <BuildLayer week={week} s={s} setS={setState} bare={bare} />;
   return null;
 }
