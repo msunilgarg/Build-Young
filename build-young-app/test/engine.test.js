@@ -331,9 +331,10 @@ describe("market media drip — emails sent before each investing class", () => 
 });
 
 describe("BATCHES", () => {
-  it("has 6 Builders cohorts (3 seasons x 2) with unique ids", () => {
-    expect(BATCHES).toHaveLength(6);
-    expect(new Set(BATCHES.map((b) => b.id)).size).toBe(6);
+  it("has the open Fall cohorts (2, on alternating day-pairs) with unique ids; Winter/Spring not yet scheduled", () => {
+    expect(BATCHES).toHaveLength(2);
+    expect(new Set(BATCHES.map((b) => b.id)).size).toBe(BATCHES.length);
     expect(BATCHES.every((b) => b.track === "Builders")).toBe(true);
+    expect(BATCHES.every((b) => b.season === "fall")).toBe(true);
   });
 });

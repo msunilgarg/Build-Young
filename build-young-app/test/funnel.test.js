@@ -8,7 +8,9 @@ const ev = (event, props = {}) => ({ event, ts: Date.now(), props });
 const n = (count, make) => Array.from({ length: count }, (_, i) => make(i));
 
 const FALL = cohortMeta("fall-mw");     // Builders / fall / $999
-const WINTER = cohortMeta("winter-tt"); // Builders / winter / $999
+// Winter has no live batch (not yet scheduled), but the funnel still segments by season —
+// synthesize a winter cohort's meta to exercise per-season aggregation.
+const WINTER = { batchId: "winter-tt", season: "winter", track: "Builders", priceCents: 99900 };
 
 describe("funnel definitions", () => {
   it("has the linear spine in order", () => {
