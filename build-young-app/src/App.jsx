@@ -1865,16 +1865,12 @@ function weekExample(week) {
     ["Week 6 · Production-ready", SHAPE_EXAMPLE.production],
     ["What success looks like", SHAPE_EXAMPLE.success],
   ]} />;
-  // Build weeks (3–10): the class material is a SAMPLE prompt — a worked model the student adapts.
-  // Weeks 3–6 show Build Young's own spec slice; weeks 7–10 show the seeded growth prompt.
+  // Week 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
+  if (week === 9) return <GlossaryCard title="First — the metrics, in plain English" items={METRICS_PRIMER} />;
+  // SPEC weeks (3–6) get a worked example — Build Young's own spec for that layer. Seeded growth
+  // weeks (8, 10) have no separate example; their pre-filled starter prompt IS the activity.
   const bl = BUILD_LAYERS[week];
-  if (bl) {
-    const sample = bl.seed ? bl.seed : SHAPE_EXAMPLE[bl.key];
-    const sampleCard = <ExampleCard subtitle="A sample prompt — a model to adapt for your own product" fields={[[bl.fieldLabel, sample]]} />;
-    // Week 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
-    if (week === 9) return (<><GlossaryCard title="First — the metrics, in plain English" items={METRICS_PRIMER} /><div style={{ height: 14 }} />{sampleCard}</>);
-    return sampleCard;
-  }
+  if (bl && !bl.seed) return <ExampleCard subtitle="A sample — how we filled this in for Build Young" fields={[[bl.fieldLabel, SHAPE_EXAMPLE[bl.key]]]} />;
   return null;
 }
 
@@ -1924,8 +1920,79 @@ function PrinciplesCard({ title, items }) {
 function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
+  if (week === 7) return <GoLiveChecklist s={s} setS={setState} bare={bare} />; // Go Live = an editable checklist, not a prompt
   if (BUILD_LAYERS[week]) return <BuildLayer week={week} s={s} setS={setState} bare={bare} />;
   return null;
+}
+
+// Week 7 "Go Live" is a configure-and-verify task, not a build prompt — so it's an EDITABLE checklist.
+// Default items (grouped, each with a "how to do it") cover any app; the student ticks them off and
+// adds/edits/removes anything specific to their product. Saved in s.golive.
+const GO_LIVE_DEFAULT = [
+  { s: "It's actually live", t: "Live in production (not a preview link)", h: "Vercel → your project → Deployments: the newest one is tagged Production. Open its URL." },
+  { s: "It's actually live", t: "The 🔒 padlock (HTTPS) works", h: "Open the site — the browser shows a padlock. Vercel adds it automatically once a domain is attached." },
+  { s: "It's actually live", t: "Works on a phone and a computer", h: "Open it on your phone, and drag your browser narrow on desktop — nothing should overflow or break." },
+  { s: "Your secrets are safe", t: "Every secret key is in environment variables", h: "Vercel → Settings → Environment Variables — never in your code or the browser." },
+  { s: "Your secrets are safe", t: "No secret was committed to GitHub", h: "Search the repo for sk_, secret, key. If a real one's there, remove it, rotate it, and add .env to .gitignore." },
+  { s: "If your app takes payments", t: "Stripe switched to LIVE keys (a parent helps)", h: "Stripe → turn Test mode OFF → Developers → API keys → put the live keys into Vercel env vars." },
+  { s: "If your app takes payments", t: "A real purchase charges AND unlocks what it should", h: "Buy something yourself for real, confirm it works, then refund it." },
+  { s: "If your app has logins", t: "Sign up, log in, log out all work", h: "Do all three in an incognito window with a fresh email." },
+  { s: "If your app has logins", t: "Password reset works", h: "Trigger a reset — the email arrives and the new password works." },
+  { s: "If your app sends email", t: "Emails send from a verified domain", h: "Your email tool (e.g. Resend) → Domains → add + verify yours; it should show 'delivered'." },
+  { s: "Findable & trustworthy", t: "The link preview looks right when shared", h: "Paste your URL into a chat — title, description, image should show. Set <title>, meta description, og:image in your HTML head." },
+  { s: "Findable & trustworthy", t: "A privacy + terms page exist", h: "Simple /privacy and /terms pages — especially if you take data or money." },
+  { s: "Works for real strangers", t: "You tested the whole flow as a brand-new user", h: "Incognito window, fresh account, start to finish with zero shortcuts." },
+  { s: "Works for real strangers", t: "Bad input doesn't crash it", h: "Try empty fields, huge text, emoji — it should cope, not show a code error." },
+  { s: "Works for real strangers", t: "Basic analytics are on", h: "Vercel → Analytics tab (enable it), or add a privacy-friendly snippet." },
+  { s: "Go / no-go", t: "A friend can sign up + use it with zero help", h: "Hand it to someone who's never seen it. If they get stuck, fix that before you call it live." },
+];
+
+function GoLiveChecklist({ s, setS, bare }) {
+  const list = (s.golive && s.golive.length) ? s.golive : GO_LIVE_DEFAULT.map((x) => ({ ...x, done: false }));
+  const write = (next) => setS((p) => ({ ...p, golive: next }));
+  const update = (i, patch) => write(list.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
+  const remove = (i) => write(list.filter((_, idx) => idx !== i));
+  const add = () => write([...list, { s: "Your own checks", t: "", h: "", done: false }]);
+  const reset = () => write(GO_LIVE_DEFAULT.map((x) => ({ ...x, done: false })));
+  const done = list.filter((it) => it.done).length;
+  const rowInput = { width: "100%", boxSizing: "border-box", fontSize: 13.5, fontWeight: 600, padding: "3px 5px", border: "1px solid transparent", borderRadius: 4, background: "transparent", fontFamily: "inherit", color: C.ink };
+
+  let lastSection = null;
+  const inner = (
+    <>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Go live — your launch checklist 🚀</h3>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
+        Going live is a handful of real-world steps, not code. Work down the list and tick each off — and <b>add, edit, or remove</b> anything specific to your product (every app's a little different). <b>{done} of {list.length} done.</b> <span style={{ color: C.muted }}>Saved automatically.</span>
+      </p>
+      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "8px 12px 12px" }}>
+        {list.map((it, i) => {
+          const header = it.s && it.s !== lastSection ? it.s : null;
+          lastSection = it.s;
+          return (
+            <div key={i}>
+              {header && <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.emerald, margin: "12px 0 4px" }}>{header}</div>}
+              <div style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "4px 0" }}>
+                <input type="checkbox" aria-label="Done" checked={!!it.done} onChange={() => update(i, { done: !it.done })} style={{ width: 16, height: 16, marginTop: 4, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <input value={it.t} onChange={(e) => update(i, { t: e.target.value })} placeholder="Your check…" aria-label="Checklist item"
+                    style={{ ...rowInput, textDecoration: it.done ? "line-through" : "none", color: it.done ? C.muted : C.ink }}
+                    onFocus={(e) => (e.target.style.border = `1px solid ${C.line}`, e.target.style.background = C.paper2)}
+                    onBlur={(e) => (e.target.style.border = "1px solid transparent", e.target.style.background = "transparent")} />
+                  {it.h && <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, padding: "0 5px" }}>{it.h}</div>}
+                </div>
+                <span {...act(() => remove(i))} title="Remove" style={{ flexShrink: 0, color: C.muted, fontSize: 16, lineHeight: 1, cursor: "pointer", padding: "2px 4px" }}>×</span>
+              </div>
+            </div>
+          );
+        })}
+        <div style={{ display: "flex", gap: 16, marginTop: 10, paddingTop: 8, borderTop: `1px solid ${C.line}` }}>
+          <span {...act(add)} style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>+ Add a check</span>
+          <span {...act(reset)} style={{ fontSize: 12.5, fontWeight: 700, color: C.muted, cursor: "pointer" }}>↺ Reset to the default list</span>
+        </div>
+      </div>
+    </>
+  );
+  return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
 // The four build layers (Weeks 3–6). Each is ONE prompt that adds the next layer to the SAME app:
@@ -1964,55 +2031,39 @@ const BUILD_LAYERS = {
     placeholder: "(From your Week 2 spec — production-ready: emails, being findable, and keeping data safe.)",
     intro: "Please make the app I've already built production-ready. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use trusted services to send emails; keep every secret key off the browser; check everything users type in; and make it findable (a clear title, description, and share image). When it's done, give me a short checklist to confirm it's ready for real users." },
-  // Weeks 7–10 are GROWTH layers — features added after launch, so they aren't part of the Week 2
-  // product spec. Each is a starter prompt (`seed`) the student adapts to their own product;
-  // edits persist in s.grow[week].
-  7: { key: "golive",
-    heading: "Go live — open for business 🚀",
-    lead: "Your product works — now flip the switches that make it real to the world (a parent helps with the live payment keys).",
-    fieldLabel: "Your go-live checklist",
-    promptLabel: "Take it live:",
-    intro: "Help me take my app live for real users. You guide me step by step; go slowly and confirm each step before the next.",
-    seed: `Help me take my app live for real users:
-- Connect my own web address (domain) on Vercel and make sure the secure padlock (HTTPS) works.
-- Switch payments from TEST keys to LIVE keys, and move every secret key into environment variables — never in the code or the browser.
-- Run a launch checklist with me: sign-up works, a real payment works, emails send, and nothing secret is exposed.`,
-    instruction: "Tell me exactly what to click. Flag anything that needs a real account or a parent's help (like live payment keys)." },
+  // Weeks 8–10 are GROWTH layers — features added after launch (not from the Week 2 product spec).
+  // Each ships a ready starter prompt (`seed`) the student adapts; the field IS the copy-to-Claude
+  // prompt (stored in s.shape[key]). (Week 7, "Go Live", is an editable CHECKLIST — see GoLiveChecklist.)
   8: { key: "funnel",
-    heading: "Build the funnel into your product 🧲",
     lead: "Build this into the product you've launched — growth becomes part of the product itself, not a separate ad campaign.",
-    fieldLabel: "The funnel to build in",
-    promptLabel: "Build this funnel into my product:",
-    intro: "Add a simple growth funnel to the app I've already built — don't break what works.",
-    seed: `Add a simple growth funnel to my product:
-- A clear landing page that explains what it does and gets people to try it fast.
-- A smooth first run, so a new user reaches the "magic moment" quickly.
-- An easy reason and way to come back (save their work, send a helpful email, etc.).`,
-    instruction: "Measure each step so I can see where people drop off. Keep it simple." },
+    fieldLabel: "The funnel",
+    seed: `My app already lets people [the main thing it does], but new visitors don't get it and most don't come back. Build a simple funnel into it, on top of what I already have, without breaking anything:
+
+1. A landing page that says in one line what [my app] does for [who it's for], shows the single biggest benefit, and has one clear "Try it" button into the app.
+2. A smoother first run: take a brand-new user straight to [the main action] with a one-line nudge so they hit the wow — [the wow moment] — on their very first visit, not an empty screen.
+3. A reason and an easy way to come back, like [save their work / email them their result].
+
+Keep my current styling, add a simple way to see how many people reach each step, and tell me how to test it.` },
   9: { key: "metrics",
-    heading: "Measure it — find the bottleneck 📊",
     lead: "Add the instrumentation to see how your product is really doing — the numbers behind the growth.",
-    fieldLabel: "The metrics to add",
-    promptLabel: "Add these metrics:",
-    intro: "Add basic, privacy-respecting analytics to the app I've already built.",
-    seed: `Add simple analytics so I can measure how my product is really doing:
-- Daily and monthly active users (DAU / MAU).
-- Retention: how many people come back after day 1 and day 7.
-- Where in the funnel people drop off.
-Show me a small dashboard of these and help me read it to find the ONE biggest bottleneck to fix next.`,
-    instruction: "Don't collect anything you don't need — especially since some users may be minors." },
+    fieldLabel: "The metrics",
+    seed: `Add simple, privacy-friendly analytics to my app so I can measure the success I wrote in my Week 2 spec:
+
+1. Daily and monthly active users (DAU / MAU).
+2. Retention — how many people come back after day 1 and day 7.
+3. Where in my funnel people drop off (landing → trying it → coming back).
+
+Put it all on one simple dashboard, don't collect anything I don't need (some users may be under 18), then help me read it to find the ONE biggest thing holding growth back.` },
   10: { key: "plg",
-    heading: "Product-led growth 🌱",
     lead: "The kind of growth that comes from the product itself, not from ads — built on top of what you have.",
-    fieldLabel: "The growth to build in",
-    promptLabel: "Build growth into the product:",
-    intro: "Help me build growth into the app itself — on top of what I already have.",
-    seed: `Help me build growth into the product itself:
-- An easy, natural way for users to share it or invite others (a share link, an invite, public results).
-- A reason sharing helps them, not just me.
-- Small touches that make people want to tell a friend.
-First suggest 2–3 product-led-growth ideas that fit MY product, then build the best one.`,
-    instruction: "Keep it genuine — no spammy or manipulative tricks." },
+    fieldLabel: "Product-led growth",
+    seed: `Help me build growth into [my app] itself — no ads, on top of what I already have:
+
+1. Suggest 2–3 ways my product could spread on its own (a share link, an invite, public results others can see), and pick the best fit for [what my app does].
+2. Build that one — make sharing genuinely useful to the person sharing, not just to me.
+3. Add a small touch that nudges a happy user to tell a friend at the right moment.
+
+Keep it honest (no spammy tricks), match my styling, and tell me how to test the share flow.` },
 };
 
 // Weeks 4–6 "your turn": a short intro + the week's copy-paste prompt (editable; seeded from
@@ -2216,12 +2267,11 @@ function BuildLayer({ week, s, setS, bare }) {
   const value = stored !== undefined ? stored : (cfg.seed || "");
   const hasLayer = has(value);
   const onChangeLayer = (v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [cfg.key]: v } }));
-  // The ready-to-paste prompt for THIS week's layer, assembled live from the field below.
-  const generatedPrompt = [
-    cfg.intro, "", cfg.promptLabel,
-    hasLayer ? value.trim() : (fromSpec ? cfg.placeholder : cfg.seed),
-    "", cfg.instruction,
-  ].join("\n");
+  // Spec weeks (3–6): wrap the spec slice in a build instruction. Seeded weeks (8–10): the field IS
+  // the full, ready prompt — copy it as-is.
+  const generatedPrompt = fromSpec
+    ? [cfg.intro, "", cfg.promptLabel, hasLayer ? value.trim() : cfg.placeholder, "", cfg.instruction].join("\n")
+    : (value || "").trim();
   const copyPrompt = async () => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }
@@ -2282,11 +2332,11 @@ function BuildLayer({ week, s, setS, bare }) {
             <b>This part of your Week 2 spec is empty.</b> Fill it in below (or back in Week 2) so AI builds <i>your</i> product — it's the same spec.
           </div>
         )) : (
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.turq, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Sparkles size={13} /> Make the sample above your own</div>
+          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.turq, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Sparkles size={13} /> A ready starter prompt — make it yours</div>
         )}
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 2px" }}>
           {!fromSpec
-            ? "Adapt the sample above to your product here, then Copy it into Claude Code on top of your existing app. (Leave it blank and Copy still sends the sample.)"
+            ? "A ready prompt — tweak the [brackets] to fit your own product, then Copy it into Claude Code on top of what you've already shipped."
             : week === 3
               ? "This IS your prompt — no separate writing. Edit it and it updates your Week 2 spec too, then Copy it into Claude Code."
               : "This builds on top of what you already shipped. Edit it (it syncs to Week 2), then Copy it into Claude Code on top of your existing app."}
@@ -2295,12 +2345,13 @@ function BuildLayer({ week, s, setS, bare }) {
           <span style={lab}>{cfg.fieldLabel}</span>
           <textarea aria-label={cfg.fieldLabel} value={value || ""} onChange={(e) => onChangeLayer(e.target.value)} rows={6} placeholder={cfg.placeholder || "Adapt the sample above to your own product…"} style={fieldS} />
         </label>
-        {/* read-only preview of exactly what Copy hands to Claude */}
-        <details style={{ marginTop: 12 }}>
+        {/* read-only preview of exactly what Copy hands to Claude — only for spec weeks, where the
+            copied prompt (spec slice + instruction) differs from the field. Seeded weeks: field IS it. */}
+        {fromSpec && <details style={{ marginTop: 12 }}>
           <summary style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>Preview the full prompt Copy sends →</summary>
           <textarea readOnly aria-label="Full prompt preview" value={generatedPrompt} rows={8} onFocus={(e) => e.target.select()}
             style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 12, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.5 }} />
-        </details>
+        </details>}
       </div>
     </>
   );
