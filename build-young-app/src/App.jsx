@@ -318,15 +318,11 @@ const WEEKS = [
   { act: 2, t: "The Funnel", s: "Build a funnel into your product — find it → try it → come back — and add the tracking so you can see how people move through it.", action: "build", comingSoon: true },
   { act: 2, t: "Metrics & Scaling", s: "No new building — read the real numbers from last week's funnel: active users, retention, and where people drop off. Pick the one thing to fix.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "A discussion: how could your product grow itself? People share what's genuinely good — work out how yours spreads.", action: "build", comingSoon: true },
-  // ─── Act 3 · MANAGE (Week 11) + Capstone (Week 12): manage the money your product earns ───
-  { act: 3, t: "Money: The Basics", s: "Your one money week — the basics of what to do with what you earn: pay yourself first, invest so it compounds, and a first big purchase done right.", action: "money",
-    materials: [
-      { label: "Investor.gov — Compound Interest Calculator", url: "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator" },
-      { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
-    ] },
-  { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the product you made and the net worth it earned.", action: "capstone" },
+  // ─── Act 3 · GO TO MARKET (Week 11) + Capstone (Week 12): land real customers, then tally what you built ───
+  { act: 3, t: "Get Your First Customers", s: "No more building — go to market. Find who your product is for, pitch it, share it where they are, and land your first real users or sales.", action: "build", comingSoon: true },
+  { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Total it all up — the product you made, who's using it, and what it's worth as a business.", action: "capstone" },
 ];
-const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Manage what you've earned" };
+const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Land your first customers" };
 
 // ============================ SIM ECONOMY ============================
 // One place for every dollar figure, re-tuned to a realistic young-adult budget around a
@@ -1199,7 +1195,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and e-commerce, so a stranger can use it and buy."
             : act === 2
             ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. You learn to read the numbers on practice funnels built from YOUR own product — personalized to what you shipped, not textbook examples, with AI to spin up tougher ones on demand. There's no paycheck handed to you — the product you built is the income."
-            : "Learn the money basics on what you earn — pay yourself first, invest so it compounds, a first big purchase done right — then graduate with a product you shipped, a certificate, and your own numbers to show for it.";
+            : "Go to market and land your first real customers — find who it's for, pitch it, and get people using or paying — then graduate with a product you shipped, real customers, and a certificate to show for it.";
           const weeks = WEEKS.map((w, i) => ({ w, n: i + 1 })).filter((x) => x.w.act === act);
           const open = !!openActs[act];
           return (
@@ -1242,7 +1238,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           </div>
           );
         })}
-        <p style={{ color: C.muted, marginTop: 24, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>business and portfolio</b> from zero, then finishing with a <b>capstone</b> of what you made and what it's worth.</p>
+        <p style={{ color: C.muted, marginTop: 24, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>real business</b> from zero — product, customers, and all — then finishing with a <b>capstone</b> of what you made and what it's worth.</p>
       </section>
 
       {/* philosophy + founder */}
@@ -1935,7 +1931,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <h3 style={sectionTitle}>What to expect</h3>
           <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — 0 → 1.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
           <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth. Your income comes from your product.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Money, the basics.</b> One week on what to do with what you earn — pay yourself first, invest so it compounds, and a first big purchase done right.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Get your first customers.</b> Go to market: find who it's for, pitch it, and land your first real users or sales.</span></div>
           <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Tally everything up — what you built and what it's worth — and say what you'd build next.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
           <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
@@ -2149,6 +2145,15 @@ const REFLECT_WEEKS = {
       { key: "shareWhy", label: "Why would someone share YOUR product?", ph: "After the discussion — what's the real reason a happy user would tell a friend or invite someone?" },
       { key: "shareWhen", label: "The natural moment to share", ph: "Where in your product is the natural point to invite a friend or show a result?" },
       { key: "idea", label: "Your best PLG idea to try", ph: "The one product-led-growth idea you'd build next (a share link, an invite, results others can see…)." },
+    ],
+  },
+  11: {
+    intro: "No building this week — go get your first customers. The hardest, most important step is the very first real user or sale. Plan it here, then go make it happen.",
+    fields: [
+      { key: "whoFirst", label: "Your very first customer", ph: "Who is the ONE person or group most likely to want this right now? Be specific." },
+      { key: "whereReach", label: "Where you'll reach them", ph: "Where do they already hang out — a group, a subreddit, a class, a team, a DM?" },
+      { key: "offer", label: "Your pitch & first offer", ph: "In a line or two: what you say, and what you offer to get them to try it or buy." },
+      { key: "goal", label: "Your goal this week", ph: "One concrete, small target — e.g. “5 people use it” or “my first paying customer.”" },
     ],
   },
 };
