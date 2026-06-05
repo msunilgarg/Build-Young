@@ -2105,7 +2105,7 @@ const PLG_PRIMER = [
 // Weeks 9 (analyze your real metrics) and 10 (discuss product-led growth) are NO-PROMPT weeks — the
 // student reads/reflects and jots answers (saved in s.reflect[week]); there's nothing to build with AI.
 // Week 10 (discuss product-led growth) is a NO-PROMPT reflection week — fixed discussion prompts the
-// student jots answers to (saved in s.reflect[10]). (Week 9 is the editable MetricsLog — see below.)
+// student jots answers to (saved in s.reflect[10]). (Week 9 is the practice-data MetricsLab — see below.)
 const REFLECT_WEEKS = {
   10: {
     intro: "This week is a discussion — no building. Product-led growth means the product grows itself: people share it because it's genuinely good, so you don't have to pay to find every new user. We'll talk through the topics below as a group, then you jot what it means for YOUR product.",
@@ -2154,41 +2154,100 @@ function ReflectionPanel({ week, s, setS, bare }) {
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// Week 9 "Metrics & Scaling" — the student reads their real analytics and logs them. Every product
-// tracks different things, so this is an EDITABLE metric → value list (add/remove rows), not fixed
-// fields. Saved in s.reflect[9] = { rows: [{metric, value}], takeaway }.
-function MetricsLog({ s, setS, bare }) {
+// Week 9 "Metrics & Scaling" — a NO-BUILD analysis week. Each student's real analytics live in their
+// OWN product (Vercel + the Week-8 funnel events), so here we show a believable PRACTICE snapshot —
+// seeded from the student so it's stable + personal, and clearly labeled as modeled (not live) — then
+// have them find the bottleneck and decide the one thing to fix. Saved in s.reflect[9] = { cause, fix }.
+function practiceMetrics(seedStr) {
+  let h = 2166136261 >>> 0;
+  const str = seedStr || "build-young-demo";
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; h >>>= 0; return h / 4294967296; };
+  const visited = 160 + Math.round(rnd() * 360);                       // 160–520 visitors
+  const tried = Math.max(8, Math.round(visited * (0.48 + rnd() * 0.24))); // 48–72% try it
+  const back = Math.max(3, Math.round(tried * (0.26 + rnd() * 0.22)));    // 26–48% come back
+  const weeks = []; let base = Math.max(3, Math.round(back * 0.4));    // a rising 4-week trend ending at `back`
+  for (let w = 0; w < 3; w++) { weeks.push(base); base = Math.max(base + 1, Math.round(base * (1.25 + rnd() * 0.3))); }
+  weeks.push(back);
+  return { visited, tried, back, weeks };
+}
+function MetricsLab({ s, setS, bare }) {
+  const seed = (s.student && (s.student.email || s.student.name)) || "demo";
+  const m = React.useMemo(() => practiceMetrics(seed), [seed]);
   const data = (s.reflect && s.reflect[9]) || {};
-  const rows = (data.rows && data.rows.length) ? data.rows : [{ metric: "", value: "" }, { metric: "", value: "" }, { metric: "", value: "" }];
   const write = (patch) => setS((p) => ({ ...p, reflect: { ...(p.reflect || {}), 9: { ...((p.reflect || {})[9] || {}), ...patch } } }));
-  const updateRow = (i, k, v) => write({ rows: rows.map((r, idx) => (idx === i ? { ...r, [k]: v } : r)) });
-  const addRow = () => write({ rows: [...rows, { metric: "", value: "" }] });
-  const removeRow = (i) => write({ rows: rows.filter((_, idx) => idx !== i) });
-  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 4 };
-  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
+  const pctOf = (a, b) => (b > 0 ? Math.round((a / b) * 100) : 0);
+  const t2t = pctOf(m.tried, m.visited);   // visited → tried
+  const t2b = pctOf(m.back, m.tried);      // tried → came back
+  const stages = [
+    { t: "Visited", sub: "found your product", v: m.visited, w: 100, conv: null, c: C.emerald },
+    { t: "Tried it", sub: "signed up / used it", v: m.tried, w: pctOf(m.tried, m.visited), conv: t2t, c: C.turq },
+    { t: "Came back", sub: "returned later", v: m.back, w: pctOf(m.back, m.visited), conv: t2b, c: C.green },
+  ];
+  const bottleneck = (100 - t2b) >= (100 - t2t) ? "Came back" : "Tried it";
+  const wkMax = Math.max(...m.weeks);
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
+  const card = (label, value, note) => (
+    <div style={{ flex: "1 1 120px", background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 8, padding: "11px 13px" }}>
+      <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: ".04em", textTransform: "uppercase" }}>{label}</div>
+      <div className="disp" style={{ fontSize: 24, fontWeight: 800, color: C.ink, marginTop: 3 }}>{value}</div>
+      {note && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>{note}</div>}
+    </div>
+  );
   const inner = (
     <>
-      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 14px" }}>
-        Nothing to build this week — open the analytics you added last week and read what your product is doing. <b>Every product tracks different things</b>, so add each metric you're watching and the number you saw. Then pick the one thing to improve. <span style={{ color: C.muted }}>Saved automatically.</span>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 8px" }}>
+        Nothing to build this week — <b>read the numbers</b>. Here's a snapshot for a product like yours a few weeks after launch. Find where you lose the most people, then decide the one thing to fix. <span style={{ color: C.muted }}>(In real life you'd read these from your own analytics — Vercel + the funnel you built last week.) Saved automatically.</span>
       </p>
-      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr auto", columnGap: 8, rowGap: 8, alignItems: "center" }}>
-        <span style={labelStyle}>Metric</span>
-        <span style={labelStyle}>What you saw</span>
-        <span />
-        {rows.map((r, i) => (
-          <React.Fragment key={i}>
-            <input aria-label="Metric" value={r.metric} onChange={(e) => updateRow(i, "metric", e.target.value)} placeholder="e.g. Active users / week" style={inputStyle} />
-            <input aria-label="Value" value={r.value} onChange={(e) => updateRow(i, "value", e.target.value)} placeholder="the number you saw" style={inputStyle} />
-            <span {...act(() => removeRow(i))} title="Remove" style={{ color: C.muted, fontSize: 16, lineHeight: 1, cursor: "pointer", padding: "2px 4px" }}>×</span>
-          </React.Fragment>
+      <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 99, padding: "3px 10px", marginBottom: 14 }}>Practice data · modeled, not live</div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+        {card("Visitors / week", m.visited.toLocaleString(), "people who landed")}
+        {card("Active users", m.back.toLocaleString(), "came back this week")}
+        {card("Retention", t2b + "%", "of triers returned")}
+      </div>
+
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", margin: "18px 0 10px" }}>Your funnel — where people drop off</div>
+      <div style={{ display: "grid", gap: 12 }}>
+        {stages.map((st) => {
+          const isNeck = st.t === bottleneck;
+          return (
+          <div key={st.t}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
+              <span style={{ fontSize: 13 }}><b style={{ color: C.ink }}>{st.t}</b> <span style={{ color: C.muted, fontSize: 12 }}>· {st.sub}</span></span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: C.ink }}>{st.v.toLocaleString()}{st.conv != null && <span style={{ color: C.muted, fontWeight: 600 }}> · {st.conv}% of prev</span>}</span>
+            </div>
+            <div style={{ height: 26, borderRadius: 6, background: C.paper2, position: "relative", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: Math.max(6, st.w) + "%", borderRadius: 6, background: st.c, opacity: isNeck ? 1 : 0.82 }} />
+              {isNeck && <span style={{ position: "absolute", right: 8, top: 5, fontSize: 10.5, fontWeight: 800, color: C.rust, background: "#fff", borderRadius: 99, padding: "1px 8px", border: `1px solid ${C.rust}` }}>biggest drop-off</span>}
+            </div>
+          </div>
+          );
+        })}
+      </div>
+
+      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", margin: "18px 0 8px" }}>Active users — last 4 weeks</div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 10, height: 72 }}>
+        {m.weeks.map((wv, i) => (
+          <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.ink }}>{wv}</span>
+            <div style={{ width: "100%", maxWidth: 54, height: Math.round((wv / wkMax) * 42) + 6, background: i === m.weeks.length - 1 ? C.emerald : C.emeraldLite, borderRadius: 4 }} />
+            <span style={{ fontSize: 10.5, color: C.muted }}>{i === m.weeks.length - 1 ? "now" : "wk " + (i + 1)}</span>
+          </div>
         ))}
       </div>
-      <div style={{ marginTop: 9 }}>
-        <span {...act(addRow)} style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>+ Add a metric</span>
+
+      <div style={{ marginTop: 18, background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 6, padding: "12px 14px", fontSize: 13, color: C.ink2, lineHeight: 1.5 }}>
+        Your biggest drop is at <b>“{bottleneck}.”</b> That's your bottleneck — fix the step you lose the most people at first, and everything downstream improves with it.
       </div>
-      <label style={{ display: "block", marginTop: 16 }}>
-        <span style={labelStyle}>The one thing to improve</span>
-        <textarea aria-label="The one thing to improve" value={data.takeaway || ""} onChange={(e) => write({ takeaway: e.target.value })} rows={2} placeholder="Based on the numbers, what's the single biggest thing to fix or improve next?" style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
+      <label style={{ display: "block", marginTop: 14 }}>
+        <span style={labelStyle}>Why do you think people drop off there?</span>
+        <textarea aria-label="Why do you think people drop off there?" value={data.cause || ""} onChange={(e) => write({ cause: e.target.value })} rows={2} placeholder="Your best guess — confusing first screen? no reason to come back? too many steps?" style={inputStyle} />
+      </label>
+      <label style={{ display: "block", marginTop: 12 }}>
+        <span style={labelStyle}>The one thing to improve next</span>
+        <textarea aria-label="The one thing to improve next" value={data.fix || ""} onChange={(e) => write({ fix: e.target.value })} rows={2} placeholder="The single change you'd make to lift that number." style={inputStyle} />
       </label>
     </>
   );
@@ -2221,7 +2280,7 @@ function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
   if (week === 7) return <GoLiveChecklist s={s} setS={setState} bare={bare} />; // Go Live = an editable checklist, not a prompt
-  if (week === 9) return <MetricsLog s={s} setS={setState} bare={bare} />; // editable metric → value log, no prompt
+  if (week === 9) return <MetricsLab s={s} setS={setState} bare={bare} />; // seeded practice funnel/metrics to analyze, no prompt
   if (REFLECT_WEEKS[week]) return <ReflectionPanel week={week} s={s} setS={setState} bare={bare} />; // wk 10 (discuss) — no prompt
   if (BUILD_LAYERS[week]) return <BuildLayer week={week} s={s} setS={setState} bare={bare} />;
   return null;
