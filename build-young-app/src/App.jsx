@@ -1746,10 +1746,6 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <div style={li}>{num(3)}<span>Done with the class &amp; that week's activity? Hit <b>Move to next week</b> in <b>Course progress</b> to advance through the course.</span></div>
         </Card>
       </div>
-
-      <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-        Build for real in a <b>safe, supportive cohort</b> — this is hands-on entrepreneurship education, not licensed advice. Full refund any time before your cohort starts; prorated through the {REFUND_WINDOW}.
-      </div>
     </div>
   );
 }
