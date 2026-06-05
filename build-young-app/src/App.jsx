@@ -821,7 +821,7 @@ const HP_SNAPS = [
 const HP_SCENES = [
   { id: "build", week: 3, label: "building live", aria: "building a product" },
   { id: "grow", week: 8, label: "growing live", aria: "growing it into a business" },
-  { id: "money", week: 12, label: "live now", aria: "managing the money it earns" },
+  { id: "money", week: 11, label: "live now", aria: "getting its first customers" },
 ];
 const HeroPreview = () => {
   const C2 = C;
@@ -935,9 +935,9 @@ const HeroPreview = () => {
   const moneyScene = (
     <g>
       <g transform="translate(40,92)">
-        <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR NET WORTH</text>
-        <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>${nw.toLocaleString()}</text>
-        <g className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +{fmt(STEADY_INCOME)} from your product</text></g>
+        <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR CUSTOMERS</text>
+        <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>{Math.round(nw / 200).toLocaleString()}</text>
+        <g className="hp-end" transform="translate(250,8)"><rect width="170" height="30" rx="15" fill="#e7f3ee" /><text x="85" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ growing week over week</text></g>
         <g transform="translate(0,70)">
           <path className="hp-area" d={areaD} fill="url(#area)" />
           <polyline className="hp-line" pathLength="1" points={moneySnap.pts} fill="none" stroke={C2.emerald} strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
@@ -945,13 +945,13 @@ const HeroPreview = () => {
         </g>
       </g>
       <g transform="translate(760,250)">
-        <text x="0" y="-96" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.muted} textAnchor="middle">ALLOCATION</text>
+        <text x="0" y="-96" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.muted} textAnchor="middle">WHERE THEY'RE FROM</text>
         <g className="hp-donut">
           <g transform="rotate(-90)" fill="none" strokeWidth="20">
             {moneySnap.alloc.map((f, idx) => { const el = (<circle key={idx} r="56" stroke={donutColors[idx]} strokeDasharray={seg(f)} strokeDashoffset={-circ * acc} />); acc += f; return el; })}
           </g>
           <text y="-2" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="800" fill={C2.ink} textAnchor="middle">4</text>
-          <text y="16" fontFamily="Inter, sans-serif" fontSize="10.5" fontWeight="700" fill={C2.muted} textAnchor="middle">ASSETS</text>
+          <text y="16" fontFamily="Inter, sans-serif" fontSize="10.5" fontWeight="700" fill={C2.muted} textAnchor="middle">SOURCES</text>
         </g>
       </g>
     </g>
@@ -1027,21 +1027,21 @@ function ProductTeaser({ act, accent }) {
       </div>
     );
   } else {
-    tab = "Manage"; label = "A portfolio: net worth growing, split across simulated investments.";
-    const alloc = [{ t: "Stocks", w: "55%", c: C.emerald }, { t: "Bonds", w: "25%", c: C.turq }, { t: "Real estate", w: "20%", c: C.gold }];
+    tab = "Customers"; label = "First customers: real people signing up — and where they came from.";
+    const alloc = [{ t: "Word of mouth", w: "55%", c: C.emerald }, { t: "Search", w: "25%", c: C.turq }, { t: "Social", w: "20%", c: C.gold }];
     body = (
       <div style={{ padding: 14 }}>
-        <div style={kicker}>NET WORTH</div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 4 }}><span className="disp" style={{ fontSize: 26, fontWeight: 800, color: C.ink }}>$48,250</span><span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>▲ 6.2%</span></div>
+        <div style={kicker}>CUSTOMERS</div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 4 }}><span className="disp" style={{ fontSize: 26, fontWeight: 800, color: C.ink }}>312</span><span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>▲ 6.2% this week</span></div>
         <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
           {alloc.map((a) => (
             <div key={a.t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 11, color: C.ink2, width: 76, flexShrink: 0 }}>{a.t}</span>
+              <span style={{ fontSize: 11, color: C.ink2, width: 90, flexShrink: 0 }}>{a.t}</span>
               <div style={{ flex: 1, height: 8, borderRadius: 99, background: C.paper2 }}><div style={{ height: 8, width: a.w, borderRadius: 99, background: a.c }} /></div>
             </div>
           ))}
         </div>
-        <div style={{ marginTop: 10, fontSize: 10.5, color: C.muted }}>Simulated — no real money.</div>
+        <div style={{ marginTop: 10, fontSize: 10.5, color: C.muted }}>Where your first customers come from.</div>
       </div>
     );
   }
@@ -1187,7 +1187,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 6vw 24px" }}>
         <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works — the journey in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs in one live, hands-on simulation — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>grow it into a business</b> (Weeks 8–10), and <b>manage what you've earned</b> (Weeks 11–12).</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs in one live, hands-on simulation — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>grow it into a business</b> (Weeks 8–10), and <b>land your first customers</b> (Weeks 11–12).</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => {
           const accent = act === 1 ? C.green : act === 2 ? C.pink : C.turq;
@@ -1502,7 +1502,6 @@ const WHY_STATS = [
   { n: "62%", t: "of teens would consider a side hustle, starting a business, or launching a nonprofit as part of their career", src: "Junior Achievement / Citizens, 2025", url: "https://www.citizensbank.com/about-us/community/citizens-impact/citizens-junior-achievement-survey-teens-about-future-of-work.aspx" },
   { n: "42%", t: "report having actually taken a class in school on how to manage money", src: "Junior Achievement / Citizens · Wakefield Research, 2024", url: "https://www.prnewswire.com/news-releases/survey-money-worries-weigh-on-americas-teens-education-key-path-to-financial-wellness-302110920.html" },
   { n: "65%", t: "of teens believe their future happiness depends on how much money they make", src: "Junior Achievement / Citizens · Wakefield Research, 2024", url: "https://www.prnewswire.com/news-releases/survey-money-worries-weigh-on-americas-teens-education-key-path-to-financial-wellness-302110920.html" },
-  { n: "And it works", t: "teens from states that require personal-finance education go on to higher savings rates and net worth as a share of earnings", src: "U.S. Dept. of the Treasury", url: "https://www.financialeducatorscouncil.org/financial-literacy-statistics/", proof: true },
 ];
 function WhyStrip() {
   return (
@@ -1939,13 +1938,13 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>How each week works</h3>
           <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
-          <div style={li}>{num(2)}<span>Open <b>Course progress</b> and do that week's activity — build your product with AI, grow it into a business, then manage the money it earns.</span></div>
-          <div style={li}>{num(3)}<span>On the <b>Dashboard</b>, hit <b>advance</b> to move the simulation forward and watch your <b>net worth</b> grow. (Once you're investing, you'll rebalance in <b>Portfolio</b> as <b>Markets</b> move.)</span></div>
+          <div style={li}>{num(2)}<span>Open <b>Course progress</b> and do that week's activity — build your product with AI, grow it into a business, and go get your first customers.</span></div>
+          <div style={li}>{num(3)}<span>On the <b>Dashboard</b>, hit <b>Move to next week</b> to progress through the course, and open each week's activity under <b>Course progress</b>.</span></div>
         </Card>
       </div>
 
       <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-        All money in the program is <b>simulated</b> — this is financial education, not licensed advice. Full refund any time before your cohort starts; prorated through the {REFUND_WINDOW}.
+        Build for real in a <b>safe sandbox</b> — this is hands-on entrepreneurship education, not licensed advice, and no real money is involved. Full refund any time before your cohort starts; prorated through the {REFUND_WINDOW}.
       </div>
     </div>
   );
@@ -1958,16 +1957,16 @@ function OverviewPanel({ s, batch, onTab, setS }) {
 // A fully worked Week-1 build plan — Build Young itself — so students see what "good" looks like.
 const EXAMPLE_BUILD = {
   idea: "Build Young — a live program where teens 15–18 build a real product with AI, grow it into a business, and go get their first customers.",
-  pain: `Teens aren't taught how money or the real world actually works — it's not on any test, and the free videos out there go unwatched.
-Parents worry that in an AI world a degree won't be the edge — but there's no hands-on way for their kid to learn to build, or to handle money, before adulthood.
-The "investing classes" that exist only teach stock-picking (the flashy 10%) — not earning, taxes, budgeting, or big purchases, which are the parts that actually shape a life.`,
-  pr: `Announcing Build Young — a live program where teens build a product people would pay for, with AI as their tool, and learn to manage the money it earns.
+  pain: `Teens aren't taught how to build something real or how the real world actually works — it's not on any test, and the free videos out there go unwatched.
+Parents worry that in an AI world a degree won't be the edge — but there's no hands-on way for their kid to actually learn to build before adulthood.
+The classes that exist teach coding syntax or theory — not how to take an idea, build it with AI, and put it in front of real people, which is the part that actually shapes a life.`,
+  pr: `Announcing Build Young — a live program where teens build a product people would pay for, with AI as their tool, grow it into a business, and go get their first customers.
 
 The problem: Kids leave school having never built anything real or learned how money works — and in an AI world, the edge is what you can build, not what you were credentialed to do.
 
 How it works: Over 12 weeks, each teen builds their own product with AI, earns (simulated) income from it, then learns taxes, saving, investing, and big purchases — all in one continuous simulation where mistakes are safe.
 
-Why families love it: It's live and small-group with a standing weekly time, so "someday" becomes "done" — and kids graduate having built both a business and a net worth from zero.
+Why families love it: It's live and small-group with a standing weekly time, so "someday" becomes "done" — and kids graduate having built a real business from zero.
 
 "My daughter went from 'I don't get money' to running her own little product and explaining compound interest at dinner." — a Build Young parent`,
   productSuccess: `Real teens use it and keep coming back — and they'd be bummed if it went away. They like it enough to tell their friends, so classes keep filling up.`,
@@ -1979,18 +1978,18 @@ Why families love it: It's live and small-group with a standing weekly time, so 
 // looks like). NOTE: keep the spec week-AGNOSTIC in the UI — don't label fields with week numbers;
 // the schedule is revealed week by week so it stays exciting. Worked through for Build Young as the model.
 const SHAPE_EXAMPLE = {
-  product: `What it is: a live, online money-skills program for teens 15–18, delivered as one web app. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income. It's hands-on and a bit like a game.
+  product: `What it is: a live, online entrepreneurship program for teens 15–18, delivered as one web app. Over 12 weeks they build a real product with AI, grow it into a business, and go get their first customers. It's hands-on and a bit like a game.
 
 What to build first (the core product):
 • A marketing site that explains the program, the curriculum, the price, and the founder, and lists the upcoming cohorts to choose from.
 • An enroll flow: pick a cohort, enter the student's name + email, confirm they're 15+.
 • The student dashboard: a week-by-week stepper (1–12). Each week shows its lesson, that week's activity, a Zoom link, and a private notes area; weeks unlock as you reach them.
-• The simulation: hit "advance" to collect your income, apply the week's market move, and watch your net worth change. Mistakes are safe — the money is simulated.
+• Move through the course: hit "advance" to go to the next week and open its activity. Mistakes are safe — you build in a sandbox.
 
 The "wow": the first time a teen shares a link to their live product and watches someone actually use it. Even their parents!
 
 (This is the core product — what you build first. Write it in enough detail that it could be built from this alone. No accounts or payments yet — just the core.)`,
-  accounts: `After they're set up, each student gets their own login that works on any device, with password reset. Their dashboard remembers everything that's theirs: which week they're on, their notes, their plans and spec, and their simulation progress (cash, holdings, net worth) — so they pick up right where they left off.
+  accounts: `After they're set up, each student gets their own login that works on any device, with password reset. Their dashboard remembers everything that's theirs: which week they're on, their notes, their plans and spec, and their progress through the course — so they pick up right where they left off.
 
 Use a trusted, standard sign-in — never homemade password code.`,
   payments: `Families pay tuition to enroll — a secure checkout, with no charge until they confirm. Each cohort has its own price and number of seats; paying unlocks the student's account (they get an email to set their password). Enrollment closes the day before a cohort starts.
@@ -3704,9 +3703,9 @@ const LEGAL = {
   privacy: {
     title: "Privacy Policy",
     sections: [
-      ["Who we are", `Build Young provides live, online money-skills classes for teenagers. You can reach us at ${CONFIG.contactEmail}.`],
+      ["Who we are", `Build Young provides live, online entrepreneurship classes for teenagers. You can reach us at ${CONFIG.contactEmail}.`],
       ["Eligibility — ages 15 to 18", "Build Young is intended for students aged 15 to 18, enrolled by a parent or guardian. We do not knowingly create accounts for, or collect personal information from, children under 13. If you believe a child under 13 has provided us information, contact us and we will delete it."],
-      ["What we collect", "To enroll a student and run the class, we collect the enrolling adult's name and email, the student's first name or chosen display name, the selected class, and payment confirmation (processed by our payment provider — we do not store full card numbers). During class activities, the student interacts with a learning simulation; the figures shown are simulated and are not real financial accounts."],
+      ["What we collect", "To enroll a student and run the class, we collect the enrolling adult's name and email, the student's first name or chosen display name, the selected class, and payment confirmation (processed by our payment provider — we do not store full card numbers). During class activities, the student builds a product in a hands-on learning sandbox; no real money is involved."],
       ["How we use it", "We use this information to deliver the class, send class logistics and reminders, process enrollment and refunds, and improve the program. We send a confirmation email at enrollment and follow-ups tied to class sessions."],
       ["What we do not do", "We do not sell or rent personal information. We do not share it for third-party targeted advertising. We do not use student information to train artificial-intelligence models."],
       ["Sharing with service providers", "We rely on vetted providers to operate — for example payment processing, scheduling, video conferencing, and email delivery. They receive only what they need to perform their service and are bound to protect it."],
@@ -3718,9 +3717,9 @@ const LEGAL = {
   terms: {
     title: "Terms of Service",
     sections: [
-      ["The program", "Build Young offers a live, online program — a 12-week course meeting twice a week, so 24 live sessions in all — delivered over video conference. Class activities use a learning simulation."],
+      ["The program", "Build Young offers a live, online program — a 12-week course meeting twice a week, so 24 live sessions in all — delivered over video conference. Students build a product, take it live, grow it, and go to market for their first customers. Class activities use a hands-on learning sandbox."],
       ["Eligibility", "Students must be 15 to 18 years old. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
-      ["Education, not financial advice", "Build Young is financial education. It is not licensed financial, investment, tax, or legal advice. All money, accounts, prices, and returns shown in the simulation are simulated; no real funds are ever involved."],
+      ["Education, not professional advice", "Build Young is hands-on entrepreneurship education. It is not licensed business, financial, or legal advice. No real money is ever involved."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
       ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first week — the refund equals the tuition multiplied by the fraction of the program's weeks not yet held. After the first week, tuition is non-refundable."],
       ["First-year builder prize", "In each cohort, the FIRST enrolled student to make a real, arms-length sale of their own product or service — a genuine paying customer, not a friend or family member — within one year of their enrollment date is eligible to have their tuition refunded. To claim, the student must (1) provide proof of the sale (e.g., a payment receipt from Stripe, PayPal, or a similar processor) for Build Young to verify, and (2) submit a short video (about 2 minutes) describing their product and experience, together with a parent or guardian's written consent for Build Young to use the student's name, likeness, and the video for promotional purposes. One award per cohort, to the first student who both qualifies and completes these steps; Build Young verifies eligibility and resolves any questions in good faith, and its decision is final. The award equals the tuition paid for that cohort and is issued after verification. Build Young may modify or discontinue the prize for future cohorts; the terms in effect at your enrollment apply. (This is a draft; because the prize is a contest involving minors and the use of a minor's name and likeness, it — and an appropriate parental media-release — must be reviewed by counsel before launch.)"],

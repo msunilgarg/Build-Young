@@ -1,9 +1,9 @@
 # Build Young
 
-> A live, hands-on program for teenagers (ages 15–18) that teaches them to build economic value. Tagline: "Raising builders, not consumers." Students first build something they believe people would pay for — that becomes their income — then learn to manage what they earn. In an AI world, the edge isn't a degree; it's what you can build.
+> A live, hands-on program for teenagers (ages 15–18) that teaches them to build a real product with AI and grow it into a business. Tagline: "Raising builders, not consumers." Students build something people would pay for, take it live, grow it, and go get their first customers. In an AI world, the edge isn't a degree; it's what you can build.
 
 ## About
-Build Young is an online program founded by Sunil Garg that teaches teens to build economic value and think like founders. First they build a product they believe people would pay for (a small product, app, or service made with AI) — and that becomes their income; then they learn to manage what they earn: business taxes, saving, investing so it compounds, big purchases, and budgeting. It runs as a 12-week course meeting twice a week (~3 hours/week), delivered live over Zoom, inside an interactive simulation where income is earned by the student's build. The program is financial education, not licensed financial advice; all money in the simulation is simulated.
+Build Young is an online program founded by Sunil Garg that teaches teens to build a real product with AI and think like founders. They build a product they believe people would pay for (a small product, app, or service made with AI), take it live, grow it with a funnel and metrics, and go get their first customers. It runs as a 12-week course meeting twice a week (~3 hours/week), delivered live over Zoom. It is hands-on entrepreneurship education; no real money is ever involved.
 
 ## Who it's for
 Teens ages 15–18 (the "Builders" program). Each season you choose a schedule — Mondays & Wednesdays, or Tuesdays & Thursdays:
@@ -18,8 +18,8 @@ Act 2 — 1 to 100: grow it into a business (Weeks 8–10):
 - Build the funnel into the product: how people find it, try it, and come back — with tracking
 - Metrics & scaling: read the real numbers (active users, retention, where people drop off) and pick what to fix
 - Product-led growth: a discussion of how the product can grow itself (sharing, referrals)
-Act 3 — Manage what you've earned (Week 11) + a capstone (Week 12):
-- One week on the money basics: pay yourself first, invest so it compounds (through real market moves), and a first big purchase done right
+Act 3 — Go to market (Week 11) + a capstone (Week 12):
+- Get your first customers: find who it's for, pitch it, share it where they are, and land your first real users or sales
 - A capstone tallying what you built and what it's worth
 
 ## Enrolling
