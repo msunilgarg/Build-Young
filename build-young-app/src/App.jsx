@@ -1032,6 +1032,8 @@ function Testimonials({ items = [] }) {
 function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, testimonials = [] }) {
   const BATCHES = useCohorts(); // live catalog (hydrated from /api/cohorts; defaults to code)
   const [season, setSeason] = useState(SEASONS[0].key);
+  const [openActs, setOpenActs] = useState({}); // act -> bool; week cards are compact by default, expand to show details
+  const toggleAct = (a) => setOpenActs((p) => ({ ...p, [a]: !p[a] }));
   const [careers, setCareers] = useState(false); // "teach with us" interest modal
   return (
     <div style={{ position: "relative", zIndex: 2 }}>
@@ -1104,10 +1106,12 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             : act === 2
             ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. There's no paycheck handed to you — the product you built is the income."
             : "Learn the money basics on what you earn — pay yourself first, invest so it compounds, a first big purchase done right — then graduate with a product you shipped, a certificate, and your own numbers to show for it.";
+          const weeks = WEEKS.map((w, i) => ({ w, n: i + 1 })).filter((x) => x.w.act === act);
+          const open = !!openActs[act];
           return (
-          <div key={act} style={{ marginTop: act === 1 ? 6 : 30 }}>
+          <div key={act} style={{ marginTop: act === 1 ? 6 : 28 }}>
             {/* act header: copy on the left, a code-drawn product teaser on the right (collapses on mobile) */}
-            <div className="enroll-grid" style={{ alignItems: "center", marginBottom: 14 }}>
+            <div className="enroll-grid" style={{ alignItems: "center", marginBottom: 12 }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <Pill bg={accent}>Act {act}</Pill>
@@ -1117,16 +1121,30 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
               </div>
               <ProductTeaser act={act} accent={accent} />
             </div>
-            {/* every week in this act (full cards) */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 10 }}>
-              {WEEKS.map((w, i) => w.act === act && (
-                <Card key={i} style={{ padding: "11px 13px" }}>
-                  <div style={{ fontSize: 10.5, color: accent, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {i + 1}</div>
-                  <div className="disp" style={{ fontWeight: 700, fontSize: 15, margin: "2px 0 4px" }}>{w.t}</div>
-                  <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{w.s}</div>
-                </Card>
-              ))}
-            </div>
+            {/* weeks — compact title chips by default; expand to full cards with descriptions */}
+            {open ? (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 10 }}>
+                {weeks.map(({ w, n }) => (
+                  <Card key={n} style={{ padding: "11px 13px" }}>
+                    <div style={{ fontSize: 10.5, color: accent, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {n}</div>
+                    <div className="disp" style={{ fontWeight: 700, fontSize: 15, margin: "2px 0 4px" }}>{w.t}</div>
+                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4 }}>{w.s}</div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {weeks.map(({ w, n }) => (
+                  <button key={n} onClick={() => toggleAct(act)} title="Show what each week covers" className="btn" style={{ display: "inline-flex", alignItems: "baseline", gap: 6, background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, padding: "6px 12px", fontSize: 13, cursor: "pointer" }}>
+                    <b style={{ color: accent, fontSize: 10.5, fontWeight: 800, letterSpacing: ".04em" }}>W{n}</b>
+                    <span className="disp" style={{ fontWeight: 700, color: C.ink }}>{w.t}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <button onClick={() => toggleAct(act)} aria-expanded={open} className="btn" style={{ marginTop: 10, background: "transparent", border: "none", color: accent, fontSize: 13, fontWeight: 700, cursor: "pointer", padding: "2px 0" }}>
+              {open ? "Hide week details ▴" : `Show what each week covers ▾`}
+            </button>
           </div>
           );
         })}
@@ -1134,7 +1152,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       </section>
 
       {/* philosophy + founder */}
-      <section style={{ position: "relative", overflow: "hidden", background: C.paper2, borderTop: `1px solid ${C.line}`, borderBottom: `1px solid ${C.line}`, marginTop: 30 }}>
+      <section style={{ position: "relative", overflow: "hidden", background: C.paper2, borderTop: `1px solid ${C.line}`, borderBottom: `1px solid ${C.line}`, marginTop: 14 }}>
         {/* decorative motif */}
         <svg aria-hidden="true" viewBox="0 0 520 360" style={{ position: "absolute", top: 0, right: 0, height: "100%", maxWidth: "48%", opacity: 0.5, zIndex: 0 }} preserveAspectRatio="xMaxYMin meet">
           <defs>
@@ -1155,7 +1173,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           {/* rising sparkline */}
           <polyline points="300,250 340,236 380,244 420,212 460,196 500,160" fill="none" stroke="#0067b8" strokeWidth="3" strokeOpacity="0.35" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 1000, margin: "0 auto", padding: "56px 6vw 60px" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 1000, margin: "0 auto", padding: "40px 6vw 44px" }}>
           <div style={{ textAlign: "center" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#efe7f5", color: C.gold, fontSize: 12, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", padding: "6px 12px", borderRadius: 4, marginBottom: 14 }}><Sparkles size={13} /> The bigger picture</div>
             <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>More than <span className="grad-warm">money</span></h2>
@@ -1222,7 +1240,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       </section>
 
       {/* batches / pricing */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 6vw 70px" }}>
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 6vw 54px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>The <b>Builders</b> program is for ages <b>15–18</b>, meeting <b>twice a week</b> (~3 hrs) — choose <b>Mondays & Wednesdays</b> or <b>Tuesdays & Thursdays</b> — <b>100% live online over Zoom</b>. Pick the season and days that fit.</p>
