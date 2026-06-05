@@ -100,15 +100,15 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await user.click(await screen.findByRole("button", { name: /Open my dashboard/i }));
   }
 
-  it("lands on the Overview tab before the course has started", async () => {
+  it("lands on the Dashboard tab before the course has started", async () => {
     const user = userEvent.setup();
     await enrollToDashboard(user);
-    // A fresh enrollee (not started) sees the welcome/orientation, not the live dashboard.
+    // A fresh enrollee (not started) sees the welcome/orientation home.
     expect(await screen.findByText(/WELCOME TO BUILD YOUNG/i)).toBeInTheDocument();
     expect(screen.getByText(/What to expect/i)).toBeInTheDocument();
     expect(screen.getByText(/How each week works/i)).toBeInTheDocument();
-    // And the Overview tab itself is present in the nav.
-    expect(screen.getByRole("button", { name: "Overview" })).toBeInTheDocument();
+    // The home tab is now called "Dashboard" (the old thin Dashboard tab was removed).
+    expect(screen.getByRole("button", { name: "Dashboard" })).toBeInTheDocument();
   });
 
   it("opens a per-week hub: current week's materials show, future weeks are locked", async () => {

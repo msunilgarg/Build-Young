@@ -1700,7 +1700,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
               <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
                 <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14, display: "flex", alignItems: "center", gap: 8 }}><Video size={16} /> Join class on Zoom</button>
               </a>
-              <button className="btn" onClick={() => onTab("dash")} style={{ background: "rgba(255,255,255,.14)", color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14 }}>Go to my dashboard →</button>
+              <button className="btn" onClick={() => onTab("course")} style={{ background: "rgba(255,255,255,.14)", color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14 }}>Open Course progress →</button>
             </div>
           </div>
           <div style={{ flex: "0 1 280px", display: "flex", flexDirection: "column", gap: 14, justifyContent: "center" }}>
@@ -1759,7 +1759,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <h3 style={sectionTitle}>How each week works</h3>
           <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
           <div style={li}>{num(2)}<span>Open <b>Course progress</b> and do that week's activity — build your product with AI, grow it into a business, and go get your first customers.</span></div>
-          <div style={li}>{num(3)}<span>On the <b>Dashboard</b>, hit <b>Move to next week</b> to progress through the course, and open each week's activity under <b>Course progress</b>.</span></div>
+          <div style={li}>{num(3)}<span>Done with the class &amp; that week's activity? Hit <b>Move to next week</b> in <b>Course progress</b> to advance through the course.</span></div>
         </Card>
       </div>
 
@@ -2717,9 +2717,9 @@ function ShowcaseCapture({ s }) {
 function Platform({ state, setState, onExit, onFounder, onHome }) {
   const BATCHES = useCohorts(); // live catalog
   const isFounder = !!onFounder; // a founder viewing the dashboard (for course-authoring preview)
-  // Default to Overview until the course has begun (first session attended), so early enrollees
-  // land on the welcome/plan rather than a misleading live "Week 1".
-  const [tab, setTab] = useState(state && state.started ? "dash" : "overview");
+  // Default to the Dashboard (home) until the course has begun (first session attended), so early
+  // enrollees land on the welcome/setup; once started, drop them into their live Course progress.
+  const [tab, setTab] = useState(state && state.started ? "course" : "overview");
   const [toast, setToast] = useState(null);
   const [withdraw, setWithdraw] = useState(false); // false | 'confirm' | 'done'
   const [reason, setReason] = useState("");        // preset cancel-reason value (required to confirm)
@@ -2799,14 +2799,14 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
     if (s.week >= 12) track("graduated", fmeta);
     else track("week_advanced", { ...fmeta, week: s.week + 1 });
     ping(s.week >= 12 ? `Course-complete email sent to ${who}` : `Week ${s.week} recap sent to ${who}`);
-    setTab("dash");
+    setTab("course");
   };
 
-  // The post-enrollment dashboard tabs (no finance — the program is pure entrepreneurship).
+  // The post-enrollment tabs. "Dashboard" is the home base (welcome, setup, cancel); the
+  // week-by-week coursework + progress + "move to next week" live under "Course progress".
   const tabs = [
-    { id: "overview", label: "Overview", icon: Sparkles },
+    { id: "overview", label: "Dashboard", icon: LineIcon },
     { id: "course", label: "Course progress", icon: GraduationCap },
-    { id: "dash", label: "Dashboard", icon: LineIcon },
   ];
 
   return (
@@ -2879,46 +2879,10 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
         ))}
       </div>
 
-      {tab === "overview" && <OverviewPanel s={s} batch={batch} onTab={setTab} setS={setState} />}
-
-      {tab === "dash" && (
+      {tab === "overview" && (
         <div className="rise">
           {cert && <CertificateCard cert={cert} />}
-          <Card style={{ padding: 18, marginBottom: 12, background: C.ink, border: "none", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 42, height: 42, borderRadius: 4, background: "rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}><Video size={20} color="#fff" /></div>
-              <div>
-                <div style={{ fontSize: 11, color: C.goldLite, fontWeight: 700, letterSpacing: ".06em" }}>NEXT LIVE CLASS · {batch.track.toUpperCase()}</div>
-                <div style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{nextClassLabel(batch, s.phase, s.week)}</div>
-                <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12.5 }}>Same Zoom link for every class</div>
-              </div>
-            </div>
-            <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-              <button className="btn" style={{ background: C.emeraldLite, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 15, display: "flex", alignItems: "center", gap: 8 }}><Video size={16} /> Join class on Zoom</button>
-            </a>
-          </Card>
-          <Card style={{ padding: 20, marginTop: 0 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-              <div style={{ fontWeight: 700 }}>Course progress</div>
-              <div style={{ fontSize: 13, color: C.muted }}>{s.done ? "Complete 🎓" : `Week ${s.week} of 12`}</div>
-            </div>
-            <div style={{ height: 8, background: C.paper2, borderRadius: 999, marginTop: 12, overflow: "hidden" }}>
-              <div style={{ width: `${Math.round(((s.phase === "course" ? s.week : 12) / 12) * 100)}%`, height: "100%", background: C.emerald, borderRadius: 999 }} />
-            </div>
-            {!s.done && (
-              <div style={{ fontSize: 12.5, color: C.muted, marginTop: 10 }}>
-                <span {...act(() => setTab("course"))} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Open this week's activity →</span>
-              </div>
-            )}
-            {!s.done && (
-              <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.line}` }}>
-                <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                  Done with this week's class &amp; activity? Move on to the next week.
-                </div>
-                <AdvanceButton s={s} onAdvance={doAdvance} />
-              </div>
-            )}
-          </Card>
+          <OverviewPanel s={s} batch={batch} onTab={setTab} setS={setState} />
 
           {canWithdraw && (
             <Card style={{ padding: 16, marginTop: 14, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
@@ -2933,7 +2897,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
           {!canWithdraw && s.started && s.phase === "course" && s.week > REFUND_WEEKS && (
             <Card style={{ padding: 14, marginTop: 14 }}>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                The refund window closed at the end of the {REFUND_WINDOW}. Past that point, tuition is non-refundable — but you keep full access through all 12 weeks and the follow-up check-in.
+                The refund window closed at the end of the {REFUND_WINDOW}. Past that point, tuition is non-refundable — but you keep full access through all 12 weeks.
               </div>
             </Card>
           )}
@@ -3107,7 +3071,17 @@ function CoursePanel({ s, setState, batch, onAdvance, cert, isFounder }) {
               </div>
             </Card>
           ) : isThisWeek ? (
-            <WeekPanel s={s} setState={setState} onAdvance={onAdvance} batch={batch} cert={cert} />
+            <>
+              <WeekPanel s={s} setState={setState} onAdvance={onAdvance} batch={batch} cert={cert} />
+              {!offCourse && !s.done && (
+                <Card style={{ padding: 18, marginTop: 14 }}>
+                  <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
+                    Done with this week's class &amp; activity? Move on to the next week.
+                  </div>
+                  <AdvanceButton s={s} onAdvance={onAdvance} />
+                </Card>
+              )}
+            </>
           ) : catchUp}
         </div>
 
