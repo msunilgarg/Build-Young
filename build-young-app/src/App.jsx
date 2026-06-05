@@ -884,8 +884,16 @@ const HeroPreview = () => {
         <rect x="120" y="9" width="186" height="16" rx="8" fill={C2.paper2} stroke={C2.line} />
         <rect x="20" y="52" width="280" height="46" rx="8" fill="url(#bygrad)" />
         <text x="38" y="80" fontFamily="Space Grotesk, sans-serif" fontSize="16" fontWeight="800" fill="#fff">PupWalk</text>
-        <rect x="20" y="112" width="135" height="86" rx="8" fill={C2.paper2} stroke={C2.line} />
-        <rect x="165" y="112" width="135" height="86" rx="8" fill={C2.paper2} stroke={C2.line} />
+        {[{ x: 20, c: C2.emerald, name: "Maya R.", meta: "★ 4.9 · $15" }, { x: 165, c: C2.turq, name: "Devin K.", meta: "★ 5.0 · $18" }].map((card, i) => (
+          <g key={i} transform={`translate(${card.x},112)`}>
+            <rect width="135" height="86" rx="8" fill={C2.card} stroke={C2.line} />
+            <rect x="12" y="12" width="34" height="34" rx="9" fill={card.c} />
+            <circle cx="29" cy="27" r="6" fill="#fff" opacity="0.92" />
+            <text x="54" y="25" fontFamily="Inter, sans-serif" fontSize="11" fontWeight="700" fill={C2.ink}>{card.name}</text>
+            <text x="54" y="40" fontFamily="Inter, sans-serif" fontSize="10" fontWeight="600" fill={C2.muted}>Dog walker</text>
+            <text x="12" y="70" fontFamily="Inter, sans-serif" fontSize="10.5" fontWeight="700" fill={C2.green}>{card.meta}</text>
+          </g>
+        ))}
         <rect x="20" y="212" width="280" height="30" rx="8" fill={C2.emerald} />
         <text x="160" y="232" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill="#fff" textAnchor="middle">Book a walk →</text>
       </g>
@@ -1301,10 +1309,10 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             <div style={{ flex: 1, minWidth: 260 }}>
               <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 8 }}>
-                I build AI products for a living, and up close you can watch the ground move: what used to take a team and a budget, a motivated teenager can now do alone, with AI. The edge isn't a credential anymore — it's what you can build, and the taste to know what's worth making. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on — and my wife teaches at Issaquah Montessori School, so this house takes how kids learn seriously. I want mine building while the advantage is still theirs to take.
+                I build AI products for a living, and up close you can watch the ground move: what used to take a team and a budget, a motivated teenager can now do alone, with AI. The edge isn't a credential anymore — it's what you can build, and the taste to know what's worth making. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. My wife and I take how kids learn seriously — she teaches at Issaquah Montessori School. I want mine building while the advantage is still theirs to take.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                I went looking for a class that actually taught that — building something real with AI and putting it in front of people — and couldn't find one. The free material sits unwatched, because a video doesn't make a teenager show up; the live classes teach everything around building except building itself. So I made the one I wanted for my own kids: a small group, live, a standing weekly time — what turns “available” into “actually done.”
+                I went looking for a class that actually taught that — building something real with AI and putting it in front of people — and couldn't find one. The free material sits unwatched, because a video doesn't make a teenager show up. So I made the one I wanted for my own kids: a small group, live, a standing weekly time — what turns “available” into “actually done.”
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 It starts where almost none do — you actually <b>build something of your own</b> with AI, take it live, and grow it into a real business. One continuous twelve-week simulation where the decisions compound and the mistakes are safe. They learn to handle what it earns, too — but that comes after the building, never instead of it.
