@@ -313,8 +313,8 @@ const WEEKS = [
   { act: 1, t: "Make It Real", s: "Emails, being findable, and keeping data safe — everything that makes it ready for real users.", action: "build", comingSoon: true },
   { act: 1, t: "Go Live", s: "Point a real web address at it, switch on live payments, and run your launch checklist — your product is open for business.", action: "build", comingSoon: true },
   // ─── Act 2 · 1 → 100 (Weeks 8–10): grow it — funnel → metrics & scaling → product-led growth ───
-  { act: 2, t: "The Funnel", s: "Build the funnel into your product: how people find it, try it, and come back — the path to the success you defined in Week 1.", action: "build", comingSoon: true },
-  { act: 2, t: "Metrics & Scaling", s: "Track active users (DAU/MAU) and retention to see what's working and find the one thing holding growth back — your product's real health check.", action: "build", comingSoon: true },
+  { act: 2, t: "The Funnel", s: "Build the funnel into your product: how people find it, try it, and come back — the path to the success you set out to hit.", action: "build", comingSoon: true },
+  { act: 2, t: "Metrics & Scaling", s: "Now monitor the funnel you built: watch the usage (active users, retention) and how people move through find → try → come back, to spot what's holding growth back.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "Build growth INTO the product — make it so good (and shareable) it spreads itself.", action: "build", comingSoon: true },
   // ─── Act 3 · MANAGE (Week 11) + Capstone (Week 12): manage the money your product earns ───
   { act: 3, t: "Money: The Basics", s: "Your one money class — the basics of what to do with what you earn: pay yourself first, invest so it compounds, and a first big purchase done right.", action: "money",
@@ -1772,9 +1772,10 @@ Why families love it: It's live and small-group with a standing weekly time, so 
   financialSuccess: `It makes more money than it costs to run. Most new families come from people telling their friends, so we don't have to spend much to find them — and there's enough left over to keep it going and make it bigger.`,
 };
 
-// Week 2 "Shape the Idea": the spec, organized as FOUR build prompts — one per week (3–6). Each
-// prompt adds the next layer: the core product (Wk3) → accounts & data (Wk4) → payments (Wk5) →
-// production-ready (Wk6). Worked through for Build Young itself as the class model.
+// Week 2 "Shape the Idea": the spec — the parts the student plans now and builds one at a time over
+// the weeks ahead (core product → accounts & data → payments → production-ready, plus what success
+// looks like). NOTE: keep the spec week-AGNOSTIC in the UI — don't label fields with week numbers;
+// the schedule is revealed week by week so it stays exciting. Worked through for Build Young as the model.
 const SHAPE_EXAMPLE = {
   product: `What it is: a live, online money-skills program for teens 15–18, delivered as one web app. Over 12 weeks they build a real product with AI, then run a money simulation where that product is their income. It's hands-on and a bit like a game.
 
@@ -1858,14 +1859,15 @@ function weekExample(week) {
     ["What product success looks like", EXAMPLE_BUILD.productSuccess],
     ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
   ]} />;
-  if (week === 2) return <ExampleCard subtitle="A worked spec — four parts, one per week (3–6)" fields={[
-    ["Week 3 · The core product", SHAPE_EXAMPLE.product],
-    ["Week 4 · Accounts & saved data", SHAPE_EXAMPLE.accounts],
-    ["Week 5 · Payments", SHAPE_EXAMPLE.payments],
-    ["Week 6 · Production-ready", SHAPE_EXAMPLE.production],
+  if (week === 2) return <ExampleCard subtitle="A worked spec — how we'd fill it in for Build Young" fields={[
+    ["The core product", SHAPE_EXAMPLE.product],
+    ["Accounts & saved data", SHAPE_EXAMPLE.accounts],
+    ["Payments", SHAPE_EXAMPLE.payments],
+    ["Production-ready", SHAPE_EXAMPLE.production],
     ["What success looks like", SHAPE_EXAMPLE.success],
   ]} />;
   // Week 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
+  if (week === 8) return <GlossaryCard title="First — the funnel, in plain English" items={FUNNEL_PRIMER} />;
   if (week === 9) return <GlossaryCard title="First — the metrics, in plain English" items={METRICS_PRIMER} />;
   // SPEC weeks (3–6) get a worked example — Build Young's own spec for that layer. Seeded growth
   // weeks (8, 10) have no separate example; their pre-filled starter prompt IS the activity.
@@ -1892,7 +1894,14 @@ const METRICS_PRIMER = [
   { t: "Active users (DAU / MAU)", d: "how many different people actually use your product — DAU is in a day, MAU in a month. Signing up once doesn't count; coming back and using it does." },
   { t: "Retention", d: "of the people who try it, how many come back later (the next day, a week on). Low retention means it isn't useful enough yet — the number that matters most." },
   { t: "Funnel & drop-off", d: "the path people take — found it → tried it → came back. You lose some at each step; the biggest drop is your bottleneck, so fix that first." },
-  { t: "North-star metric", d: "the one number that best means “it's working” for YOUR product — tie it to the success you defined in Week 2." },
+  { t: "North-star metric", d: "the one number that best means “it's working” for YOUR product — tie it to the success you defined in your spec." },
+];
+const FUNNEL_PRIMER = [
+  { t: "The funnel", d: "the path a stranger takes — find it → try it → come back. It's called a funnel because you lose some people at each step (wide at the top, narrow at the bottom)." },
+  { t: "Find it (acquisition)", d: "how people first discover your product — a shared link, a search, or a friend telling them about it." },
+  { t: "Try it (the “aha”)", d: "the first time a new user hits the magic moment and gets why it's good. The faster they get there, the more of them stick around." },
+  { t: "Come back (retention)", d: "do they return after the first visit? A product people come back to is one that's actually working." },
+  { t: "Drop-off", d: "at each step, some people leave. The step where you lose the most is your bottleneck — fix that one first." },
 ];
 
 // A short, numbered principles card — the plain-language class material for the hands-on build
@@ -2001,7 +2010,7 @@ function GoLiveChecklist({ s, setS, bare }) {
 const BUILD_LAYERS = {
   3: { key: "product",
     heading: "Build the core product 🛠️",
-    lead: "Your Week 2 spec IS your prompt — no separate writing. Run the loop: describe → see → taste → refine. Just the core for now; accounts and payments come later.",
+    lead: "Your spec IS your prompt — no separate writing. Run the loop: describe → see → taste → refine. Just the core for now; more comes later.",
     fieldLabel: "The core product",
     promptLabel: "What to build — the core product:",
     placeholder: "(From your Week 2 spec — the core product: what it is, who it's for, the main things it does, and the 'wow' moment.)",
@@ -2039,19 +2048,19 @@ const BUILD_LAYERS = {
     fieldLabel: "The funnel",
     seed: `My app already lets people [the main thing it does], but new visitors don't get it and most don't come back. Build a simple funnel into it, on top of what I already have, without breaking anything:
 
-1. A landing page that says in one line what [my app] does for [who it's for], shows the single biggest benefit, and has one clear "Try it" button into the app.
-2. A smoother first run: take a brand-new user straight to [the main action] with a one-line nudge so they hit the wow — [the wow moment] — on their very first visit, not an empty screen.
-3. A reason and an easy way to come back, like [save their work / email them their result].
+1. FIND IT — a landing page that says in one line what [my app] does for [who it's for], shows the single biggest benefit, and has one clear "Try it" button into the app.
+2. TRY IT (the "aha") — a smoother first run: take a brand-new user straight to [the main action] with a one-line nudge so they hit the wow — [the wow moment] — on their very first visit, not an empty screen.
+3. COME BACK — a reason and an easy way to return, like [save their work / email them their result].
 
-Keep my current styling, add a simple way to see how many people reach each step, and tell me how to test it.` },
+Keep my current styling. Then track each step (find → try → come back) so I can see where people drop off, and tell me how to test it.` },
   9: { key: "metrics",
-    lead: "Add the instrumentation to see how your product is really doing — the numbers behind the growth.",
+    lead: "You built the funnel last time — now watch it work. Add the instrumentation to see how people move through it, where they drop off, and how your product is really doing.",
     fieldLabel: "The metrics",
-    seed: `Add simple, privacy-friendly analytics to my app so I can measure the success I wrote in my Week 2 spec:
+    seed: `Add simple, privacy-friendly analytics to my app so I can see how the funnel I just built is doing, and measure the success I defined in my spec:
 
-1. Daily and monthly active users (DAU / MAU).
+1. Daily and monthly active users (DAU / MAU) — how many people actually use it.
 2. Retention — how many people come back after day 1 and day 7.
-3. Where in my funnel people drop off (landing → trying it → coming back).
+3. The funnel — how people move through find → try → come back, and where they drop off.
 
 Put it all on one simple dashboard, don't collect anything I don't need (some users may be under 18), then help me read it to find the ONE biggest thing holding growth back.` },
   10: { key: "plg",
@@ -2208,11 +2217,11 @@ function ShapePlan({ s, setS, bare }) {
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
         Your spec is your product, planned out — <b>what you'll build, plus what success looks like</b> so you know what you're aiming for. The more specific and complete you are, the better. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
-      {field("product", "Week 3 · The core product", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough to build the core product you can ship live. (Just the core — no accounts or payments yet.)", 6)}
-      {field("accounts", "Week 4 · Accounts & saved data", "Who signs in, and what's saved for each person — what does a user see that's theirs?", 4)}
-      {field("payments", "Week 5 · Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
-      {field("production", "Week 6 · Production-ready", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
-      {field("success", "What success looks like", "Take the product + financial success you sketched in Week 1 and make it measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run.", 5)}
+      {field("product", "The core product", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough to build the core product you can ship live. (Just the core — no accounts or payments yet.)", 6)}
+      {field("accounts", "Accounts & saved data", "Who signs in, and what's saved for each person — what does a user see that's theirs?", 4)}
+      {field("payments", "Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
+      {field("production", "Production-ready", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
+      {field("success", "What success looks like", "Make success measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run.", 5)}
 
       {/* Build tools — set up ONCE here, before building starts (not repeated each build week). */}
       <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginTop: 4 }}>
