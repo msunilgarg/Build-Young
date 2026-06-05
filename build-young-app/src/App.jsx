@@ -2348,7 +2348,7 @@ function FunnelScenarios({ s, setS, bare }) {
   const inner = (
     <>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 8px" }}>
-        Nothing to build this week — <b>read the numbers</b>. Below are a few funnels for a product like yours, using the steps <b>you</b> said you'd track. Each tells a different story. For each, work out what's going on, write it down, then reveal the system's read to check yourself. <span style={{ color: C.muted }}>(In real life these come from your own analytics — Vercel + the funnel you built last week.) Saved automatically.</span>
+        Nothing to build this week — <b>read the numbers</b>. These funnels are built from <b>the funnel you shipped last week</b> and the metrics <b>you</b> chose to track — your own product, not a generic example. Each shows a different story your numbers could tell. For each, work out what's going on, write it down, then reveal the system's read to check yourself. <span style={{ color: C.muted }}>(In real life these come straight from your own analytics — Vercel + the funnel you built last week.) Saved automatically.</span>
       </p>
       <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 99, padding: "3px 10px", marginBottom: 6 }}>Practice data · modeled, not live</div>
       <div style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Your funnel: {stages.join(" → ")}</div>
@@ -4281,7 +4281,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <SettingsEditor />
           <h2 style={h2s}>Notifications</h2>
           <NotificationsEditor />
-          <h2 style={h2s}>Week 9 scenario agent</h2>
+          <h2 style={h2s}>Funnel simulation agent</h2>
           <ScenarioAgentEditor />
           <h2 style={h2s}>Admins</h2>
           <FoundersEditor founders={founders} />
@@ -4411,6 +4411,7 @@ const SCENARIO_MODEL_OPTS = [
 ];
 function ScenarioAgentEditor() {
   const [ops, setOps] = useState(null);
+  const [keyPresent, setKeyPresent] = useState(false);
   const [status, setStatus] = useState("");
   useEffect(() => {
     let live = true;
@@ -4418,12 +4419,13 @@ function ScenarioAgentEditor() {
       try {
         const r = await fetch("/api/funnel?resource=ops"); const d = r.ok ? await r.json() : {};
         const o = d.ops || {};
-        if (live) setOps({ enabled: o.scenarioAgentEnabled !== false, model: o.scenarioModel || "claude-haiku-4-5" });
+        if (live) { setKeyPresent(!!d.anthropicKeyPresent); setOps({ enabled: o.scenarioAgentEnabled !== false, model: o.scenarioModel || "claude-haiku-4-5" }); }
       } catch { if (live) setOps({ enabled: true, model: "claude-haiku-4-5" }); }
     })();
     return () => { live = false; };
   }, []);
   if (ops === null) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
+  const liveOn = keyPresent && ops.enabled;
   const save = async () => {
     setStatus("Saving…");
     try {
@@ -4437,7 +4439,15 @@ function ScenarioAgentEditor() {
   const fieldS = { fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", maxWidth: 460, boxSizing: "border-box" };
   return (
     <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Week 9's <b>“Simulate more advanced scenarios”</b> button uses AI to generate funnels from each student's own metrics. Needs <code>ANTHROPIC_API_KEY</code> on the host — if it's off or the key is missing, students still get the built-in practice funnels (free). You're billed per generation on whatever Anthropic key you set.</div>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Week 9's <b>“Simulate more advanced scenarios”</b> button uses AI to generate funnels from each student's own metrics. If it's off or no key is set, students still get the built-in practice funnels (free). You're billed per generation on whatever Anthropic key you set.</div>
+      <div style={{ fontSize: 12.5, lineHeight: 1.55, border: `1px solid ${liveOn ? C.green : C.line}`, background: liveOn ? "#eef3f0" : C.paper2, borderRadius: 6, padding: "10px 12px", marginBottom: 14 }}>
+        <b style={{ color: liveOn ? C.green : C.ink2 }}>Currently: {liveOn ? "AI generation (billed)" : "Free built-in funnels — no charge"}</b>
+        <div style={{ color: C.muted, marginTop: 4 }}>
+          {keyPresent
+            ? <>An <code>ANTHROPIC_API_KEY</code> is set on the host. {ops.enabled ? "The agent is live — each click bills your key." : "Flip the toggle on to use it."}</>
+            : <>No <code>ANTHROPIC_API_KEY</code> detected. The key is a <b>secret</b>, so it's set on the host — not here: in <b>Vercel → your project → Settings → Environment Variables</b> (then redeploy). Until then this stays free.</>}
+        </div>
+      </div>
       <label style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 14, color: C.ink, cursor: "pointer", marginBottom: 14 }}>
         <input type="checkbox" checked={ops.enabled} onChange={(e) => setOps({ ...ops, enabled: e.target.checked })} style={{ width: 17, height: 17, accentColor: C.emerald }} />
         <span>Enable AI scenario generation</span>
