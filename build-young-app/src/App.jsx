@@ -2348,7 +2348,7 @@ function FunnelScenarios({ s, setS, bare }) {
   const inner = (
     <>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 8px" }}>
-        Nothing to build this week — <b>read the numbers</b>. Below are a few funnels for a product like yours, using the steps <b>you</b> said you'd track. Each tells a different story. For each, work out what's going on, write it down, then reveal the system's read to check yourself. <span style={{ color: C.muted }}>(In real life these come from your own analytics — Vercel + the funnel you built last week.) Saved automatically.</span>
+        Nothing to build this week — <b>read the numbers</b>. These funnels are built from <b>the funnel you shipped last week</b> and the metrics <b>you</b> chose to track — your own product, not a generic example. Each shows a different story your numbers could tell. For each, work out what's going on, write it down, then reveal the system's read to check yourself. <span style={{ color: C.muted }}>(In real life these come straight from your own analytics — Vercel + the funnel you built last week.) Saved automatically.</span>
       </p>
       <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 99, padding: "3px 10px", marginBottom: 6 }}>Practice data · modeled, not live</div>
       <div style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Your funnel: {stages.join(" → ")}</div>
