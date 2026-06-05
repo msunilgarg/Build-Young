@@ -72,6 +72,8 @@ input:focus,select:focus{outline:2px solid ${C.emerald};outline-offset:-1px;}
 .hp-end{opacity:0;animation:hpFade .4s ease 1.7s forwards;}
 .hp-donut{transform-box:fill-box;transform-origin:center;animation:hpPop .7s cubic-bezier(.2,.8,.2,1) .5s both;}
 .hp-live{animation:livePulse 1.8s ease-in-out infinite;}
+.hp-grow{transform:scaleX(0);transform-box:fill-box;transform-origin:left;animation:hpGrow 1s cubic-bezier(.2,.8,.2,1) forwards;}
+@keyframes hpGrow{to{transform:scaleX(1)}}
 .enroll-grid{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start;}
 @media(max-width:760px){.enroll-grid{grid-template-columns:1fr;}}
 @media(max-width:560px){.nav-talk{display:none!important;}}
@@ -816,6 +818,15 @@ const HP_SNAPS = [
   { week: 10, nw: 48200, pts: "0,184 70,166 140,176 210,140 280,148 350,112 420,120 490,84 540,66", alloc: [0.55, 0.25, 0.12, 0.08] },
   { week: 12, nw: 74900, pts: "0,170 70,150 140,160 210,116 280,124 350,80 420,72 490,40 540,14", alloc: [0.62, 0.18, 0.12, 0.08] },
 ];
+// The hero dashboard preview rotates through the THREE acts of the course, each an animated
+// "scene": Build (Act 1 — turn a spec into a shipped product), Grow (Act 2 — the funnel + active
+// users), and Money (Act 3 — net worth + allocation). It re-keys the scene group each tick so the
+// CSS animations replay. Scenes are course-aligned so the hero teases what students actually do.
+const HP_SCENES = [
+  { id: "build", week: 3, label: "building live", aria: "building a product" },
+  { id: "grow", week: 8, label: "growing live", aria: "growing it into a business" },
+  { id: "money", week: 12, label: "live now", aria: "managing the money it earns" },
+];
 const HeroPreview = () => {
   const C2 = C;
   const circ = 2 * Math.PI * 56;
@@ -823,36 +834,136 @@ const HeroPreview = () => {
   const donutColors = [C2.emerald, C2.turq, C2.green, C2.pink];
   const [i, setI] = useState(0);
   const [nw, setNw] = useState(0);
-  // rotate through snapshots forever
+  const sc = HP_SCENES[i % HP_SCENES.length];
+  // rotate through the three act-scenes forever
   useEffect(() => {
-    const id = setInterval(() => setI((p) => (p + 1) % HP_SNAPS.length), 3600);
+    const id = setInterval(() => setI((p) => (p + 1) % HP_SCENES.length), 4600);
     return () => clearInterval(id);
   }, []);
-  // count the net-worth number toward the current snapshot
+  // count the net-worth number up whenever the money scene comes around
   useEffect(() => {
-    const target = HP_SNAPS[i].nw;
-    let raf, start, from;
-    const dur = 1300;
+    if (sc.id !== "money") return;
+    const target = 74900, from = 46000, dur = 1300;
+    let raf, start;
     const step = (t) => {
-      if (start == null) { start = t; from = nw; }
+      if (start == null) start = t;
       const p = Math.min(1, (t - start) / dur);
       setNw(Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3))));
       if (p < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [i]); // eslint-disable-line
-  const snap = HP_SNAPS[i];
-  const last = snap.pts.split(" ").slice(-1)[0].split(",");
-  const areaD = `M${snap.pts.split(" ").join(" L")} L540,210 L0,210 Z`;
+  }, [sc.id]); // eslint-disable-line
+
+  // ---- scene bodies (all live in the same SVG frame, below the top bar) ----
+  const buildScene = (
+    <g>
+      <text x="40" y="96" fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>BUILDING YOUR PRODUCT — WITH AI</text>
+      <g style={{ animation: "hpFade .5s ease both" }}>
+        <rect x="40" y="108" width="470" height="70" rx="8" fill={C2.paper2} stroke={C2.line} />
+        <text x="58" y="136" fontFamily="Inter, sans-serif" fontSize="14" fill={C2.ink2}>“Claude, build me an app that lets dog owners</text>
+        <text x="58" y="158" fontFamily="Inter, sans-serif" fontSize="14" fill={C2.ink2}>book a trusted neighbor to walk their dog…”</text>
+      </g>
+      {[["Core product", 0.5], ["Accounts & saved data", 0.95], ["Payments", 1.4]].map(([t, d], idx) => (
+        <g key={idx} style={{ animation: "hpFade .5s ease both", animationDelay: `${d}s` }} transform={`translate(40,${208 + idx * 40})`}>
+          <circle cx="11" cy="6" r="11" fill="#e7f3ee" />
+          <path d="M5.5,6.5 l3.5,3.5 l6.5,-7.5" fill="none" stroke={C2.green} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          <text x="32" y="11" fontFamily="Inter, sans-serif" fontSize="15" fontWeight="600" fill={C2.ink}>{t}</text>
+        </g>
+      ))}
+      <g style={{ animation: "hpFade .5s ease both", animationDelay: "1.9s" }} transform="translate(40,338)">
+        <rect width="244" height="30" rx="15" fill="#e7f3ee" />
+        <circle cx="18" cy="15" r="4" fill={C2.emerald} className="hp-live" />
+        <text x="32" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald}>Live on the web · yourapp.com</text>
+      </g>
+      {/* a little browser window showing the shipped app */}
+      <g transform="translate(560,100)" style={{ animation: "hpFade .6s ease both", animationDelay: ".3s" }}>
+        <rect width="320" height="258" rx="10" fill="#fff" stroke={C2.line} />
+        <path d="M0,34 h320" stroke={C2.line} />
+        <circle cx="18" cy="17" r="4" fill="#ff5f56" /><circle cx="34" cy="17" r="4" fill="#ffbd2e" /><circle cx="50" cy="17" r="4" fill="#27c93f" />
+        <rect x="120" y="9" width="186" height="16" rx="8" fill={C2.paper2} stroke={C2.line} />
+        <rect x="20" y="52" width="280" height="46" rx="8" fill="url(#bygrad)" />
+        <text x="38" y="80" fontFamily="Space Grotesk, sans-serif" fontSize="16" fontWeight="800" fill="#fff">PupWalk</text>
+        <rect x="20" y="112" width="135" height="86" rx="8" fill={C2.paper2} stroke={C2.line} />
+        <rect x="165" y="112" width="135" height="86" rx="8" fill={C2.paper2} stroke={C2.line} />
+        <rect x="20" y="212" width="280" height="30" rx="8" fill={C2.emerald} />
+        <text x="160" y="232" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill="#fff" textAnchor="middle">Book a walk →</text>
+      </g>
+    </g>
+  );
+
+  const growBars = [
+    { t: "Visited", w: 470, val: "1,000", c: C2.emerald },
+    { t: "Tried it", w: 300, val: "640", c: C2.turq },
+    { t: "Came back", w: 178, val: "380", c: C2.green },
+  ];
+  const growScene = (
+    <g>
+      <text x="40" y="96" fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR FUNNEL — FIND IT → TRY IT → COME BACK</text>
+      {growBars.map((b, idx) => (
+        <g key={idx} transform={`translate(40,${124 + idx * 62})`}>
+          <text x="0" y="-4" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="600" fill={C2.ink2}>{b.t}</text>
+          <text x="470" y="-4" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.ink} textAnchor="end">{b.val}</text>
+          <rect x="0" y="2" width="470" height="22" rx="11" fill={C2.paper2} />
+          <rect x="0" y="2" width={b.w} height="22" rx="11" fill={b.c} className="hp-grow" style={{ animationDelay: `${idx * 0.18}s` }} />
+        </g>
+      ))}
+      <g style={{ animation: "hpFade .5s ease both", animationDelay: "1s" }} transform="translate(40,322)">
+        <rect width="230" height="30" rx="15" fill="#e7f3ee" />
+        <text x="115" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.green} textAnchor="middle">▲ retention 38% and rising</text>
+      </g>
+      {/* active-users trend on the right */}
+      <g transform="translate(560,104)">
+        <text fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.muted}>ACTIVE USERS / WEEK</text>
+        <g transform="translate(0,24)">
+          <path className="hp-area" d="M0,150 L60,124 L120,132 L180,96 L240,72 L300,40 L320,30 L320,162 L0,162 Z" fill="url(#area)" />
+          <polyline className="hp-line" pathLength="1" points="0,150 60,124 120,132 180,96 240,72 300,40 320,30" fill="none" stroke={C2.emerald} strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
+          <circle className="hp-end" cx="320" cy="30" r="5.5" fill="#fff" stroke={C2.emerald} strokeWidth="3.5" />
+        </g>
+      </g>
+    </g>
+  );
+
+  const moneySnap = HP_SNAPS[2];
+  const last = moneySnap.pts.split(" ").slice(-1)[0].split(",");
+  const areaD = `M${moneySnap.pts.split(" ").join(" L")} L540,210 L0,210 Z`;
   let acc = 0;
+  const moneyScene = (
+    <g>
+      <g transform="translate(40,92)">
+        <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR NET WORTH</text>
+        <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>${nw.toLocaleString()}</text>
+        <g className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +{fmt(STEADY_INCOME)} from your product</text></g>
+        <g transform="translate(0,70)">
+          <path className="hp-area" d={areaD} fill="url(#area)" />
+          <polyline className="hp-line" pathLength="1" points={moneySnap.pts} fill="none" stroke={C2.emerald} strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
+          <circle className="hp-end" cx={last[0]} cy={last[1]} r="5.5" fill="#fff" stroke={C2.emerald} strokeWidth="3.5" />
+        </g>
+      </g>
+      <g transform="translate(760,250)">
+        <text x="0" y="-96" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.muted} textAnchor="middle">ALLOCATION</text>
+        <g className="hp-donut">
+          <g transform="rotate(-90)" fill="none" strokeWidth="20">
+            {moneySnap.alloc.map((f, idx) => { const el = (<circle key={idx} r="56" stroke={donutColors[idx]} strokeDasharray={seg(f)} strokeDashoffset={-circ * acc} />); acc += f; return el; })}
+          </g>
+          <text y="-2" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="800" fill={C2.ink} textAnchor="middle">4</text>
+          <text y="16" fontFamily="Inter, sans-serif" fontSize="10.5" fontWeight="700" fill={C2.muted} textAnchor="middle">ASSETS</text>
+        </g>
+      </g>
+    </g>
+  );
+
+  const body = sc.id === "build" ? buildScene : sc.id === "grow" ? growScene : moneyScene;
   return (
     <div className="rise" style={{ maxWidth: 760, margin: "44px auto 0" }}>
-      <svg viewBox="0 0 920 430" style={{ width: "100%", height: "auto", filter: "drop-shadow(0 24px 50px rgba(0,103,184,.16))" }} role="img" aria-label="Build Young simulation dashboard preview">
+      <svg viewBox="0 0 920 430" style={{ width: "100%", height: "auto", filter: "drop-shadow(0 24px 50px rgba(0,103,184,.16))" }} role="img" aria-label={`Build Young simulation dashboard preview — ${sc.aria}`}>
         <rect x="2" y="2" width="916" height="426" rx="12" fill="#ffffff" stroke={C2.line} />
         <defs>
           <linearGradient id="bygrad" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor={C2.emerald} /><stop offset="50%" stopColor={C2.turq} /><stop offset="100%" stopColor={C2.green} />
+          </linearGradient>
+          <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#0067b8" stopOpacity="0.28" /><stop offset="100%" stopColor="#0067b8" stopOpacity="0" />
           </linearGradient>
         </defs>
         {/* top bar */}
@@ -861,37 +972,12 @@ const HeroPreview = () => {
           <rect x="0" y="4" width="15" height="14" rx="3" fill="#50a0e0" /><rect x="19" y="-5" width="15" height="23" rx="3" fill="#0078d4" /><rect x="38" y="-16" width="15" height="34" rx="3" fill="#0067b8" />
           <path d="M44.5 -23 l5 7 h-10 z" fill="#038387" />
           <text x="70" y="14" fontFamily="Space Grotesk, sans-serif" fontSize="19" fontWeight="800" fill={C2.ink}>Build <tspan fill="url(#bygrad)">Young</tspan></text>
-          <rect x="678" y="-8" width="186" height="30" rx="6" fill="#eaf3fb" />
-          <text x="771" y="12" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.emerald} textAnchor="middle"><tspan className="hp-live">●</tspan> Week {snap.week} — live now</text>
+          <rect x="650" y="-8" width="214" height="30" rx="6" fill="#eaf3fb" />
+          <text x="757" y="12" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.emerald} textAnchor="middle"><tspan className="hp-live">●</tspan> Week {sc.week} — {sc.label}</text>
         </g>
         <line x1="2" y1="62" x2="918" y2="62" stroke={C2.line} />
-        {/* net worth + chart */}
-        <g transform="translate(40,92)">
-          <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR NET WORTH</text>
-          <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>${nw.toLocaleString()}</text>
-          <g key={"chip" + i} className="hp-end" transform="translate(250,8)"><rect width="150" height="30" rx="15" fill="#e7f3ee" /><text x="75" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ +{fmt(STEADY_INCOME)} from your product</text></g>
-          <defs>
-            <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#0067b8" stopOpacity="0.28" /><stop offset="100%" stopColor="#0067b8" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          <g transform="translate(0,70)">
-            <path key={"a" + i} className="hp-area" d={areaD} fill="url(#area)" />
-            <polyline key={"l" + i} className="hp-line" pathLength="1" points={snap.pts} fill="none" stroke={C2.emerald} strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
-            <circle key={"e" + i} className="hp-end" cx={last[0]} cy={last[1]} r="5.5" fill="#fff" stroke={C2.emerald} strokeWidth="3.5" />
-          </g>
-        </g>
-        {/* allocation donut */}
-        <g transform="translate(760,250)">
-          <text x="0" y="-96" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.muted} textAnchor="middle">ALLOCATION</text>
-          <g key={"d" + i} className="hp-donut">
-            <g transform="rotate(-90)" fill="none" strokeWidth="20">
-              {snap.alloc.map((f, idx) => { const el = (<circle key={idx} r="56" stroke={donutColors[idx]} strokeDasharray={seg(f)} strokeDashoffset={-circ * acc} />); acc += f; return el; })}
-            </g>
-            <text y="-2" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="800" fill={C2.ink} textAnchor="middle">4</text>
-            <text y="16" fontFamily="Inter, sans-serif" fontSize="10.5" fontWeight="700" fill={C2.muted} textAnchor="middle">ASSETS</text>
-          </g>
-        </g>
+        {/* the active scene, re-keyed so its entrance animations replay each rotation */}
+        <g key={i}>{body}</g>
       </svg>
     </div>
   );
