@@ -4788,9 +4788,6 @@ export default function App() {
     <CohortsContext.Provider value={batches}>
     <div className="flp" style={{ minHeight: "100vh", background: C.paper }}>
       <style>{FONTS}</style>
-      <div style={{ background: C.ink, color: C.paper2, textAlign: "center", fontSize: 12.5, fontWeight: 600, lineHeight: 1.5, padding: "8px 16px", position: "relative", zIndex: 3 }}>
-        <Sparkles size={13} color={C.goldLite} style={{ verticalAlign: "-2px", marginRight: 5 }} /> Hands-on entrepreneurship for teens — a learning program, <b style={{ whiteSpace: "nowrap" }}>not financial</b> or investment advice.
-      </div>
       {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} />}
       {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} />}
       {route === "call" && <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} />}
