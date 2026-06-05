@@ -1703,7 +1703,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
             {batch.groupEmail && (
               <div style={{ marginTop: 16, fontSize: 13.5, color: "rgba(255,255,255,.8)", lineHeight: 1.5 }}>
                 <Mail size={14} color={C.emeraldLite} style={{ verticalAlign: "-2px", marginRight: 6 }} />
-                Your cohort group email: <a href={`mailto:${batch.groupEmail}`} style={{ color: "#fff", fontWeight: 700 }}>{batch.groupEmail}</a> — one address that reaches everyone in your cohort.
+                Your cohort: <a href={`mailto:${batch.groupEmail}`} style={{ color: "#fff", fontWeight: 700 }}>{batch.groupEmail}</a> — class updates and announcements come to your inbox.
               </div>
             )}
           </div>

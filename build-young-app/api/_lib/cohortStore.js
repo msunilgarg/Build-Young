@@ -7,12 +7,14 @@
 
 import { BATCHES as DEFAULT_BATCHES, CHECKINS as DEFAULT_CHECKINS } from "../../src/cohorts.js";
 import { kvConfigured, kvGet, kvSet } from "./kv.js";
+import { createAudience } from "./resendAudience.js";
 
 const KEY = "cohorts:catalog";
 
-// Default catalog from code (seed/fallback). Each batch carries its own stripeLink + recordings.
+// Default catalog from code (seed/fallback). Each batch carries its own stripeLink + recordings +
+// groupAudienceId (the Resend audience id, filled in on first save when Resend is configured).
 export function defaultCatalog() {
-  return { batches: DEFAULT_BATCHES.map((b) => ({ stripeLink: "", recordings: {}, ...b })), checkins: DEFAULT_CHECKINS };
+  return { batches: DEFAULT_BATCHES.map((b) => ({ stripeLink: "", recordings: {}, groupAudienceId: "", ...b })), checkins: DEFAULT_CHECKINS };
 }
 
 export async function loadCatalog() {
@@ -58,6 +60,7 @@ export function sanitizeCatalog(input) {
       price: Math.max(0, Math.round(num(b && b.price, 0))),
       zoom: str(b && b.zoom).trim(),
       groupEmail: str(b && b.groupEmail).trim(),
+      groupAudienceId: str(b && b.groupAudienceId).trim(),
       stripeLink: str(b && b.stripeLink).trim(),
       recordings: sanitizeRecordings(b && b.recordings),
     }))
@@ -70,6 +73,14 @@ export async function saveCatalog(input) {
   const clean = sanitizeCatalog(input);
   if (!clean.batches.length) return { ok: false, error: "at least one cohort with an id is required" };
   if (!kvConfigured()) return { ok: false, error: "store not configured" };
+  // Provision a Resend audience (the cohort's broadcast list) for any cohort that doesn't have one
+  // yet. Best-effort + key-gated: with no RESEND_API_KEY this is a no-op and the id stays "".
+  for (const b of clean.batches) {
+    if (!b.groupAudienceId) {
+      const id = await createAudience(`Build Young · ${b.id}`);
+      if (id) b.groupAudienceId = id;
+    }
+  }
   try {
     await kvSet(KEY, JSON.stringify(clean));
   } catch {
