@@ -6,15 +6,23 @@
 // /api/funnel; read publicly via /api/cohorts.
 
 import { BATCHES as DEFAULT_BATCHES, CHECKINS as DEFAULT_CHECKINS } from "../../src/cohorts.js";
+import { SITE_DEFAULTS } from "../../src/site.js";
 import { kvConfigured, kvGet, kvSet } from "./kv.js";
 import { createAudience } from "./resendAudience.js";
 
 const KEY = "cohorts:catalog";
 
+// Every cohort gets a group email; when one isn't set we derive `<id>@<brand-domain>` so existing
+// cohorts (incl. KV catalogs saved before the field existed) always have one to show.
+const GROUP_DOMAIN = (String(SITE_DEFAULTS.contactEmail || "").split("@")[1] || "build-young.com");
+export const groupEmailFor = (id) => (id ? `${id}@${GROUP_DOMAIN}` : "");
+const withGroupEmail = (b) => ({ ...b, groupEmail: (typeof b.groupEmail === "string" && b.groupEmail.trim()) ? b.groupEmail.trim() : groupEmailFor(b.id) });
+const normalize = (cat) => ({ ...cat, batches: (cat.batches || []).map(withGroupEmail) });
+
 // Default catalog from code (seed/fallback). Each batch carries its own stripeLink + recordings +
 // groupAudienceId (the Resend audience id, filled in on first save when Resend is configured).
 export function defaultCatalog() {
-  return { batches: DEFAULT_BATCHES.map((b) => ({ stripeLink: "", recordings: {}, groupAudienceId: "", ...b })), checkins: DEFAULT_CHECKINS };
+  return normalize({ batches: DEFAULT_BATCHES.map((b) => ({ stripeLink: "", recordings: {}, groupAudienceId: "", ...b })), checkins: DEFAULT_CHECKINS });
 }
 
 export async function loadCatalog() {
@@ -23,7 +31,7 @@ export async function loadCatalog() {
     const raw = await kvGet(KEY);
     if (raw) {
       const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
-      if (parsed && Array.isArray(parsed.batches) && parsed.batches.length) return parsed;
+      if (parsed && Array.isArray(parsed.batches) && parsed.batches.length) return normalize(parsed);
     }
   } catch { /* fall through to defaults */ }
   return defaultCatalog();
@@ -50,20 +58,23 @@ function sanitizeRecordings(r) {
 export function sanitizeCatalog(input) {
   const seen = new Set();
   const batches = (input && Array.isArray(input.batches) ? input.batches : [])
-    .map((b) => ({
-      id: str(b && b.id).trim(),
-      season: str(b && b.season).trim() || "fall",
-      track: str(b && b.track).trim() || "Builders",
-      start: str(b && b.start).trim(),
-      day: str(b && b.day).trim(),
-      seats: Math.max(0, Math.round(num(b && b.seats, 0))),
-      price: Math.max(0, Math.round(num(b && b.price, 0))),
-      zoom: str(b && b.zoom).trim(),
-      groupEmail: str(b && b.groupEmail).trim(),
-      groupAudienceId: str(b && b.groupAudienceId).trim(),
-      stripeLink: str(b && b.stripeLink).trim(),
-      recordings: sanitizeRecordings(b && b.recordings),
-    }))
+    .map((b) => {
+      const id = str(b && b.id).trim();
+      return {
+        id,
+        season: str(b && b.season).trim() || "fall",
+        track: str(b && b.track).trim() || "Builders",
+        start: str(b && b.start).trim(),
+        day: str(b && b.day).trim(),
+        seats: Math.max(0, Math.round(num(b && b.seats, 0))),
+        price: Math.max(0, Math.round(num(b && b.price, 0))),
+        zoom: str(b && b.zoom).trim(),
+        groupEmail: str(b && b.groupEmail).trim() || groupEmailFor(id),
+        groupAudienceId: str(b && b.groupAudienceId).trim(),
+        stripeLink: str(b && b.stripeLink).trim(),
+        recordings: sanitizeRecordings(b && b.recordings),
+      };
+    })
     .filter((b) => b.id && !seen.has(b.id) && (seen.add(b.id), true));
   const checkins = Math.max(0, Math.round(num(input && input.checkins, DEFAULT_CHECKINS)));
   return { batches, checkins };

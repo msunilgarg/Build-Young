@@ -626,50 +626,24 @@ const HeroBackdrop = () => (
   </svg>
 );
 
-// The Act-3 "first customers" scene data: a customer count that ticks up, a growth line, and a
-// "where they're from" sources donut. Representative illustration (not live data).
-const HP_CUSTOMERS = {
-  total: 375,             // customers — the count animates up to this
-  from: 230,             // ...starting from here
-  pts: "0,170 70,150 140,160 210,116 280,124 350,80 420,72 490,40 540,14", // growth line
-  sources: [0.45, 0.30, 0.15, 0.10], // where they came from (4 channels)
-};
 // The hero dashboard preview rotates through the THREE acts of the course, each an animated
 // "scene": Build (Act 1 — turn a spec into a shipped product), Grow (Act 2 — the funnel + active
-// users), and Customers (Act 3 — land your first customers). It re-keys the scene group each tick
+// users), and Capstone (Act 3 — present what you built). It re-keys the scene group each tick
 // so the CSS animations replay. Scenes are course-aligned so the hero teases what students do.
 const HP_SCENES = [
   { id: "build", week: 3, label: "building live", aria: "building a product" },
   { id: "grow", week: 8, label: "growing live", aria: "growing it into a business" },
-  { id: "customers", week: 11, label: "live now", aria: "getting its first customers" },
+  { id: "capstone", week: 12, label: "capstone day", aria: "presenting what they built" },
 ];
 const HeroPreview = () => {
   const C2 = C;
-  const circ = 2 * Math.PI * 56;
-  const seg = (frac) => `${(circ * frac).toFixed(1)} ${(circ * (1 - frac)).toFixed(1)}`;
-  const donutColors = [C2.emerald, C2.turq, C2.green, C2.pink];
   const [i, setI] = useState(0);
-  const [count, setCount] = useState(0);
   const sc = HP_SCENES[i % HP_SCENES.length];
   // rotate through the three act-scenes forever
   useEffect(() => {
     const id = setInterval(() => setI((p) => (p + 1) % HP_SCENES.length), 4600);
     return () => clearInterval(id);
   }, []);
-  // count the customer number up whenever the "first customers" scene comes around
-  useEffect(() => {
-    if (sc.id !== "customers") return;
-    const target = HP_CUSTOMERS.total, from = HP_CUSTOMERS.from, dur = 1300;
-    let raf, start;
-    const step = (t) => {
-      if (start == null) start = t;
-      const p = Math.min(1, (t - start) / dur);
-      setCount(Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3))));
-      if (p < 1) raf = requestAnimationFrame(step);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [sc.id]); // eslint-disable-line
 
   // ---- scene bodies (all live in the same SVG frame, below the top bar) ----
   const buildScene = (
@@ -748,35 +722,41 @@ const HeroPreview = () => {
     </g>
   );
 
-  const last = HP_CUSTOMERS.pts.split(" ").slice(-1)[0].split(",");
-  const areaD = `M${HP_CUSTOMERS.pts.split(" ").join(" L")} L540,210 L0,210 Z`;
-  let acc = 0;
-  const customersScene = (
+  const capstoneScene = (
     <g>
       <g transform="translate(40,92)">
-        <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR FIRST CUSTOMERS</text>
-        <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>{count.toLocaleString()}</text>
-        <g className="hp-end" transform="translate(250,8)"><rect width="170" height="30" rx="15" fill="#e7f3ee" /><text x="85" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ growing week over week</text></g>
-        <g transform="translate(0,70)">
-          <path className="hp-area" d={areaD} fill="url(#area)" />
-          <polyline className="hp-line" pathLength="1" points={HP_CUSTOMERS.pts} fill="none" stroke={C2.emerald} strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
-          <circle className="hp-end" cx={last[0]} cy={last[1]} r="5.5" fill="#fff" stroke={C2.emerald} strokeWidth="3.5" />
+        <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR CAPSTONE — PRESENT WHAT YOU BUILT</text>
+        <text y="40" fontFamily="Space Grotesk, sans-serif" fontSize="28" fontWeight="800" fill={C2.ink}>What I built: PupWalk</text>
+        {[["Shipped & live on the web", 0.4], ["312 people using it", 0.8], ["My story — and what's next", 1.2]].map(([t, d], idx) => (
+          <g key={idx} style={{ animation: "hpFade .5s ease both", animationDelay: `${d}s` }} transform={`translate(0,${74 + idx * 38})`}>
+            <circle cx="11" cy="6" r="11" fill="#e7f3ee" />
+            <path d="M5.5,6.5 l3.5,3.5 l6.5,-7.5" fill="none" stroke={C2.green} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            <text x="32" y="11" fontFamily="Inter, sans-serif" fontSize="15" fontWeight="600" fill={C2.ink}>{t}</text>
+          </g>
+        ))}
+        <g style={{ animation: "hpFade .5s ease both", animationDelay: "1.6s" }} transform="translate(0,206)">
+          <rect width="270" height="30" rx="15" fill="#e7f3ee" />
+          <circle cx="18" cy="15" r="4" fill={C2.emerald} className="hp-live" />
+          <text x="32" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald}>Presenting live · family watching</text>
         </g>
       </g>
-      <g transform="translate(760,250)">
-        <text x="0" y="-96" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.muted} textAnchor="middle">WHERE THEY'RE FROM</text>
-        <g className="hp-donut">
-          <g transform="rotate(-90)" fill="none" strokeWidth="20">
-            {HP_CUSTOMERS.sources.map((f, idx) => { const el = (<circle key={idx} r="56" stroke={donutColors[idx]} strokeDasharray={seg(f)} strokeDashoffset={-circ * acc} />); acc += f; return el; })}
-          </g>
-          <text y="-2" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="800" fill={C2.ink} textAnchor="middle">4</text>
-          <text y="16" fontFamily="Inter, sans-serif" fontSize="10.5" fontWeight="700" fill={C2.muted} textAnchor="middle">SOURCES</text>
-        </g>
+      {/* a certificate of completion on the right */}
+      <g transform="translate(560,100)" style={{ animation: "hpFade .6s ease both", animationDelay: ".3s" }}>
+        <rect width="320" height="258" rx="10" fill="#fff" stroke={C2.line} />
+        <rect x="16" y="16" width="288" height="226" rx="6" fill="none" stroke={C2.line} />
+        <text x="160" y="54" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="11" fontWeight="800" letterSpacing="1.5" fill={C2.emerald}>CERTIFICATE OF COMPLETION</text>
+        <text x="160" y="82" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="11" fill={C2.muted}>This certifies that</text>
+        <text x="160" y="114" textAnchor="middle" fontFamily="Space Grotesk, sans-serif" fontSize="22" fontWeight="800" fill={C2.ink}>Your Name</text>
+        <text x="160" y="142" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="11" fill={C2.ink2}>built, shipped &amp; presented a real</text>
+        <text x="160" y="159" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="11" fill={C2.ink2}>product — the Builders program.</text>
+        <circle cx="160" cy="198" r="22" fill="#e7f3ee" />
+        <path d="M151,198 l6,6 l12,-13" fill="none" stroke={C2.green} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <text x="160" y="236" textAnchor="middle" fontFamily="Inter, sans-serif" fontSize="10" fontWeight="700" fill={C2.muted}>Build Young</text>
       </g>
     </g>
   );
 
-  const body = sc.id === "build" ? buildScene : sc.id === "grow" ? growScene : customersScene;
+  const body = sc.id === "build" ? buildScene : sc.id === "grow" ? growScene : capstoneScene;
   return (
     <div className="rise" style={{ maxWidth: 760, margin: "44px auto 0" }}>
       <svg viewBox="0 0 920 430" style={{ width: "100%", height: "auto", filter: "drop-shadow(0 24px 50px rgba(0,103,184,.16))" }} role="img" aria-label={`Build Young dashboard preview — ${sc.aria}`}>
@@ -808,7 +788,7 @@ const HeroPreview = () => {
 
 // Small, code-drawn "product teaser" mocks — one per act — so the landing SHOWS the dashboard
 // instead of only describing it. Pure divs (no real screenshots, no image assets), theme-matched
-// to the in-app panels: a build prompt (Act 1) → a growth funnel (Act 2) → first customers (Act 3).
+// to the in-app panels: a build prompt (Act 1) → a growth funnel (Act 2) → the capstone (Act 3).
 // Decorative illustration: exposed to AT as a single labeled image (role=img + aria-label).
 function ProductTeaser({ act, accent }) {
   const dot = { width: 9, height: 9, borderRadius: 99, flexShrink: 0 };
