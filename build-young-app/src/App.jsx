@@ -1176,11 +1176,23 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <div role="tablist" aria-label="Choose a season" style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 22 }}>
           {SEASONS.map((s) => {
             const on = season === s.key;
+            const open = BATCHES.some((b) => b.season === s.key);
             return (
-              <button key={s.key} role="tab" aria-selected={on} className="btn" onClick={() => setSeason(s.key)} style={{ padding: "9px 18px", borderRadius: 999, fontSize: 14.5, fontWeight: 700, background: on ? C.ink : C.card, color: on ? C.paper2 : C.ink2, border: `1.5px solid ${on ? C.ink : C.line}` }}>{s.label}</button>
+              <button key={s.key} role="tab" aria-selected={on} className="btn" onClick={() => setSeason(s.key)} style={{ padding: "9px 18px", borderRadius: 999, fontSize: 14.5, fontWeight: 700, background: on ? C.ink : C.card, color: on ? C.paper2 : C.ink2, border: `1.5px solid ${on ? C.ink : C.line}` }}>{s.label}{!open && <span style={{ marginLeft: 6, fontSize: 11.5, fontWeight: 600, opacity: 0.7 }}>· soon</span>}</button>
             );
           })}
         </div>
+        {BATCHES.filter((b) => b.season === season).length === 0 ? (
+          <div style={{ maxWidth: 560, margin: "20px auto 0", textAlign: "center", background: C.paper2, border: `1px dashed ${C.line}`, borderRadius: 10, padding: "30px 26px" }}>
+            <Calendar size={26} color={C.muted} />
+            <div className="disp" style={{ fontSize: 20, fontWeight: 800, marginTop: 8 }}>{seasonLabel(season)} — not yet scheduled</div>
+            <p style={{ color: C.ink2, fontSize: 14.5, marginTop: 8, lineHeight: 1.55 }}>We haven't set dates for this season yet. <b>Fall 2026 is enrolling now</b> — or leave it to me: book a free call and I'll let you know the moment {seasonLabel(season)} opens.</p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
+              <button className="btn" onClick={() => setSeason("fall")} style={{ background: C.emerald, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700 }}>See Fall 2026 →</button>
+              <button className="btn" onClick={onCall} style={{ background: C.card, color: C.ink, padding: "11px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, border: `1.5px solid ${C.line}` }}>Talk to Sunil →</button>
+            </div>
+          </div>
+        ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16, marginTop: 20 }}>
           {BATCHES.filter((b) => b.season === season).map((b) => {
             const acc = b.id.includes("mw") ? C.emerald : C.green;
@@ -1204,6 +1216,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             );
           })}
         </div>
+        )}
       </section>
 
       <footer style={{ borderTop: `1px solid ${C.line}`, padding: "26px 6vw", textAlign: "center", color: C.muted, fontSize: 13 }}>
@@ -1372,7 +1385,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
               <div>
                 <div><div style={label}>Batch</div>
                   <select aria-label="Batch" value={batch} onChange={(e) => { setBatch(e.target.value); setNotified(false); }} style={inputS}>
-                    {SEASONS.map((s) => (
+                    {SEASONS.filter((s) => BATCHES.some((x) => x.season === s.key)).map((s) => (
                       <optgroup key={s.key} label={s.label}>
                         {BATCHES.filter((x) => x.season === s.key).map((x) => (
                           <option key={x.id} value={x.id}>{x.day.split(" · ")[0]} (starts {x.start}){cohortClosed(x) ? " — ENROLLMENT FULL" : ""}</option>

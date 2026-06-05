@@ -22,10 +22,13 @@
 // constant (not deleted) so the funnel/analytics + sim harness stay generic if it ever returns.
 export const CHECKINS = 0;
 
+// Seasons are listed so the landing can show what's coming; only seasons with BATCHES are
+// bookable. Winter/Spring 2027 are intentionally NOT scheduled yet — they show as "Not yet
+// scheduled" on the landing and are omitted from the enroll dropdown until cohorts are added.
 export const SEASONS = [
   { key: "fall", label: "Fall 2026", note: "Enrolling now" },
-  { key: "winter", label: "Winter 2027", note: "Enrolling now" },
-  { key: "spring", label: "Spring 2027", note: "Enrolling now" },
+  { key: "winter", label: "Winter 2027", note: "Not yet scheduled" },
+  { key: "spring", label: "Spring 2027", note: "Not yet scheduled" },
 ];
 
 // Each cohort carries its own `stripeLink` (the Payment Link URL; empty = demo checkout) so a
@@ -34,12 +37,9 @@ export const BATCHES = [
   // Fall 2026
   { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000001", stripeLink: "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00" },
   { id: "fall-tt", season: "fall", track: "Builders", start: "Sep 8, 2026", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000002", stripeLink: "" },
-  // Winter 2027
-  { id: "winter-mw", season: "winter", track: "Builders", start: "Jan 11, 2027", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000003", stripeLink: "" },
-  { id: "winter-tt", season: "winter", track: "Builders", start: "Jan 12, 2027", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000004", stripeLink: "" },
-  // Spring 2027
-  { id: "spring-mw", season: "spring", track: "Builders", start: "Apr 6, 2027", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000005", stripeLink: "" },
-  { id: "spring-tt", season: "spring", track: "Builders", start: "Apr 7, 2027", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000006", stripeLink: "" },
+  // Winter 2027 & Spring 2027 — NOT YET SCHEDULED (no open cohorts). When dates are set, add two
+  // rows here per season (Mon & Wed, Tue & Thu) and the landing + enroll dropdown pick them up
+  // automatically; the seasons already exist in SEASONS above so they render as "Not yet scheduled".
 ];
 
 export const seasonLabel = (key) => (SEASONS.find((s) => s.key === key) || {}).label || "";
