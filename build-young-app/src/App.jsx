@@ -897,6 +897,75 @@ const HeroPreview = () => {
   );
 };
 
+// Small, code-drawn "product teaser" mocks — one per act — so the landing SHOWS the dashboard
+// instead of only describing it. Pure divs (no real screenshots, no image assets), theme-matched
+// to the in-app panels: a build prompt (Act 1) → a growth funnel (Act 2) → a portfolio (Act 3).
+// Decorative illustration: exposed to AT as a single labeled image (role=img + aria-label).
+function ProductTeaser({ act, accent }) {
+  const dot = { width: 9, height: 9, borderRadius: 99, flexShrink: 0 };
+  const win = { background: C.card, border: `1px solid ${C.line}`, borderRadius: 10, overflow: "hidden", boxShadow: "0 14px 34px -20px rgba(0,0,0,.3)" };
+  const kicker = { fontSize: 10.5, fontWeight: 800, color: accent, letterSpacing: ".05em" };
+  let body, label, tab;
+  if (act === 1) {
+    tab = "Build"; label = "A build panel: a plain-English spec turned into a shipped, live product.";
+    body = (
+      <div style={{ padding: 14 }}>
+        <div style={kicker}>WEEK 3 · BUILD THE CORE PRODUCT</div>
+        <div style={{ marginTop: 8, background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 6, padding: "9px 11px", fontSize: 12, color: C.ink2, lineHeight: 1.45 }}>“Build me an app that lets dog owners book a trusted neighbor to walk their dog…”</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+          {["Core product", "Accounts", "Payments"].map((t) => (
+            <span key={t} style={{ fontSize: 11, fontWeight: 700, color: C.green, background: "#e7f3ee", borderRadius: 99, padding: "3px 9px" }}>✓ {t}</span>
+          ))}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 12, fontSize: 12, fontWeight: 700, color: C.emerald }}><span style={{ ...dot, background: C.emerald }} /> Live on the web · yourapp.com</div>
+      </div>
+    );
+  } else if (act === 2) {
+    tab = "Grow"; label = "A growth funnel: visitors who try it and come back, with retention rising.";
+    const rows = [{ t: "Visited", v: 100, w: "100%" }, { t: "Tried it", v: 64, w: "64%" }, { t: "Came back", v: 38, w: "38%" }];
+    body = (
+      <div style={{ padding: 14 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}><div style={kicker}>YOUR FUNNEL</div><div style={{ fontSize: 11, fontWeight: 700, color: C.green }}>▲ retention 38%</div></div>
+        <div style={{ marginTop: 10, display: "grid", gap: 9 }}>
+          {rows.map((r) => (
+            <div key={r.t}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.ink2, marginBottom: 3 }}><span>{r.t}</span><b>{r.v}</b></div>
+              <div style={{ height: 8, borderRadius: 99, background: C.paper2 }}><div style={{ height: 8, width: r.w, borderRadius: 99, background: accent }} /></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  } else {
+    tab = "Manage"; label = "A portfolio: net worth growing, split across simulated investments.";
+    const alloc = [{ t: "Stocks", w: "55%", c: C.emerald }, { t: "Bonds", w: "25%", c: C.turq }, { t: "Real estate", w: "20%", c: C.gold }];
+    body = (
+      <div style={{ padding: 14 }}>
+        <div style={kicker}>NET WORTH</div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 4 }}><span className="disp" style={{ fontSize: 26, fontWeight: 800, color: C.ink }}>$48,250</span><span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>▲ 6.2%</span></div>
+        <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+          {alloc.map((a) => (
+            <div key={a.t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 11, color: C.ink2, width: 76, flexShrink: 0 }}>{a.t}</span>
+              <div style={{ flex: 1, height: 8, borderRadius: 99, background: C.paper2 }}><div style={{ height: 8, width: a.w, borderRadius: 99, background: a.c }} /></div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 10, fontSize: 10.5, color: C.muted }}>Simulated — no real money.</div>
+      </div>
+    );
+  }
+  return (
+    <div role="img" aria-label={label} style={win}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 12px", borderBottom: `1px solid ${C.line}`, background: C.paper2 }}>
+        <span style={{ ...dot, background: "#ff5f56" }} /><span style={{ ...dot, background: "#ffbd2e" }} /><span style={{ ...dot, background: "#27c93f" }} />
+        <span style={{ marginLeft: 6, fontSize: 11, fontWeight: 700, color: C.muted }}>{tab} · your dashboard</span>
+      </div>
+      {body}
+    </div>
+  );
+}
+
 // Illustrative testimonials shown ONLY as a preview when the showcase is enabled but no real
 // (consented) student feedback has come in yet — so the founder can see the layout. Clearly
 // captioned as samples on the page; they're replaced automatically by real submissions.
@@ -1022,55 +1091,46 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         </div>
       </header>
 
-      {/* how it works */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 6vw" }}>
-        <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 26px" }}>
-          <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works</h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs in one live, hands-on simulation — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork:</b> they build, ship, see what works, and improve as they go — the way real work actually gets done. Here's what that looks like.</p>
+      {/* how it works — the journey in three acts (merged: one section, each act shows a product teaser) */}
+      <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 6vw 24px" }}>
+        <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
+          <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works — the journey in <span className="grad">three acts</span></h2>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs in one live, hands-on simulation — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>grow it into a business</b> (Weeks 8–10), and <b>manage what you've earned</b> (Weeks 11–12).</p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
-          {[
-            { icon: Sparkles, t: "Build something people need", d: "Build a real product, app, or service with AI that solves a real problem — learning the one skill AI can't replace: taste, knowing what good looks like.", c: C.gold },
-            { icon: Flag, t: "Take it live", d: "Ship it on the real internet — a web address, sign-ins, and payments — so a stranger can sign up, use it, and pay.", c: C.emerald },
-            { icon: TrendingUp, t: "Grow it into a business", d: "Build a funnel, track what's working (active users + retention), and bake growth right into the product so it spreads.", c: C.green },
-            { icon: Wallet, t: "Your product earns the income", d: "No paycheck handed to you — the product you built is where the income comes from. Create value first; the money follows.", c: C.turq },
-            { icon: PiggyBank, t: "Then manage what you earn", d: "One class on the money basics: pay yourself first, invest so it compounds, and make a first big purchase without wrecking your budget.", c: C.pink },
-            { icon: GraduationCap, t: "Graduate with something real", d: "You finish with a product you actually shipped, a certificate (built with Claude Code), and your own numbers to show for it.", c: C.emerald },
-          ].map((x, i) => (
-            <Card key={i} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: x.c }} />
-              <div style={{ width: 44, height: 44, borderRadius: 4, background: x.c + "1a", display: "grid", placeItems: "center", marginBottom: 12, marginTop: 4 }}><x.icon size={21} color={x.c} /></div>
-              <div className="disp" style={{ fontWeight: 700, fontSize: 18 }}>{x.t}</div>
-              <div style={{ color: C.muted, fontSize: 14, marginTop: 6, lineHeight: 1.45 }}>{x.d}</div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* curriculum */}
-      <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "44px 6vw 22px" }}>
-        <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
-          <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, write a spec, build it in four layers, then go live — Weeks 1–7), <b>1 → 100</b> (funnel, metrics, and product-led growth — Weeks 8–10), and <b>manage what you've earned</b> (Week 11), finishing with a capstone. Here's every week.</p>
-        </div>
-        {Object.keys(ACTS).map(Number).map((act) => (
-          <div key={act} style={{ marginTop: 18 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <Pill bg={act === 1 ? C.green : act === 2 ? C.pink : C.turq}>Act {act}</Pill>
-              <span className="disp" style={{ fontSize: 20, fontWeight: 700 }}>{ACTS[act]}</span>
+        {Object.keys(ACTS).map(Number).map((act) => {
+          const accent = act === 1 ? C.green : act === 2 ? C.pink : C.turq;
+          const promise = act === 1
+            ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and payments, so a stranger can use it and pay."
+            : act === 2
+            ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. There's no paycheck handed to you — the product you built is the income."
+            : "Learn the money basics on what you earn — pay yourself first, invest so it compounds, a first big purchase done right — then graduate with a product you shipped, a certificate, and your own numbers to show for it.";
+          return (
+          <div key={act} style={{ marginTop: act === 1 ? 6 : 30 }}>
+            {/* act header: copy on the left, a code-drawn product teaser on the right (collapses on mobile) */}
+            <div className="enroll-grid" style={{ alignItems: "center", marginBottom: 14 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Pill bg={accent}>Act {act}</Pill>
+                  <span className="disp" style={{ fontSize: 21, fontWeight: 800 }}>{ACTS[act]}</span>
+                </div>
+                <p style={{ color: C.ink2, fontSize: 14.5, lineHeight: 1.55, margin: "10px 0 0" }}>{promise}</p>
+              </div>
+              <ProductTeaser act={act} accent={accent} />
             </div>
+            {/* every week in this act (full cards) */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))", gap: 10 }}>
               {WEEKS.map((w, i) => w.act === act && (
                 <Card key={i} style={{ padding: "11px 13px" }}>
-                  <div style={{ fontSize: 10.5, color: act === 1 ? C.green : act === 2 ? C.pink : C.turq, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {i + 1}</div>
+                  <div style={{ fontSize: 10.5, color: accent, fontWeight: 700, letterSpacing: ".05em" }}>WEEK {i + 1}</div>
                   <div className="disp" style={{ fontWeight: 700, fontSize: 15, margin: "2px 0 4px" }}>{w.t}</div>
                   <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{w.s}</div>
                 </Card>
               ))}
             </div>
           </div>
-        ))}
-        <p style={{ color: C.muted, marginTop: 22, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>business and portfolio</b> from zero, then finishing with a <b>capstone</b> of what you made and what it's worth.</p>
+          );
+        })}
+        <p style={{ color: C.muted, marginTop: 24, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>business and portfolio</b> from zero, then finishing with a <b>capstone</b> of what you made and what it's worth.</p>
       </section>
 
       {/* philosophy + founder */}
