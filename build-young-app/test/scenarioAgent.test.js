@@ -69,7 +69,7 @@ describe("generateScenarios (agent call)", () => {
     });
     expect(url).toBe("https://api.anthropic.com/v1/messages");
     expect(opts.headers["x-api-key"]).toBe("sk-test");
-    expect(JSON.parse(opts.body).model).toBe("claude-opus-4-8");
+    expect(JSON.parse(opts.body).model).toBe("claude-haiku-4-5"); // lib default
     expect(out).toEqual([{ counts: [500, 300, 90], answer: "reads well" }]);
   });
 

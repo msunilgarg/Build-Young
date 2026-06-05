@@ -125,12 +125,13 @@ async function readBody(req) {
 // {configured:false} when ANTHROPIC_API_KEY isn't set, so the client falls back to a local generator. ---
 async function makeScenarios(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) { res.status(200).json({ configured: false, scenarios: [] }); return; }
+  const ops = await loadOps();                       // founder dashboard: on/off + model
+  if (!apiKey || ops.scenarioAgentEnabled === false) { res.status(200).json({ configured: false, scenarios: [] }); return; }
   const body = (await readBody(req)) || {};
   const stages = Array.isArray(body.stages) ? body.stages : [];
   const level = body.level === "advanced" ? "advanced" : "standard";
   let scenarios = [];
-  try { scenarios = await generateScenarios({ stages, level, apiKey }); } catch { scenarios = []; }
+  try { scenarios = await generateScenarios({ stages, level, apiKey, model: ops.scenarioModel }); } catch { scenarios = []; }
   res.status(200).json({ configured: true, scenarios });
 }
 

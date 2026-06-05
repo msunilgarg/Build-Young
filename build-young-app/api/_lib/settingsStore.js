@@ -7,6 +7,7 @@
 
 import { SITE_DEFAULTS, SETTINGS_KEYS } from "../../src/site.js";
 import { kvConfigured, kvGet, kvSet } from "./kv.js";
+import { SCENARIO_MODEL, SCENARIO_MODELS } from "./scenarioAgent.js";
 
 const KEY = "settings:site";
 
@@ -59,20 +60,22 @@ export async function saveSettings(input) {
 // alerts (e.g. new tutor applications) are sent. Empty = fall back to the code default at the use
 // site. Kept out of SITE_DEFAULTS on purpose so it can't leak via /api/cohorts or the bundle.
 const OPS_KEY = "settings:ops";
-const OPS_DEFAULTS = { notifyEmail: "" };
-const OPS_KEYS = Object.keys(OPS_DEFAULTS);
+// notifyEmail = where founder alerts go. scenarioAgentEnabled/scenarioModel = the Week-9 funnel
+// agent (the API KEY itself stays a host env var — never stored here). All server-only.
+const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: SCENARIO_MODEL };
 
 export function defaultOps() {
   return { ...OPS_DEFAULTS };
 }
 
 export function sanitizeOps(input) {
-  const out = {};
-  for (const k of OPS_KEYS) {
-    const v = input && input[k];
-    out[k] = typeof v === "string" ? v.trim() : OPS_DEFAULTS[k];
-  }
-  return out;
+  const i = input || {};
+  const bool = (v, d) => typeof v === "boolean" ? v : (v === "true" || v === "on" ? true : (v === "false" || v === "off" ? false : d));
+  return {
+    notifyEmail: typeof i.notifyEmail === "string" ? i.notifyEmail.trim() : OPS_DEFAULTS.notifyEmail,
+    scenarioAgentEnabled: bool(i.scenarioAgentEnabled, OPS_DEFAULTS.scenarioAgentEnabled),
+    scenarioModel: SCENARIO_MODELS.includes(i.scenarioModel) ? i.scenarioModel : OPS_DEFAULTS.scenarioModel,
+  };
 }
 
 export async function loadOps() {
@@ -88,8 +91,10 @@ export async function loadOps() {
 }
 
 export async function saveOps(input) {
-  const clean = sanitizeOps(input || {});
   if (!kvConfigured()) return { ok: false, error: "store not configured" };
+  // Merge over the CURRENT ops so a partial save (e.g. only notifyEmail) can't reset the others.
+  const current = await loadOps();
+  const clean = sanitizeOps({ ...current, ...(input || {}) });
   try {
     await kvSet(OPS_KEY, JSON.stringify(clean));
   } catch {
