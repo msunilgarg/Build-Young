@@ -90,7 +90,7 @@ recharts (~344 KB, ~110 KB gzip) is **only** used in the dashboard, so it's spli
 This keeps the landing-page initial JS ~90 KB gzip. Don't statically import recharts into
 App.jsx — that would undo it. `npm run build` (Vite) preserves this split automatically.
 
-- **Refund policy (in code):** full refund before the cohort starts (state flag `started:false`, flips true on first `doAdvance`); prorated refund through the first **`REFUND_WEEKS`** (= **1**) course week; non-refundable after (shown explicitly once that window passes). Eligibility is the single helper **`canWithdrawNow(s)`** (gates the Cancel/Withdraw button AND `doWithdraw` itself) — change `REFUND_WEEKS` to move the window; copy uses `REFUND_WEEKS`/`REFUND_WEEKS+1` so it follows. **Proration basis = "sessions not yet held"** (matches the Terms): `week` increments on each advance (attending session 1 → "Week 2"), so sessions held = `week−1` and `refund = refundFor(batch, started, week) = price × (12 − (week−1)) / 12`. Don't reintroduce `price×(12−week)/12` — that's the old off-by-one that under-refunded one session and overstated attendance. NOTE: refund copy refers to "the first 2 weeks", NOT "Act 1" — after the build-first flip, Act 1 is the 6-week build arc. Logic lives in `Platform` + `withdrawalEmail`; Terms copy in `LEGAL` (in-app) and `public/terms.html` must stay in sync.
+- **Refund policy (in code):** full refund before the cohort starts (state flag `started:false`, flips true on first `doAdvance`); prorated refund through the first **`REFUND_WEEKS`** (= **1**) course week; non-refundable after (shown explicitly once that window passes). Eligibility is the single helper **`canWithdrawNow(s)`** (gates the Cancel/Withdraw button AND `doWithdraw` itself) — change `REFUND_WEEKS` to move the window; copy uses `REFUND_WEEKS`/`REFUND_WEEKS+1` so it follows. **Proration basis = "sessions not yet held"** (matches the Terms): `week` increments on each advance (attending session 1 → "Week 2"), so sessions held = `week−1` and `refund = refundFor(batch, started, week) = price × (12 − (week−1)) / 12`. Don't reintroduce `price×(12−week)/12` — that's the old off-by-one that under-refunded one session and overstated attendance. NOTE: refund copy refers to "the first week" (`REFUND_WINDOW`), NOT "Act 1" — after the build-first flip, Act 1 is the 7-week build-and-launch arc (Weeks 1–7). Logic lives in `Platform` + `withdrawalEmail`; Terms copy in `LEGAL` (in-app) and `public/terms.html` must stay in sync.
 - **Income model (BUILD-EARNED, not a paycheck):** income comes from the student's *build*, not employment. `INCOME[]` in `App.jsx` is the per-course-week revenue curve — **$0 in the early build weeks**, ramping to a steady `STEADY_INCOME` (= `PAY` = **$10,000**) once the build lands customers (≈week 6) and through the finance act. `incomeFor(phase, week)` is the single source; `advance()` uses it. **There is NO employer 401(k) match** (self-employed builder — `advance` adds only the student's own retirement set-aside, no match). **Taxes stay** (15%, framed as self-employment/business tax). **Living costs** (`LIVING`) apply only once independent (finance act, week ≥ `FINANCE_FIRST_WEEK`=7). Other dollar constants (`HOME`/`CAR`/`EMERGENCY`/`SPREE`/`INSURANCE`/`ALT_BUY`/`PE_BUY`) unchanged. All income/cost COPY derives from these; the batch-sim harness imports them. Tests assert relationships, not literals.
 - **Program shape (12 weeks; NO check-in):** the program is **12 weeks flat** — finishing the **Week 12 capstone** graduates the student (`doAdvance` sets `done:true` at week 12; cert mints on `done===true`). There is **no separate follow-up check-in** (removed). The simulated-portfolio prize was removed; in its place is a **real-world "First-year builder prize"** — per cohort, the FIRST student to land a **real, arms-length paying customer within a year of enrolling** gets tuition refunded, contingent on (a) payment-receipt proof + founder verification and (b) a parent-consented ~2-min video. Surfaced on the landing pricing, the **Terms** ("First-year builder prize" in `LEGAL` + `public/terms.html`), and the **showcase capture** (capstone collects an optional `videoLink` + `claimingPrize` flag → founder console "Student showcase"). Contest involving minors + likeness → keep the attorney-review + media-release flag in Terms. `CHECKINS` (cohorts.js) is **0**; the check-in phase, `checkin_completed` event, and `checkinCurve` are dormant (kept generic for analytics, never reached). The former prize copy is gone from the landing pricing, the dashboard capstone, and the Terms. **Fairness / anti-gaming (still good practice):** the market schedule (`FLAT_MACRO`/`MACRO`/`CHECKIN_MACRO`/`marketEventFor` + the `MEDIA` map) lives **server-only** in `api/_lib/marketSchedule.js` and does NOT ship in the client bundle, so students can't read future events from devtools. The client learns the **single current** event by fetching `/api/market-event` (server-only lookup; never the full array); offline/demo/tests fall back to a **non-revealing placeholder** ("Markets are moving", neutral effects). Per-student randomization is intentionally NOT used — a fair cohort shares one market. The schedule modules `src/marketMedia.js` (client-safe builders/metadata) and `api/_lib/marketSchedule.js` (server-only schedule) MUST stay separate — never import the latter from anything under `src/`.
 
@@ -247,23 +247,27 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
 - **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks (7/3/2):** founder's outline:
   **Act 1 · 0→1 (Weeks 1–7)** — find a problem → write the spec → **build it in four layers**
   (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → **Wk7 Go Live**;
-  **Act 2 · 1→100 (Weeks 8–10)** — **The Funnel** (build + track, the only Act-2 prompt) → **Metrics
-  & Scaling** (analyze the numbers, NO prompt — `ReflectionPanel`) → **Product-Led Growth** (discussion, NO prompt) →
-  **Product-Led Growth**; **Act 3 · Manage (Week 11, ONE combined money week) + Capstone (Week 12)**.
+  **Act 2 · 1→100 (Weeks 8–10)** — **The Funnel** (Wk8: spec a connected funnel + tracking — the only
+  Act-2 build prompt) → **Metrics & Scaling** (Wk9: read the real numbers, NO prompt — editable
+  `MetricsLog`, saved to `s.reflect[9]`) → **Product-Led Growth** (Wk10: a guided discussion with
+  thought-provoking topics, NO prompt — `ReflectionPanel` from `REFLECT_WEEKS[10]`, saved to
+  `s.reflect[10]`); **Act 3 · Manage (Week 11, ONE combined money week) + Capstone (Week 12)**.
   **The build spec** is the spine of Act 1: the **Week 2 spec is AI-agnostic** (no "prompt"/Claude —
   those appear from Week 3 on) and `s.shape` has four fields — `product`/`accounts`/`payments`/
-  `production`, one per build week (3–6). `BUILD_LAYERS` (keyed by week **3–10**) drives the per-week
-  build activity `BuildLayer`, which shows ONLY that week's prompt + copy-to-Claude box. **The whole
-  build-week plan is ONE object — `s.shape`**: spec/build weeks read + write their own `s.shape[key]`
-  (single source of truth). Weeks **3–6** keys (`product`/`accounts`/`payments`/`production`) are
-  filled from the Week 2 spec (edits sync back to Week 2, wrapped in a build instruction at copy
-  time); weeks **8–10** keys (`funnel`/`metrics`/`plg`) ship a **complete starter prompt** (`seed`)
-  that IS the copy-to-Claude prompt (the field, edited in place — `[brackets]` to customize). **Week 7
+  `production`, one per build week (3–6), plus `funnel` (Wk8). `BUILD_LAYERS` (keyed by weeks **3, 4, 5,
+  6, 8**) drives the per-week build activity `BuildLayer`, which shows ONLY that week's spec field +
+  copy-to-Claude box. **The whole build-week plan is ONE object — `s.shape`**: every build week reads +
+  writes its own `s.shape[key]` (single source of truth). All build layers are now **`fromSpec`** (no
+  `seed`): the student writes the spec field and Copy wraps it in that week's intro + instruction. Weeks
+  **3–6** keys (`product`/`accounts`/`payments`/`production`) are filled from the Week 2 spec (edits
+  sync back to Week 2); **Week 8** (`funnel`) is specced in-week against a worked `SHAPE_EXAMPLE.funnel`
+  sample that mirrors Build Young's real connected funnel. **Week 7
   "Go Live" is NOT a prompt — it's an editable CHECKLIST** (`GoLiveChecklist` + `GO_LIVE_DEFAULT`,
   ticks/edits saved in `s.golive`): grouped items each with a "how to do it", student adds/edits/
   removes per project. Week 3 also shows the build
-  pre-reqs. Week 9 prepends a plain-English metrics `GlossaryCard` (`METRICS_PRIMER`). `SHAPE_EXAMPLE`
-  is the worked Build-Young spec (four parts). (`WEEK_INFRA`/`InfraBuildPlan`/`MAKE_PRINCIPLES`/
+  pre-reqs. Each Act-2 week prepends plain-English `GlossaryCard`s (Wk8: `FUNNEL_PRIMER` +
+  `METRICS_PRIMER`; Wk9: `METRICS_PRIMER`; Wk10: `PLG_PRIMER`). `SHAPE_EXAMPLE`
+  is the worked Build-Young spec (`product`/`accounts`/`payments`/`production`/`success`/`funnel`). (`WEEK_INFRA`/`InfraBuildPlan`/`MAKE_PRINCIPLES`/
   `PrinciplesCard` are now unused/legacy.) **Income/finance boundary:**
   `FINANCE_FIRST_WEEK=11` (build+grow weeks 1–10 earn; LIVING + the money week start week 11). The
   single money week (Wk11) uses **`action:"money"`**, which renders BOTH the Savings & Investing
