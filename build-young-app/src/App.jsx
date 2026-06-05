@@ -246,8 +246,8 @@ let HOMEWORK = WEEK_PREP;
 // statistics-integrity bar). A few are seeded as examples; the rest show "coming soon" in the
 // Course hub until filled in.
 // THREE ACTS: Act 1 · 0→1 (Weeks 1–7) — go from nothing to a launched, earning product. Act 2 ·
-// 1→100 (Weeks 8–10) — grow first customers into a real business. Act 3 · GO TO MARKET (Week 11)
-// — land your first real customers — then the Capstone (Week 12). Lesson content is the per-week
+// 1→100 (Weeks 8–10) — grow first customers into a real business. Act 3 · THE CAPSTONE (Week 11
+// prep + Week 12 present what you built). Lesson content is the per-week
 // activity (weekActivity); Week 12 is the capstone presentation.
 const WEEKS = [
   // ─── Act 1 · 0 → 1 (Weeks 1–7): find a problem → write the spec → build it in 4 layers
@@ -263,11 +263,11 @@ const WEEKS = [
   { act: 2, t: "The Funnel", s: "Build a funnel into your product — find it → try it → come back — and add the tracking so you can see how people move through it.", action: "build", comingSoon: true },
   { act: 2, t: "Metrics & Scaling", s: "No new building — read the real numbers from last week's funnel: active users, retention, and where people drop off. Pick the one thing to fix.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "A discussion: how could your product grow itself? People share what's genuinely good — work out how yours spreads.", action: "build", comingSoon: true },
-  // ─── Act 3 · GO TO MARKET (Week 11) + Capstone (Week 12): land real customers, then tally what you built ───
-  { act: 3, t: "Get Your First Customers", s: "No more building — go to market. Find who your product is for, pitch it, share it where they are, and land your first real users or sales.", action: "build", comingSoon: true },
-  { act: 3, t: "Capstone: What You Built & What It's Worth", s: "Present it all — the product you made, who's using it, and what it's worth as a business. Parents are welcome to join this final call to watch.", action: "capstone" },
+  // ─── Act 3 · THE CAPSTONE (Week 11 prep + Week 12 present): get ready, then present what you built ───
+  { act: 3, t: "Prepare Your Capstone", s: "Get ready to present — pull together the story of what you built, who it's for, and what's next, and polish your product so it shines on the final call.", action: "build", comingSoon: true },
+  { act: 3, t: "Capstone: Present What You Built", s: "Present it all — the product you made, who's using it, and what you'd build next. This is your moment to show family and friends what you created; parents are welcome to join this final call to watch.", action: "capstone" },
 ];
-const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Land your first customers" };
+const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Present what you built" };
 
 // CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
 export const CHECKIN_TIME = "5:00–6:00 PM PST"; // 60-minute follow-up check-in (the week after the course)
@@ -846,21 +846,20 @@ function ProductTeaser({ act, accent }) {
       </div>
     );
   } else {
-    tab = "Customers"; label = "First customers: real people signing up — and where they came from.";
-    const alloc = [{ t: "Word of mouth", w: "55%", c: C.emerald }, { t: "Search", w: "25%", c: C.turq }, { t: "Social", w: "20%", c: C.gold }];
+    tab = "Capstone"; label = "A capstone slide: presenting the product you built — shipped, with real users — to family and friends.";
     body = (
       <div style={{ padding: 14 }}>
-        <div style={kicker}>CUSTOMERS</div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 4 }}><span className="disp" style={{ fontSize: 26, fontWeight: 800, color: C.ink }}>312</span><span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>▲ 6.2% this week</span></div>
-        <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
-          {alloc.map((a) => (
-            <div key={a.t} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 11, color: C.ink2, width: 90, flexShrink: 0 }}>{a.t}</span>
-              <div style={{ flex: 1, height: 8, borderRadius: 99, background: C.paper2 }}><div style={{ height: 8, width: a.w, borderRadius: 99, background: a.c }} /></div>
-            </div>
+        <div style={kicker}>WEEK 12 · CAPSTONE</div>
+        <div style={{ marginTop: 6, fontWeight: 800, fontSize: 15, color: C.ink }}>What I built — PupWalk</div>
+        <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {["Shipped & live", "312 users", "★ 4.9"].map((t) => (
+            <span key={t} style={{ fontSize: 11, fontWeight: 700, color: C.green, background: "#e7f3ee", borderRadius: 99, padding: "3px 9px" }}>{t}</span>
           ))}
         </div>
-        <div style={{ marginTop: 10, fontSize: 10.5, color: C.muted }}>Where your first customers come from.</div>
+        <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 8, fontSize: 11.5, fontWeight: 700, color: accent }}>
+          <span style={{ ...dot, background: accent }} /> Presenting live · family watching
+        </div>
+        <div style={{ marginTop: 10, fontSize: 10.5, color: C.muted }}>Your moment to show what you made.</div>
       </div>
     );
   }
@@ -1006,7 +1005,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 6vw 24px" }}>
         <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works — the journey in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs as one live, hands-on build — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>grow it into a business</b> (Weeks 8–10), and <b>land your first customers</b> (Weeks 11–12).</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs as one live, hands-on build — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>grow it into a business</b> (Weeks 8–10), and <b>present what you built</b> at the capstone (Weeks 11–12).</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => {
           const accent = act === 1 ? C.green : act === 2 ? C.pink : C.turq;
@@ -1014,7 +1013,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and e-commerce, so a stranger can use it and buy."
             : act === 2
             ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. You learn to read the numbers on practice funnels built from YOUR own product — personalized to what you shipped, not textbook examples, with AI to spin up tougher ones on demand. There's no paycheck handed to you — the product you built is the income."
-            : "Go to market and land your first real customers — find who it's for, pitch it, and get people using or paying — then present what you built (parents are welcome to join the final call) and graduate with a product you shipped, real customers, and a certificate.";
+            : "Get ready for the capstone, then present what you built — the product, who's using it, and what you'd build next. Week 11 you prep and polish; Week 12 you present it live to family and friends (parents are welcome to join the final call), and graduate with a product you shipped and a certificate.";
           const weeks = WEEKS.map((w, i) => ({ w, n: i + 1 })).filter((x) => x.w.act === act);
           const open = !!openActs[act];
           return (
@@ -1057,7 +1056,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           </div>
           );
         })}
-        <p style={{ color: C.muted, marginTop: 24, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>real business</b> from zero — product, customers, and all — then finishing with a <b>capstone</b> of what you made and what it's worth.</p>
+        <p style={{ color: C.muted, marginTop: 24, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>real business</b> from zero — product, customers, and all — then finishing with a <b>capstone</b> where you present what you built.</p>
       </section>
 
       {/* philosophy + founder */}
@@ -1749,7 +1748,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <h3 style={sectionTitle}>What to expect</h3>
           <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — 0 → 1.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
           <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth. Your income comes from your product.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Get your first customers.</b> Go to market: find who it's for, pitch it, and land your first real users or sales.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Prepare your capstone.</b> Pull it all together for the final presentation: polish your product and shape the story of what you built and who it's for.</span></div>
           <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Present everything — what you built, who's using it, and what you'd build next. Parents are welcome to join this final call to watch.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
           <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
@@ -1966,12 +1965,12 @@ const REFLECT_WEEKS = {
     ],
   },
   11: {
-    intro: "No building this week — go get your first customers. The hardest, most important step is the very first real user or sale. Plan it here, then go make it happen.",
+    intro: "No building this week — get ready for your capstone. Next week you present what you built to family and friends, so use this week to pull the story together and practice it.",
     fields: [
-      { key: "whoFirst", label: "Your very first customer", ph: "Who is the ONE person or group most likely to want this right now? Be specific." },
-      { key: "whereReach", label: "Where you'll reach them", ph: "Where do they already hang out — a group, a subreddit, a class, a team, a DM?" },
-      { key: "offer", label: "Your pitch & first offer", ph: "In a line or two: what you say, and what you offer to get them to try it or buy." },
-      { key: "goal", label: "Your goal this week", ph: "One concrete, small target — e.g. “5 people use it” or “my first paying customer.”" },
+      { key: "whatBuilt", label: "What you built — in one line", ph: "If you had ten seconds: what is it, and who is it for?" },
+      { key: "proud", label: "What you're proudest of", ph: "The part of the build, the journey, or what people did with it that you most want to show off." },
+      { key: "whoUses", label: "Who's using it", ph: "Who tried it or signed up — friends, family, a class, a team? Any numbers or quotes you can share." },
+      { key: "next", label: "What you'd build next", ph: "If you kept going, what's the next thing you'd add or try?" },
     ],
   },
 };
@@ -3156,11 +3155,11 @@ function WeekPanel({ s, setState, onAdvance, batch, cert, preview }) {
         {/* Week 12 is the finale (no separate check-in). Once finished, lead with the certificate. */}
         {s.done && cert && <div style={{ marginBottom: 14 }}><CertificateCard cert={cert} /></div>}
         <Wrap
-          title={s.done ? "You've graduated 🎓" : "Capstone: What You Built"}
+          title={s.done ? "You've graduated 🎓" : "Capstone: Present What You Built"}
           blurb={s.done
-            ? "That's the program. You built something real, took it live, and went to market for your first customers — this is what you made."
-            : "You started with nothing but an idea. Tally it up — the product you built, who's using it, and what it's worth as a business. This is the finish line."}>
-          {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 4 }}>This is your last class — you'll present what you built. <b>Parents are welcome to join this call</b> to watch (share the Zoom link). <b>Finish the course</b> to unlock your certificate.</div>}
+            ? "That's the program. You built something real, took it live, and grew it — this is what you made."
+            : "You started with nothing but an idea. Pull it together — the product you built, who's using it, and what you'd build next — and present it. This is the finish line."}>
+          {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 4 }}>This is your last class — you'll present what you built to family and friends. <b>Parents are welcome to join this call</b> to watch (share the Zoom link). <b>Finish the course</b> to unlock your certificate.</div>}
           {/* Capture the build + a testimonial at the finale (gated by the founder showcase toggle). */}
           {CONFIG.showcaseEnabled && <ShowcaseCapture s={s} />}
         </Wrap>

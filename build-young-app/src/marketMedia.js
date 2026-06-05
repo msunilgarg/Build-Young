@@ -23,8 +23,8 @@ export const WEEK_TITLES = [
   "The Funnel",
   "Metrics & Scaling",
   "Product-Led Growth",
-  "Get Your First Customers",
-  "Capstone: What You Built & What It's Worth",
+  "Prepare Your Capstone",
+  "Capstone: Present What You Built",
 ];
 
 // Homework to prepare for each week (index = week − 1). Sent in the week-completion email
@@ -42,6 +42,6 @@ export const WEEK_PREP = [
   "Think about how a stranger first finds and tries your product. This week we build a funnel — find → try → come back — add the tracking, and list the steps you'll measure at each stage.",
   "Come ready to read funnels — we'll work through a few real-looking funnels built from the steps you're tracking: spot where people drop off, what it means, and what you'd do about it. (No building this week.)",
   "Think of one reason someone would tell a friend about your product. This week is a discussion: how your product could grow itself (product-led growth).",
-  "Your product is built and growing — this week we go to market and get your first real customers. Come with a guess at who your very first customer is and where you'd find them.",
-  "Be ready to show what you built, who's using it, and what it's worth as a business — and to say what you'd build next. This is your presentation, so parents are welcome to join the call to watch.",
+  "Your product is built and growing — this week we prepare for your capstone. Come ready to pull together the story of what you built: the product, who it's for, and what you'd do next, so you're set to present it.",
+  "Be ready to show what you built, who's using it, and what you'd build next. This is your presentation to family and friends, so parents are welcome to join the call to watch.",
 ];
