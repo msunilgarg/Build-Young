@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import {
-  TrendingUp, LineChart as LineIcon, Coins, GraduationCap, ArrowRight, Check, Lock, Newspaper,
+  TrendingUp, LineChart as LineIcon, GraduationCap, ArrowRight, Check, Lock, Newspaper,
   CircleDollarSign, Sparkles, Video, Mail, Briefcase,
   Anchor, Linkedin, BookOpen, Download, Users, Activity, Award, Calendar, Clock, Flag,
 } from "lucide-react";
@@ -974,9 +974,9 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <h1 className="disp rise" style={{ fontSize: "clamp(38px,6.5vw,74px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-.02em", margin: 0 }}>
           Raising <span className="grad">builders,</span><br />not consumers.
         </h1>
-        <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build a real product, then grow it into a business.</p>
+        <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build a real product, then learn to grow it into a real business.</p>
         <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
-          AI just put the power to build a real product — once a team-and-a-budget job — into a motivated teenager's hands. The edge isn't a credential anymore; it's what you can build, and the time to start is now. Build Young is a <b>live, instructor-led course</b> where teens seize exactly that: they <b>build a product they believe people would pay for</b> — a small app, tool, or service, made with AI — then <b>grow it into a real business</b>, thinking like <b>founders</b> the whole way. It's a hands-on sandbox: they build something real, put it in front of people, and learn what it takes to make it work — <b>no real money is ever involved</b>, just the real skills, practiced somewhere safe before the stakes are real.
+          AI just put the power to build a real product — once a team-and-a-budget job — into a motivated teenager's hands. The edge isn't a credential anymore; it's what you can build, and the time to start is now. Build Young is a <b>live, instructor-led course</b> where teens build a product they believe people would pay for — a small app, tool, or service, made with AI — and <b>learn to grow it into a real business</b>, thinking like <b>founders</b> the whole way.
         </p>
         <HeroPreview />
         <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
@@ -999,7 +999,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             </div>
           ))}
         </div>
-        <p className="rise" style={{ fontSize: 12, color: C.muted, marginTop: 12 }}>Hands-on entrepreneurship — build a real product, no real money involved.</p>
+        <p className="rise" style={{ fontSize: 12, color: C.muted, marginTop: 12 }}>Hands-on entrepreneurship — teens build a real product with AI.</p>
         </div>
       </header>
 
@@ -1007,7 +1007,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 6vw 24px" }}>
         <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works — the journey in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs in one live, hands-on simulation — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>grow it into a business</b> (Weeks 8–10), and <b>land your first customers</b> (Weeks 11–12).</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs as one live, hands-on build — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>grow it into a business</b> (Weeks 8–10), and <b>land your first customers</b> (Weeks 11–12).</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => {
           const accent = act === 1 ? C.green : act === 2 ? C.pink : C.turq;
@@ -1213,7 +1213,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom · ~3 hrs/week</div>
               <div style={{ fontSize: 13, color: C.ink2, marginTop: 10, lineHeight: 1.45 }}>
-                The full 12-week program — build a product you believe people would pay for, then manage what you earn: taxes, saving, investing through real markets, and big purchases. In an AI world, the edge isn't a degree; it's what you can build.
+                The full 12-week program — build a product you believe people would pay for, take it live, grow it with a funnel and metrics, and go to market for your first customers. In an AI world, the edge isn't a degree; it's what you can build.
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
@@ -1236,7 +1236,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.muted }}>{CONFIG.contactEmail}</a>
           <a href={CONFIG.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.muted, display: "inline-flex", alignItems: "center", gap: 5 }}><Linkedin size={13} /> Sunil on LinkedIn</a>
         </div>
-        <div style={{ marginTop: 8, fontSize: 12 }}>Hands-on entrepreneurship education. Students build a real product with AI; no real money is involved.</div>
+        <div style={{ marginTop: 8, fontSize: 12 }}>Hands-on entrepreneurship education. Students build a real product with AI.</div>
       </footer>
 
       {careers && <CareersModal onClose={() => setCareers(false)} />}
@@ -1463,7 +1463,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 12, paddingTop: 12, display: "grid", gap: 7 }}>
                     {[
                       { icon: Video, t: "100% live online over Zoom" },
-                      { icon: Lock, t: "A safe sandbox — no real money involved" },
+                      { icon: Lock, t: "A safe place to build for real" },
                       { icon: GraduationCap, t: "Capped at 10 students" },
                     ].map((x, i) => (
                       <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, color: C.muted, fontWeight: 600 }}>
@@ -1694,7 +1694,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
             <div className="disp" style={{ fontSize: 27, fontWeight: 800, marginTop: 8, color: "#fff" }}>You're in, {first}! 🎉</div>
             <div style={{ color: "rgba(255,255,255,.62)", fontSize: 13, fontWeight: 600, marginTop: 8 }}>{batch.track} · {batch.day}</div>
             <p style={{ color: "rgba(255,255,255,.78)", fontSize: 14.5, lineHeight: 1.7, marginTop: 14, maxWidth: 580 }}>
-              Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} You'll learn to <b style={{ color: "#fff" }}>think like a founder</b> — everything you need to get ready is right below. Every dollar here is <b style={{ color: "#fff" }}>simulated</b>.
+              Your <b style={{ color: "#fff" }}>{batch.track}</b> cohort {info.beforeStart ? <>{info.phrase} — <b style={{ color: "#fff" }}>{info.longDate}</b>.</> : <>is underway.</>} You'll learn to <b style={{ color: "#fff" }}>think like a founder</b> and <b style={{ color: "#fff" }}>build something real</b> — everything you need to get ready is right below.
             </p>
             <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
               <a href={batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
@@ -1764,7 +1764,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
       </div>
 
       <div style={{ marginTop: 14, fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-        Build for real in a <b>safe sandbox</b> — this is hands-on entrepreneurship education, not licensed advice, and no real money is involved. Full refund any time before your cohort starts; prorated through the {REFUND_WINDOW}.
+        Build for real in a <b>safe, supportive cohort</b> — this is hands-on entrepreneurship education, not licensed advice. Full refund any time before your cohort starts; prorated through the {REFUND_WINDOW}.
       </div>
     </div>
   );
@@ -1784,7 +1784,7 @@ The classes that exist teach coding syntax or theory — not how to take an idea
 
 The problem: Kids leave school having never built anything real or learned how money works — and in an AI world, the edge is what you can build, not what you were credentialed to do.
 
-How it works: Over 12 weeks, each teen builds their own product with AI, earns (simulated) income from it, then learns taxes, saving, investing, and big purchases — all in one continuous simulation where mistakes are safe.
+How it works: Over 12 weeks, each teen builds their own product with AI, takes it live, grows it, and goes to market for their first real customers — one continuous build where mistakes are safe.
 
 Why families love it: It's live and small-group with a standing weekly time, so "someday" becomes "done" — and kids graduate having built a real business from zero.
 
@@ -2802,8 +2802,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
     setTab("dash");
   };
 
-  // Finance removed: no Portfolio/Markets tabs. The investing/markets engine still exists under the
-  // hood (kept for the sim harness + tests) but is never surfaced to students.
+  // The post-enrollment dashboard tabs (no finance — the program is pure entrepreneurship).
   const tabs = [
     { id: "overview", label: "Overview", icon: Sparkles },
     { id: "course", label: "Course progress", icon: GraduationCap },
@@ -4812,7 +4811,7 @@ export default function App() {
     <div className="flp" style={{ minHeight: "100vh", background: C.paper }}>
       <style>{FONTS}</style>
       <div style={{ background: C.ink, color: C.paper2, textAlign: "center", fontSize: 12.5, fontWeight: 600, lineHeight: 1.5, padding: "8px 16px", position: "relative", zIndex: 3 }}>
-        <Coins size={13} color={C.goldLite} style={{ verticalAlign: "-2px", marginRight: 5 }} /> Learning simulation — every dollar shown is <b style={{ whiteSpace: "nowrap" }}>simulated money,</b> not real currency. No real funds are ever involved.
+        <Sparkles size={13} color={C.goldLite} style={{ verticalAlign: "-2px", marginRight: 5 }} /> Hands-on entrepreneurship for teens — a learning program, <b style={{ whiteSpace: "nowrap" }}>not financial</b> or investment advice.
       </div>
       {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} />}
       {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} />}
