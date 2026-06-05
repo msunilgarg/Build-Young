@@ -1309,16 +1309,19 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             <div style={{ flex: 1, minWidth: 260 }}>
               <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 8 }}>
-                I build AI products for a living, and up close you can watch the ground move: what used to take a team and a budget, a motivated teenager can now do alone, with AI. The edge isn't a credential anymore — it's what you can build, and the taste to know what's worth making. I have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit I'm gently working on. My wife and I take how kids learn seriously — she teaches at Issaquah Montessori School. I want mine building while the advantage is still theirs to take.
+                Like a lot of parents, we think about what the world will look like when our kids graduate — and how fast it's changing under them. I build AI products for a living, so I see that shift up close: what once took a team and a budget, a motivated teenager can now do alone, with AI. Waiting for school, or the world, to catch up isn't a plan — so we start now, building with the very tools shaping that future, moving with it instead of bracing for it. The edge isn't a credential anymore; it's what you can build, and the taste to know what's worth making.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                I went looking for a class that actually taught that — building something real with AI and putting it in front of people — and couldn't find one. The free material sits unwatched, because a video doesn't make a teenager show up. So I made the one I wanted for my own kids: a small group, live, a standing weekly time — what turns “available” into “actually done.”
+                We have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit we're gently working on. My wife and I take how kids learn seriously — she teaches at Issaquah Montessori School, I build with AI — and we want ours building while the advantage is still theirs to take.
+              </p>
+              <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
+                We went looking for a class that actually taught that — building something real with AI and putting it in front of people — and couldn't find one. The free material sits unwatched, because a video doesn't make a teenager show up. So we made the one we wanted for our own kids: a small group, live, a standing weekly time — what turns “available” into “actually done.”
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 It starts where almost none do — you actually <b>build something of your own</b> with AI, take it live, and grow it into a real business. One continuous twelve-week simulation where the decisions compound and the mistakes are safe. They learn to handle what it earns, too — but that comes after the building, never instead of it.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                That's the whole idea: building is a skill you practice, not a subject you study. We're raising builders, not consumers — kids who reach adulthood having already lived it. I called it Build Young because the one advantage they have that no one can buy is time, and it compounds: habits, character, taste, and everything they build all grow with it.
+                That's the whole idea: building is a skill you practice, not a subject you study. We're raising builders, not consumers — kids who reach adulthood having already lived it. We called it Build Young because the one advantage they have that no one can buy is time, and it compounds: habits, character, taste, and everything they build all grow with it.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 Start building young, and time does the rest.
