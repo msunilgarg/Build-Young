@@ -52,14 +52,14 @@ describe("withdrawalEmail (refund confirmation)", () => {
     expect(mail.body).toContain(`$${batch.price.toLocaleString()}`);
     expect(mail.body).toContain("Jordan");
   });
-  it("confirms a prorated refund mid-course (counts sessions not yet held)", () => {
-    // Dashboard "Week 3" = 2 sessions attended (week increments on each advance).
+  it("confirms a prorated refund mid-course (counts weeks not yet held)", () => {
+    // Dashboard "Week 3" = 2 weeks attended (week increments on each advance).
     const s = newState(STUDENT); s.week = 3; s.started = true;
     const refund = refundFor(batch, true, 3);
     const mail = withdrawalEmail(s, batch, refund, false);
     expect(mail.subject).toMatch(/withdrawal is confirmed/i);
     expect(mail.body).toContain("prorated refund");
-    expect(mail.body).toContain("10 sessions not yet held"); // 12 - (3 - 1)
+    expect(mail.body).toContain("10 weeks not yet held"); // 12 - (3 - 1)
     expect(mail.body).toContain("Attended: 2 of 12");        // not 3
     expect(mail.body).toContain(`$${refund.toLocaleString()}`);
   });
@@ -128,7 +128,7 @@ describe("enrollClosed / cohortClosed (last day to enroll = day before start)", 
   });
 });
 
-describe("refundFor (sessions not yet held)", () => {
+describe("refundFor (weeks not yet held)", () => {
   const batch = BATCHES.find((b) => b.id === "fall-mw"); // $999
   it("is the full price before the cohort starts", () => {
     expect(refundFor(batch, false, 1)).toBe(batch.price);
