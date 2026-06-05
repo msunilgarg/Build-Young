@@ -313,8 +313,8 @@ const WEEKS = [
   { act: 1, t: "Make It Real", s: "Emails, being findable, and keeping data safe — everything that makes it ready for real users.", action: "build", comingSoon: true },
   { act: 1, t: "Go Live", s: "Point a real web address at it, switch on live payments, and run your launch checklist — your product is open for business.", action: "build", comingSoon: true },
   // ─── Act 2 · 1 → 100 (Weeks 8–10): grow it — funnel → metrics & scaling → product-led growth ───
-  { act: 2, t: "The Funnel", s: "Build the funnel into your product: how people find it, try it, and come back — the path to the success you set out to hit.", action: "build", comingSoon: true },
-  { act: 2, t: "Metrics & Scaling", s: "Now monitor the funnel you built: watch the usage (active users, retention) and how people move through find → try → come back, to spot what's holding growth back.", action: "build", comingSoon: true },
+  { act: 2, t: "Metrics & Scaling", s: "First, see how people actually use your product — active users, retention, and where they fall away — so you know what's working and what to fix.", action: "build", comingSoon: true },
+  { act: 2, t: "The Funnel", s: "Now build a smooth funnel — turn the drop-off you can see into a path people follow: find it, try it, come back.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "Build growth INTO the product — make it so good (and shareable) it spreads itself.", action: "build", comingSoon: true },
   // ─── Act 3 · MANAGE (Week 11) + Capstone (Week 12): manage the money your product earns ───
   { act: 3, t: "Money: The Basics", s: "Your one money class — the basics of what to do with what you earn: pay yourself first, invest so it compounds, and a first big purchase done right.", action: "money",
@@ -1051,7 +1051,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "44px 6vw 22px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto 8px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>The journey, in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, write a spec, build it in four layers, then go live — Weeks 1–7), <b>1 → 100</b> (funnel, metrics, and product-led growth — Weeks 8–10), and <b>manage what you've earned</b> (Week 11), finishing with a capstone. Here's every week.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>Twelve weeks, three acts: <b>0 → 1</b> (find a problem, write a spec, build it in four layers, then go live — Weeks 1–7), <b>1 → 100</b> (metrics, funnel, and product-led growth — Weeks 8–10), and <b>manage what you've earned</b> (Week 11), finishing with a capstone. Here's every week.</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => (
           <div key={act} style={{ marginTop: 18 }}>
@@ -1728,7 +1728,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>What to expect</h3>
           <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — 0 → 1.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
-          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Build your funnel, measure what's working (active users + retention), and grow with product-led growth. Your income comes from your product.</span></div>
+          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Measure how it's used (active users + retention), build a funnel to fix the drop-off, and grow with product-led growth. Your income comes from your product.</span></div>
           <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Money, the basics.</b> One class on what to do with what you earn — pay yourself first, invest so it compounds, and a first big purchase done right.</span></div>
           <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Tally everything up — what you built and what it's worth — and say what you'd build next.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
@@ -1867,8 +1867,8 @@ function weekExample(week) {
     ["What success looks like", SHAPE_EXAMPLE.success],
   ]} />;
   // Week 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
-  if (week === 8) return <GlossaryCard title="First — the funnel, in plain English" items={FUNNEL_PRIMER} />;
-  if (week === 9) return <GlossaryCard title="First — the metrics, in plain English" items={METRICS_PRIMER} />;
+  if (week === 8) return <GlossaryCard title="First — the metrics, in plain English" items={METRICS_PRIMER} />;
+  if (week === 9) return <GlossaryCard title="First — the funnel, in plain English" items={FUNNEL_PRIMER} />;
   // SPEC weeks (3–6) get a worked example — Build Young's own spec for that layer. Seeded growth
   // weeks (8, 10) have no separate example; their pre-filled starter prompt IS the activity.
   const bl = BUILD_LAYERS[week];
@@ -2043,26 +2043,26 @@ const BUILD_LAYERS = {
   // Weeks 8–10 are GROWTH layers — features added after launch (not from the Week 2 product spec).
   // Each ships a ready starter prompt (`seed`) the student adapts; the field IS the copy-to-Claude
   // prompt (stored in s.shape[key]). (Week 7, "Go Live", is an editable CHECKLIST — see GoLiveChecklist.)
-  8: { key: "funnel",
-    lead: "Build this into the product you've launched — growth becomes part of the product itself, not a separate ad campaign.",
+  8: { key: "metrics",
+    lead: "Before you can grow it, you need to see it. Add the instrumentation to find out how people actually use your product — who comes back, and where they fall away.",
+    fieldLabel: "The metrics",
+    seed: `Add simple, privacy-friendly analytics to my app so I can see how it's really doing, and measure the success I defined in my spec:
+
+1. Daily and monthly active users (DAU / MAU) — how many people actually use it.
+2. Retention — how many people come back after day 1 and day 7.
+3. The path people take through my product — where they start, what they do, and where they drop off.
+
+Put it all on one simple dashboard, don't collect anything I don't need (some users may be under 18), then help me read it to find the ONE biggest place people fall away.` },
+  9: { key: "funnel",
+    lead: "Now you can see where people fall away — build a funnel to fix it. Growth becomes part of the product itself, not a separate ad campaign.",
     fieldLabel: "The funnel",
-    seed: `My app already lets people [the main thing it does], but new visitors don't get it and most don't come back. Build a simple funnel into it, on top of what I already have, without breaking anything:
+    seed: `My analytics show that new visitors don't get my app and most don't come back. Build a smooth funnel into it, on top of what I already have, without breaking anything:
 
 1. FIND IT — a landing page that says in one line what [my app] does for [who it's for], shows the single biggest benefit, and has one clear "Try it" button into the app.
 2. TRY IT (the "aha") — a smoother first run: take a brand-new user straight to [the main action] with a one-line nudge so they hit the wow — [the wow moment] — on their very first visit, not an empty screen.
 3. COME BACK — a reason and an easy way to return, like [save their work / email them their result].
 
-Keep my current styling. Then track each step (find → try → come back) so I can see where people drop off, and tell me how to test it.` },
-  9: { key: "metrics",
-    lead: "You built the funnel last time — now watch it work. Add the instrumentation to see how people move through it, where they drop off, and how your product is really doing.",
-    fieldLabel: "The metrics",
-    seed: `Add simple, privacy-friendly analytics to my app so I can see how the funnel I just built is doing, and measure the success I defined in my spec:
-
-1. Daily and monthly active users (DAU / MAU) — how many people actually use it.
-2. Retention — how many people come back after day 1 and day 7.
-3. The funnel — how people move through find → try → come back, and where they drop off.
-
-Put it all on one simple dashboard, don't collect anything I don't need (some users may be under 18), then help me read it to find the ONE biggest thing holding growth back.` },
+Keep my current styling, and tell me how to test that each step (find → try → come back) works.` },
   10: { key: "plg",
     lead: "The kind of growth that comes from the product itself, not from ads — built on top of what you have.",
     fieldLabel: "Product-led growth",
