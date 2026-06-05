@@ -31,12 +31,13 @@ export const SEASONS = [
   { key: "spring", label: "Spring 2027", note: "Not yet scheduled" },
 ];
 
-// Each cohort carries its own `stripeLink` (the Payment Link URL; empty = demo checkout) so a
+// Each cohort carries its own `stripeLink` (the Payment Link URL; empty = demo checkout) and a
+// `groupEmail` (a cohort-wide group/list address for student↔student + class communication) so a
 // cohort record is self-contained and live-editable in the founder dashboard.
 export const BATCHES = [
   // Fall 2026
-  { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000001", stripeLink: "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00" },
-  { id: "fall-tt", season: "fall", track: "Builders", start: "Sep 8, 2026", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000002", stripeLink: "" },
+  { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000001", groupEmail: "fall-mw@build-young.com", stripeLink: "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00" },
+  { id: "fall-tt", season: "fall", track: "Builders", start: "Sep 8, 2026", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000002", groupEmail: "fall-tt@build-young.com", stripeLink: "" },
   // Winter 2027 & Spring 2027 — NOT YET SCHEDULED (no open cohorts). When dates are set, add two
   // rows here per season (Mon & Wed, Tue & Thu) and the landing + enroll dropdown pick them up
   // automatically; the seasons already exist in SEASONS above so they render as "Not yet scheduled".

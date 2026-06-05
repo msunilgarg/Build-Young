@@ -32,6 +32,12 @@ describe("cohort catalog store", () => {
     expect(clean.checkins).toBe(2);
   });
 
+  it("sanitizeCatalog keeps + trims the per-cohort group email", () => {
+    const clean = sanitizeCatalog({ batches: [{ id: "a", price: 999, groupEmail: "  fall-mw@build-young.com  " }] });
+    expect(clean.batches[0].groupEmail).toBe("fall-mw@build-young.com");
+    expect(sanitizeCatalog({ batches: [{ id: "b", price: 999 }] }).batches[0].groupEmail).toBe(""); // absent → empty string, never undefined
+  });
+
   it("sanitizeCatalog keeps per-week recording links (weeks 1–12, non-empty strings only)", () => {
     const clean = sanitizeCatalog({
       batches: [{ id: "a", price: 999, recordings: { 1: "https://rec/1", "2": "  https://rec/2  ", 3: "", 13: "https://nope", x: "junk" } }],

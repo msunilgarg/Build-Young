@@ -1700,6 +1700,12 @@ function OverviewPanel({ s, batch, onTab, setS }) {
               </a>
               <button className="btn" onClick={() => onTab("course")} style={{ background: "rgba(255,255,255,.14)", color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14 }}>Open Course progress →</button>
             </div>
+            {batch.groupEmail && (
+              <div style={{ marginTop: 16, fontSize: 13.5, color: "rgba(255,255,255,.8)", lineHeight: 1.5 }}>
+                <Mail size={14} color={C.emeraldLite} style={{ verticalAlign: "-2px", marginRight: 6 }} />
+                Your cohort group email: <a href={`mailto:${batch.groupEmail}`} style={{ color: "#fff", fontWeight: 700 }}>{batch.groupEmail}</a> — one address that reaches everyone in your cohort.
+              </div>
+            )}
           </div>
           <div style={{ flex: "0 1 280px", display: "flex", flexDirection: "column", gap: 14, justifyContent: "center" }}>
             {info.beforeStart && chip(info.days, `${info.days === 1 ? "day" : "days"} until your first class`)}
@@ -4079,7 +4085,7 @@ function CohortEditor() {
 
   const update = (i, key, val) => setRows((rs) => rs.map((r, j) => (j === i ? { ...r, [key]: val } : r)));
   const remove = (i) => setRows((rs) => rs.filter((_, j) => j !== i));
-  const add = () => setRows((rs) => [...rs, { id: "", season: "fall", track: "Builders", start: "", day: "", seats: 12, price: 999, zoom: "", stripeLink: "" }]);
+  const add = () => setRows((rs) => [...rs, { id: "", season: "fall", track: "Builders", start: "", day: "", seats: 12, price: 999, zoom: "", groupEmail: "", stripeLink: "" }]);
   const save = async () => {
     setStatus("Saving…");
     try {
@@ -4114,6 +4120,7 @@ function CohortEditor() {
             {field(i, "price", "Price ($)", "number")}
             {field(i, "seats", "Seats", "number")}
             {field(i, "zoom", "Zoom URL")}
+            {field(i, "groupEmail", "Group email (whole cohort)")}
             {field(i, "stripeLink", "Stripe Payment Link")}
           </div>
           <div style={{ textAlign: "right", marginTop: 8 }}>
