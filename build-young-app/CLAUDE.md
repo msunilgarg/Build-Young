@@ -253,13 +253,17 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   those appear from Week 3 on) and `s.shape` has four fields — `product`/`accounts`/`payments`/
   `production`, one per build week (3–6). `BUILD_LAYERS` (keyed by week **3–10**) drives the per-week
   build activity `BuildLayer`, which shows ONLY that week's prompt + copy-to-Claude box. **The whole
-  12-week plan is ONE object — `s.shape`**: every build week (3–10) reads + writes its own
-  `s.shape[key]` (single source of truth). Weeks **3–6** keys (`product`/`accounts`/`payments`/
-  `production`) are filled from the Week 2 spec (edits sync back to Week 2); weeks **7–10** keys
-  (`golive`/`funnel`/`metrics`/`plg`) ship a starter prompt (`seed`) used as the default until edited.
-  Week 3 also shows the build
-  pre-reqs. `SHAPE_EXAMPLE` is the worked Build-Young spec (four parts). (`WEEK_INFRA`/`InfraBuildPlan`/
-  `MAKE_PRINCIPLES`/`PrinciplesCard` are now unused/legacy.) **Income/finance boundary:**
+  build-week plan is ONE object — `s.shape`**: spec/build weeks read + write their own `s.shape[key]`
+  (single source of truth). Weeks **3–6** keys (`product`/`accounts`/`payments`/`production`) are
+  filled from the Week 2 spec (edits sync back to Week 2, wrapped in a build instruction at copy
+  time); weeks **8–10** keys (`funnel`/`metrics`/`plg`) ship a **complete starter prompt** (`seed`)
+  that IS the copy-to-Claude prompt (the field, edited in place — `[brackets]` to customize). **Week 7
+  "Go Live" is NOT a prompt — it's an editable CHECKLIST** (`GoLiveChecklist` + `GO_LIVE_DEFAULT`,
+  ticks/edits saved in `s.golive`): grouped items each with a "how to do it", student adds/edits/
+  removes per project. Week 3 also shows the build
+  pre-reqs. Week 9 prepends a plain-English metrics `GlossaryCard` (`METRICS_PRIMER`). `SHAPE_EXAMPLE`
+  is the worked Build-Young spec (four parts). (`WEEK_INFRA`/`InfraBuildPlan`/`MAKE_PRINCIPLES`/
+  `PrinciplesCard` are now unused/legacy.) **Income/finance boundary:**
   `FINANCE_FIRST_WEEK=11` (build+grow weeks 1–10 earn; LIVING + the money week start week 11). The
   single money week (Wk11) uses **`action:"money"`**, which renders BOTH the Savings & Investing
   (`allocation`) and Big Purchases (`buy`) panels in one week. Markets/media still run **Weeks 8–12**
