@@ -47,7 +47,7 @@ export const WEEK_TITLES = [
   "The Funnel",
   "Metrics & Scaling",
   "Product-Led Growth",
-  "Money: The Basics",
+  "Get Your First Customers",
   "Capstone: What You Built & What It's Worth",
 ];
 
@@ -66,8 +66,8 @@ export const WEEK_PREP = [
   "Think about how a stranger first finds and tries your product. This week we build a funnel — find → try → come back — add the tracking, and list the steps you'll measure at each stage.",
   "Come ready to read funnels — we'll work through a few real-looking funnels built from the steps you're tracking: spot where people drop off, what it means, and what you'd do about it. (No building this week.)",
   "Think of one reason someone would tell a friend about your product. This week is a discussion: how your product could grow itself (product-led growth).",
-  "Your product earns a steady income now — this week is the money basics: pay yourself first, invest so it compounds, and a first big purchase done right. Bring one short-term and one long-term money goal.",
-  "Be ready to show what you built and what it's worth — and to say what you'd build next.",
+  "Your product is built and growing — this week we go to market and get your first real customers. Come with a guess at who your very first customer is and where you'd find them.",
+  "Be ready to show what you built, who's using it, and what it's worth as a business — and to say what you'd build next.",
 ];
 
 // The from-address used on the drip emails. Kept as a constant here so the content stays
