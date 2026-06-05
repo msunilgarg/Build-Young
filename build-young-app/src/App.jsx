@@ -1314,6 +1314,20 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 It's not a new idea that the young build the future — only now the door is wide open. Microsoft (Bill Gates, 19), Apple (Steve Jobs, 21, in a garage), Dell (Michael Dell, 19, in a dorm room), Facebook (Mark Zuckerberg, 19, in a dorm room), Stripe (John Collison, 19) — all started by people barely older than our kids, back when building was genuinely hard: you had to teach yourself to code, find a team, and scrape together money. AI has knocked those walls down — a teenager with a laptop can now build what once took a company. That's the opportunity to take, and the stakes are higher than ever: when everyone has the tools, the edge goes to whoever starts early and learns to build well.
               </p>
+              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, lineHeight: 1.5 }}>
+                Sources: {[
+                  ["Microsoft (Gates)", "https://www.britannica.com/biography/Bill-Gates"],
+                  ["Apple (Jobs)", "https://www.britannica.com/money/Steve-Jobs"],
+                  ["Dell", "https://achievement.org/achiever/michael-dell/"],
+                  ["Facebook (Zuckerberg)", "https://www.cnbc.com/2017/05/25/mark-zuckerberg-returns-to-the-harvard-dorm-where-facebook-was-born.html"],
+                  ["Stripe (Collison)", "https://en.wikipedia.org/wiki/John_Collison"],
+                ].map(([label, url], i) => (
+                  <React.Fragment key={url}>
+                    {i > 0 && " · "}
+                    <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: C.muted, textDecoration: "underline" }}>{label}</a>
+                  </React.Fragment>
+                ))}
+              </div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 We have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit we're gently working on. My wife and I take how kids learn seriously — she teaches at Issaquah Montessori School, I build with AI — and we want ours building while the advantage is still theirs to take.
               </p>
