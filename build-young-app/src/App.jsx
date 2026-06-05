@@ -626,22 +626,22 @@ const HeroBackdrop = () => (
   </svg>
 );
 
-// A stylized peek at the student simulation — cycles through the FINANCE-act weeks (8/10/12),
-// when there's actually income from the build, a portfolio, and the $10k steady build income.
-// (Weeks 1–10 are build + grow: pre-investment, nothing invested yet — so we don't show them.)
-const HP_SNAPS = [
-  { week: 8, nw: 24800, pts: "0,196 70,184 140,188 210,170 280,176 350,156 420,162 490,142 540,130", alloc: [0.45, 0.30, 0.15, 0.10] },
-  { week: 10, nw: 48200, pts: "0,184 70,166 140,176 210,140 280,148 350,112 420,120 490,84 540,66", alloc: [0.55, 0.25, 0.12, 0.08] },
-  { week: 12, nw: 74900, pts: "0,170 70,150 140,160 210,116 280,124 350,80 420,72 490,40 540,14", alloc: [0.62, 0.18, 0.12, 0.08] },
-];
+// The Act-3 "first customers" scene data: a customer count that ticks up, a growth line, and a
+// "where they're from" sources donut. Representative illustration (not live data).
+const HP_CUSTOMERS = {
+  total: 375,             // customers — the count animates up to this
+  from: 230,             // ...starting from here
+  pts: "0,170 70,150 140,160 210,116 280,124 350,80 420,72 490,40 540,14", // growth line
+  sources: [0.45, 0.30, 0.15, 0.10], // where they came from (4 channels)
+};
 // The hero dashboard preview rotates through the THREE acts of the course, each an animated
 // "scene": Build (Act 1 — turn a spec into a shipped product), Grow (Act 2 — the funnel + active
-// users), and Money (Act 3 — net worth + allocation). It re-keys the scene group each tick so the
-// CSS animations replay. Scenes are course-aligned so the hero teases what students actually do.
+// users), and Customers (Act 3 — land your first customers). It re-keys the scene group each tick
+// so the CSS animations replay. Scenes are course-aligned so the hero teases what students do.
 const HP_SCENES = [
   { id: "build", week: 3, label: "building live", aria: "building a product" },
   { id: "grow", week: 8, label: "growing live", aria: "growing it into a business" },
-  { id: "money", week: 11, label: "live now", aria: "getting its first customers" },
+  { id: "customers", week: 11, label: "live now", aria: "getting its first customers" },
 ];
 const HeroPreview = () => {
   const C2 = C;
@@ -649,22 +649,22 @@ const HeroPreview = () => {
   const seg = (frac) => `${(circ * frac).toFixed(1)} ${(circ * (1 - frac)).toFixed(1)}`;
   const donutColors = [C2.emerald, C2.turq, C2.green, C2.pink];
   const [i, setI] = useState(0);
-  const [nw, setNw] = useState(0);
+  const [count, setCount] = useState(0);
   const sc = HP_SCENES[i % HP_SCENES.length];
   // rotate through the three act-scenes forever
   useEffect(() => {
     const id = setInterval(() => setI((p) => (p + 1) % HP_SCENES.length), 4600);
     return () => clearInterval(id);
   }, []);
-  // count the net-worth number up whenever the money scene comes around
+  // count the customer number up whenever the "first customers" scene comes around
   useEffect(() => {
-    if (sc.id !== "money") return;
-    const target = 74900, from = 46000, dur = 1300;
+    if (sc.id !== "customers") return;
+    const target = HP_CUSTOMERS.total, from = HP_CUSTOMERS.from, dur = 1300;
     let raf, start;
     const step = (t) => {
       if (start == null) start = t;
       const p = Math.min(1, (t - start) / dur);
-      setNw(Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3))));
+      setCount(Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3))));
       if (p < 1) raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
@@ -748,19 +748,18 @@ const HeroPreview = () => {
     </g>
   );
 
-  const moneySnap = HP_SNAPS[2];
-  const last = moneySnap.pts.split(" ").slice(-1)[0].split(",");
-  const areaD = `M${moneySnap.pts.split(" ").join(" L")} L540,210 L0,210 Z`;
+  const last = HP_CUSTOMERS.pts.split(" ").slice(-1)[0].split(",");
+  const areaD = `M${HP_CUSTOMERS.pts.split(" ").join(" L")} L540,210 L0,210 Z`;
   let acc = 0;
-  const moneyScene = (
+  const customersScene = (
     <g>
       <g transform="translate(40,92)">
-        <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR CUSTOMERS</text>
-        <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>{Math.round(nw / 200).toLocaleString()}</text>
+        <text fontFamily="Inter, sans-serif" fontSize="14" fontWeight="700" fill={C2.muted}>YOUR FIRST CUSTOMERS</text>
+        <text y="42" fontFamily="Inter, sans-serif" fontSize="44" fontWeight="800" fill={C2.ink}>{count.toLocaleString()}</text>
         <g className="hp-end" transform="translate(250,8)"><rect width="170" height="30" rx="15" fill="#e7f3ee" /><text x="85" y="20" fontFamily="Inter, sans-serif" fontSize="13.5" fontWeight="700" fill={C2.emerald} textAnchor="middle">▲ growing week over week</text></g>
         <g transform="translate(0,70)">
           <path className="hp-area" d={areaD} fill="url(#area)" />
-          <polyline className="hp-line" pathLength="1" points={moneySnap.pts} fill="none" stroke={C2.emerald} strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
+          <polyline className="hp-line" pathLength="1" points={HP_CUSTOMERS.pts} fill="none" stroke={C2.emerald} strokeWidth="3.5" strokeLinejoin="round" strokeLinecap="round" />
           <circle className="hp-end" cx={last[0]} cy={last[1]} r="5.5" fill="#fff" stroke={C2.emerald} strokeWidth="3.5" />
         </g>
       </g>
@@ -768,7 +767,7 @@ const HeroPreview = () => {
         <text x="0" y="-96" fontFamily="Inter, sans-serif" fontSize="13" fontWeight="700" fill={C2.muted} textAnchor="middle">WHERE THEY'RE FROM</text>
         <g className="hp-donut">
           <g transform="rotate(-90)" fill="none" strokeWidth="20">
-            {moneySnap.alloc.map((f, idx) => { const el = (<circle key={idx} r="56" stroke={donutColors[idx]} strokeDasharray={seg(f)} strokeDashoffset={-circ * acc} />); acc += f; return el; })}
+            {HP_CUSTOMERS.sources.map((f, idx) => { const el = (<circle key={idx} r="56" stroke={donutColors[idx]} strokeDasharray={seg(f)} strokeDashoffset={-circ * acc} />); acc += f; return el; })}
           </g>
           <text y="-2" fontFamily="Inter, sans-serif" fontSize="20" fontWeight="800" fill={C2.ink} textAnchor="middle">4</text>
           <text y="16" fontFamily="Inter, sans-serif" fontSize="10.5" fontWeight="700" fill={C2.muted} textAnchor="middle">SOURCES</text>
@@ -777,10 +776,10 @@ const HeroPreview = () => {
     </g>
   );
 
-  const body = sc.id === "build" ? buildScene : sc.id === "grow" ? growScene : moneyScene;
+  const body = sc.id === "build" ? buildScene : sc.id === "grow" ? growScene : customersScene;
   return (
     <div className="rise" style={{ maxWidth: 760, margin: "44px auto 0" }}>
-      <svg viewBox="0 0 920 430" style={{ width: "100%", height: "auto", filter: "drop-shadow(0 24px 50px rgba(0,103,184,.16))" }} role="img" aria-label={`Build Young simulation dashboard preview — ${sc.aria}`}>
+      <svg viewBox="0 0 920 430" style={{ width: "100%", height: "auto", filter: "drop-shadow(0 24px 50px rgba(0,103,184,.16))" }} role="img" aria-label={`Build Young dashboard preview — ${sc.aria}`}>
         <rect x="2" y="2" width="916" height="426" rx="12" fill="#ffffff" stroke={C2.line} />
         <defs>
           <linearGradient id="bygrad" x1="0" y1="0" x2="1" y2="0">
@@ -809,7 +808,7 @@ const HeroPreview = () => {
 
 // Small, code-drawn "product teaser" mocks — one per act — so the landing SHOWS the dashboard
 // instead of only describing it. Pure divs (no real screenshots, no image assets), theme-matched
-// to the in-app panels: a build prompt (Act 1) → a growth funnel (Act 2) → a portfolio (Act 3).
+// to the in-app panels: a build prompt (Act 1) → a growth funnel (Act 2) → first customers (Act 3).
 // Decorative illustration: exposed to AT as a single labeled image (role=img + aria-label).
 function ProductTeaser({ act, accent }) {
   const dot = { width: 9, height: 9, borderRadius: 99, flexShrink: 0 };
@@ -881,7 +880,7 @@ function ProductTeaser({ act, accent }) {
 // captioned as samples on the page; they're replaced automatically by real submissions.
 const SAMPLE_TESTIMONIALS = [
   { name: "Maya, 16", feedback: "I built a flashcards app for my class and watched a friend actually use it. I never thought I could make something real.", link: "" },
-  { name: "Devin, 15", feedback: "Shipping my first website was the best feeling. And money finally makes sense — I get taxes and saving now.", link: "" },
+  { name: "Devin, 15", feedback: "Shipping my first website was the best feeling. Then we put it in front of real people and got our first sign-ups.", link: "" },
   { name: "Aria, 17", feedback: "I made a tool for my swim team to track our times. My parents were shocked it was online and actually working!", link: "" },
   { name: "Leo, 14", feedback: "I learned to tell AI what 'good' looks like. By the end I had a real product and understood how a business makes money.", link: "" },
 ];
@@ -2761,13 +2760,18 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
   };
   const wk = WEEKS[s.week - 1];
 
-  // Completion certificate (auth mode): minted + emailed server-side on graduation. Once the
-  // student has finished the 12 weeks (in the check-in phase), fetch it for the dashboard card.
-  // The mint can lag the graduating state-save slightly, so retry a few times.
+  // Completion certificate. Auth mode: the real cert is minted + emailed server-side on graduation,
+  // so we fetch it (valid, verifiable certId); the mint can lag the state-save, so retry a few times.
+  // Demo mode (no accounts): synthesize one from the student's state so graduates still see and can
+  // download their certificate on the Dashboard.
   const graduated = s.phase !== "course" || s.done;
   const [cert, setCert] = useState(null);
   useEffect(() => {
-    if (!CONFIG.authEnabled || !graduated) return;
+    if (!graduated) return;
+    if (!CONFIG.authEnabled) {
+      setCert({ name: s.student.name, track: batch.track, completedAt: Date.now(), certId: "demo" });
+      return;
+    }
     let live = true, tries = 0;
     const tryFetch = async () => {
       const c = await AUTH.getCert();
