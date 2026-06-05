@@ -47,7 +47,7 @@ export const WEEK_TITLES = [
   "The Funnel",
   "Metrics & Scaling",
   "Product-Led Growth",
-  "Money: Manage What You Earn",
+  "Money: The Basics",
   "Capstone: What You Built & What It's Worth",
 ];
 
@@ -66,7 +66,7 @@ export const WEEK_PREP = [
   "Think about how a stranger would first find and try your product. This week we build the funnel — find → try → come back — right into it.",
   "Jot what 'active' means for your product (a daily user? a weekly one?). This week we add metrics — active users + retention — to find your biggest growth bottleneck.",
   "Think of one reason someone would tell a friend about your product. This week we build that kind of growth into the product itself.",
-  "Your product earns a steady income now — this week we manage it: pay yourself first, invest to compound, and finance a big purchase. Bring one short-term and one long-term money goal.",
+  "Your product earns a steady income now — this week is the money basics: pay yourself first, invest so it compounds, and a first big purchase done right. Bring one short-term and one long-term money goal.",
   "Be ready to show what you built and what it's worth — and to say what you'd build next.",
 ];
 

@@ -317,7 +317,7 @@ const WEEKS = [
   { act: 2, t: "Metrics & Scaling", s: "Track active users (DAU/MAU) and retention to see what's working and find the one thing holding growth back — your product's real health check.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "Build growth INTO the product — make it so good (and shareable) it spreads itself.", action: "build", comingSoon: true },
   // ─── Act 3 · MANAGE (Week 11) + Capstone (Week 12): manage the money your product earns ───
-  { act: 3, t: "Money: Manage What You Earn", s: "Your product earns a steady income — pay yourself first, invest it to compound, and finance big purchases without wrecking your budget.", action: "money",
+  { act: 3, t: "Money: The Basics", s: "Your one money class — the basics of what to do with what you earn: pay yourself first, invest so it compounds, and a first big purchase done right.", action: "money",
     materials: [
       { label: "Investor.gov — Compound Interest Calculator", url: "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator" },
       { label: "Investor.gov — What is compound interest?", url: "https://www.investor.gov/additional-resources/information/youth/teachers-classroom-resources/what-compound-interest" },
@@ -1030,12 +1030,12 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 16 }}>
           {[
-            { icon: Sparkles, t: "Build something people need", d: "First, build a real product, app, or service (with AI as your tool) that solves a real problem — learning the one skill AI can't replace: taste, knowing what good looks like.", c: C.gold },
-            { icon: TrendingUp, t: "Grow it into a business", d: "Take it live, then grow — build a funnel, track what's working (active users + retention), and bake growth right into the product.", c: C.emerald },
-            { icon: Wallet, t: "Your product earns the income", d: `That's where the money comes from — your venture grows to about ${fmt(STEADY_INCOME)} a period. No paycheck handed to you.`, c: C.emerald },
-            { icon: LineIcon, t: "Markets move like the real world", d: "Once you're investing, live macro events — rate hikes, booms, recessions — push each asset class up and down.", c: C.turq },
-            { icon: Home, t: "Make the big decisions", d: "Buy and finance a home and a car with what you've earned. Live with the payments.", c: C.green },
-            { icon: Shield, t: "Watch it compound", d: "Your savings and investments grow through every market move — and you graduate knowing your own net worth.", c: C.pink },
+            { icon: Sparkles, t: "Build something people need", d: "Build a real product, app, or service with AI that solves a real problem — learning the one skill AI can't replace: taste, knowing what good looks like.", c: C.gold },
+            { icon: Flag, t: "Take it live", d: "Ship it on the real internet — a web address, sign-ins, and payments — so a stranger can sign up, use it, and pay.", c: C.emerald },
+            { icon: TrendingUp, t: "Grow it into a business", d: "Build a funnel, track what's working (active users + retention), and bake growth right into the product so it spreads.", c: C.green },
+            { icon: Wallet, t: "Your product earns the income", d: "No paycheck handed to you — the product you built is where the income comes from. Create value first; the money follows.", c: C.turq },
+            { icon: PiggyBank, t: "Then manage what you earn", d: "One class on the money basics: pay yourself first, invest so it compounds, and make a first big purchase without wrecking your budget.", c: C.pink },
+            { icon: GraduationCap, t: "Graduate with something real", d: "You finish with a product you actually shipped, a certificate (built with Claude Code), and your own numbers to show for it.", c: C.emerald },
           ].map((x, i) => (
             <Card key={i} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: x.c }} />
@@ -1729,7 +1729,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <h3 style={sectionTitle}>What to expect</h3>
           <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — 0 → 1.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
           <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Build your funnel, measure what's working (active users + retention), and grow with product-led growth. Your income comes from your product.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Manage the money.</b> Pay yourself first, invest through real market swings, and finance big purchases.</span></div>
+          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Money, the basics.</b> One class on what to do with what you earn — pay yourself first, invest so it compounds, and a first big purchase done right.</span></div>
           <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Tally everything up — what you built and what it's worth — and say what you'd build next.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
           <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
