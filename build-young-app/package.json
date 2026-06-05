@@ -8,8 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "simulate": "vitest run test/simulate.batch.test.js"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

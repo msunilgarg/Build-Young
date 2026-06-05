@@ -68,13 +68,9 @@ describe("/api/cron/market-news handler", () => {
     expect(sendSpy).not.toHaveBeenCalled();
   });
 
-  it("sends one email per enrolled student for each due cohort on a given day", async () => {
-    // On 2026-10-24: fall-tt W8 (Oct 27) is 3 days out, fall-mw W8 (Oct 26) is 2 days out.
+  it("sends the 2-days-before class reminder to each enrolled student of a due cohort", async () => {
+    // On 2026-10-24, fall-mw W8's class (Oct 26) is exactly 2 days out → a reminder is due.
     rosterSpy.mockImplementation(async (batchId) => {
-      if (batchId === "fall-tt") return [
-        { email: "a@x.com", name: "Avery Lee", batchId },
-        { email: "b@x.com", name: "Bo Kim", batchId },
-      ];
       if (batchId === "fall-mw") return [{ email: "c@x.com", name: "Cleo Ng", batchId }];
       return []; // everyone else empty
     });
@@ -84,27 +80,16 @@ describe("/api/cron/market-news handler", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.payload.ok).toBe(true);
-    // Drips: fall-tt W8 (−3) ×2 + fall-mw W8 (−2) ×1 = 3. PLUS the 2-days-before class reminder:
-    // fall-mw W8's class (Oct 26) is exactly 2 days out → fall-mw's 1 student also gets a reminder.
+    // fall-mw W8's class (Oct 26) is exactly 2 days out → fall-mw's 1 student gets the reminder.
     expect(res.payload.reminders).toBe(1);
-    expect(sendSpy).toHaveBeenCalledTimes(4);
-    expect(res.payload.sent).toBe(4);
+    expect(sendSpy).toHaveBeenCalledTimes(1);
+    expect(res.payload.sent).toBe(1);
 
-    // The fall-tt students get the dayOffset-3 BREAKING email (Week 8 = "The Fed hikes rates").
-    const ttSends = sendSpy.mock.calls.filter((c) => ["a@x.com", "b@x.com"].includes(c[0].to));
-    expect(ttSends).toHaveLength(2);
-    for (const [arg] of ttSends) {
-      expect(arg.subject).toContain("Breaking");
-      expect(arg.subject).toContain("The Fed hikes rates");
-      expect(arg.body).toContain("Resources:"); // resource links appended
-    }
-    // The fall-mw student gets BOTH that week's drip email AND the 2-days class reminder.
-    const mwSends = sendSpy.mock.calls.filter((c) => c[0].to === "c@x.com");
-    expect(mwSends).toHaveLength(2);
-    const reminder = mwSends.find((c) => /in 2 days/.test(c[0].subject));
-    expect(reminder).toBeTruthy();
-    expect(reminder[0].subject).toContain("Week 8");
-    expect(reminder[0].body).toContain("Before class — please complete these so you're ready:"); // Week 8 has homework / pre-reqs
+    const [arg] = sendSpy.mock.calls[0];
+    expect(arg.to).toBe("c@x.com");
+    expect(arg.subject).toMatch(/in 2 days/);
+    expect(arg.subject).toContain("Week 8");
+    expect(arg.body).toContain("Before class — please complete these so you're ready:"); // Week 8 has homework / pre-reqs
   });
 
   it("sends nothing on a day with no due classes", async () => {
@@ -112,7 +97,7 @@ describe("/api/cron/market-news handler", () => {
     const res = makeRes();
     await handler(makeReq({ auth: `Bearer ${SECRET}`, query: { date: "2026-08-01" } }), res);
     expect(res.statusCode).toBe(200);
-    expect(res.payload.due).toBe(0);
+    expect(res.payload.reminders).toBe(0);
     expect(sendSpy).not.toHaveBeenCalled();
   });
 });

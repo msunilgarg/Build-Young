@@ -1,21 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react";
 import {
-  TrendingUp, TrendingDown, Home, Car, Wallet, PiggyBank, LineChart as LineIcon,
-  Shield, Coins, Building2, GraduationCap, ArrowRight, Check, Lock, Newspaper,
-  CircleDollarSign, Sparkles, AlertTriangle, ShoppingBag, Landmark, Video, Mail, Briefcase,
+  TrendingUp, LineChart as LineIcon, Coins, GraduationCap, ArrowRight, Check, Lock, Newspaper,
+  CircleDollarSign, Sparkles, Video, Mail, Briefcase,
   Anchor, Linkedin, BookOpen, Download, Users, Activity, Award, Calendar, Clock, Flag,
 } from "lucide-react";
-// Client-safe market-media bits live in a dependency-free module (no React/lucide) so the
-// serverless cron + the server-only schedule module can share the SAME builders. The FUTURE
-// market SCHEDULE (FLAT_MACRO/MACRO/CHECKIN_MACRO/marketEventFor) + the MEDIA map are NOT
-// imported here on purpose — they're server-only (api/_lib/marketSchedule.js) so they never
-// ship in the client bundle (anti-gaming for the tuition prize; see CLAUDE.md). At advance
-// time the dashboard fetches the SINGLE current event from /api/market-event and falls back
-// to a non-revealing placeholder when offline (demo/tests). App.jsx layers React/lucide bits
-// (ASSETS icons, WEEKS subtitles) on top.
-import { pct, ASSET_META, buildMediaDrip, WEEK_PREP } from "./marketMedia.js";
-// Re-export the client-safe content so callers importing from "../src/App.jsx" still work.
-export { pct, buildMediaDrip } from "./marketMedia.js";
+// The 12 weekly lesson titles + the per-week homework/prep text live in a dependency-free
+// module (no React/lucide) so the serverless cron can share the same copy.
+import { WEEK_PREP } from "./marketMedia.js";
 // recharts is heavy (~344 KB) and only used in the dashboard — load it on demand
 // so the landing/enroll/call pages don't pay for it.
 const Charts = React.lazy(() => import("./Charts.jsx"));
@@ -81,7 +72,6 @@ input:focus,select:focus{outline:2px solid ${C.emerald};outline-offset:-1px;}
 `;
 
 const fmt = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString();
-// `pct` now comes from ./marketMedia.js (imported above) so the email content is single-sourced.
 // Lightweight email check — good enough to gate the UI (server-side validation is authoritative).
 export const validEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e || "").trim());
 
@@ -251,59 +241,14 @@ let _callBookedThisSession = false;
 // (founder-editable) on load so the in-app completion email matches the real reminder email.
 let HOMEWORK = WEEK_PREP;
 
-// Key + label come from the shared ASSET_META (single-sourced with the scheduler);
-// the color + lucide icon are UI-only and layered on here, keyed by asset key.
-const ASSET_UI = {
-  stocks: { color: C.emerald, icon: TrendingUp },
-  bonds: { color: C.turq, icon: Landmark },
-  reits: { color: C.green, icon: Building2 },
-  bullion: { color: C.goldLite, icon: Coins },
-};
-export const ASSETS = ASSET_META.map((a) => ({ ...a, ...ASSET_UI[a.key] }));
-
-// The market-event SCHEDULE is server-only (api/_lib/marketSchedule.js) — see the import
-// note up top. The client learns the current event via /api/market-event (fetchMarketEvent
-// below), with a non-revealing placeholder fallback when offline (demo/tests).
-//
-// Non-revealing placeholder: a neutral "Markets are moving" event with zero-ish effects.
-// It keeps the demo running offline WITHOUT shipping any real future event. The Weeks 1–2
-// setup phase still reads as flat; from Week 3 on, the offline demo just shows this generic
-// event (the live deployment shows the real one fetched from the endpoint).
-const PLACEHOLDER_EVENT = { h: "Markets are moving", d: "Markets are open and your portfolio is live. The class will walk through what's driving prices this week.", e: { stocks: 0, bonds: 0, reits: 0, bullion: 0, sav: .01 } };
-const FLAT_PLACEHOLDER = { h: "Markets are quiet", d: "You're still getting set up — the market hasn't started moving your portfolio yet. Your savings still earns a little.", e: { stocks: 0, bonds: 0, reits: 0, bullion: 0, sav: .01 } };
-
-// Synchronous, schedule-free fallback used before/instead of a successful fetch. Weeks 1–2
-// are genuinely flat; everything else is the neutral placeholder (never a real future event).
-function placeholderEventFor(phase, week) {
-  if (phase === "course" && week <= 2) return FLAT_PLACEHOLDER;
-  return PLACEHOLDER_EVENT;
-}
-
-// Fetch the SINGLE current market event from the server. Returns the event ({h,d,e[,media]})
-// or null on any failure (offline/demo/local/tests) so callers fall back gracefully.
-async function fetchMarketEvent(phase, week, checkin) {
-  if (typeof fetch !== "function") return null;
-  try {
-    const qs = phase === "course"
-      ? `phase=course&week=${encodeURIComponent(week)}`
-      : `phase=checkin&checkin=${encodeURIComponent(checkin)}`;
-    const r = await fetch(`/api/market-event?${qs}`, { headers: { Accept: "application/json" } });
-    if (!r.ok) return null;
-    const data = await r.json();
-    return data && data.event ? data.event : null;
-  } catch (e) {
-    return null;
-  }
-}
-
 // Each week carries its lesson (t/s/act) and an optional `materials` list — the place the
 // team adds weekly class content as it's built (verified, primary-source links only, per the
 // statistics-integrity bar). A few are seeded as examples; the rest show "coming soon" in the
 // Course hub until filled in.
 // THREE ACTS: Act 1 · 0→1 (Weeks 1–7) — go from nothing to a launched, earning product. Act 2 ·
-// 1→100 (Weeks 8–10) — grow first customers into a real business. Act 3 · MANAGE (Week 11) +
-// the Capstone (Week 12) — manage the money your product earns. Build/grow lesson content is the
-// per-week activity (weekActivity); the finance weeks have interactive sim panels.
+// 1→100 (Weeks 8–10) — grow first customers into a real business. Act 3 · GO TO MARKET (Week 11)
+// — land your first real customers — then the Capstone (Week 12). Lesson content is the per-week
+// activity (weekActivity); Week 12 is the capstone presentation.
 const WEEKS = [
   // ─── Act 1 · 0 → 1 (Weeks 1–7): find a problem → write the spec → build it in 4 layers
   // (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → Wk7 go live ───
@@ -324,19 +269,6 @@ const WEEKS = [
 ];
 const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Land your first customers" };
 
-// ============================ SIM ECONOMY ============================
-// One place for every dollar figure, re-tuned to a realistic young-adult budget around a
-// $10,000 paycheck per class. Keep purchases funds-gated against this so the "save toward a
-// goal / live with the payments" lessons hold. Change PAY here and the rest stays in scale.
-// Income comes from the student's PRODUCT, not a flat paycheck. Build + launch + grow (weeks 1–10,
-// Acts 1–2): you find a problem, build the product, take it live, and grow it — revenue ramps from
-// zero to steady. Manage act (weeks 11–12): the established product earns a steady income you now
-// learn to manage (investing, big purchases). INCOME[courseWeek-1] is the business revenue that period.
-export const INCOME = [0, 0, 0, 3000, 6000, 9000, 10000, 10000, 10000, 10000, 10000, 10000];
-export const STEADY_INCOME = 10000;  // per-period business income once the product is established
-export const PAY = STEADY_INCOME;    // back-compat alias (steady business income, not a paycheck)
-const TAX_RATE = 0.15;               // tax on business income (self-employment / business tax)
-const FINANCE_FIRST_WEEK = 11;       // weeks 1–10 = Build (1–7) + Grow (8–10); 11–12 = Manage (money)
 // CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
 export const CHECKIN_TIME = "5:00–6:00 PM PST"; // 60-minute follow-up check-in (the week after the course)
 // The check-in is ONE MONTH after the cohort's final (Week 12) class, kept on the cohort's
@@ -453,29 +385,6 @@ export function cohortDays(batch) {
   return String((batch && batch.day) || "").split("·")[0].trim();
 }
 
-// income for a given period: the build's revenue curve in the course, steady once established
-export function incomeFor(phase, week) {
-  if (phase !== "course") return STEADY_INCOME; // check-ins: the build is established
-  return INCOME[week - 1] || 0;
-}
-export const LIVING = 3500;          // living costs per period — only once you're independent (finance act)
-export const HOME = { price: 400000, down: 20000, mortgage: 380000, payment: 2500 }; // 5% down
-export const CAR = { price: 30000, down: 6000, loan: 24000, payment: 600 };          // 20% down
-export const EMERGENCY = 2500;       // surprise car-repair (Week 6)
-export const SPREE = 1500;           // shopping-spree temptation (Week 6)
-export const INSURANCE = 1500;       // insurance policy (Act 3)
-export const ALT_BUY = 5000;         // bullion / REIT lump buy (Act 3)
-export const PE_BUY = 15000;         // private-equity lump buy (Act 3, illiquid)
-export const HUSTLE_START = 2000;    // cost to launch the build (Week 10)
-const HUSTLE_BASE = 1200, HUSTLE_VAR = 2600; // extra income per period once running
-const CARD_DEBT_HEAVY = 15000;       // carried-balance threshold that dings the credit score
-
-export const RISK_PRESETS = {
-  conservative: { stocks: .35, bonds: .45, reits: .12, bullion: .08 },
-  balanced: { stocks: .55, bonds: .25, reits: .12, bullion: .08 },
-  aggressive: { stocks: .75, bonds: .08, reits: .12, bullion: .05 },
-};
-
 const MAIL_FROM = CONFIG.contactEmail;
 function welcomeEmail(student) {
   const b = BATCHES.find((x) => x.id === student.batch) || BATCHES[0];
@@ -493,7 +402,7 @@ Welcome aboard! Your seat in the ${b.track} cohort is confirmed.
 
 Your username is your email (${student.email}) — use it to log in to your student portal anytime.
 
-Week 1 is "Find a Problem Worth Solving" — the start of building a product you believe people would pay for. In the simulation, that product is what earns your income in the weeks ahead, and then you'll learn to make it grow. Everything runs inside your student dashboard.
+Week 1 is "Find a Problem Worth Solving" — the start of building a product you believe people would pay for. Over the weeks ahead you'll build it, take it live, grow it, and go to market for your first customers. Everything runs inside your student dashboard.
 
 One more thing to aim for: the BUILDER PRIZE. The first builder in your cohort to land a real paying customer — within a year of today — gets their tuition refunded (a real sale, with proof, plus a short video about what you built). The whole point of Build Young, rewarded. See the Terms for details.
 
@@ -512,7 +421,7 @@ function followupEmail(s, week, batch) {
     body: last
       ? `Hi ${first},
 
-You finished all 12 weeks of Build Young — your simulated net worth is ${fmt(netWorth(s))}.
+You finished all 12 weeks of Build Young.
 
 You built something real, took it to market, and got your first customers. Your certificate of completion is waiting in your dashboard — download it and add it to LinkedIn.
 
@@ -520,7 +429,7 @@ Proud of you,
 The Team`
       : `Hi ${first},
 
-Great work in Week ${week}: "${wk.t}." Your simulated net worth is now ${fmt(netWorth(s))}.
+Great work in Week ${week}: "${wk.t}."
 
 Your next session is Week ${week + 1}: "${next.t}"
 ${batch.day}  ·  Join on Zoom: ${batch.zoom}
@@ -599,10 +508,6 @@ export function canWithdrawNow(s) {
   return s.phase === "course" && s.week <= REFUND_WEEKS;
 }
 
-// The MEDIA map (per-event analog/watch/question/resources) is SERVER-ONLY
-// (api/_lib/marketSchedule.js). The client receives the current event's media inline from
-// /api/market-event and builds the pre-class drip with buildMediaDrip (imported up top).
-
 export const newState = (student) => ({
   student,
   started: false, // class hasn't begun yet — full refund available until first session
@@ -610,104 +515,19 @@ export const newState = (student) => ({
   phase: "course",
   checkin: 0,
   done: false,
-  settings: { retire401k: 0.05, savingsRate: 0.25, brokerageRate: 0.2, risk: "balanced" },
-  alloc: { ...RISK_PRESETS.balanced },
-  cash: 0,
-  savings: 0,
-  retirement: 0,
-  holdings: { stocks: 0, bonds: 0, reits: 0, bullion: 0 },
-  pe: 0,
-  home: null,
-  car: null,
-  card: { open: false, balance: 0 },
-  insured: false,
-  creditScore: 660,
-  hustle: false,
-  history: [],
-  feed: [],
   emails: [welcomeEmail(student)],
 });
 
 /* ============================ ENGINE ============================ */
-export function holdingsTotal(s) {
-  return ASSETS.reduce((a, x) => a + (s.holdings[x.key] || 0), 0);
-}
-export function netWorth(s) {
-  const inv = holdingsTotal(s) + s.retirement + (s.pe || 0);
-  const homeEq = s.home ? s.home.value - s.home.mortgage : 0;
-  const carEq = s.car ? s.car.value - s.car.loan : 0;
-  return s.cash + s.savings + inv + homeEq + carEq - s.card.balance;
-}
-
-// Week-6 budget choices, written as pure state mutators so they can be unit-tested.
-// Both spend the same $500 — "treat" burns it on consumption; "invest" moves it into
-// the brokerage split by the student's current allocation (net worth is preserved, only
-// the form of the money changes). Keep these symmetrical: each must debit cash by SPREE.
-export function takeSpree(n) {
-  n.cash -= SPREE;
-}
-export function investInstead(n) {
-  n.cash -= SPREE;
-  ASSETS.forEach((a) => { n.holdings[a.key] += SPREE * (n.alloc[a.key] || 0); });
-}
-
-// process one period: earn (from the build), allocate, apply macro, pay bills
-export function advance(prev, macro) {
+// Advance the simulation one week. The course is 12 weeks flat: each call moves to the next
+// week; finishing Week 12 graduates the student (done:true). `started` flips true on the first
+// advance (class has begun). Pure — returns a NEW state, never mutates `prev` (preserves the
+// functional-update / no-lost-update guarantee under rapid double-clicks).
+export function advance(prev) {
   const s = JSON.parse(JSON.stringify(prev));
-  // Income comes from the student's BUILD (no employer paycheck). It ramps during the build
-  // act and is steady once established. Business income is taxed; there is no employer 401(k)
-  // match — a self-made builder pays themselves (retirement contribution, no match).
-  const pay = incomeFor(s.phase, s.week);
-  const tax = pay * TAX_RATE;
-  const k = pay * s.settings.retire401k;     // self-directed retirement ("pay yourself first")
-  s.retirement += k;                          // no employer match
-  const net = pay - tax - k;
-  const toSav = net * s.settings.savingsRate;
-  const toBrk = net * s.settings.brokerageRate;
-  s.savings += toSav;
-  ASSETS.forEach((a) => { s.holdings[a.key] += toBrk * (s.alloc[a.key] || 0); });
-  s.cash += net - toSav - toBrk;
-
-  // macro effects by asset class
-  const e = macro.e;
-  s.holdings.stocks *= 1 + e.stocks;
-  s.holdings.bonds *= 1 + e.bonds;
-  s.holdings.reits *= 1 + e.reits;
-  s.holdings.bullion *= 1 + e.bullion;
-  if (s.pe) s.pe *= 1 + 0.025 + e.stocks * 0.3; // private equity: long-horizon premium, partial equity correlation
-  s.retirement *= 1 + (e.stocks * 0.7 + e.bonds * 0.3); // 401k blended
-  s.savings *= 1 + e.sav;
-  if (s.home) s.home.value *= 1 + e.reits * 0.6 + 0.004;
-
-  // autopay bills (from week 6 onward, once owned)
-  if (s.home) {
-    s.cash -= s.home.payment;
-    s.home.mortgage = Math.max(0, s.home.mortgage - s.home.payment * 0.35);
-  }
-  if (s.car) {
-    s.cash -= s.car.payment;
-    s.car.value *= 0.985; // depreciation
-    s.car.loan = Math.max(0, s.car.loan - s.car.payment * 0.7);
-  }
-  // living costs kick in once you're independent (finance act onward) — during the build act
-  // you're still getting your venture off the ground.
-  if (s.phase !== "course" || s.week >= FINANCE_FIRST_WEEK) s.cash -= LIVING;
-
-  // credit card interest
-  if (s.card.balance > 0) s.card.balance *= 1.04;
-
-  // overdraft guard -> draw from savings
-  if (s.cash < 0 && s.savings > 0) {
-    const pull = Math.min(s.savings, -s.cash);
-    s.savings -= pull; s.cash += pull;
-  }
-
-  // credit score drift
-  s.creditScore = Math.max(520, Math.min(820,
-    s.creditScore + (s.card.balance > CARD_DEBT_HEAVY ? -8 : 6) + (s.cash < 0 ? -10 : 2)));
-
-  s.feed.unshift({ when: s.phase === "course" ? `Week ${s.week}` : `Check-in ${s.checkin + 1}`, ...macro });
-  s.history.push({ label: s.phase === "course" ? `W${s.week}` : `M${s.checkin + 1}`, nw: Math.round(netWorth(s)) });
+  s.started = true;
+  if (s.week >= 12) { s.week = 12; s.done = true; }
+  else s.week += 1;
   return s;
 }
 
@@ -2939,9 +2759,6 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
     setState((p) => ({ ...p, emails: [mail, ...(p.emails || [])] }));
     setWithdraw("done");
   };
-  const nw = netWorth(s);
-  // compare to the PREVIOUS recorded period (the latest entry is the current one)
-  const last = s.history.length > 1 ? s.history[s.history.length - 2].nw : 0;
   const wk = WEEKS[s.week - 1];
 
   // Completion certificate (auth mode): minted + emailed server-side on graduation. Once the
@@ -2962,68 +2779,26 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
     return () => { live = false; };
   }, [graduated]);
 
-  // The CURRENT market event. The full schedule is server-only (anti-gaming), so we fetch
-  // the single current event from /api/market-event. Until it resolves — or whenever the
-  // fetch fails (offline/demo/tests) — we use a schedule-free, non-revealing placeholder so
-  // the dashboard always has something to show and `advance()` always has its `.e` effects.
-  // Keyed on the exact {phase,week,checkin} render snapshot, so the value `advance()` uses
-  // matches what's displayed (preserves the original double-click semantics: two rapid
-  // clicks both apply this same event via the functional updater — no lost update).
-  const [macroNow, setMacroNow] = useState(() => placeholderEventFor(s.phase, s.week));
-  useEffect(() => {
-    let live = true;
-    setMacroNow(placeholderEventFor(s.phase, s.week)); // reset to a safe value on step change
-    fetchMarketEvent(s.phase, s.week, s.checkin).then((ev) => {
-      if (live && ev) setMacroNow(ev);
-    });
-    return () => { live = false; };
-  }, [s.phase, s.week, s.checkin]);
-
-  const pieData = ASSETS.map((a) => ({ name: a.label, value: Math.max(0, Math.round(s.holdings[a.key])), color: a.color }))
-    .filter((d) => d.value > 0);
-
   const doAdvance = async () => {
-    // Compute where this advance lands so we can pre-fetch the NEXT step's pre-class media
-    // (the drip is for the week the student arrives at). Server-only schedule → fetch it;
-    // on failure the drip is simply empty (the placeholder event has no authored media),
-    // which is the correct "non-revealing" behavior offline.
     // 12 weeks flat: weeks 1→12, then finishing Week 12 graduates you (no separate check-in).
-    // No pre-class media drip when finishing (no next week to prep for).
-    const nextEvent = s.week < 12 ? await fetchMarketEvent("course", s.week + 1, 0) : null;
-    const nextMedia = nextEvent && nextEvent.media ? nextEvent.media : null;
-    const macroForAdvance = macroNow; // snapshot the event applied to THIS advance
-
-    let toSend = [];
+    // `advance()` is pure week progression; we send the week recap / course-complete email.
+    const before = s.week; // the week just completed (pre-advance)
+    let mailToSend = null;
     setState((p) => {
-      let ns = advance(p, macroForAdvance);
-      ns.started = true; // first session attended — class has begun
-      const mail = followupEmail(ns, ns.week, batch);
-      if (mail) ns.emails = [mail, ...(ns.emails || [])];
-      if (ns.week >= 12) { ns.week = 12; ns.done = true; } // finishing Week 12 = graduated
-      else ns.week += 1;
-      // Simulated pre-class media for the week we just arrived at (Weeks 3–12), built from the
-      // event's media fetched above. In the click-driven sim the whole 3-email drip lands at
-      // once; in production it's delivered one email per real day (−3/−2/−1) by the daily cron
-      // in api/cron/market-news.js. Offline/demo: no media fetched → no drip (non-revealing).
-      const media = (nextEvent && nextMedia) ? buildMediaDrip(nextEvent, nextMedia, ns) : [];
-      if (media.length) ns.emails = [...media, ...(ns.emails || [])];
-      toSend = [...(mail ? [mail] : []), ...media];
+      const ns = advance(p);
+      const mail = followupEmail(ns, before, batch);
+      if (mail) { ns.emails = [mail, ...(ns.emails || [])]; mailToSend = mail; }
       return ns;
     });
     const who = s.student.email;
-    const bodyFor = (m) => m.resources && m.resources.length
-      ? `${m.body}\n\nResources:\n${m.resources.map((r) => `• ${r.label}: ${r.url}`).join("\n")}`
-      : m.body;
-    toSend.forEach((m) => sendEmail(who, m.subject, bodyFor(m)));
+    if (mailToSend) sendEmail(who, mailToSend.subject, mailToSend.body);
     // Funnel: this advance is the first session (class started), a weekly step, or the graduation
     // transition (finishing Week 12). `s` is the pre-advance snapshot.
     const fmeta = { season: batch.season, track: batch.track, batchId: batch.id };
     if (!s.started) track("class_started", fmeta);
     if (s.week >= 12) track("graduated", fmeta);
     else track("week_advanced", { ...fmeta, week: s.week + 1 });
-    const gotMedia = toSend.some((m) => m.type === "media");
-    const base = s.week >= 12 ? `Course-complete email sent to ${who}` : `Week ${s.week} recap sent to ${who}`;
-    ping(gotMedia ? `${base} (plus a 3-day market-news drip)` : base);
+    ping(s.week >= 12 ? `Course-complete email sent to ${who}` : `Week ${s.week} recap sent to ${who}`);
     setTab("dash");
   };
 
@@ -3168,31 +2943,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
       {tab === "course" && (
         /* Course progress: a horizontal week stepper with the selected week's activity below
            (Zoom + advance live inside the current week — no separate panel). */
-        <CoursePanel s={s} setState={setState} batch={batch} onAdvance={doAdvance} macroNow={macroNow} cert={cert} isFounder={isFounder} />
-      )}
-      {tab === "port" && <PortfolioPanel s={s} setState={setState} pieData={pieData} nw={nw} />}
-      {tab === "macro" && (
-        <div className="rise">
-          <Card style={{ padding: 20 }}>
-            <div className="disp" style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Market developments</div>
-            <div style={{ fontSize: 13, color: C.muted, marginBottom: 14 }}>Each event moves the asset classes differently — exactly why diversification matters.</div>
-            {s.feed.length === 0 && <div style={{ color: C.muted }}>No market history yet — advance your first week to begin.</div>}
-            {s.feed.map((f, i) => (
-              <div key={i} style={{ borderTop: i ? `1px solid ${C.line}` : "none", padding: "14px 0" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <b>{f.h}</b><span style={{ fontSize: 12, color: C.muted }}>{f.when}</span>
-                </div>
-                <div style={{ fontSize: 13.5, color: C.ink2, margin: "4px 0 8px" }}>{f.d}</div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {ASSETS.map((a) => {
-                    const v = f.e[a.key]; const up = v >= 0;
-                    return <span key={a.key} style={{ fontSize: 12, fontWeight: 700, color: up ? C.emerald : C.rust, background: C.paper, padding: "4px 9px", borderRadius: 4 }}>{a.label} {pct(v)}</span>;
-                  })}
-                </div>
-              </div>
-            ))}
-          </Card>
-        </div>
+        <CoursePanel s={s} setState={setState} batch={batch} onAdvance={doAdvance} cert={cert} isFounder={isFounder} />
       )}
       <div style={{ textAlign: "center", fontSize: 12.5, color: C.muted, padding: "30px 16px 8px", lineHeight: 1.6 }}>
         Questions about the program or your account? Email <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.emerald, fontWeight: 600 }}>{CONFIG.contactEmail}</a> — we're happy to help.
@@ -3230,7 +2981,7 @@ function WeekNotes({ week, s, setState }) {
   );
 }
 
-function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder }) {
+function CoursePanel({ s, setState, batch, onAdvance, cert, isFounder }) {
   // Preview (every week open + each shows its full activity) is for the FOUNDER only, for course
   // authoring — students always get normal gating (only Week 1 open on signup; later weeks unlock
   // as they advance).
@@ -3239,34 +2990,12 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
   const currentWeek = offCourse ? 12 : s.week;
   const [selected, setSelected] = useState(currentWeek); // which week's content is shown below
 
-  // The per-week market-event resources are server-only (the schedule isn't in the bundle).
-  // Fetch them for UNLOCKED weeks only (current + past — never future), one /api/market-event
-  // call per week, cached by week number. Offline/demo: fetch returns null → no resources
-  // shown (the class materials still render). This only ever surfaces past/current weeks, so
-  // it reveals nothing the student isn't already entitled to.
-  const [weekRes, setWeekRes] = useState({}); // { [week]: resources[] }
-  const unlockedThrough = previewAll ? 12 : (offCourse ? 12 : currentWeek);
-  useEffect(() => {
-    let live = true;
-    for (let week = 1; week <= unlockedThrough; week++) {
-      if (weekRes[week] !== undefined) continue; // already fetched/cached
-      const wk = week; // capture
-      fetchMarketEvent("course", wk, 0).then((ev) => {
-        if (!live) return;
-        const res = ev && ev.media && ev.media.resources ? ev.media.resources : [];
-        setWeekRes((prev) => (prev[wk] !== undefined ? prev : { ...prev, [wk]: res }));
-      });
-    }
-    return () => { live = false; };
-  }, [unlockedThrough]); // eslint-disable-line react-hooks/exhaustive-deps
-
   // The selected week's content.
   const selW = WEEKS[selected - 1];
   const selUnlocked = previewAll || offCourse || selected <= currentWeek;
   const isThisWeek = selected === currentWeek; // the live week (the final week, once off-course)
   const selStatus = !selUnlocked ? "Upcoming" : (isThisWeek && !offCourse ? "This week" : "Completed");
   const selStatusColor = selStatus === "This week" ? C.emerald : selStatus === "Completed" ? C.turq : C.muted;
-  const selResources = selUnlocked ? (weekRes[selected] || []) : [];
   const selMaterials = selUnlocked ? (selW.materials || []) : [];
   const selParked = selUnlocked ? (selW.parked || []) : [];
   const secLabel = { fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 };
@@ -3289,7 +3018,7 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
     );
   };
 
-  // Catch-up view for a PAST (unlocked, non-current) week: materials + the market-event resources.
+  // Catch-up view for a PAST (unlocked, non-current) week: the week's class materials.
   const catchUp = (
     <Card style={{ padding: 22 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
@@ -3317,10 +3046,6 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
       ) : (
         <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic" }}>Lesson materials coming soon.</div>
       )}
-      {selResources.length > 0 && (<>
-        <div style={{ ...secLabel, marginTop: 16 }}>This week's market event — research it</div>
-        <div style={pillWrap}>{selResources.map((r, j) => <ResLink key={j} r={r} icon={Newspaper} />)}</div>
-      </>)}
       {/* What the student completed this week (the week's own activity — still editable). */}
       {weekActivity(selected, s, setState, true) && (
         <div style={{ marginTop: 18, paddingTop: 18, borderTop: `1px solid ${C.line}` }}>
@@ -3374,7 +3099,7 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
       <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div style={{ flex: "1 1 460px", minWidth: 0 }}>
           {previewAll ? (
-            <WeekPanel s={{ ...s, week: selected, phase: "course", started: true }} setState={setState} macroNow={macroNow} onAdvance={onAdvance} batch={batch} cert={cert} preview />
+            <WeekPanel s={{ ...s, week: selected, phase: "course", started: true }} setState={setState} onAdvance={onAdvance} batch={batch} cert={cert} preview />
           ) : !selUnlocked ? (
             <Card style={{ padding: 22 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".04em" }}>WEEK {selected} · UPCOMING</div>
@@ -3383,7 +3108,7 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
               </div>
             </Card>
           ) : isThisWeek ? (
-            <WeekPanel s={s} setState={setState} macroNow={macroNow} onAdvance={onAdvance} batch={batch} cert={cert} />
+            <WeekPanel s={s} setState={setState} onAdvance={onAdvance} batch={batch} cert={cert} />
           ) : catchUp}
         </div>
 
@@ -3398,75 +3123,10 @@ function CoursePanel({ s, setState, batch, onAdvance, macroNow, cert, isFounder 
   );
 }
 
-function PortfolioPanel({ s, setState, pieData, nw }) {
-  const rebalance = (preset) => setState((p) => {
-    const ns = JSON.parse(JSON.stringify(p));
-    ns.settings.risk = preset; ns.alloc = { ...RISK_PRESETS[preset] };
-    const tot = ASSETS.reduce((a, x) => a + ns.holdings[x.key], 0);
-    ASSETS.forEach((x) => { ns.holdings[x.key] = tot * RISK_PRESETS[preset][x.key]; });
-    return ns;
-  });
-  const rows = [
-    { l: "Cash (checking)", v: s.cash, c: C.ink },
-    { l: "Savings", v: s.savings, c: C.emerald },
-    { l: "Retirement (self-directed)", v: s.retirement, c: C.emerald },
-    ...ASSETS.map((a) => ({ l: a.label + " (brokerage)", v: s.holdings[a.key], c: a.color })),
-    ...(s.pe > 0 ? [{ l: "Private equity (locked up)", v: s.pe, c: C.pink }] : []),
-    ...(s.home ? [{ l: "Home equity", v: s.home.value - s.home.mortgage, c: C.gold }] : []),
-    ...(s.car ? [{ l: "Car equity", v: s.car.value - s.car.loan, c: C.turq }] : []),
-    ...(s.card.balance > 0 ? [{ l: "Credit card debt", v: -s.card.balance, c: C.rust }] : []),
-  ];
-  return (
-    <div className="rise">
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 14 }}>
-        {pieData.length > 0 && (
-          <Card style={{ padding: 20 }}>
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>Brokerage allocation</div>
-            <React.Suspense fallback={<div style={{ height: 200, display: "grid", placeItems: "center", color: C.muted, fontSize: 13 }}>Loading chart…</div>}>
-              <Charts kind="pie" data={pieData} mutedColor={C.muted} fmt={fmt} />
-            </React.Suspense>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-              {pieData.map((d, i) => <span key={i} style={{ fontSize: 12, color: C.ink2 }}><span style={{ display: "inline-block", width: 10, height: 10, background: d.color, borderRadius: 3, marginRight: 5 }} />{d.name}</span>)}
-            </div>
-            <div style={{ borderTop: `1px solid ${C.line}`, marginTop: 14, paddingTop: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Rebalance to a risk style</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                {Object.keys(RISK_PRESETS).map((r) => (
-                  <button key={r} className="btn" onClick={() => rebalance(r)} style={{ flex: 1, textTransform: "capitalize", background: s.settings.risk === r ? C.emerald : C.paper, color: s.settings.risk === r ? "#fff" : C.ink, padding: "9px", borderRadius: 4, border: `1px solid ${C.line}`, fontSize: 13 }}>{r}</button>
-                ))}
-              </div>
-            </div>
-          </Card>
-        )}
-        <Card style={{ padding: 20 }}>
-          <div style={{ fontWeight: 700, marginBottom: 8 }}>Holdings</div>
-          {rows.map((r, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
-              <span style={{ color: C.ink2 }}><span style={{ display: "inline-block", width: 8, height: 8, background: r.c, borderRadius: 2, marginRight: 8 }} />{r.l}</span>
-              <span style={{ fontWeight: 700, color: r.v < 0 ? C.rust : C.ink }}>{fmt(r.v)}</span>
-            </div>
-          ))}
-          <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0 0", marginTop: 6, borderTop: `2px solid ${C.ink}` }}>
-            <span className="disp" style={{ fontWeight: 800 }}>Net worth</span>
-            <span className="disp" style={{ fontWeight: 800, color: C.emerald }}>{fmt(nw)}</span>
-          </div>
-        </Card>
-        <Card style={{ padding: 18 }}>
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ color: C.muted, fontSize: 13, fontWeight: 600 }}>Credit score</span>
-            <span style={{ fontWeight: 800, color: s.creditScore > 700 ? C.emerald : s.creditScore > 620 ? C.gold : C.rust }}>{s.creditScore}</span>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
 /* ---- the weekly action panel ---- */
-function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
+function WeekPanel({ s, setState, onAdvance, batch, cert, preview }) {
   const wk = WEEKS[s.week - 1];
   const action = s.phase === "course" ? wk.action : "checkin";
-  const set = (fn) => setState((p) => { const ns = JSON.parse(JSON.stringify(p)); fn(ns); return ns; });
 
   // Header matches the catch-up card for past weeks (status label + title on the left, the Zoom
   // button on the right) so the CURRENT week aligns visually with Weeks 1–2 — no separate banner.
@@ -3487,134 +3147,9 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
       {children}
     </Card>
   );
-  const btn = { background: C.emerald, color: "#fff", padding: "11px 16px", borderRadius: 4, fontSize: 14 };
-  const sliderRow = (label, val, setFn, min, max, step, suffix = "%") => (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, fontWeight: 600 }}><span>{label}</span><span style={{ color: C.emerald }}>{Math.round(val * 100)}{suffix}</span></div>
-      <input type="range" aria-label={label} aria-valuetext={`${Math.round(val * 100)}${suffix}`} min={min} max={max} step={step} value={val} onChange={(e) => setFn(parseFloat(e.target.value))} style={{ width: "100%", accentColor: C.emerald }} />
-    </div>
-  );
 
   return (
     <div className="rise">
-      {action === "settings" && (
-        <Wrap title="Set Up Your Business Finances" blurb={`Your product is earning now — about ${fmt(STEADY_INCOME)} a period. You're self-employed, so there's no employer and no W-4: a flat 15% goes to taxes, and YOU choose how much to pay your future self. These become your standing settings for the rest of the course.`}>
-          {sliderRow("Pay yourself first (retirement)", s.settings.retire401k, (v) => set((n) => n.settings.retire401k = v), 0, 0.1, 0.01)}
-          <div style={{ background: C.paper, borderRadius: 4, padding: 12, fontSize: 13, color: C.ink2 }}>
-            On {fmt(STEADY_INCOME)} of business income: ~{fmt(STEADY_INCOME * s.settings.retire401k)} set aside for your future (a SEP/solo retirement account). No employer match when you work for yourself — but no boss taking a cut either.
-          </div>
-        </Wrap>
-      )}
-
-      {(action === "allocation" || action === "money") && (
-        <Wrap title="Savings & Investing" blurb="Decide how much of your income flows automatically into savings and your brokerage, and pick an investing style. Starting now means decades of compounding.">
-          {sliderRow("Auto-save to savings", s.settings.savingsRate, (v) => set((n) => n.settings.savingsRate = v), 0, 0.5, 0.05)}
-          {sliderRow("Auto-invest to brokerage", s.settings.brokerageRate, (v) => set((n) => n.settings.brokerageRate = v), 0, 0.5, 0.05)}
-          <div style={{ fontSize: 13, fontWeight: 700, margin: "6px 0 8px" }}>Investing style</div>
-          <div style={{ display: "flex", gap: 8 }}>
-            {Object.keys(RISK_PRESETS).map((r) => (
-              <button key={r} className="btn" onClick={() => set((n) => { n.settings.risk = r; n.alloc = { ...RISK_PRESETS[r] }; })} style={{ flex: 1, textTransform: "capitalize", background: s.settings.risk === r ? C.emerald : C.paper, color: s.settings.risk === r ? "#fff" : C.ink, padding: 10, borderRadius: 4, border: `1px solid ${C.line}`, fontSize: 13 }}>{r}</button>
-            ))}
-          </div>
-          <div style={{ marginTop: 12, fontSize: 12.5, color: C.muted }}>{s.settings.risk} mix → {ASSETS.map((a) => `${Math.round(s.alloc[a.key] * 100)}% ${a.label.toLowerCase()}`).join(" · ")}. Aggressive leans stocks; conservative leans bonds. Diversifying across all four cushions any single shock.</div>
-        </Wrap>
-      )}
-
-      {action === "macro" && (
-        <Wrap title="How Macro Moves Your Money" blurb="Inflation, interest rates and recessions push each asset class in different directions. Watch this week's development hit your portfolio when you advance.">
-          <div style={{ background: C.paper, borderRadius: 4, padding: 14, marginBottom: 8 }}>
-            <b>{macroNow.h}.</b> <span style={{ color: C.ink2 }}>{macroNow.d}</span>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
-              {ASSETS.map((a) => { const v = macroNow.e[a.key]; return <span key={a.key} style={{ fontSize: 12, fontWeight: 700, color: v >= 0 ? C.emerald : C.rust, background: C.card, padding: "4px 9px", borderRadius: 4 }}>{a.label} {pct(v)}</span>; })}
-            </div>
-          </div>
-          <div style={{ fontSize: 13, color: C.muted }}>Notice how bonds and bullion often move opposite stocks — that's the whole case for spreading your money around.</div>
-        </Wrap>
-      )}
-
-      {action === "framework" && (
-        <Wrap title="Big Purchases: The Framework" blurb="Before you buy, learn the rules. A mortgage can be 'good' debt (a home may grow in value); a car loan is usually 'bad' debt (cars lose value). Always weigh the total cost of ownership, not just the sticker.">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}><Home size={18} color={C.gold} /><div style={{ fontWeight: 700, marginTop: 6 }}>Home</div><div style={{ fontSize: 13, color: C.ink2 }}>Down payment + mortgage. Can appreciate. Often "good" debt.</div></div>
-            <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}><Car size={18} color={C.turq} /><div style={{ fontWeight: 700, marginTop: 6 }}>Car</div><div style={{ fontSize: 13, color: C.ink2 }}>Depreciates from day one. Add fuel, insurance, repairs.</div></div>
-          </div>
-          <div style={{ marginTop: 12, fontSize: 13, color: C.muted }}>Next week you'll actually choose and finance both — so plan how much of your savings to use as a down payment.</div>
-        </Wrap>
-      )}
-
-      {(action === "buy" || action === "money") && (
-        <Wrap title="Big Purchases: Making the Call" blurb="Use your savings for down payments and finance the rest. The monthly payments will autopay from your account for the rest of the course.">
-          <div style={{ display: "grid", gap: 12 }}>
-            <BuyCard icon={Home} color={C.gold} title={`Starter home — ${fmt(HOME.price)}`} detail={`5% down (${fmt(HOME.down)}) · ~${fmt(HOME.payment)}/mo mortgage`} owned={!!s.home}
-              onBuy={() => set((n) => { n.savings -= HOME.down; n.home = { value: HOME.price, mortgage: HOME.mortgage, payment: HOME.payment }; })} disabled={s.savings < HOME.down} />
-            <BuyCard icon={Car} color={C.turq} title={`Used car — ${fmt(CAR.price)}`} detail={`20% down (${fmt(CAR.down)}) · ~${fmt(CAR.payment)}/mo loan`} owned={!!s.car}
-              onBuy={() => set((n) => { n.savings -= CAR.down; n.car = { value: CAR.price, loan: CAR.loan, payment: CAR.payment }; })} disabled={s.savings < CAR.down} />
-          </div>
-          {s.savings < HOME.down && !s.home && <div style={{ marginTop: 10, fontSize: 13, color: C.rust }}>Not enough saved for the home down payment yet — keep advancing weeks, or buy just the car for now.</div>}
-        </Wrap>
-      )}
-
-      {action === "budget" && (
-        <Wrap title="Surprises & Temptations" blurb="Your bills now autopay in the background. This week two things hit at once: a surprise emergency and the urge to splurge. Your choices change your balances.">
-          <div style={{ display: "grid", gap: 12 }}>
-            <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}>
-              <div style={{ display: "flex", gap: 8 }}><AlertTriangle size={18} color={C.rust} /><b>Emergency: {fmt(EMERGENCY)} car repair</b></div>
-              <div style={{ fontSize: 13, color: C.ink2, margin: "6px 0 10px" }}>Cover it from savings (smart) or put it on a credit card (costly).</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button className="btn" onClick={() => set((n) => n.savings -= EMERGENCY)} style={{ ...btn, background: C.emerald }}>Pay from savings</button>
-                <button className="btn" onClick={() => set((n) => { n.card.open = true; n.card.balance += EMERGENCY; })} style={{ ...btn, background: C.paper, color: C.ink, border: `1px solid ${C.line}` }}>Put on credit</button>
-              </div>
-            </div>
-            <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}>
-              <div style={{ display: "flex", gap: 8 }}><ShoppingBag size={18} color={C.gold} /><b>Temptation: {fmt(SPREE)} shopping spree</b></div>
-              <div style={{ fontSize: 13, color: C.ink2, margin: "6px 0 10px" }}>That same {fmt(SPREE)} invested could be worth far more later.</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button className="btn" onClick={() => set(takeSpree)} style={{ ...btn, background: C.gold }}>Treat myself</button>
-                <button className="btn" onClick={() => set(investInstead)} style={{ ...btn, background: C.emerald }}>Invest it instead</button>
-              </div>
-            </div>
-          </div>
-        </Wrap>
-      )}
-
-      {action === "credit" && (
-        <Wrap title="Credit & Credit Scores" blurb="A credit card builds your score when used well — and wrecks it when balances pile up. Your score sets the rates you'd get on loans.">
-          {!s.card.open
-            ? <button className="btn" onClick={() => set((n) => n.card.open = true)} style={btn}>Open my first credit card</button>
-            : <div style={{ background: C.paper, borderRadius: 4, padding: 14 }}>
-              <div>Card balance: <b>{fmt(s.card.balance)}</b> · Score: <b style={{ color: s.creditScore > 700 ? C.emerald : C.gold }}>{s.creditScore}</b></div>
-              {s.card.balance > 0 && <button className="btn" onClick={() => set((n) => { const pay = Math.min(n.cash, n.card.balance); n.cash -= pay; n.card.balance -= pay; })} style={{ ...btn, marginTop: 10 }}>Pay it off in full</button>}
-              <div style={{ fontSize: 13, color: C.muted, marginTop: 10 }}>Paying in full every cycle is what builds a strong score — and carried balances charge ~4% interest each period here.</div>
-            </div>}
-        </Wrap>
-      )}
-
-      {action === "review" && (
-        <Wrap title="Same Start, Different Results" blurb={`Everyone's product earns the same ${fmt(PAY)} a period. Here's what your choices built so far — and there's still time to adjust before the final stretch.`}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <Stat label="Net worth" value={fmt(netWorth(s))} color={C.emerald} />
-            <Stat label="Invested" value={fmt(holdingsTotal(s) + s.retirement)} />
-            <Stat label="Savings" value={fmt(s.savings)} />
-            <Stat label="Credit score" value={s.creditScore} />
-          </div>
-          <div style={{ fontSize: 13, color: C.muted, marginTop: 12 }}>The biggest drivers of the spread: how much you invested early, your risk style through the market swings, and whether you carried debt. Tweak your settings in the Portfolio tab if needed.</div>
-        </Wrap>
-      )}
-
-      {action === "rebalance" && (
-        <Wrap title="Active Investing" blurb="You've been invested since Week 2 through every market move. Review and rebalance your mix in the Portfolio tab — then let it ride.">
-          <div style={{ fontSize: 14, color: C.ink2 }}>Head to the <b>Portfolio</b> tab to see your allocation and rebalance to conservative, balanced, or aggressive. Diversified portfolios tend to ride out shocks better than concentrated ones.</div>
-        </Wrap>
-      )}
-
-      {action === "hustle" && (
-        <Wrap title="Build Something — Market Day" blurb="This is the heart of it: you get ahead by creating value for other people. A paycheck rents out your time; a product you own creates value while you sleep. Make a small product, app, or service — with AI as your tool — that you believe people would pay for, and watch it earn in the simulation.">
-          {!s.hustle
-            ? <button className="btn" onClick={() => set((n) => { n.hustle = true; n.cash -= HUSTLE_START; })} style={btn} disabled={s.cash < HUSTLE_START}>Launch your product (−{fmt(HUSTLE_START)} to start)</button>
-            : <div style={{ background: C.paper, borderRadius: 4, padding: 14, color: C.ink2 }}>Your product is live — people are paying for the value it creates, so it earns every time you advance. That's building economic value: solve a real problem, own the upside.</div>}
-        </Wrap>
-      )}
-
       {action === "build" && (
         <Wrap title={wk.t} blurb={wk.s}>
           {weekActivity(s.week, s, setState, true) ? (
@@ -3633,26 +3168,10 @@ function WeekPanel({ s, setState, macroNow, onAdvance, batch, cert, preview }) {
               <Sparkles size={22} color={C.gold} style={{ marginBottom: 8 }} />
               <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Live with Sunil — interactive lesson coming soon</div>
               <div style={{ fontSize: 13.5, color: C.muted, marginTop: 6, lineHeight: 1.5, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
-                This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built. Advancing still collects your income and applies the week's market move.
+                This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built.
               </div>
             </div>
           )}
-        </Wrap>
-      )}
-
-      {action === "protect" && (
-        <Wrap title="Grow & Protect" blurb="Round out your portfolio with alternatives — and protect what you've built with insurance and an emergency fund.">
-          <div style={{ display: "grid", gap: 10 }}>
-            <BuyCard icon={Coins} color={C.goldLite} title={`Buy ${fmt(ALT_BUY)} in bullion`} detail="Gold — an inflation hedge" owned={false}
-              onBuy={() => set((n) => { n.cash -= ALT_BUY; n.holdings.bullion += ALT_BUY; })} disabled={s.cash < ALT_BUY} cta="Buy" />
-            <BuyCard icon={Building2} color={C.green} title={`Buy ${fmt(ALT_BUY)} in a REIT`} detail="Income real estate, fully liquid" owned={false}
-              onBuy={() => set((n) => { n.cash -= ALT_BUY; n.holdings.reits += ALT_BUY; })} disabled={s.cash < ALT_BUY} cta="Buy" />
-            <BuyCard icon={Briefcase} color={C.pink} title={`Buy ${fmt(PE_BUY)} in private equity`} detail="Private companies — high return, but illiquid & locked up" owned={false}
-              onBuy={() => set((n) => { n.cash -= PE_BUY; n.pe = (n.pe || 0) + PE_BUY; })} disabled={s.cash < PE_BUY} cta="Invest" />
-            <BuyCard icon={Shield} color={C.emerald} title="Insurance policy" detail="Protects against major losses" owned={s.insured} cta="Insure"
-              onBuy={() => set((n) => { n.insured = true; n.cash -= INSURANCE; })} disabled={s.cash < INSURANCE} />
-          </div>
-          <div style={{ fontSize: 13, color: s.insured ? C.emerald : C.muted, marginTop: 10 }}>{s.insured ? "You're insured — a major setback won't wipe you out." : "Without insurance, a big emergency comes straight out of your pocket."}</div>
         </Wrap>
       )}
 
@@ -3683,17 +3202,6 @@ function AdvanceButton({ s, onAdvance }) {
     <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
       {label} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
     </button>
-  );
-}
-
-function BuyCard({ icon: Icon, color, title, detail, owned, onBuy, disabled, cta = "Buy & finance" }) {
-  return (
-    <div style={{ background: C.paper, borderRadius: 4, padding: 14, display: "flex", alignItems: "center", gap: 12 }}>
-      <div style={{ width: 40, height: 40, borderRadius: 4, background: C.card, display: "grid", placeItems: "center", flexShrink: 0 }}><Icon size={20} color={color} /></div>
-      <div style={{ flex: 1 }}><div style={{ fontWeight: 700 }}>{title}</div><div style={{ fontSize: 12.5, color: C.muted }}>{detail}</div></div>
-      {owned ? <Pill bg={C.emerald}>Owned</Pill>
-        : <button className="btn" onClick={onBuy} disabled={disabled} style={{ background: disabled ? C.line : C.emerald, color: "#fff", padding: "9px 14px", borderRadius: 4, fontSize: 13 }}>{cta}</button>}
-    </div>
   );
 }
 
