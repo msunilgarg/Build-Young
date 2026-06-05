@@ -1870,10 +1870,34 @@ function weekExample(week) {
   const bl = BUILD_LAYERS[week];
   if (bl) {
     const sample = bl.key ? SHAPE_EXAMPLE[bl.key] : bl.seed;
-    return <ExampleCard subtitle="A sample prompt — a model to adapt for your own product" fields={[[bl.fieldLabel, sample]]} />;
+    const sampleCard = <ExampleCard subtitle="A sample prompt — a model to adapt for your own product" fields={[[bl.fieldLabel, sample]]} />;
+    // Week 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
+    if (week === 9) return (<><GlossaryCard title="First — the metrics, in plain English" items={METRICS_PRIMER} /><div style={{ height: 14 }} />{sampleCard}</>);
+    return sampleCard;
   }
   return null;
 }
+
+// Plain-English glossary card — defines terms for a week before the hands-on part (e.g. Week 9
+// metrics). Clean term — definition rows, same green class-material look.
+function GlossaryCard({ title, items }) {
+  return (
+    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px" }}>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><BookOpen size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />{title}</div>
+      <div style={{ marginTop: 10, display: "grid", gap: 9 }}>
+        {items.map((it, i) => (
+          <div key={i} style={{ fontSize: 13, lineHeight: 1.5 }}><b style={{ color: C.ink }}>{it.t}</b> <span style={{ color: C.ink2 }}>— {it.d}</span></div>
+        ))}
+      </div>
+    </div>
+  );
+}
+const METRICS_PRIMER = [
+  { t: "Active users (DAU / MAU)", d: "how many different people actually use your product — DAU is in a day, MAU in a month. Signing up once doesn't count; coming back and using it does." },
+  { t: "Retention", d: "of the people who try it, how many come back later (the next day, a week on). Low retention means it isn't useful enough yet — the number that matters most." },
+  { t: "Funnel & drop-off", d: "the path people take — found it → tried it → came back. You lose some at each step; the biggest drop is your bottleneck, so fix that first." },
+  { t: "North-star metric", d: "the one number that best means “it's working” for YOUR product — tie it to the success you defined in Week 2." },
+];
 
 // A short, numbered principles card — the plain-language class material for the hands-on build
 // weeks (3–6). Same look as the green class-example card, but a quick "things to remember" list.
