@@ -1007,7 +1007,7 @@ function ProductTeaser({ act, accent }) {
         <div style={kicker}>WEEK 3 · BUILD THE CORE PRODUCT</div>
         <div style={{ marginTop: 8, background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 6, padding: "9px 11px", fontSize: 12, color: C.ink2, lineHeight: 1.45 }}>“Build me an app that lets dog owners book a trusted neighbor to walk their dog…”</div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-          {["Core product", "Accounts", "Payments"].map((t) => (
+          {["Core product", "Accounts", "E-commerce"].map((t) => (
             <span key={t} style={{ fontSize: 11, fontWeight: 700, color: C.green, background: "#e7f3ee", borderRadius: 99, padding: "3px 9px" }}>✓ {t}</span>
           ))}
         </div>
@@ -1196,7 +1196,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         {Object.keys(ACTS).map(Number).map((act) => {
           const accent = act === 1 ? C.green : act === 2 ? C.pink : C.turq;
           const promise = act === 1
-            ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and payments, so a stranger can use it and pay."
+            ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and e-commerce, so a stranger can use it and buy."
             : act === 2
             ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. There's no paycheck handed to you — the product you built is the income."
             : "Learn the money basics on what you earn — pay yourself first, invest so it compounds, a first big purchase done right — then graduate with a product you shipped, a certificate, and your own numbers to show for it.";
