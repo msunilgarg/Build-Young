@@ -1160,7 +1160,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         </h1>
         <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build a real product, then grow it into a business.</p>
         <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
-          Build Young is a <b>live, instructor-led course</b> where teens <b>build a product they believe people would pay for</b> — a small app, tool, or service, made with AI — then <b>grow it into a real business</b>, thinking like <b>founders</b> the whole way. It's a hands-on sandbox: they build something real, put it in front of people, and learn what it takes to make it work — <b>no real money is ever involved</b>, just the real skills, practiced somewhere safe before the stakes are real.
+          AI just put the power to build a real product — once a team-and-a-budget job — into a motivated teenager's hands. The edge isn't a credential anymore; it's what you can build, and the time to start is now. Build Young is a <b>live, instructor-led course</b> where teens seize exactly that: they <b>build a product they believe people would pay for</b> — a small app, tool, or service, made with AI — then <b>grow it into a real business</b>, thinking like <b>founders</b> the whole way. It's a hands-on sandbox: they build something real, put it in front of people, and learn what it takes to make it work — <b>no real money is ever involved</b>, just the real skills, practiced somewhere safe before the stakes are real.
         </p>
         <HeroPreview />
         <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
@@ -1198,7 +1198,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           const promise = act === 1
             ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and e-commerce, so a stranger can use it and buy."
             : act === 2
-            ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. There's no paycheck handed to you — the product you built is the income."
+            ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. You learn to read the numbers on practice funnels built from YOUR own product — personalized to what you shipped, not textbook examples, with AI to spin up tougher ones on demand. There's no paycheck handed to you — the product you built is the income."
             : "Learn the money basics on what you earn — pay yourself first, invest so it compounds, a first big purchase done right — then graduate with a product you shipped, a certificate, and your own numbers to show for it.";
           const weeks = WEEKS.map((w, i) => ({ w, n: i + 1 })).filter((x) => x.w.act === act);
           const open = !!openActs[act];
