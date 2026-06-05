@@ -993,9 +993,9 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <h1 className="disp rise" style={{ fontSize: "clamp(38px,6.5vw,74px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-.02em", margin: 0 }}>
           Raising <span className="grad">builders,</span><br />not consumers.
         </h1>
-        <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build something real, then learn the money behind it.</p>
+        <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build a real product, then grow it into a business.</p>
         <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
-          Build Young is a <b>live, instructor-led course</b> where teens <b>build a product they believe people would pay for</b> — a small app, tool, or service, made with AI. In the simulation, <b>that build is where their income comes from</b> — then they learn to grow it and manage the money it earns, thinking like <b>founders</b> the whole way: <b>create value first; the money follows.</b> It's a hands-on sandbox — <b>no real money is ever involved</b> — just the real skills, practiced somewhere safe before the stakes are real.
+          Build Young is a <b>live, instructor-led course</b> where teens <b>build a product they believe people would pay for</b> — a small app, tool, or service, made with AI — then <b>grow it into a real business</b>, thinking like <b>founders</b> the whole way. It's a hands-on sandbox: they build something real, put it in front of people, and learn what it takes to make it work — <b>no real money is ever involved</b>, just the real skills, practiced somewhere safe before the stakes are real.
         </p>
         <HeroPreview />
         <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
@@ -1110,7 +1110,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, marginTop: 24 }}>
             {[
               { t: "Initiative", d: "Shipping something real — not waiting to be told what to do — is a muscle most kids never get to train.", icon: Sparkles, c: C.green },
-              { t: "Resilience", d: "A build that flops, a price no one pays — recovering and trying again is where the grit comes from.", icon: Anchor, c: C.pink },
+              { t: "Resilience", d: "A product that flops, a price no one pays — recovering and trying again is where the grit comes from.", icon: Anchor, c: C.pink },
               { t: "Ownership", d: "You made it, so you own the upside. That changes how a kid sees money — and themselves.", icon: Briefcase, c: C.turq },
             ].map((x, i) => (
               <Card key={i} style={{ padding: 18, background: C.card }}>
@@ -1851,7 +1851,7 @@ function ExampleCard({ subtitle, fields }) {
 
 // The class-material example for a build week (null if that week has none yet).
 function weekExample(week) {
-  if (week === 1) return <ExampleCard subtitle="A worked build plan — how we'd fill this in" fields={[
+  if (week === 1) return <ExampleCard subtitle="A worked plan — how we'd fill this in" fields={[
     ["The idea", EXAMPLE_BUILD.idea],
     ["Customer pain point(s)", EXAMPLE_BUILD.pain],
     ["Press release", EXAMPLE_BUILD.pr],
@@ -3737,7 +3737,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
         {!error && events !== null && tab === "students" && (<>
           <h2 style={h2s}>Certificates</h2>
           <CertificatesAdmin />
-          <h2 style={h2s}>Student build plans</h2>
+          <h2 style={h2s}>Student plans</h2>
           <BuildPlansAdmin />
           <h2 style={h2s}>Tutor applications</h2>
           <TutorInterestAdmin />
@@ -4335,7 +4335,7 @@ function BuildPlansAdmin() {
     <Card style={{ padding: 16 }}>
       <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 10 }}>What each student chose to build, the customer pain they named, and their press release — for coaching. Updates as students write on their dashboard.</div>
       {builds === null && <div style={{ fontSize: 13, color: C.muted }}>Loading…</div>}
-      {builds && builds.length === 0 && <div style={{ fontSize: 13, color: C.muted }}>No build plans yet — they appear here as students fill in their plan.</div>}
+      {builds && builds.length === 0 && <div style={{ fontSize: 13, color: C.muted }}>No plans yet — they appear here as students fill in their plan.</div>}
       {builds && builds.map((b, i) => (
         <div key={b.email || i} style={{ borderTop: i ? `1px solid ${C.line}` : "none", padding: "14px 0" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
