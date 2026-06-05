@@ -4281,6 +4281,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <SettingsEditor />
           <h2 style={h2s}>Notifications</h2>
           <NotificationsEditor />
+          <h2 style={h2s}>Week 9 scenario agent</h2>
+          <ScenarioAgentEditor />
           <h2 style={h2s}>Admins</h2>
           <FoundersEditor founders={founders} />
           <h2 style={h2s}>System status</h2>
@@ -4390,6 +4392,61 @@ function NotificationsEditor() {
         <input aria-label="Notifications email" type="email" value={email} placeholder="you@example.com"
           onChange={(e) => setEmail(e.target.value)}
           style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", maxWidth: 420, boxSizing: "border-box" }} />
+      </label>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
+      </div>
+    </Card>
+  );
+}
+
+// Founder-editable settings for the Week-9 funnel agent (on/off + which model). Saved to the same
+// private ops blob (/api/funnel?resource=ops) — saveOps merges, so this won't clobber notifyEmail.
+// The API KEY stays a host env var (ANTHROPIC_API_KEY) — never edited or shown here.
+const SCENARIO_MODEL_OPTS = [
+  ["claude-haiku-4-5", "Haiku 4.5 — cheapest (~<1¢ / generation) · recommended"],
+  ["claude-sonnet-4-6", "Sonnet 4.6 — balanced"],
+  ["claude-opus-4-8", "Opus 4.8 — most capable, priciest (~3–5¢ / generation)"],
+];
+function ScenarioAgentEditor() {
+  const [ops, setOps] = useState(null);
+  const [status, setStatus] = useState("");
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try {
+        const r = await fetch("/api/funnel?resource=ops"); const d = r.ok ? await r.json() : {};
+        const o = d.ops || {};
+        if (live) setOps({ enabled: o.scenarioAgentEnabled !== false, model: o.scenarioModel || "claude-haiku-4-5" });
+      } catch { if (live) setOps({ enabled: true, model: "claude-haiku-4-5" }); }
+    })();
+    return () => { live = false; };
+  }, []);
+  if (ops === null) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel?resource=ops", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ scenarioAgentEnabled: ops.enabled, scenarioModel: ops.model }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setOps({ enabled: d.ops.scenarioAgentEnabled !== false, model: d.ops.scenarioModel }); setStatus("Saved — live now ✓"); }
+      else setStatus(adminSaveErr(r, d, "save scenario agent"));
+    } catch { setStatus(ADMIN_NET_ERR); }
+  };
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
+  const fieldS = { fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", maxWidth: 460, boxSizing: "border-box" };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Week 9's <b>“Simulate more advanced scenarios”</b> button uses AI to generate funnels from each student's own metrics. Needs <code>ANTHROPIC_API_KEY</code> on the host — if it's off or the key is missing, students still get the built-in practice funnels (free). You're billed per generation on whatever Anthropic key you set.</div>
+      <label style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 14, color: C.ink, cursor: "pointer", marginBottom: 14 }}>
+        <input type="checkbox" checked={ops.enabled} onChange={(e) => setOps({ ...ops, enabled: e.target.checked })} style={{ width: 17, height: 17, accentColor: C.emerald }} />
+        <span>Enable AI scenario generation</span>
+      </label>
+      <label style={{ display: "block" }}>
+        <span style={lab}>Model</span>
+        <select aria-label="Scenario model" value={ops.model} onChange={(e) => setOps({ ...ops, model: e.target.value })} style={fieldS} disabled={!ops.enabled}>
+          {SCENARIO_MODEL_OPTS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+        </select>
       </label>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save</button>

@@ -10,8 +10,10 @@
 // response can never reach the student: each scenario must have one count per stage + a short read.
 // Pure helpers (cleanStages / buildScenarioPrompt / parseJsonArray / sanitizeScenarios) are tested.
 
-// The skill default. Easy to swap to a cheaper model (e.g. claude-haiku-4-5) for high-volume cron use.
-export const SCENARIO_MODEL = "claude-opus-4-8";
+// Models the founder can pick in the dashboard (cheapest → most capable). Default is Haiku — this is
+// a high-volume, per-student generation, and the task (a few funnels + a short read) doesn't need Opus.
+export const SCENARIO_MODELS = ["claude-haiku-4-5", "claude-sonnet-4-6", "claude-opus-4-8"];
+export const SCENARIO_MODEL = "claude-haiku-4-5";
 
 export function cleanStages(stages) {
   return (Array.isArray(stages) ? stages : [])

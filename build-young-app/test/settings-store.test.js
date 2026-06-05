@@ -43,18 +43,22 @@ describe("site settings store", () => {
   });
 });
 
-describe("private ops settings store (notifications email)", () => {
-  it("defaults to an empty notifyEmail (use-site falls back to the code address)", () => {
-    expect(defaultOps()).toEqual({ notifyEmail: "" });
+describe("private ops settings store (notifications email + scenario agent)", () => {
+  it("defaults: empty notifyEmail, agent on, Haiku model", () => {
+    expect(defaultOps()).toEqual({ notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5" });
   });
 
-  it("sanitizeOps keeps only notifyEmail, trims it, and drops junk", () => {
-    const clean = sanitizeOps({ notifyEmail: "  founder@x.com  ", junk: "x" });
-    expect(clean).toEqual({ notifyEmail: "founder@x.com" });
+  it("sanitizeOps trims the email, coerces the toggle, validates the model, drops junk", () => {
+    expect(sanitizeOps({ notifyEmail: "  founder@x.com  ", junk: "x" }))
+      .toEqual({ notifyEmail: "founder@x.com", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5" });
+    // "off" string → false; a known model is kept; an unknown model falls back to the default
+    expect(sanitizeOps({ scenarioAgentEnabled: "off", scenarioModel: "claude-opus-4-8" }))
+      .toMatchObject({ scenarioAgentEnabled: false, scenarioModel: "claude-opus-4-8" });
+    expect(sanitizeOps({ scenarioModel: "gpt-4o" }).scenarioModel).toBe("claude-haiku-4-5");
   });
 
   it("loadOps falls back to defaults + saveOps refuses an unconfigured store", async () => {
-    expect(await loadOps()).toEqual({ notifyEmail: "" });
+    expect(await loadOps()).toEqual({ notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5" });
     const res = await saveOps({ notifyEmail: "a@b.com" });
     expect(res.ok).toBe(false);
     expect(res.error).toMatch(/store not configured/);

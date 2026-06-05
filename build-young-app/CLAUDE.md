@@ -253,11 +253,15 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   from `s.funnelStages`, each shaped to a different story; the student writes a read per funnel and
   reveals the system's answer, saved to `s.reflect[9].notes`. The 4 built-ins are seeded/local; a
   **"Simulate more advanced scenarios"** button calls the **agent** — `POST /api/funnel?resource=scenarios`
-  → `api/_lib/scenarioAgent.js` → Claude (`claude-opus-4-8`, via `fetch`, **`ANTHROPIC_API_KEY`** server-side)
-  — to generate fresh, harder funnels from the student's own metrics; output is run through
-  `sanitizeScenarios` (one count per stage + a short read) so a bad model reply can't reach the UI,
-  and it falls back to a local generator when no key is set. A day-before-class cron can reuse the same
-  `generateScenarios()` to pre-make per-student funnels once auth+KV+key are live. Test: `scenarioAgent.test.js`.)
+  → `api/_lib/scenarioAgent.js` → Claude (via `fetch`, **`ANTHROPIC_API_KEY`** stays a host env var) —
+  to generate fresh, harder funnels from the student's own metrics; output is run through
+  `sanitizeScenarios` (one count per stage + a short read) so a bad model reply can't reach the UI, and
+  it falls back to a local generator when the agent is off or no key is set. **On/off + which model are
+  founder-configurable** in the dashboard (`ScenarioAgentEditor` → private ops settings `settings:ops`:
+  `scenarioAgentEnabled` + `scenarioModel`; `saveOps` merges so it won't clobber `notifyEmail`). Default
+  model is **`claude-haiku-4-5`** (cheap, per-student volume); options Haiku/Sonnet/Opus. A day-before
+  cron can reuse `generateScenarios()` to pre-make per-student funnels once auth+KV+key are live. Tests:
+  `scenarioAgent.test.js` + `settings-store.test.js`.)
   → **Product-Led Growth** (Wk10: a guided discussion with
   thought-provoking topics, NO prompt — `ReflectionPanel` from `REFLECT_WEEKS[10]`, saved to
   `s.reflect[10]`); **Act 3 · Manage (Week 11, ONE combined money week) + Capstone (Week 12)**.
