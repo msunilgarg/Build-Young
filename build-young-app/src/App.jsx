@@ -1867,8 +1867,14 @@ function weekExample(week) {
     ["What success looks like", SHAPE_EXAMPLE.success],
   ]} />;
   // Week 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
-  if (week === 8) return <GlossaryCard title="First — the funnel, in plain English" items={FUNNEL_PRIMER} />;
-  if (week === 9) return <GlossaryCard title="First — the metrics, in plain English" items={METRICS_PRIMER} />;
+  // Week 8 (build the funnel) needs BOTH glossaries: the funnel concept AND the metrics it'll be
+  // judged by — a student can't write a good "add tracking" prompt without understanding the metrics.
+  if (week === 8) return (<>
+    <GlossaryCard title="First — the funnel, in plain English" items={FUNNEL_PRIMER} />
+    <div style={{ height: 14 }} />
+    <GlossaryCard title="…and the metrics your funnel will track" items={METRICS_PRIMER} />
+  </>);
+  if (week === 9) return <GlossaryCard title="The metrics, in plain English" items={METRICS_PRIMER} />;
   if (week === 10) return <GlossaryCard title="First — product-led growth, in plain English" items={PLG_PRIMER} />;
   // SPEC weeks (3–6) get a worked example — Build Young's own spec for that layer. Seeded growth
   // weeks (8, 10) have no separate example; their pre-filled starter prompt IS the activity.
