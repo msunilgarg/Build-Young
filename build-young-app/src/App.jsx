@@ -2204,17 +2204,19 @@ function seededRng(seedStr) {
 }
 // Each scenario: a base top-of-funnel count + the step-to-step conversion rates that shape the story
 // (rates() returns n−1 rates for n stages), and a model answer written against the student's labels.
+// NOTE: titles are intentionally NEUTRAL ("Funnel 1/2/3/4" in the UI) — never name the diagnosis,
+// or it gives away the exercise. The `answer` is only shown on the student's "show the read" reveal.
 const FUNNEL_SCENARIOS = [
-  { id: "activation", title: "A crowd at the door", base: 820,
+  { id: "activation", base: 820,
     rates: (n) => [0.18, ...Array(Math.max(0, n - 2)).fill(0.72)],
     answer: (st) => `Tons of people reach “${st[0]},” but almost none get to “${st[1]}.” The leak is right at the start — that's an activation problem: the first step isn't clear or rewarding enough, fast enough. Fix the very first thing a new user does so they hit the “aha” sooner. Everything downstream is fine; it's just starved because so few get past step one.` },
-  { id: "retention", title: "They try it, then vanish", base: 600,
+  { id: "retention", base: 600,
     rates: (n) => [...Array(Math.max(0, n - 2)).fill(0.68), 0.22],
     answer: (st) => `People move through the funnel fine, but hardly anyone reaches “${st[st.length - 1]}” — they don't come back. That's a retention problem, the hardest and most important one. A product people use once isn't working yet. Give them a reason to return before you spend a cent getting more people in.` },
-  { id: "acquisition", title: "Small but mighty", base: 110,
+  { id: "acquisition", base: 110,
     rates: (n) => Array(Math.max(1, n - 1)).fill(0.72),
     answer: (st) => `The conversions are strong all the way down — the people who find it stick. The only problem is the top: too few ever reach “${st[0]}.” That's an acquisition problem, and a good one to have — the product works, you just need more of the right people to find it (a clearer landing page, sharing, word of mouth).` },
-  { id: "healthy", title: "Quietly working", base: 680,
+  { id: "healthy", base: 680,
     rates: (n) => Array(Math.max(1, n - 1)).fill(0.6),
     answer: (st) => `No single step is hemorrhaging people, and the numbers hold up top to bottom — this funnel is working. There's no fire to put out, so the move is to grow: keep more people arriving at “${st[0]},” and chip away at whichever step has the biggest drop to make a good thing better.` },
 ];
@@ -2285,8 +2287,7 @@ function FunnelScenarios({ s, setS, bare }) {
           const open = !!shown[sc.id];
           return (
             <div key={sc.id} style={{ border: `1px solid ${C.line}`, borderRadius: 8, padding: "14px 16px", background: C.card }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, color: C.turq, letterSpacing: ".05em", textTransform: "uppercase" }}>Funnel {idx + 1}</div>
-              <div className="disp" style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: "1px 0 12px" }}>{sc.title}</div>
+              <div className="disp" style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: "0 0 12px" }}>Funnel {idx + 1}</div>
               <div style={{ display: "grid", gap: 9 }}>
                 {stages.map((name, i) => {
                   const isNeck = neckActive && i === neck;
