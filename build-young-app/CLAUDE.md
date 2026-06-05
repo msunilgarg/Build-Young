@@ -252,9 +252,12 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   **The build spec** is the spine of Act 1: the **Week 2 spec is AI-agnostic** (no "prompt"/Claude —
   those appear from Week 3 on) and `s.shape` has four fields — `product`/`accounts`/`payments`/
   `production`, one per build week (3–6). `BUILD_LAYERS` (keyed by week **3–10**) drives the per-week
-  build activity `BuildLayer`, which shows ONLY that week's prompt + copy-to-Claude box. Weeks **3–6
-  pull from the Week 2 spec** (`key`, edits sync back to Week 2); weeks **7–10 are seeded GROWTH
-  prompts** (`seed`, no spec key — stored per-week in `s.grow[week]`). Week 3 also shows the build
+  build activity `BuildLayer`, which shows ONLY that week's prompt + copy-to-Claude box. **The whole
+  12-week plan is ONE object — `s.shape`**: every build week (3–10) reads + writes its own
+  `s.shape[key]` (single source of truth). Weeks **3–6** keys (`product`/`accounts`/`payments`/
+  `production`) are filled from the Week 2 spec (edits sync back to Week 2); weeks **7–10** keys
+  (`golive`/`funnel`/`metrics`/`plg`) ship a starter prompt (`seed`) used as the default until edited.
+  Week 3 also shows the build
   pre-reqs. `SHAPE_EXAMPLE` is the worked Build-Young spec (four parts). (`WEEK_INFRA`/`InfraBuildPlan`/
   `MAKE_PRINCIPLES`/`PrinciplesCard` are now unused/legacy.) **Income/finance boundary:**
   `FINANCE_FIRST_WEEK=11` (build+grow weeks 1–10 earn; LIVING + the money week start week 11). The
