@@ -93,7 +93,8 @@ async function read(req, res) {
   }
 
   if (req.query && req.query.resource === "ops") {
-    res.status(200).json({ ops: await loadOps() });
+    // anthropicKeyPresent: just a boolean (never the key) so the dashboard can show live agent status.
+    res.status(200).json({ ops: await loadOps(), anthropicKeyPresent: !!process.env.ANTHROPIC_API_KEY });
     return;
   }
 
