@@ -2238,19 +2238,19 @@ function FunnelStages({ s, setS, bare }) {
     <>
       <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink, marginBottom: 4 }}>📊 The funnel you'll track</div>
       <p style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55, margin: "0 0 12px" }}>
-        List the steps you're tracking, <b>top to bottom</b> — from the moment someone finds your product to the moment they come back. Have your AI count people at each step. <b>We'll use these next week</b> to read your numbers. <span style={{ color: C.muted }}>Saved automatically.</span>
+        List the metrics you're tracking, <b>top to bottom</b> — from the moment someone finds your product to the moment they come back. Have your AI count people at each step. <b>We'll use these next week</b> to read your numbers. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
       <div style={{ display: "grid", gap: 8 }}>
         {stages.map((st, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 11, fontWeight: 800, color: C.turq, width: 18, flexShrink: 0 }}>{i + 1}</span>
-            <input aria-label={`Funnel step ${i + 1}`} value={st} onChange={(e) => update(i, e.target.value)} placeholder={DEFAULT_FUNNEL_STAGES[i] || "e.g. Made a booking"} style={inputStyle} />
+            <input aria-label={`Funnel metric ${i + 1}`} value={st} onChange={(e) => update(i, e.target.value)} placeholder={DEFAULT_FUNNEL_STAGES[i] || "e.g. Made a booking"} style={inputStyle} />
             {stages.length > 2 && <span {...act(() => remove(i))} title="Remove" style={{ color: C.muted, fontSize: 16, lineHeight: 1, cursor: "pointer", padding: "2px 4px" }}>×</span>}
           </div>
         ))}
       </div>
       <div style={{ marginTop: 9 }}>
-        <span {...act(add)} style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>+ Add a step</span>
+        <span {...act(add)} style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>+ Add a metric</span>
       </div>
     </>
   );
