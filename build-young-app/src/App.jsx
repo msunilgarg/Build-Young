@@ -1803,6 +1803,10 @@ Product success: real teens use it weekly and keep coming back through the whole
 • Retention = they come back week after week, not just once.
 • Referral = they tell a friend who enrolls (the "magic moment" is sharing a link to their live product).
 Financial success: it earns more than it costs to run, and most new families come from word of mouth — so we spend little to find them, with enough left over to keep going and make it bigger.`,
+  funnel: `The steps a new visitor takes through Build Young, in order:
+1. FIND IT — the landing page: "Raising builders, not consumers," what it is (teens 15–18 build a real product with AI, then learn the money basics), and clear "Enroll" / "Talk to Sunil" buttons.
+2. TRY IT (the "aha") — a parent books a free 15-minute call, or starts the enroll flow and sees exactly what their kid will build and learn.
+3. COME BACK — after enrolling, the student lands in their dashboard and gets a reminder email before each class, so they keep showing up week after week.`,
 };
 
 // Week 3 "Make It (with AI)" is a hands-on, live build week — so the class material is just three
@@ -1873,6 +1877,8 @@ function weekExample(week) {
     <GlossaryCard title="First — the funnel, in plain English" items={FUNNEL_PRIMER} />
     <div style={{ height: 14 }} />
     <GlossaryCard title="…and the metrics your funnel will track" items={METRICS_PRIMER} />
+    <div style={{ height: 14 }} />
+    <ExampleCard subtitle="A sample — how we'd spec the funnel for Build Young" fields={[["The funnel", SHAPE_EXAMPLE.funnel]]} />
   </>);
   if (week === 9) return <GlossaryCard title="The metrics, in plain English" items={METRICS_PRIMER} />;
   if (week === 10) return <GlossaryCard title="First — product-led growth, in plain English" items={PLG_PRIMER} />;
@@ -2129,21 +2135,17 @@ const BUILD_LAYERS = {
     placeholder: "(From your Week 2 spec — production-ready: emails, being findable, and keeping data safe.)",
     intro: "Please make the app I've already built production-ready. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use trusted services to send emails; keep every secret key off the browser; check everything users type in; and make it findable (a clear title, description, and share image). When it's done, give me a short checklist to confirm it's ready for real users." },
-  // Weeks 8–10 are GROWTH layers — features added after launch (not from the Week 2 product spec).
-  // Each ships a ready starter prompt (`seed`) the student adapts; the field IS the copy-to-Claude
-  // prompt (stored in s.shape[key]). (Week 7, "Go Live", is an editable CHECKLIST — see GoLiveChecklist.)
-  // Week 8 is the only Act-2 BUILD week (the funnel + its tracking). Weeks 9 (analyze the metrics)
-  // and 10 (discuss product-led growth) are no-prompt reflection weeks — see REFLECT_WEEKS.
+  // Week 8 (the funnel) is the only Act-2 BUILD week. It follows the SAME spec pattern as 3–6 (no
+  // `seed`): the student writes their funnel spec in s.shape.funnel and the sample (SHAPE_EXAMPLE.funnel)
+  // is shown as class material; Copy wraps their spec in the connected-funnel intro + instruction.
+  // (Week 7 "Go Live" is an editable CHECKLIST; weeks 9/10 are no-prompt reflection — REFLECT_WEEKS.)
   8: { key: "funnel",
-    lead: "Build a smooth funnel into the product you've launched — and instrument it, so next week you can see how it's working. Growth becomes part of the product itself, not an ad campaign.",
+    lead: "Make growth part of the product — a funnel so people find it, try it, and come back. Write your funnel below (the sample shows how we'd spec Build Young's); Copy turns it into a prompt.",
     fieldLabel: "The funnel",
-    seed: `Build a simple acquisition funnel into [my app] and measure it as ONE connected funnel — not as separate features. The steps a new visitor takes, in order:
-
-1. FIND IT — a landing page that says in one line what [my app] does for [who it's for], shows the single biggest benefit, and has one clear "Try it" button into the app.
-2. TRY IT (the "aha") — a smooth first run that takes a brand-new user straight to [the main action] so they hit the wow — [the wow moment] — on their first visit, not an empty screen.
-3. COME BACK — a reason and an easy way to return, like [save their work / email them their result].
-
-Then add simple, privacy-friendly tracking that shows the count of people at each step AND the conversion rate from one step to the next (find → try → come back), so it's obvious where most people drop off. Keep my current styling, build it on top of what I already have without breaking anything, and tell me how to test it.` },
+    promptLabel: "My funnel — the steps a new visitor takes, in order:",
+    placeholder: "(Your funnel — model it on the sample above: 1. FIND IT… 2. TRY IT (the \"aha\")… 3. COME BACK…)",
+    intro: "Build a funnel into my app and measure it as ONE connected funnel — not as separate features.",
+    instruction: "Then add simple, privacy-friendly tracking that shows the count of people at each step AND the conversion rate from one step to the next, so it's obvious where most people drop off. Keep my current styling, build it on top of what I already have without breaking anything, and tell me how to test it." },
 };
 
 // Weeks 4–6 "your turn": a short intro + the week's copy-paste prompt (editable; seeded from
@@ -2405,21 +2407,21 @@ function BuildLayer({ week, s, setS, bare }) {
             <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none", whiteSpace: "nowrap" }}>Open Claude Code ↗</a>
           </span>
         </div>
-        {fromSpec ? (hasLayer ? (
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={13} /> Pulled from your Week 2 spec — edits here update Week 2 too</div>
+        {hasLayer ? (
+          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={13} /> {week <= 6 ? "Pulled from your Week 2 spec — edits here update Week 2 too" : "Your funnel spec — saved automatically"}</div>
         ) : (
           <div style={{ fontSize: 12.5, color: C.ink, lineHeight: 1.5, marginTop: 8, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 5, padding: "9px 11px" }}>
-            <b>This part of your Week 2 spec is empty.</b> Fill it in below (or back in Week 2) so AI builds <i>your</i> product — it's the same spec.
+            {week <= 6
+              ? <><b>This part of your Week 2 spec is empty.</b> Fill it in below (or back in Week 2) so AI builds <i>your</i> product — it's the same spec.</>
+              : <><b>Write your funnel spec below</b> — use the sample above as your model.</>}
           </div>
-        )) : (
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.turq, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Sparkles size={13} /> A ready starter prompt — make it yours</div>
         )}
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 2px" }}>
-          {!fromSpec
-            ? "A ready prompt — tweak the [brackets] to fit your own product, then Copy it into Claude Code on top of what you've already shipped."
-            : week === 3
-              ? "This IS your prompt — no separate writing. Edit it and it updates your Week 2 spec too, then Copy it into Claude Code."
-              : "This builds on top of what you already shipped. Edit it (it syncs to Week 2), then Copy it into Claude Code on top of your existing app."}
+          {week === 3
+            ? "This IS your prompt — no separate writing. Edit it and it updates your Week 2 spec too, then Copy it into Claude Code."
+            : week <= 6
+              ? "This builds on top of what you already shipped. Edit it (it syncs to Week 2), then Copy it into Claude Code on top of your existing app."
+              : "Write your funnel here (use the sample above as a model). Copy turns it into a prompt for Claude Code, on top of your existing app."}
         </p>
         <label style={{ display: "block", marginTop: 10 }}>
           <span style={lab}>{cfg.fieldLabel}</span>
