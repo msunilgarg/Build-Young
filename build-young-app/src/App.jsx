@@ -2699,9 +2699,9 @@ function ShowcaseCapture({ s }) {
 function Platform({ state, setState, onExit, onFounder, onHome }) {
   const BATCHES = useCohorts(); // live catalog
   const isFounder = !!onFounder; // a founder viewing the dashboard (for course-authoring preview)
-  // Default to the Dashboard (home) until the course has begun (first session attended), so early
-  // enrollees land on the welcome/setup; once started, drop them into their live Course progress.
-  const [tab, setTab] = useState(state && state.started ? "course" : "overview");
+  // "My dashboard" always opens on the Dashboard (home) tab — the week-by-week work is one tap
+  // away under Course progress (and doAdvance switches there after you advance a week).
+  const [tab, setTab] = useState("overview");
   const [toast, setToast] = useState(null);
   const [withdraw, setWithdraw] = useState(false); // false | 'confirm' | 'done'
   const [reason, setReason] = useState("");        // preset cancel-reason value (required to confirm)
