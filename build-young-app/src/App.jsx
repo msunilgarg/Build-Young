@@ -1682,12 +1682,6 @@ function OverviewPanel({ s, batch, onTab, setS }) {
               </a>
               <button className="btn" onClick={() => onTab("course")} style={{ background: "rgba(255,255,255,.14)", color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14 }}>Open Course progress →</button>
             </div>
-            {batch.groupEmail && (
-              <div style={{ marginTop: 16, fontSize: 13.5, color: "rgba(255,255,255,.8)", lineHeight: 1.5 }}>
-                <Mail size={14} color={C.emeraldLite} style={{ verticalAlign: "-2px", marginRight: 6 }} />
-                Your cohort: <a href={`mailto:${batch.groupEmail}`} style={{ color: "#fff", fontWeight: 700 }}>{batch.groupEmail}</a> — class updates and announcements come to your inbox.
-              </div>
-            )}
           </div>
           <div style={{ flex: "0 1 280px", display: "flex", flexDirection: "column", gap: 14, justifyContent: "center" }}>
             {info.beforeStart && chip(info.days, `${info.days === 1 ? "day" : "days"} until your first class`)}
