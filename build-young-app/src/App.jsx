@@ -1457,7 +1457,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
         )}
 
         {step === 2 && (() => {
-          const stripeLink = b && b.stripeLink;
+          const stripeLink = (b && b.stripeLink) || CONFIG.stripeLink; // cohort link, else the shared one
           if (stripeLink) {
             return (
               <div className="rise">
@@ -1471,8 +1471,10 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                 </div>
                 <button className="btn" onClick={() => {
                   setPendingEnroll({ name, email, batch, track: b.track });
+                  // client_reference_id carries the cohort id through Stripe so the webhook maps the
+                  // payment back to the right cohort — this is what lets ONE shared link serve all cohorts.
                   const sep = stripeLink.includes("?") ? "&" : "?";
-                  window.location.href = `${stripeLink}${sep}prefilled_email=${encodeURIComponent(email)}`;
+                  window.location.href = `${stripeLink}${sep}prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(batch)}`;
                 }} style={{ width: "100%", marginTop: 22, background: C.emerald, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16 }}>Pay ${b.price} securely →</button>
               </div>
             );
