@@ -927,9 +927,12 @@ const FAQ_ITEMS = [
   { q: "Who is Build Young for?", a: "Build Young is for high school students. A parent or guardian completes enrollment on the student's behalf. No prior experience is needed." },
   { q: "Does my teen need to know how to code?", a: "No. Students build their product using AI tools, so they don't need to know how to code beforehand. They learn to build by building, with AI as the tool." },
   { q: "What will my teen actually do in the program?", a: "Over 12 weeks they find a real problem, build a real product with AI, take it live, grow it with a funnel and metrics, and go get their first customers — finishing with a capstone presentation that parents are welcome to join." },
+  { q: "What does “going live” and “getting customers” mean?", a: "Going live means publishing the product they built so it's a real, working thing anyone on the internet can use — not just a class exercise. Getting customers means putting it in front of real people who want it: they learn go-to-market — a simple funnel, metrics, and outreach — to land their first real users, and ideally their first paying ones." },
   { q: "How long is the program and what is the schedule?", a: "It runs 12 weeks, meeting twice a week (about 3 hours total per week), 100% live online over Zoom. Families choose a cohort that meets either Mondays & Wednesdays or Tuesdays & Thursdays." },
+  { q: "Is there homework, and what's expected between classes?", a: "Yes, but it's real work, not busywork. A couple of days before each class students get a short heads-up on what to prepare, and between the two weekly sessions they keep building their own product. Plan on the two ~90-minute live classes plus a few hours of building on their own each week — the more they put in, the more they walk away with." },
   { q: "How much does it cost, and what is the refund policy?", a: "Tuition is $999. You get a full refund if you cancel before the cohort starts, and a prorated refund through the first week of class; it is non-refundable after that." },
-  { q: "Can we talk to someone before enrolling?", a: "Yes — every family can book a free 15-minute call with Sunil before enrolling. No pitch, no pressure." },
+  { q: "Is there really a way to earn the tuition back?", a: "Yes — the First-year builder prize. In each cohort, the first student to land a real, paying customer for what they built within a year of enrolling earns their tuition back. It takes proof of the payment and a short, parent-approved video. It's how we reward builders who take it all the way to a real sale." },
+  { q: "Can we talk to someone before enrolling?", a: "Yes — every family can book a free 15-minute call with us before enrolling. No pitch, no pressure." },
 ];
 function FaqSection({ onCall }) {
   return (
@@ -946,7 +949,7 @@ function FaqSection({ onCall }) {
         ))}
       </div>
       <p style={{ textAlign: "center", fontSize: 14, color: C.muted, marginTop: 20 }}>
-        Still have a question? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Ask me on a free 15-minute call →</span>
+        Still have a question? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Ask us on a free 15-minute call →</span>
       </p>
     </section>
   );
@@ -967,7 +970,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           <Mark size={24} /> Build <span className="grad">Young</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <span className="nav-talk" {...act(onCall)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Talk to Sunil</span>
+          <span className="nav-talk" {...act(onCall)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Talk to us</span>
           <span className="nav-talk" {...act(() => setCareers(true))} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Careers</span>
           {onDashboard
             ? <span {...act(onDashboard)} style={{ fontSize: 14, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>{dashLabel || "My dashboard"} →</span>
@@ -997,10 +1000,10 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           {onDashboard
             ? <button className="btn" onClick={onDashboard} style={{ background: C.emerald, color: "#fff", padding: "15px 30px", borderRadius: 4, fontSize: 16 }}>Go to {dashLabel ? dashLabel.toLowerCase() : "my dashboard"} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} /></button>
             : <button className="btn" onClick={onEnroll} style={{ background: C.emerald, color: "#fff", padding: "15px 30px", borderRadius: 4, fontSize: 16 }}>Pick a batch & enroll <ArrowRight size={16} style={{ verticalAlign: "-2px" }} /></button>}
-          <button className="btn" onClick={onCall} style={{ background: "transparent", color: C.ink, padding: "15px 28px", borderRadius: 4, fontSize: 16, border: `1.5px solid ${C.ink}` }}>Talk to Sunil first</button>
+          <button className="btn" onClick={onCall} style={{ background: "transparent", color: C.ink, padding: "15px 28px", borderRadius: 4, fontSize: 16, border: `1.5px solid ${C.ink}` }}>Talk to us first</button>
           <a href="#curriculum" style={{ textDecoration: "none", alignSelf: "center" }}><span style={{ color: C.ink2, fontSize: 15, fontWeight: 600, borderBottom: `1.5px solid ${C.line}`, paddingBottom: 2 }}>See the 12 weeks</span></a>
         </div>
-        <p className="rise" style={{ fontSize: 13.5, color: C.muted, marginTop: 14 }}>Not sure yet? Book a free 15-minute call with me — Sunil — before you decide.</p>
+        <p className="rise" style={{ fontSize: 13.5, color: C.muted, marginTop: 14 }}>Not sure yet? Book a free 15-minute call with us before you decide.</p>
         <div className="rise" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 26 }}>
           {[
             { icon: Video, t: "Live & instructor-led on Zoom" },
@@ -1188,7 +1191,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>The <b>Builders</b> program is for <b>high schoolers</b>, meeting <b>twice a week</b> (~3 hrs) — choose <b>Mondays & Wednesdays</b> or <b>Tuesdays & Thursdays</b> — <b>100% live online over Zoom</b>. Pick the season and days that fit.</p>
-          <p style={{ color: C.muted, fontSize: 14, marginTop: 8, lineHeight: 1.55 }}>Not sure it's the right fit? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Talk to me first — book a free 15-minute call →</span> And if you change your mind, <b>cancel before your cohort starts for a full refund</b>; after it begins, withdraw through the <b>first week</b> for a prorated refund; non-refundable after.</p>
+          <p style={{ color: C.muted, fontSize: 14, marginTop: 8, lineHeight: 1.55 }}>Not sure it's the right fit? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Talk to us first — book a free 15-minute call →</span> And if you change your mind, <b>cancel before your cohort starts for a full refund</b>; after it begins, withdraw through the <b>first week</b> for a prorated refund; non-refundable after.</p>
           <div style={{ marginTop: 18, maxWidth: 660, marginLeft: "auto", marginRight: "auto", background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 8, padding: "14px 18px" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.green }}><Award size={14} /> Earn your tuition back</div>
             <p style={{ color: C.ink2, fontSize: 14, marginTop: 8, lineHeight: 1.55 }}>The <b>first builder in each cohort to land a real paying customer</b> — within a year of enrolling — gets their <b>tuition refunded</b>. A real sale, with proof — then a <b>2-minute video</b> about what you built (with a parent's OK). The whole point of Build Young, rewarded. <span style={{ color: C.muted }}>(One per cohort; <span {...act(() => onLegal("terms"))} style={{ textDecoration: "underline", cursor: "pointer" }}>see Terms</span>.)</span></p>
@@ -1208,10 +1211,10 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           <div style={{ maxWidth: 560, margin: "20px auto 0", textAlign: "center", background: C.paper2, border: `1px dashed ${C.line}`, borderRadius: 10, padding: "30px 26px" }}>
             <Calendar size={26} color={C.muted} />
             <div className="disp" style={{ fontSize: 20, fontWeight: 800, marginTop: 8 }}>{seasonLabel(season)} — not yet scheduled</div>
-            <p style={{ color: C.ink2, fontSize: 14.5, marginTop: 8, lineHeight: 1.55 }}>We haven't set dates for this season yet. <b>Fall 2026 is enrolling now</b> — or leave it to me: book a free call and I'll let you know the moment {seasonLabel(season)} opens.</p>
+            <p style={{ color: C.ink2, fontSize: 14.5, marginTop: 8, lineHeight: 1.55 }}>We haven't set dates for this season yet. <b>Fall 2026 is enrolling now</b> — or leave it to us: book a free call and we'll let you know the moment {seasonLabel(season)} opens.</p>
             <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
               <button className="btn" onClick={() => setSeason("fall")} style={{ background: C.emerald, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700 }}>See Fall 2026 →</button>
-              <button className="btn" onClick={onCall} style={{ background: C.card, color: C.ink, padding: "11px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, border: `1.5px solid ${C.line}` }}>Talk to Sunil →</button>
+              <button className="btn" onClick={onCall} style={{ background: C.card, color: C.ink, padding: "11px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, border: `1.5px solid ${C.line}` }}>Talk to us →</button>
             </div>
           </div>
         ) : (
@@ -1508,7 +1511,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
             <p style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>Choose a batch and tell us who's joining. Takes about a minute.</p>
             {onCall && (
               <div {...act(onCall)} style={{ display: "flex", alignItems: "center", gap: 8, background: "#eaf3fb", border: `1px solid ${C.emeraldLite}`, borderRadius: 4, padding: "10px 12px", marginTop: 14, cursor: "pointer" }}>
-                <Video size={15} color={C.emerald} /><span style={{ fontSize: 12.5, color: C.ink2 }}>Want to talk first? <b style={{ color: C.emerald }}>Book a free 15-minute call with Sunil →</b></span>
+                <Video size={15} color={C.emerald} /><span style={{ fontSize: 12.5, color: C.ink2 }}>Want to talk first? <b style={{ color: C.emerald }}>Book a free 15-minute call with us →</b></span>
               </div>
             )}
             <div className="enroll-grid" style={{ marginTop: 18 }}>
@@ -1693,15 +1696,15 @@ function BookCall({ onBack, onHome, onEnroll }) {
               <img src={SUNIL_PHOTO} alt="Sunil Garg" style={{ width: 56, height: 56, borderRadius: 6, objectFit: "cover" }} />
               <div><div style={{ fontWeight: 700, fontSize: 15 }}>Sunil Garg</div><div style={{ fontSize: 12.5, color: C.muted }}>Founder, Build Young · ex-Microsoft (20 years)</div></div>
             </div>
-            <h2 className="disp" style={{ fontSize: 27, fontWeight: 800, margin: "14px 0 0" }}>Talk to me first</h2>
+            <h2 className="disp" style={{ fontSize: 27, fontWeight: 800, margin: "14px 0 0" }}>Talk to us first</h2>
             <p style={{ color: C.ink2, fontSize: 14.5, lineHeight: 1.55, marginTop: 8, maxWidth: 560 }}>
-              Before you sign up for anything, let's talk. I do a free 15-minute call with every family — bring your questions, meet me, and decide whether Build Young is right for your kid. No pitch, no pressure. <span style={{ color: C.muted }}>— Sunil</span>
+              Before you sign up for anything, let's talk. We do a free 15-minute call with every family — bring your questions, meet Sunil, and decide whether Build Young is right for your kid. No pitch, no pressure.
             </p>
             <div className="enroll-grid" style={{ marginTop: 20 }}>
               {/* scheduler column */}
               <div>
                 {CONFIG.calendlyUrl ? (
-                  <a className="btn" href={CONFIG.calendlyUrl} target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", textDecoration: "none", background: A, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, fontWeight: 600 }}>Pick a time on my calendar →</a>
+                  <a className="btn" href={CONFIG.calendlyUrl} target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", textDecoration: "none", background: A, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, fontWeight: 600 }}>Pick a time on our calendar →</a>
                 ) : (
                   <>
                     <div style={label}>Pick a time <span style={{ color: C.muted, fontWeight: 500 }}>(Pacific)</span></div>
@@ -1721,13 +1724,13 @@ function BookCall({ onBack, onHome, onEnroll }) {
               <aside style={{ background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 8, overflow: "hidden", alignSelf: "start" }}>
                 <div style={{ height: 4, background: A }} />
                 <div style={{ padding: "16px 18px" }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em" }}>WHAT YOU'LL GET FROM ME</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em" }}>WHAT YOU'LL GET</div>
                   <div style={{ marginTop: 10, display: "grid", gap: 9 }}>
                     {[
-                      "Ask me about the program, the format, or your kid",
+                      "Ask us about the program, the format, or your kid",
                       "We'll figure out together if it's the right fit",
-                      "You'll meet me face to face on Zoom",
-                      "No pitch, no pressure — you have my word",
+                      "You'll meet Sunil face to face on Zoom",
+                      "No pitch, no pressure — you have our word",
                     ].map((t, i) => (
                       <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12.5, color: C.ink2 }}>
                         <Check size={14} color={A} style={{ flexShrink: 0, marginTop: 1 }} /> {t}
