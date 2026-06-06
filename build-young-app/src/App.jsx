@@ -1079,6 +1079,28 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         <p style={{ color: C.muted, marginTop: 24, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>real business</b> from zero — product, customers, and all — then finishing with a <b>capstone</b> where you present what you built.</p>
       </section>
 
+      {/* where the work happens — make the dashboard exercises concrete (de-nebulize the "how") */}
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 6vw 30px" }}>
+        <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
+          <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Where the <span className="grad">work</span> happens</h2>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs inside your own student dashboard — not videos to watch, but guided exercises to do. Each week unlocks the next, your work saves as you go, and Sunil reviews it with you live in class.</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
+          {[
+            { icon: Sparkles, c: C.emerald, t: "Build with AI, step by step", d: "Write your product spec, then copy a ready-made prompt straight into AI to build that piece — and ship it live." },
+            { icon: Flag, c: C.green, t: "A real launch checklist", d: "Work through what it takes to go live — a web address, payments switched on, data kept safe — until your product is open for business." },
+            { icon: TrendingUp, c: C.turq, t: "Your own numbers to read", d: "Active users, retention, and where people drop off — on practice funnels built from what YOU shipped, not textbook examples. Then pick the one thing to fix." },
+            { icon: Award, c: C.gold, t: "A capstone you present", d: "Pull together the story of what you built — the product, who's using it, what's next — and present it live. Parents are welcome to join." },
+          ].map((x, i) => (
+            <Card key={i} style={{ padding: "16px 18px", borderTop: `3px solid ${x.c}` }}>
+              <x.icon size={20} color={x.c} />
+              <div className="disp" style={{ fontWeight: 800, fontSize: 16, marginTop: 8 }}>{x.t}</div>
+              <div style={{ fontSize: 13, color: C.ink2, marginTop: 6, lineHeight: 1.45 }}>{x.d}</div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* philosophy + founder */}
       <section style={{ position: "relative", overflow: "hidden", background: C.paper2, borderTop: `1px solid ${C.line}`, borderBottom: `1px solid ${C.line}`, marginTop: 14 }}>
         {/* decorative motif */}
