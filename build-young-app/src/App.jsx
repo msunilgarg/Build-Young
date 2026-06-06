@@ -1191,9 +1191,6 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
                 We went looking for a class that actually taught that — building something real with AI and putting it in front of people — and couldn't find the right one. The serious programs cost $6,000 or more and run a whole summer or even a year — slow, when AI changes month to month. Others are coding classes that teach kids to program the slow old way and stop at a finished exercise. We don't teach coding at all — AI handles the how; the real work is building something that matters and learning to put it in front of people. The rest is free material that's easy to start and easy to abandon; a video never made a teenager show up. So we made the one we wanted for our own kids: a focused twelve weeks, affordable, live, in a small group on a standing weekly time — what turns “available” into “actually done.”
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                It starts where almost none do — you actually <b>build something of your own</b> with AI, take it live, grow it, and go land your first real customers. Twelve weeks where the work is real and the mistakes are safe.
-              </p>
-              <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 That's the whole idea: building is a skill you practice, not a subject you study. We're raising builders, not consumers — kids who reach adulthood having already lived it. We called it Build Young because the one advantage they have that no one can buy is time, and it compounds: habits, character, taste, and everything they build all grow with it.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
