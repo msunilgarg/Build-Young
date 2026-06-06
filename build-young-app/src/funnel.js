@@ -131,6 +131,7 @@ export function segments(events) {
 // Aggregates the anonymous engagement stream — `visited` (carries a referrer `source`),
 // `screen_view` (a `screen` + dwell `ms`), and `exit` (the last `screen` before leaving) — into:
 //   • sources — where visits come from (referrer host / "direct"), most common first
+//   • countries — visitor country (2-letter code, server-stamped from Vercel geo), most common first
 //   • screens — per-screen view count + average time spent (ms), busiest first
 //   • exits   — which screen people leave from, count + share of all exits, most common first
 // Pure aggregate, no PII. Returns empty arrays when there's nothing yet.
@@ -147,6 +148,19 @@ export function engagement(events) {
   });
   const sources = Object.entries(srcCount)
     .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // Visit geography: 2-letter country code stamped server-side on `visited` (from Vercel's
+  // x-vercel-ip-country header). Country-level only — no city/precise location. Most common first.
+  const ctyCount = {};
+  evs.forEach((e) => {
+    if (e && e.event === "visited" && e.props && e.props.country) {
+      const c = e.props.country;
+      ctyCount[c] = (ctyCount[c] || 0) + 1;
+    }
+  });
+  const countries = Object.entries(ctyCount)
+    .map(([country, count]) => ({ country, count }))
     .sort((a, b) => b.count - a.count);
 
   // Per-screen attention: count of views + mean dwell (ms), from `screen_view`.
@@ -177,7 +191,7 @@ export function engagement(events) {
     .map(([screen, count]) => ({ screen, count, pct: exitTotal ? count / exitTotal : 0 }))
     .sort((a, b) => b.count - a.count);
 
-  return { sources, screens, exits, exitTotal };
+  return { sources, countries, screens, exits, exitTotal };
 }
 
 // ---- Investor data-room exports -----------------------------------------------------------

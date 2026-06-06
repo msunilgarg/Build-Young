@@ -3330,6 +3330,8 @@ const FUNNEL_COLORS = [C.emerald, C.turq, C.gold, C.sky, C.green];
 // Friendly names for the internal route keys used as `screen` in engagement events.
 const SCREEN_LABELS = { home: "Landing page", enroll: "Enroll flow", call: "Book a call", app: "Student dashboard", login: "Log in", setpw: "Set password", checkemail: "Check your email", founder: "Founder console" };
 const screenName = (s) => SCREEN_LABELS[s] || s || "—";
+// 2-letter country code → flag emoji (regional indicator symbols); "" for anything malformed.
+const flagEmoji = (cc) => (/^[A-Za-z]{2}$/.test(cc || "") ? cc.toUpperCase().replace(/./g, (ch) => String.fromCodePoint(0x1F1E6 + ch.charCodeAt(0) - 65)) : "");
 // Human dwell time from milliseconds: "0s" / "45s" / "2m 5s" / "1h 3m".
 function fmtDwell(ms) {
   const sec = Math.max(0, Math.round((Number(ms) || 0) / 1000));
@@ -3620,6 +3622,18 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                   <div key={s.source} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
                     <span style={{ color: C.ink2 }}>{s.source === "direct" ? "Direct / typed in" : s.source}</span>
                     <b>{s.count.toLocaleString()}</b>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <Card style={{ padding: 16 }}>
+              <b style={{ fontSize: 13.5 }}>Top countries</b>
+              <div style={{ marginTop: 10 }}>
+                {eng.countries.length === 0 && <div style={muted}>No geography yet <span>(appears once live on Vercel).</span></div>}
+                {eng.countries.slice(0, 8).map((c) => (
+                  <div key={c.country} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+                    <span style={{ color: C.ink2 }}>{flagEmoji(c.country)} {c.country}</span>
+                    <b>{c.count.toLocaleString()}</b>
                   </div>
                 ))}
               </div>

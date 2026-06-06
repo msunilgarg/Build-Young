@@ -151,9 +151,9 @@ describe("data-room exports", () => {
 
 describe("traffic & engagement aggregation", () => {
   const events = [
-    ev("visited", { source: "google.com" }),
-    ev("visited", { source: "google.com" }),
-    ev("visited", { source: "direct" }),
+    ev("visited", { source: "google.com", country: "US" }),
+    ev("visited", { source: "google.com", country: "US" }),
+    ev("visited", { source: "direct", country: "IN" }),
     ev("screen_view", { screen: "home", ms: 10000 }),
     ev("screen_view", { screen: "home", ms: 20000 }),
     ev("screen_view", { screen: "enroll", ms: 5000 }),
@@ -166,6 +166,10 @@ describe("traffic & engagement aggregation", () => {
   it("ranks visit sources by count, busiest first", () => {
     expect(eng.sources[0]).toEqual({ source: "google.com", count: 2 });
     expect(eng.sources.find((s) => s.source === "direct").count).toBe(1);
+  });
+  it("ranks visitor countries by count, most common first", () => {
+    expect(eng.countries[0]).toEqual({ country: "US", count: 2 });
+    expect(eng.countries.find((c) => c.country === "IN").count).toBe(1);
   });
   it("computes per-screen views + average dwell (ms)", () => {
     const home = eng.screens.find((s) => s.screen === "home");
@@ -180,7 +184,7 @@ describe("traffic & engagement aggregation", () => {
     expect(home.pct).toBeCloseTo(2 / 3, 5);
   });
   it("is empty + safe on no/garbage input", () => {
-    expect(engagement([])).toEqual({ sources: [], screens: [], exits: [], exitTotal: 0 });
+    expect(engagement([])).toEqual({ sources: [], countries: [], screens: [], exits: [], exitTotal: 0 });
     expect(engagement(null).sources).toEqual([]);
   });
 });

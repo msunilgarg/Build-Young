@@ -58,6 +58,14 @@ async function ingest(req, res) {
   const props = {};
   for (const k of ALLOWED_PROPS) if (src[k] !== undefined && src[k] !== null) props[k] = src[k];
 
+  // Geography: stamp the visitor's country (2-letter code) server-side from Vercel's geo header on
+  // `visited`. Country-level only — no city/precise location, no IP stored. Empty when not on Vercel.
+  if (event === "visited") {
+    const cc = (req.headers && (req.headers["x-vercel-ip-country"] || req.headers["X-Vercel-IP-Country"])) || "";
+    const country = String(cc).trim().toUpperCase().slice(0, 2);
+    if (/^[A-Z]{2}$/.test(country)) props.country = country;
+  }
+
   const record = JSON.stringify({ event, ts: Date.now(), props });
   try {
     await kvCommand(["RPUSH", KEY, record]);
