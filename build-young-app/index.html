@@ -68,9 +68,55 @@
   }
   </script>
 
+  <!-- FAQ structured data — eligible for expandable search results (parent decision questions) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Who is Build Young for?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Build Young is for high school students. A parent or guardian completes enrollment on the student's behalf. No prior experience is needed." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does my teen need to know how to code?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No. Students build their product using AI tools, so they don't need to know how to code beforehand. They learn to build by building, with AI as the tool." }
+      },
+      {
+        "@type": "Question",
+        "name": "What will my teen actually do in the program?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Over 12 weeks they find a real problem, build a real product with AI, take it live, grow it with a funnel and metrics, and go get their first customers — finishing with a capstone presentation that parents are welcome to join." }
+      },
+      {
+        "@type": "Question",
+        "name": "How long is the program and what is the schedule?",
+        "acceptedAnswer": { "@type": "Answer", "text": "It runs 12 weeks, meeting twice a week (about 3 hours total per week), 100% live online over Zoom. Families choose a cohort that meets either Mondays & Wednesdays or Tuesdays & Thursdays." }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does it cost, and what is the refund policy?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Tuition is $999. You get a full refund if you cancel before the cohort starts, and a prorated refund through the first week of class; it is non-refundable after that." }
+      },
+      {
+        "@type": "Question",
+        "name": "Can we talk to someone before enrolling?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Yes. Every family can book a free 15-minute call with founder Sunil Garg before enrolling — no pitch, no pressure." }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Mark JS-capable clients before first paint so the prerendered crawler snapshot
+       (#prerender, injected into #root at build time) never flashes for real users.
+       Non-JS crawlers never get the class, so they see the full static content. -->
+  <script>document.documentElement.className += " js";</script>
   <style>
     html, body { margin: 0; padding: 0; background: #faf9f8; }
     #root { min-height: 100vh; }
+    /* Crawler snapshot is hidden the moment JS runs; React replaces #root on mount. */
+    .js #prerender { display: none !important; }
   </style>
 
   <script>
