@@ -14,7 +14,7 @@
 //   - track   — cohort label; "Builders" for all (single combined track)
 //   - start   — WEEK 1 class date, e.g. "Sep 7, 2026" (Date-parseable). Week N's anchor is
 //               start + (N-1)*7 days. The weekdays are echoed in `day`.
-//   - day     — human label, e.g. "Mondays & Wednesdays · 5:00–6:30 PM PST"
+//   - day     — human label, e.g. "Mondays & Wednesdays · 5:00–6:30 PM PT"
 //   - seats / price / zoom — enrollment + class details
 
 // Follow-up check-ins after the 12-week course. The program is now 12 weeks flat — the finale is
@@ -36,8 +36,8 @@ export const SEASONS = [
 // cohort record is self-contained and live-editable in the founder dashboard.
 export const BATCHES = [
   // Fall 2026
-  { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000001", groupEmail: "fall-mw@build-young.com", stripeLink: "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00" },
-  { id: "fall-tt", season: "fall", track: "Builders", start: "Sep 8, 2026", day: "Tuesdays & Thursdays · 5:00–6:30 PM PST", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000002", groupEmail: "fall-tt@build-young.com", stripeLink: "" },
+  { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PT", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000001", groupEmail: "fall-mw@build-young.com", stripeLink: "https://buy.stripe.com/test_bJeaEQfhgcXh9Vt2XmefC00" },
+  { id: "fall-tt", season: "fall", track: "Builders", start: "Sep 8, 2026", day: "Tuesdays & Thursdays · 5:00–6:30 PM PT", seats: 10, price: 999, zoom: "https://zoom.us/j/8801000002", groupEmail: "fall-tt@build-young.com", stripeLink: "" },
   // Winter 2027 & Spring 2027 — NOT YET SCHEDULED (no open cohorts). When dates are set, add two
   // rows here per season (Mon & Wed, Tue & Thu) and the landing + enroll dropdown pick them up
   // automatically; the seasons already exist in SEASONS above so they render as "Not yet scheduled".

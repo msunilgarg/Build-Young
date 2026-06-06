@@ -8,12 +8,12 @@ import {
 const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-mw", track: "Builders" };
 
 describe("nextClassLabel", () => {
-  // fall-mw starts "Sep 7, 2026" (a Monday), day "Mondays & Wednesdays · 5:00–6:30 PM PST".
+  // fall-mw starts "Sep 7, 2026" (a Monday), day "Mondays & Wednesdays · 5:00–6:30 PM PT".
   const batch = BATCHES.find((b) => b.id === "fall-mw");
   it("shows the concrete date + time for the current course week (not just the weekday)", () => {
-    expect(nextClassLabel(batch, "course", 1)).toBe("Mon, Sep 7, 2026 · 5:00–6:30 PM PST");
+    expect(nextClassLabel(batch, "course", 1)).toBe("Mon, Sep 7, 2026 · 5:00–6:30 PM PT");
     // Week N is start + (N-1)*7 days.
-    expect(nextClassLabel(batch, "course", 3)).toBe("Mon, Sep 21, 2026 · 5:00–6:30 PM PST");
+    expect(nextClassLabel(batch, "course", 3)).toBe("Mon, Sep 21, 2026 · 5:00–6:30 PM PT");
   });
   it("uses the follow-up check-in date once the course is over", () => {
     expect(nextClassLabel(batch, "checkin", 0)).toBe(checkinDateLabel(batch));
