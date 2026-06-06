@@ -406,7 +406,7 @@ Welcome aboard! Your seat in the ${b.track} cohort is confirmed.
 
 Your username is your email (${student.email}) — use it to log in to your student portal anytime.
 
-Week 1 is "Find a Problem Worth Solving" — the start of building a product you believe people would pay for. Over the weeks ahead you'll build it, take it live, grow it, and go to market for your first customers. Everything runs inside your student dashboard.
+Week 1 is "Find a Problem Worth Solving" — the start of building a product you believe people would pay for. Over the weeks ahead you'll build it, take it live, learn to grow it, and go after your first customers. Everything runs inside your student dashboard.
 
 One more thing to aim for: the BUILDER PRIZE. The first builder in your cohort to land a real paying customer — within a year of today — gets their tuition refunded (a real sale, with proof, plus a short video about what you built). The whole point of Build Young, rewarded. See the Terms for details.
 
@@ -427,7 +427,7 @@ function followupEmail(s, week, batch) {
 
 You finished all 12 weeks of Build Young.
 
-You built something real, took it to market, and got your first customers. Your certificate of completion is waiting in your dashboard — download it and add it to LinkedIn.
+You built something real, took it live, and learned how to grow it and go after your first customers. Your certificate of completion is waiting in your dashboard — download it and add it to LinkedIn.
 
 Proud of you,
 The Team`
@@ -932,6 +932,7 @@ const FAQ_ITEMS = [
   { q: "What does a class actually look like?", a: "Classes are live, hands-on building — not lectures. There's no sitting through slides: Sunil kicks off each session with the week's goal, then works alongside the students as a coach — showing them how to direct the AI, reviewing what each kid is making, unblocking them when they're stuck, and pushing their thinking. The students do the building and make the real decisions; Sunil guides, gives feedback, and keeps everyone moving. It's a guided studio, not a talk to sit through." },
   { q: "Is there homework, and what's expected between classes?", a: "Yes, but it's real work, not busywork. A couple of days before each class students get a short heads-up on what to prepare, and between the two weekly sessions they keep building their own product. Plan on the two ~90-minute live classes plus a few hours of building on their own each week — the more they put in, the more they walk away with." },
   { q: "How much does it cost, and what is the refund policy?", a: "Tuition is $999. You get a full refund if you cancel before the cohort starts, and a prorated refund through the first week of class; it is non-refundable after that." },
+  { q: "Are there any costs beyond tuition?", a: "A little. During the build weeks your child will need Claude Pro (about $20/month) — the AI they build with; a free account won't keep up. Everything else we use (GitHub, Vercel, email) is free. Later, a custom web address (domain) is optional — about $10–20/year if you want one." },
   { q: "Is there really a way to earn the tuition back?", a: "Yes — the First-year builder prize. In each cohort, the first student to land a real, paying customer for what they built within a year of enrolling earns their tuition back. It takes proof of the payment and a short, parent-approved video. It's how we reward builders who take it all the way to a real sale." },
   { q: "Can we talk to someone before enrolling?", a: "Yes — every family can book a free 15-minute call with us before enrolling. No pitch, no pressure." },
 ];
@@ -1130,10 +1131,10 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             <div style={{ width: 64, height: 4, borderRadius: 2, margin: "12px auto 0", background: `linear-gradient(90deg, ${C.green}, ${C.turq}, ${C.pink})` }} />
           </div>
           <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 24, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
-            <b className="disp">Raising builders, not consumers.</b> AI just collapsed the barrier to building — what once took a team and a budget, a motivated teenager can now do alone. So the edge isn't a credential; it's <b>taste</b> — knowing what's worth making — and starting early. We teach it by letting them live it: they build, they earn, then they grow what they've made.
+            <b className="disp">Raising builders, not consumers.</b> AI just collapsed the barrier to building — what once took a team and a budget, a motivated teenager can now do alone. So the edge isn't a credential; it's <b>taste</b> — knowing what's worth making — and starting early. We teach it by letting them live it: they build, they ship, then they learn to grow what they've made.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
-            It's not only about the money — it's who a kid becomes in the doing. Making something real, putting it in front of people, living with the wins and the flops shapes a person in ways no lecture can. And a kid who has actually earned and managed money talks about it without shame — and decides from confidence, not fear.
+            It's not only about the money — it's who a kid becomes in the doing. Making something real, putting it in front of people, living with the wins and the flops shapes a person in ways no lecture can. And a kid who has built something real and seen how money actually works talks about it without shame — and decides from confidence, not fear.
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14, marginTop: 24 }}>
             {[
@@ -2818,7 +2819,7 @@ function ShowcaseCapture({ s }) {
       ) : (
         <>
           <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 12px" }}>
-            You did the whole journey — built something real, took it to market, and got your first customers. Share your product and a line about how it went; with your OK, we'd love to feature it as a testimonial.
+            You did the whole journey — built something real, took it live, and learned how to grow it and go after your first customers. Share your product and a line about how it went; with your OK, we'd love to feature it as a testimonial.
           </p>
           <label style={{ display: "block", marginBottom: 12 }}>
             <span style={labelStyle}>Your product's link</span>
@@ -3349,7 +3350,7 @@ const LEGAL = {
   terms: {
     title: "Terms of Service",
     sections: [
-      ["The program", "Build Young offers a live, online program — a 12-week course meeting twice a week, so 24 live sessions in all — delivered over video conference. Students build a product, take it live, grow it, and go to market for their first customers. Classes are live, hands-on, and project-based."],
+      ["The program", "Build Young offers a live, online program — a 12-week course meeting twice a week, so 24 live sessions in all — delivered over video conference. Students build a product, take it live, learn to grow it, and go to market for their first customers. Classes are live, hands-on, and project-based."],
       ["Eligibility", "Students must be in high school. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
       ["Education, not professional advice", "Build Young is hands-on entrepreneurship education. It is not licensed business, financial, or legal advice. Students build their own product; any revenue it may earn belongs to the student and their family — Build Young does not collect, hold, or manage it."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
