@@ -929,7 +929,7 @@ const FAQ_ITEMS = [
   { q: "What will my teen actually do in the program?", a: "Over 12 weeks they find a real problem, build a real product with AI, take it live, grow it with a funnel and metrics, and go get their first customers — finishing with a capstone presentation that parents are welcome to join." },
   { q: "What does “going live” and “getting customers” mean?", a: "Going live means publishing the product they built so it's a real, working thing anyone on the internet can use — not just a class exercise. Getting customers means putting it in front of real people who want it: they learn go-to-market — a simple funnel, metrics, and outreach — to land their first real users, and ideally their first paying ones." },
   { q: "How long is the program and what is the schedule?", a: "It runs 12 weeks, meeting twice a week (about 3 hours total per week), 100% live online over Zoom. Families choose a cohort that meets either Mondays & Wednesdays or Tuesdays & Thursdays." },
-  { q: "What does a class actually look like?", a: "Classes are live, hands-on building — not lectures. There's no sitting through slides: Sunil kicks off each session with the week's goal, then works alongside the students as a coach — showing them how to direct the AI, reviewing what each kid is making, unblocking them when they're stuck, and pushing their thinking. The students do the building and make the real decisions; Sunil guides, gives feedback, and keeps everyone moving. It's a guided studio, not a talk to sit through." },
+  { q: "What does a class actually look like?", a: "Classes are live, hands-on building — not lectures. There's no sitting through slides: we kick off each session with the week's goal, then work alongside the students as a coach — showing them how to direct the AI, reviewing what each kid is making, unblocking them when they're stuck, and pushing their thinking. The students do the building and make the real decisions; we guide, give feedback, and keep everyone moving. It's a guided studio, not a talk to sit through." },
   { q: "Is there homework, and what's expected between classes?", a: "Yes, but it's real work, not busywork. A couple of days before each class students get a short heads-up on what to prepare, and between the two weekly sessions they keep building their own product. Plan on the two ~90-minute live classes plus a few hours of building on their own each week — the more they put in, the more they walk away with." },
   { q: "How much does it cost, and what is the refund policy?", a: "Tuition is $999. You get a full refund if you cancel before the cohort starts, and a prorated refund through the first week of class; it is non-refundable after that." },
   { q: "Are there any costs beyond tuition?", a: "A little. During the build weeks your child will need Claude Pro (about $20/month) — the AI they build with; a free account won't keep up. Everything else we use (GitHub, Vercel, email) is free. Later, a custom web address (domain) is optional — about $10–20/year if you want one." },
@@ -1010,7 +1010,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           {[
             { icon: Video, t: "Live & instructor-led on Zoom" },
             { icon: Lock, t: "A safe sandbox — build for real, low stakes" },
-            { icon: GraduationCap, t: "Led by Sunil · ex-Microsoft" },
+            { icon: GraduationCap, t: "Led by an ex-Microsoft founder" },
             { icon: Check, t: "Full refund before class starts" },
           ].map((x, i) => (
             <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, padding: "7px 14px", fontSize: 12.5, fontWeight: 600, color: C.ink2 }}>
@@ -1084,7 +1084,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 6vw 30px" }}>
         <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Where the <span className="grad">work</span> happens</h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs inside your own student dashboard — not videos to watch, but guided exercises to do. Each week unlocks the next, your work saves as you go, and Sunil reviews it with you live in class.</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs inside your own student dashboard — not videos to watch, but guided exercises to do. Each week unlocks the next, your work saves as you go, and we review it with you live in class.</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
           {[
@@ -1321,7 +1321,7 @@ function CareersModal({ onClose }) {
           <>
             <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 12 }}>
               <Check size={17} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
-              Thanks — we've got your details and Sunil will be in touch. 🙌
+              Thanks — we've got your details and we'll be in touch. 🙌
             </p>
             <button className="btn" onClick={onClose} style={{ marginTop: 16, background: C.ink, color: C.paper2, padding: "11px 20px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Close</button>
           </>
@@ -2509,7 +2509,7 @@ function InfraBuildPlan({ s, setS, bare, week }) {
   const inner = (
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>{cfg.heading}</h3>
-      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 12px" }}>{cfg.intro} <span style={{ color: C.muted }}>You'll do this live with Sunil — AI handles the how.</span></p>
+      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 12px" }}>{cfg.intro} <span style={{ color: C.muted }}>You'll do this live with us — AI handles the how.</span></p>
       {cfg.need && (
         <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, background: "#eef3f0", border: `1px solid ${C.emerald}`, borderRadius: 6, padding: "9px 12px", marginBottom: 14 }}>
           <b style={{ color: C.ink }}>You'll need:</b> {cfg.need}
@@ -2814,7 +2814,7 @@ function ShowcaseCapture({ s }) {
       {status === "done" ? (
         <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, marginTop: 8 }}>
           <Check size={16} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
-          Thank you — Sunil will take a look. We'd love to feature it!
+          Thank you — we'll take a look. We'd love to feature it!
         </p>
       ) : (
         <>
@@ -2842,7 +2842,7 @@ function ShowcaseCapture({ s }) {
                   <input type="url" aria-label="Your video link" value={videoLink} onChange={(e) => setVideoLink(e.target.value)} placeholder="YouTube / Loom / Drive link" style={inputStyle} />
                 </label>
                 <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginTop: 8 }}>
-                  Sunil will verify your <b>real sale</b> (have your payment receipt ready) and check it's first in your cohort. A parent's OK is needed to use your video.
+                  We'll verify your <b>real sale</b> (have your payment receipt ready) and check it's first in your cohort. A parent's OK is needed to use your video.
                 </div>
               </div>
             )}
@@ -2990,7 +2990,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
                 </label>
                 <label style={{ display: "block", marginTop: 10 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: C.ink2, display: "block", marginBottom: 5 }}>Anything else? <span style={{ color: C.muted, fontWeight: 500 }}>(optional — helps us improve)</span></span>
-                  <textarea aria-label="Anything else about why you're cancelling" value={reasonNote} onChange={(e) => setReasonNote(e.target.value)} rows={2} placeholder="Tell Sunil what would have made it a better fit…" style={{ width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
+                  <textarea aria-label="Anything else about why you're cancelling" value={reasonNote} onChange={(e) => setReasonNote(e.target.value)} rows={2} placeholder="Tell us what would have made it a better fit…" style={{ width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
                 </label>
                 <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
                   <button className="btn" onClick={closeWithdraw} style={{ flex: 1, background: C.paper2, color: C.ink, border: `1px solid ${C.line}`, padding: 12, borderRadius: 4, fontSize: 14 }}>Never mind</button>
@@ -3291,7 +3291,7 @@ function WeekPanel({ s, setState, onAdvance, batch, cert, preview }) {
           ) : (
             <div style={{ background: C.paper, borderRadius: 4, padding: 18, textAlign: "center" }}>
               <Sparkles size={22} color={C.gold} style={{ marginBottom: 8 }} />
-              <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Live with Sunil — interactive lesson coming soon</div>
+              <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Live with us — interactive lesson coming soon</div>
               <div style={{ fontSize: 13.5, color: C.muted, marginTop: 6, lineHeight: 1.5, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
                 This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built.
               </div>
