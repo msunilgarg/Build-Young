@@ -4622,7 +4622,7 @@ export default function App() {
     const b = batches[0] || BATCHES[0];
     previewRef.current = true;
     pendingScroll.current = 0; setHistory([]);
-    setState(newState({ name: "Preview Student", email: "preview@build-young.com", batch: b.id, track: b.track }));
+    setState(newState({ name: "Alex Rivera", email: "preview@build-young.com", batch: b.id, track: b.track }));
     setRoute("app");
   });
   // apply the pending scroll after the route's content has rendered
