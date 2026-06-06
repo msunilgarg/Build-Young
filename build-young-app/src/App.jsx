@@ -1205,7 +1205,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         </div>
         )}
         <div style={{ textAlign: "center", marginTop: 22, fontSize: 14, color: C.muted }}>
-          Don't see a time that works for you? <span {...act(() => setScheduleOpen(true))} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Tell us your ideal schedule \u2192</span>
+          Don't see a time that works for you? <span {...act(() => setScheduleOpen(true))} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Tell us your ideal schedule →</span>
         </div>
       </section>
 
@@ -1326,14 +1326,14 @@ function ScheduleRequestModal({ onClose }) {
           <>
             <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 12 }}>
               <Check size={17} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
-              Thanks! We'll factor this into future scheduling \u2014 and email you the moment a cohort that fits opens. \ud83d\ude4c
+              Thanks! We'll factor this into future scheduling — and email you the moment a cohort that fits opens. 🙌
             </p>
             <button className="btn" onClick={onClose} style={{ marginTop: 16, background: C.ink, color: C.paper2, padding: "11px 20px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Close</button>
           </>
         ) : (
           <>
             <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 10 }}>
-              The current cohorts meet evenings Pacific Time. If a different day, time, or timezone would work better for your family, tell us \u2014 it directly shapes which cohorts we open next, and we'll email you when one fits.
+              The current cohorts meet evenings Pacific Time. If a different day, time, or timezone would work better for your family, tell us — it directly shapes which cohorts we open next, and we'll email you when one fits.
             </p>
             <label style={{ display: "block", marginTop: 14, marginBottom: 12 }}>
               <span style={labelStyle}>Your email</span>
@@ -1345,11 +1345,14 @@ function ScheduleRequestModal({ onClose }) {
             </label>
             <label style={{ display: "block", marginBottom: 6 }}>
               <span style={labelStyle}>Your timezone</span>
-              <input aria-label="Your timezone" value={timezone} onChange={(e) => setTimezone(e.target.value)} placeholder="e.g. Eastern (ET), GMT, IST" style={inputStyle} />
+              <select aria-label="Your timezone" value={timezone} onChange={(e) => setTimezone(e.target.value)} style={inputStyle}>
+                <option value="">Select your timezone…</option>
+                {["Pacific (PT)","Mountain (MT)","Central (CT)","Eastern (ET)","Alaska (AKT)","Hawaii (HT)","UK / GMT","Europe (CET)","India (IST)","Other"].map((tz) => <option key={tz} value={tz}>{tz}</option>)}
+              </select>
             </label>
             {err && <div style={{ fontSize: 13, color: C.pink, marginTop: 6 }}>{err}</div>}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
-              <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.emerald : C.line, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8, cursor: canSend ? "pointer" : "not-allowed" }}><Mail size={16} /> {status === "sending" ? "Sending\u2026" : "Send my preference"}</button>
+              <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.emerald : C.line, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8, cursor: canSend ? "pointer" : "not-allowed" }}><Mail size={16} /> {status === "sending" ? "Sending…" : "Send my preference"}</button>
               <button className="btn" onClick={onClose} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "12px 18px", borderRadius: 4, fontSize: 14 }}>Maybe later</button>
             </div>
           </>
@@ -4558,14 +4561,14 @@ function ScheduleRequestsAdmin() {
   }, []);
   return (
     <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>Visitors asking for a different schedule/timezone \u2014 a signal for future cohorts. Emailed to your inbox as they arrive, and auto-notified when you open new cohorts.</div>
-      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading\u2026</div>}
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>Visitors asking for a different schedule/timezone — a signal for future cohorts. Emailed to your inbox as they arrive, and auto-notified when you open new cohorts.</div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
       {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No schedule requests yet.</div>}
       {list && list.map((r, i) => (
         <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
           <span style={{ minWidth: 0 }}>
             <b style={{ color: C.ink }}>{r.email}</b>
-            {(r.preference || r.timezone) && <span style={{ color: C.ink2 }}> \u2014 {[r.preference, r.timezone].filter(Boolean).join(" \u00b7 ")}</span>}
+            {(r.preference || r.timezone) && <span style={{ color: C.ink2 }}> — {[r.preference, r.timezone].filter(Boolean).join(" · ")}</span>}
           </span>
           <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
         </div>
