@@ -121,10 +121,10 @@ export const CONFIG = {
   // lives server-side (cross-device) instead of in localStorage. When false, the app keeps the
   // self-contained localStorage demo flow — no login, per-device state. See api/_lib/auth.js.
   authEnabled: true,
-  // DEV / AUTHORING: unlock every course week (each shows its full activity) so the course can be
-  // built + previewed without advancing the simulation. Set false before launch so weeks lock
-  // again and unlock as the student reaches them.
-  previewAllWeeks: false,
+  // FOUNDER PREVIEW: founders see every course week unlocked (full activity) so they can review/
+  // author all content without advancing the sim. Gated by `&& isFounder` in CoursePanel, so
+  // STUDENTS always lock by progress regardless — safe to leave true in production.
+  previewAllWeeks: true,
 };
 // Auth/state API client. Same-origin fetches carry the HttpOnly session cookie automatically.
 async function postJson(url, body) {
@@ -4526,6 +4526,7 @@ export default function App() {
   const [enrolledTrack, setEnrolledTrack] = useState(""); // cohort track for the check-email screen
   const [enrolledEmail, setEnrolledEmail] = useState(""); // recipient of the set-password email (shown on check-email)
   const [isFounder, setIsFounder] = useState(false); // signed-in user is an admin/founder (from /api/auth/me)
+  const [me, setMe] = useState(null); // the signed-in user record (name/email/isFounder) from /api/auth/me
   const [verifyId, setVerifyId] = useState(""); // cert id for the public /verify/<id> page
   const [batches, setBatches] = useState(BATCHES); // live cohort catalog (hydrated from /api/cohorts)
   const [testimonials, setTestimonials] = useState([]); // public consented student showcase
@@ -4622,7 +4623,7 @@ export default function App() {
     const b = batches[0] || BATCHES[0];
     previewRef.current = true;
     pendingScroll.current = 0; setHistory([]);
-    setState(newState({ name: "Alex Rivera", email: "preview@build-young.com", batch: b.id, track: b.track }));
+    setState(newState({ name: (me && me.name) || "Sample Student", email: (me && me.email) || "preview@build-young.com", batch: b.id, track: b.track }));
     setRoute("app");
   });
   // apply the pending scroll after the route's content has rendered
@@ -4637,7 +4638,7 @@ export default function App() {
   // Sign-in succeeded (login or set-password): pull the student's server state (or seed a fresh
   // one from their account) and open the dashboard.
   const hydrateFromServer = async (user) => {
-    setIsFounder(!!(user && user.isFounder)); // admin elevation comes from the server (FOUNDER_EMAILS)
+    setIsFounder(!!(user && user.isFounder)); setMe(user || null); // admin elevation comes from the server (FOUNDER_EMAILS)
     let srv = await AUTH.getState();
     // A founder who isn't enrolled (no cohort + no saved sim) lands on the ADMIN dashboard —
     // not a fabricated student cohort. (Founders who also enrolled keep the student view + Admin link.)
@@ -4691,7 +4692,7 @@ export default function App() {
           }
           const user = await AUTH.me();
           if (user) {
-            setIsFounder(!!user.isFounder);
+            setIsFounder(!!user.isFounder); setMe(user);
             // Respect the URL on load (refresh/bookmark): the app/admin paths restore that view;
             // marketing paths (/, /enroll, …) stay put — a logged-in user is NOT bounced off the
             // home page (the nav shows "Admin →" / "My dashboard →" to get back in).
