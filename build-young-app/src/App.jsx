@@ -1010,7 +1010,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           {[
             { icon: Video, t: "Live & instructor-led on Zoom" },
             { icon: Lock, t: "A safe sandbox — build for real, low stakes" },
-            { icon: GraduationCap, t: "Led by an ex-Microsoft founder" },
+            { icon: GraduationCap, t: "Led by the founder · ex-Microsoft" },
             { icon: Check, t: "Full refund before class starts" },
           ].map((x, i) => (
             <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, padding: "7px 14px", fontSize: 12.5, fontWeight: 600, color: C.ink2 }}>
