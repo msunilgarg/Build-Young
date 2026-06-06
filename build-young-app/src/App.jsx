@@ -1124,7 +1124,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
                 ))}
               </div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
-                We have two daughters, 15 and 11 — both at Eastside Catholic School in Sammamish, and both with a Starbucks habit we're gently working on. My wife and I take how kids learn seriously — she teaches at Issaquah Montessori School, I build with AI — and we want ours building while the advantage is still theirs to take.
+                We have two daughters, 15 and 11 — both at school in Sammamish, Washington, and both with a Starbucks habit we're gently working on. My wife and I take how kids learn seriously — she teaches at Issaquah Montessori School, I build with AI — and we want ours building while the advantage is still theirs to take.
               </p>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 12 }}>
                 We went looking for a class that actually taught that — building something real with AI and putting it in front of people — and couldn't find one. The free material sits unwatched, because a video doesn't make a teenager show up. So we made the one we wanted for our own kids: a small group, live, a standing weekly time — what turns “available” into “actually done.”
