@@ -1,13 +1,13 @@
 # Build Young
 
-> A live, hands-on program for teenagers (ages 15–18) that teaches them to build a real product with AI and grow it into a business. Tagline: "Raising builders, not consumers." Students build something people would pay for, take it live, grow it, and go get their first customers. In an AI world, the edge isn't a degree; it's what you can build.
+> A live, hands-on program for high school students that teaches them to build a real product with AI and grow it into a business. Tagline: "Raising builders, not consumers." Students build something people would pay for, take it live, grow it, and go get their first customers. In an AI world, the edge isn't a degree; it's what you can build.
 
 ## About
 Build Young is an online program founded by Sunil Garg that teaches teens to build a real product with AI and think like founders. They build a product they believe people would pay for (a small product, app, or service made with AI), take it live, grow it with a funnel and metrics, and go get their first customers. It runs as a 12-week course meeting twice a week (~3 hours/week), delivered live over Zoom. It is hands-on entrepreneurship education, not licensed financial or business advice.
 
 ## Who it's for
-Teens ages 15–18 (the "Builders" program). Each season you choose a schedule — Mondays & Wednesdays, or Tuesdays & Thursdays:
-- Builders program (ages 15–18) — $999
+High schoolers (the "Builders" program). Each season you choose a schedule — Mondays & Wednesdays, or Tuesdays & Thursdays:
+- Builders program (high school) — $999
 
 ## What students learn
 Act 1 — 0 to 1: build & launch the product (Weeks 1–7):

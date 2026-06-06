@@ -948,7 +948,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <header style={{ position: "relative", overflow: "hidden", padding: "40px 6vw 64px" }}>
         <HeroBackdrop />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
-        <div className="rise" style={{ marginBottom: 18 }}><Pill bg={C.ink}>12 weeks · ages 15–18 · live cohorts</Pill></div>
+        <div className="rise" style={{ marginBottom: 18 }}><Pill bg={C.ink}>12 weeks · high school · live cohorts</Pill></div>
         <h1 className="disp rise" style={{ fontSize: "clamp(38px,6.5vw,74px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-.02em", margin: 0 }}>
           Raising <span className="grad">builders,</span><br />not consumers.
         </h1>
@@ -1151,7 +1151,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 6vw 54px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
-          <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>The <b>Builders</b> program is for ages <b>15–18</b>, meeting <b>twice a week</b> (~3 hrs) — choose <b>Mondays & Wednesdays</b> or <b>Tuesdays & Thursdays</b> — <b>100% live online over Zoom</b>. Pick the season and days that fit.</p>
+          <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>The <b>Builders</b> program is for <b>high schoolers</b>, meeting <b>twice a week</b> (~3 hrs) — choose <b>Mondays & Wednesdays</b> or <b>Tuesdays & Thursdays</b> — <b>100% live online over Zoom</b>. Pick the season and days that fit.</p>
           <p style={{ color: C.muted, fontSize: 14, marginTop: 8, lineHeight: 1.55 }}>Not sure it's the right fit? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Talk to me first — book a free 15-minute call →</span> And if you change your mind, <b>cancel before your cohort starts for a full refund</b>; after it begins, withdraw through the <b>first week</b> for a prorated refund; non-refundable after.</p>
           <div style={{ marginTop: 18, maxWidth: 660, marginLeft: "auto", marginRight: "auto", background: "#eef3f0", border: `1px solid ${C.green}`, borderRadius: 8, padding: "14px 18px" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.green }}><Award size={14} /> Earn your tuition back</div>
@@ -1186,7 +1186,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
             return (
             <Card key={b.id} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", height: "100%" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: acc }} />
-              <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track} · ages 15–18</Pill></div>
+              <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track} · high school</Pill></div>
               <div className="disp" style={{ fontSize: 24, fontWeight: 800, marginTop: 12 }}>Starts {b.start}</div>
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom · ~3 hrs/week</div>
@@ -1327,7 +1327,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const [step, setStep] = useState(1);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [age15, setAge15] = useState(false); // COPPA age gate — confirm the student is 15+
+  const [age15, setAge15] = useState(false); // eligibility gate — a parent confirms the student is in high school
   const [batch, setBatch] = useState(preselect || BATCHES[0].id);
   const [notified, setNotified] = useState(false); // captured interest for a full cohort
   const b = BATCHES.find((x) => x.id === batch) || BATCHES[0];
@@ -1398,7 +1398,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                 ) : (<>
                   <label style={{ display: "flex", gap: 9, alignItems: "flex-start", marginTop: 14, fontSize: 13, color: C.ink2, cursor: "pointer", lineHeight: 1.45 }}>
                     <input type="checkbox" checked={age15} onChange={(e) => setAge15(e.target.checked)} style={{ marginTop: 2, width: 16, height: 16, accentColor: C.emerald, flexShrink: 0 }} />
-                    <span>I'm the parent/guardian enrolling, and I confirm the student is <b>15 or older</b>. <span style={{ color: C.muted }}>Build Young is for ages 15–18.</span></span>
+                    <span>I'm the parent/guardian enrolling, and I confirm the student is <b>in high school</b>. <span style={{ color: C.muted }}>Build Young is for high schoolers.</span></span>
                   </label>
                   <div style={{ marginTop: 12, fontSize: 12, color: C.muted, lineHeight: 1.5, background: C.paper, borderRadius: 6, padding: "9px 12px" }}>
                     <b style={{ color: C.ink2 }}>A note on costs:</b> beyond tuition, your child will need <b>Claude Pro</b> (about <b>$20/month</b>) — the AI that builds the app alongside them — for the build weeks; a free account won't keep up. Everything else we use (GitHub, Vercel, Resend for email) is <b>free</b>. Later, a custom web address (domain) is <b>optional</b> and runs about <b>$10–20/year</b> if you want one.
@@ -1756,7 +1756,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
  * work-backwards move. Persists in s.build (auto-saved with the rest of the sim state). */
 // A fully worked Week-1 build plan — Build Young itself — so students see what "good" looks like.
 const EXAMPLE_BUILD = {
-  idea: "Build Young — a live program where teens 15–18 build a real product with AI, grow it into a business, and go get their first customers.",
+  idea: "Build Young — a live program where high schoolers build a real product with AI, grow it into a business, and go get their first customers.",
   pain: `Teens aren't taught how to build something real or how the real world actually works — it's not on any test, and the free videos out there go unwatched.
 Parents worry that in an AI world a degree won't be the edge — but there's no hands-on way for their kid to actually learn to build before adulthood.
 The classes that exist teach coding syntax or theory — not how to take an idea, build it with AI, and put it in front of real people, which is the part that actually shapes a life.`,
@@ -1778,11 +1778,11 @@ Why families love it: It's live and small-group with a standing weekly time, so 
 // looks like). NOTE: keep the spec week-AGNOSTIC in the UI — don't label fields with week numbers;
 // the schedule is revealed week by week so it stays exciting. Worked through for Build Young as the model.
 const SHAPE_EXAMPLE = {
-  product: `What it is: a live, online entrepreneurship program for teens 15–18, delivered as one web app. Over 12 weeks they build a real product with AI, grow it into a business, and go get their first customers. It's hands-on and a bit like a game.
+  product: `What it is: a live, online entrepreneurship program for high schoolers, delivered as one web app. Over 12 weeks they build a real product with AI, grow it into a business, and go get their first customers. It's hands-on and a bit like a game.
 
 What to build first (the core product):
 • A marketing site that explains the program, the curriculum, the price, and the founder, and lists the upcoming cohorts to choose from.
-• An enroll flow: pick a cohort, enter the student's name + email, confirm they're 15+.
+• An enroll flow: pick a cohort, enter the student's name + email, confirm they're in high school.
 • The student dashboard: a week-by-week stepper (1–12). Each week shows its lesson, that week's activity, a Zoom link, and a private notes area; weeks unlock as you reach them.
 • Move through the course: hit "advance" to go to the next week and open its activity. Mistakes are safe — you build in a sandbox.
 
@@ -3170,7 +3170,7 @@ const LEGAL = {
     title: "Privacy Policy",
     sections: [
       ["Who we are", `Build Young provides live, online entrepreneurship classes for teenagers. You can reach us at ${CONFIG.contactEmail}.`],
-      ["Eligibility — ages 15 to 18", "Build Young is intended for students aged 15 to 18, enrolled by a parent or guardian. We do not knowingly create accounts for, or collect personal information from, children under 13. If you believe a child under 13 has provided us information, contact us and we will delete it."],
+      ["Eligibility — high school students", "Build Young is intended for high school students, enrolled by a parent or guardian. We do not knowingly create accounts for, or collect personal information from, children under 13. If you believe a child under 13 has provided us information, contact us and we will delete it."],
       ["What we collect", "To enroll a student and run the class, we collect the enrolling adult's name and email, the student's first name or chosen display name, the selected class, and payment confirmation (processed by our payment provider — we do not store full card numbers). During class activities, the student builds a real product in a hands-on, project-based class."],
       ["How we use it", "We use this information to deliver the class, send class logistics and reminders, process enrollment and refunds, and improve the program. We send a confirmation email at enrollment and follow-ups tied to class sessions."],
       ["What we do not do", "We do not sell or rent personal information. We do not share it for third-party targeted advertising. We do not use student information to train artificial-intelligence models."],
@@ -3184,7 +3184,7 @@ const LEGAL = {
     title: "Terms of Service",
     sections: [
       ["The program", "Build Young offers a live, online program — a 12-week course meeting twice a week, so 24 live sessions in all — delivered over video conference. Students build a product, take it live, grow it, and go to market for their first customers. Classes are live, hands-on, and project-based."],
-      ["Eligibility", "Students must be 15 to 18 years old. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
+      ["Eligibility", "Students must be in high school. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
       ["Education, not professional advice", "Build Young is hands-on entrepreneurship education. It is not licensed business, financial, or legal advice. Students build their own product; any revenue it may earn belongs to the student and their family — Build Young does not collect, hold, or manage it."],
       ["Payment", "Tuition is shown at enrollment and charged through our payment provider at the price listed for the selected cohort."],
       ["Refund policy", "Cancel any time before your cohort's first session for a full refund. Once the program has started, you may withdraw for a prorated refund through the end of the first week — the refund equals the tuition multiplied by the fraction of the program's weeks not yet held. After the first week, tuition is non-refundable."],
