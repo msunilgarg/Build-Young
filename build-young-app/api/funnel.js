@@ -14,7 +14,7 @@
 import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
 import { saveSettings, loadOps, saveOps } from "./_lib/settingsStore.js";
-import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest } from "./_lib/interestStore.js";
+import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest, addScheduleRequest, listScheduleRequests, notifyScheduleRequestsOfNewCohorts } from "./_lib/interestStore.js";
 import { addShowcase, listShowcase } from "./_lib/showcaseStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
 import { listCerts } from "./_lib/cert.js";
@@ -100,6 +100,11 @@ async function read(req, res) {
     return;
   }
 
+  if (req.query && req.query.resource === "schedule") {
+    res.status(200).json({ schedule: await listScheduleRequests() });
+    return;
+  }
+
   if (req.query && req.query.resource === "ops") {
     // anthropicKeyPresent: just a boolean (never the key) so the dashboard can show live agent status.
     res.status(200).json({ ops: await loadOps(), anthropicKeyPresent: !!process.env.ANTHROPIC_API_KEY });
@@ -153,7 +158,7 @@ async function saveCohorts(req, res) {
   if (result.ok) {
     const oldIds = new Set((before.batches || []).map((b) => b.id));
     const added = (result.catalog.batches || []).filter((b) => !oldIds.has(b.id));
-    if (added.length) { try { await notifyInterestOfNewCohorts(added); } catch { /* best-effort */ } }
+    if (added.length) { try { await notifyInterestOfNewCohorts(added); } catch { /* best-effort */ } try { await notifyScheduleRequestsOfNewCohorts(added); } catch { /* best-effort */ } }
   }
   res.status(result.ok ? 200 : 400).json(result);
 }
@@ -215,6 +220,12 @@ async function saveTutorInterest(req, res) {
   res.status(result.ok ? 200 : 400).json(result);
 }
 
+// --- POST ?resource=schedule: public — a visitor requests a different cohort schedule/timezone. ---
+async function saveScheduleRequest(req, res) {
+  const result = await addScheduleRequest((await readBody(req)) || {});
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
 // --- POST ?resource=showcase: public — a graduating student shares their build link + feedback
 // at the capstone (gated client-side by the founder's showcaseEnabled flag). ---
 async function saveShowcase(req, res) {
@@ -226,6 +237,7 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     if (req.query && req.query.resource === "interest") return saveInterest(req, res); // public
     if (req.query && req.query.resource === "tutor") return saveTutorInterest(req, res); // public
+    if (req.query && req.query.resource === "schedule") return saveScheduleRequest(req, res); // public
     if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
     if (req.query && req.query.resource === "scenarios") return makeScenarios(req, res); // public, AI-generated
     return ingest(req, res);     // public: track an event

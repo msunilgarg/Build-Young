@@ -16,6 +16,7 @@ import { loadOps, loadSettings } from "./settingsStore.js";
 const TEAM_EMAIL = "team@build-young.com";
 
 const KEY = "interest:list";
+const SCHEDULE_KEY = "interest:schedule"; // visitors requesting a different schedule / timezone
 const TUTOR_KEY = "interest:tutors"; // prospective live tutors — SEPARATE from cohort interest so
                                      // the new-cohort notification never emails applicants.
 const BASE_URL = () => (process.env.PUBLIC_BASE_URL || "https://www.build-young.com").replace(/\/+$/, "");
@@ -73,6 +74,62 @@ export async function addTutorInterest({ email, linkedin }) {
   // Success if we captured it either way; only fail if BOTH the store and the email fell through.
   if (!stored && !emailed) return { ok: false, error: "We couldn't submit that just now — please email us instead." };
   return { ok: true, emailed };
+}
+
+// --- Schedule/timezone requests (landing → "Tell us your ideal schedule") --------------------
+// A visitor who can't make the listed times tells us their ideal days/times + timezone — a demand
+// signal for future cohorts. Mirror of addTutorInterest: store in KV + email the team. They're
+// auto-notified when new cohorts open (notifyScheduleRequestsOfNewCohorts). { ok, emailed }.
+export async function addScheduleRequest({ email, preference, timezone }) {
+  const e = normalizeEmail(email || "");
+  if (!e || !e.includes("@")) return { ok: false, error: "Please enter a valid email." };
+  const pref = String(preference || "").trim().slice(0, 500);
+  const tz = String(timezone || "").trim().slice(0, 120);
+  if (!pref && !tz) return { ok: false, error: "Tell us the day/time or timezone you'd prefer." };
+  let stored = false;
+  if (kvConfigured()) {
+    const rec = JSON.stringify({ email: e, preference: pref, timezone: tz, ts: Date.now() });
+    try { await kvCommand(["RPUSH", SCHEDULE_KEY, rec]); await kvCommand(["LTRIM", SCHEDULE_KEY, "-5000", "-1"]); stored = true; } catch { /* fall through */ }
+  }
+  let emailed = false;
+  try {
+    const [ops, settings] = await Promise.all([loadOps(), loadSettings()]);
+    const to = (ops && ops.notifyEmail) || (settings && settings.contactEmail) || TEAM_EMAIL;
+    const sent = await sendEmail({
+      to,
+      subject: "New schedule request — Build Young",
+      body: `Someone wants a Build Young cohort on a different schedule.\n\nTheir email: ${e}\nPreferred days/times: ${pref || "(not specified)"}\nTimezone: ${tz || "(not specified)"}\n\nReply to them directly to follow up.`,
+      replyTo: e,
+    });
+    emailed = !!(sent && sent.ok);
+  } catch { /* keep going */ }
+  if (!stored && !emailed) return { ok: false, error: "We couldn't submit that just now — please email us instead." };
+  return { ok: true, emailed };
+}
+
+// Newest first.
+export async function listScheduleRequests() {
+  if (!kvConfigured()) return [];
+  try { const raw = (await kvCommand(["LRANGE", SCHEDULE_KEY, "0", "-1"])) || []; return raw.map(parse).filter(Boolean).reverse(); } catch { return []; }
+}
+
+// When new cohorts open, email everyone who asked for a different schedule (a new time might fit),
+// then clear the list. De-dupes by email. Best-effort; returns how many were emailed.
+export async function notifyScheduleRequestsOfNewCohorts(newBatches) {
+  if (!kvConfigured() || !Array.isArray(newBatches) || !newBatches.length) return { notified: 0 };
+  const list = await listScheduleRequests();
+  if (!list.length) return { notified: 0 };
+  const byEmail = new Map();
+  for (const r of list) if (r && r.email) byEmail.set(r.email, r);
+  const lines = newBatches.map((b) => `  •  ${b.track || "Builders"} — ${b.day || ""}${b.start ? ` (starts ${b.start})` : ""}`).join("\n");
+  let notified = 0;
+  for (const r of byEmail.values()) {
+    const subject = "New Build Young cohorts just opened — a time might work for you";
+    const body = `Hi there,\n\nYou asked us about a different schedule for Build Young, so here's a heads-up — we just opened new cohort(s):\n\n${lines}\n\nSee if one fits and grab a seat:\n  •  ${BASE_URL()}/enroll\n\nIf these still don't work, just reply and tell us what would.\nThe Build Young Team`;
+    try { const sent = await sendEmail({ to: r.email, subject, body }); if (sent && sent.ok) notified += 1; } catch { /* keep going */ }
+  }
+  try { await kvDel(SCHEDULE_KEY); } catch { /* best-effort */ }
+  return { notified };
 }
 
 // Newest first.

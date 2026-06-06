@@ -923,6 +923,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
   const [openActs, setOpenActs] = useState({}); // act -> bool; week cards are compact by default, expand to show details
   const toggleAct = (a) => setOpenActs((p) => ({ ...p, [a]: !p[a] }));
   const [careers, setCareers] = useState(false); // "teach with us" interest modal
+  const [scheduleOpen, setScheduleOpen] = useState(false); // "request a different schedule" modal
   return (
     <div style={{ position: "relative", zIndex: 2 }}>
       {/* nav */}
@@ -1203,6 +1204,9 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           })}
         </div>
         )}
+        <div style={{ textAlign: "center", marginTop: 22, fontSize: 14, color: C.muted }}>
+          Don't see a time that works for you? <span {...act(() => setScheduleOpen(true))} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Tell us your ideal schedule \u2192</span>
+        </div>
       </section>
 
       <footer style={{ borderTop: `1px solid ${C.line}`, padding: "26px 6vw", textAlign: "center", color: C.muted, fontSize: 13 }}>
@@ -1218,6 +1222,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       </footer>
 
       {careers && <CareersModal onClose={() => setCareers(false)} />}
+      {scheduleOpen && <ScheduleRequestModal onClose={() => setScheduleOpen(false)} />}
     </div>
   );
 }
@@ -1283,6 +1288,68 @@ function CareersModal({ onClose }) {
             </p>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.emerald : C.line, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8, cursor: canSend ? "pointer" : "not-allowed" }}><Mail size={16} /> {status === "sending" ? "Sending…" : "Express interest"}</button>
+              <button className="btn" onClick={onClose} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "12px 18px", borderRadius: 4, fontSize: 14 }}>Maybe later</button>
+            </div>
+          </>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// "Request a different schedule" — visitors who can't make the listed times tell us their ideal
+// days/times + timezone. A demand signal for future cohorts; emailed to the founder + stored, and
+// they're auto-notified when new cohorts open. Mirrors CareersModal.
+function ScheduleRequestModal({ onClose }) {
+  const [email, setEmail] = useState("");
+  const [preference, setPreference] = useState("");
+  const [timezone, setTimezone] = useState("");
+  const [status, setStatus] = useState("idle");
+  const [err, setErr] = useState("");
+  const canSend = validEmail(email) && (preference.trim() || timezone.trim()) && status !== "sending";
+  const submit = async () => {
+    if (!canSend) return;
+    setStatus("sending"); setErr("");
+    const r = await postJson("/api/funnel?resource=schedule", { email: email.trim(), preference: preference.trim(), timezone: timezone.trim() });
+    if (r.ok) setStatus("done");
+    else { setStatus("idle"); setErr(r.error || "Couldn't submit just now — please try again."); }
+  };
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Request a different schedule" onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(36,36,36,.5)", display: "grid", placeItems: "center", padding: 20 }}>
+      <Card onClick={(e) => e.stopPropagation()} style={{ padding: 28, maxWidth: 520, width: "100%", maxHeight: "88vh", overflowY: "auto" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eef3f0", color: C.green, fontSize: 11.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 4 }}><Calendar size={13} /> Future cohorts</div>
+        <h2 className="disp" style={{ fontSize: 24, fontWeight: 800, margin: "14px 0 0" }}>Want a different time?</h2>
+        {status === "done" ? (
+          <>
+            <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 12 }}>
+              <Check size={17} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
+              Thanks! We'll factor this into future scheduling \u2014 and email you the moment a cohort that fits opens. \ud83d\ude4c
+            </p>
+            <button className="btn" onClick={onClose} style={{ marginTop: 16, background: C.ink, color: C.paper2, padding: "11px 20px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Close</button>
+          </>
+        ) : (
+          <>
+            <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 10 }}>
+              The current cohorts meet evenings Pacific Time. If a different day, time, or timezone would work better for your family, tell us \u2014 it directly shapes which cohorts we open next, and we'll email you when one fits.
+            </p>
+            <label style={{ display: "block", marginTop: 14, marginBottom: 12 }}>
+              <span style={labelStyle}>Your email</span>
+              <input type="email" aria-label="Your email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
+            </label>
+            <label style={{ display: "block", marginBottom: 12 }}>
+              <span style={labelStyle}>Preferred days / times</span>
+              <input aria-label="Preferred days and times" value={preference} onChange={(e) => setPreference(e.target.value)} placeholder="e.g. weekend mornings, or Tue/Thu after 4pm" style={inputStyle} />
+            </label>
+            <label style={{ display: "block", marginBottom: 6 }}>
+              <span style={labelStyle}>Your timezone</span>
+              <input aria-label="Your timezone" value={timezone} onChange={(e) => setTimezone(e.target.value)} placeholder="e.g. Eastern (ET), GMT, IST" style={inputStyle} />
+            </label>
+            {err && <div style={{ fontSize: 13, color: C.pink, marginTop: 6 }}>{err}</div>}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
+              <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.emerald : C.line, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8, cursor: canSend ? "pointer" : "not-allowed" }}><Mail size={16} /> {status === "sending" ? "Sending\u2026" : "Send my preference"}</button>
               <button className="btn" onClick={onClose} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "12px 18px", borderRadius: 4, fontSize: 14 }}>Maybe later</button>
             </div>
           </>
@@ -3730,6 +3797,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <BuildPlansAdmin />
           <h2 style={h2s}>Tutor applications</h2>
           <TutorInterestAdmin />
+          <h2 style={h2s}>Schedule requests</h2>
+          <ScheduleRequestsAdmin />
           <h2 style={h2s}>Student showcase</h2>
           <ShowcaseAdmin />
           <h2 style={h2s}>Reset a test account</h2>
@@ -4466,6 +4535,37 @@ function TutorInterestAdmin() {
           <span style={{ minWidth: 0, display: "flex", flexWrap: "wrap", gap: "2px 8px", alignItems: "baseline" }}>
             <b style={{ color: C.ink }}>{r.email}</b>
             {r.linkedin && <a href={r.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}><Linkedin size={12} /> LinkedIn ↗</a>}
+          </span>
+          <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+// Founder view of schedule/timezone requests from the landing ("Tell us your ideal schedule").
+// Read-only demand signal; also emailed to your inbox, and these people are auto-notified when new
+// cohorts open.
+function ScheduleRequestsAdmin() {
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=schedule"); const d = r.ok ? await r.json() : {}; if (live) setList(Array.isArray(d.schedule) ? d.schedule : []); }
+      catch { if (live) setList([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>Visitors asking for a different schedule/timezone \u2014 a signal for future cohorts. Emailed to your inbox as they arrive, and auto-notified when you open new cohorts.</div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading\u2026</div>}
+      {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No schedule requests yet.</div>}
+      {list && list.map((r, i) => (
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
+          <span style={{ minWidth: 0 }}>
+            <b style={{ color: C.ink }}>{r.email}</b>
+            {(r.preference || r.timezone) && <span style={{ color: C.ink2 }}> \u2014 {[r.preference, r.timezone].filter(Boolean).join(" \u00b7 ")}</span>}
           </span>
           <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
         </div>
