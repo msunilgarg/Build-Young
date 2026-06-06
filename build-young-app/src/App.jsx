@@ -4164,6 +4164,32 @@ function CohortEditor() {
       <input aria-label={`${label} for cohort ${i + 1}`} type={type} value={rows[i][key] ?? ""} onChange={(e) => update(i, key, type === "number" ? e.target.value : e.target.value)} style={inp} /></label>
   );
 
+  // The cohort `day` stores ONE full label ("Mondays & Wednesdays · 5:00–6:30 PM PT"). Here we edit
+  // it as days+time TEXT + a timezone DROPDOWN, recomposing on change so `day` stays a single string
+  // (nothing downstream — display, emails, cron — has to change). Picker enforces a consistent tz.
+  const TZS = ["PT", "MT", "CT", "ET", "AKT", "HT", "GMT", "CET", "IST"];
+  const TZ_KNOWN = new Set([...TZS, "PST", "PDT", "MST", "MDT", "CST", "CDT", "EST", "EDT", "AKST", "AKDT", "HST", "UTC"]);
+  const splitDay = (day) => {
+    const d = String(day || "").trim();
+    const m = d.match(/\s([A-Za-z]{2,4})$/);
+    const tz = m ? m[1].toUpperCase() : "";
+    return (m && TZ_KNOWN.has(tz)) ? { time: d.slice(0, m.index).trim(), tz } : { time: d, tz: "" };
+  };
+  const setDay = (i, time, tz) => update(i, "day", `${time}${tz ? ` ${tz}` : ""}`.trim());
+  const dayField = (i) => {
+    const { time, tz } = splitDay(rows[i].day);
+    const opts = (tz && !TZS.includes(tz)) ? [tz, ...TZS] : TZS; // keep a legacy tz selectable
+    return (<>
+      <label style={{ gridColumn: "span 1", minWidth: 0 }}><span style={lab}>Days &amp; time</span>
+        <input aria-label={`Days and time for cohort ${i + 1}`} value={time} onChange={(e) => setDay(i, e.target.value, tz)} placeholder="Mondays & Wednesdays · 5:00–6:30 PM" style={inp} /></label>
+      <label style={{ gridColumn: "span 1", minWidth: 0 }}><span style={lab}>Timezone</span>
+        <select aria-label={`Timezone for cohort ${i + 1}`} value={tz} onChange={(e) => setDay(i, time, e.target.value)} style={inp}>
+          <option value="">—</option>
+          {opts.map((t) => <option key={t} value={t}>{t}</option>)}
+        </select></label>
+    </>);
+  };
+
   return (
     <Card style={{ padding: 16 }}>
       <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Edits go live on the public site immediately (no redeploy). Each cohort's <b>id</b> must be unique and stable; its Stripe link's metadata/redirect should use that id.</div>
@@ -4174,7 +4200,7 @@ function CohortEditor() {
             {field(i, "season", "Season key")}
             {field(i, "track", "Track")}
             {field(i, "start", "Start (e.g. Sep 7, 2026)")}
-            {field(i, "day", "Day label")}
+            {dayField(i)}
             {field(i, "price", "Price ($)", "number")}
             {field(i, "seats", "Seats", "number")}
             {field(i, "zoom", "Zoom URL")}
