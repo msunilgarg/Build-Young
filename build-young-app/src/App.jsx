@@ -1311,7 +1311,7 @@ function ScheduleRequestModal({ onClose }) {
     if (!canSend) return;
     setStatus("sending"); setErr("");
     const r = await postJson("/api/funnel?resource=schedule", { email: email.trim(), preference: preference.trim(), timezone: timezone.trim() });
-    if (r.ok) setStatus("done");
+    if (r.ok) { setStatus("done"); track("schedule_requested", {}); }
     else { setStatus("idle"); setErr(r.error || "Couldn't submit just now — please try again."); }
   };
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
@@ -1366,28 +1366,33 @@ function ScheduleRequestModal({ onClose }) {
 // Source-cited "why this matters" stats — social proof for the enroll/call pages.
 // Source-cited "why this matters" stats. Each links to its PRIMARY source — keep these
 // honest and current; update the numbers AND links together if you refresh them.
+// Why this matters — said by the people actually building the AI era. Each quote is verbatim and
+// links to its PRIMARY source (per the stats-integrity bar). The thread: the barrier to building
+// just collapsed, so the edge is starting young — which is exactly what Build Young teaches.
 const WHY_STATS = [
-  { n: "62%", t: "of teens would consider a side hustle, starting a business, or launching a nonprofit as part of their career", src: "Junior Achievement / Citizens, 2025", url: "https://www.citizensbank.com/about-us/community/citizens-impact/citizens-junior-achievement-survey-teens-about-future-of-work.aspx" },
-  { n: "42%", t: "report having actually taken a class in school on how to manage money", src: "Junior Achievement / Citizens · Wakefield Research, 2024", url: "https://www.prnewswire.com/news-releases/survey-money-worries-weigh-on-americas-teens-education-key-path-to-financial-wellness-302110920.html" },
-  { n: "65%", t: "of teens believe their future happiness depends on how much money they make", src: "Junior Achievement / Citizens · Wakefield Research, 2024", url: "https://www.prnewswire.com/news-releases/survey-money-worries-weigh-on-americas-teens-education-key-path-to-financial-wellness-302110920.html" },
+  { quote: "The hottest new programming language is English.", who: "Andrej Karpathy", role: "OpenAI co-founding member", src: "@karpathy, 2023", url: "https://x.com/karpathy/status/1617979122625712128" },
+  { quote: "A one-person billion-dollar company would have been unimaginable without AI — and now it will happen.", who: "Sam Altman", role: "OpenAI CEO", src: "Fortune, 2024", url: "https://fortune.com/2024/02/04/sam-altman-one-person-unicorn-silicon-valley-founder-myth/" },
+  { quote: "Everyone is a programmer — now, you just have to say something to the computer.", who: "Jensen Huang", role: "NVIDIA CEO", src: "Computex, 2023", url: "https://www.cnbc.com/2023/05/30/everyone-is-a-programmer-with-generative-ai-nvidia-ceo-.html" },
 ];
 function WhyStrip() {
   return (
     <div style={{ marginTop: 28 }}>
-      <div style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 14 }}>Why this matters</div>
+      <div style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".06em", textTransform: "uppercase", marginBottom: 14 }}>Why this matters — from the people building it</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", gap: 14 }}>
         {WHY_STATS.map((s, i) => {
           const c = [C.emerald, C.turq, C.gold, C.green][i % 4];
           return (
-            <div key={i} style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 8, padding: "16px 18px", borderTop: `3px solid ${c}` }}>
-              <div className="disp" style={{ fontSize: s.proof ? 20 : 30, fontWeight: 800, color: c, lineHeight: 1.05 }}>{s.n}</div>
-              <div style={{ fontSize: 13, color: C.ink2, marginTop: 8, lineHeight: 1.45 }}>{s.t}</div>
+            <div key={i} style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 8, padding: "16px 18px", borderTop: `3px solid ${c}`, display: "flex", flexDirection: "column" }}>
+              <div aria-hidden="true" className="disp" style={{ fontSize: 34, fontWeight: 800, color: c, lineHeight: .6, height: 18 }}>“</div>
+              <div className="disp" style={{ fontSize: 16, fontWeight: 700, color: C.ink, marginTop: 6, lineHeight: 1.35 }}>{s.quote}</div>
+              <div style={{ fontSize: 12.5, color: C.ink2, marginTop: 10, fontWeight: 700 }}>{s.who}</div>
+              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>{s.role}</div>
               <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", fontSize: 10.5, color: C.muted, marginTop: 8, textDecoration: "underline", textDecorationColor: C.line }}>{s.src} ↗</a>
             </div>
           );
         })}
       </div>
-      <p style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 12, lineHeight: 1.5 }}>School isn't filling the gap — Build Young does, before the stakes are real.</p>
+      <p style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 12, lineHeight: 1.5 }}>The edge isn't a credential anymore — it's what you can build, and the time to start is now.</p>
     </div>
   );
 }

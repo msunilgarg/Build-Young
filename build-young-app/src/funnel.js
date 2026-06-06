@@ -19,6 +19,8 @@ export const EVENTS = [
   "class_started", "week_advanced", "graduated", "checkin_completed", "withdrawn",
   // Traffic & engagement signals (not funnel stages): per-screen dwell + the exit screen.
   "screen_view", "exit",
+  // Demand signal (not a funnel stage): a visitor asked for a different schedule/timezone.
+  "schedule_requested",
 ];
 
 // The linear conversion funnel (the spine). `call_booked` is a parallel assist path and the
