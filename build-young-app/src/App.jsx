@@ -271,7 +271,7 @@ const WEEKS = [
   { act: 3, t: "Prepare Your Capstone", s: "Get ready to present — pull together the story of what you built, who it's for, and what's next, and polish your product so it shines on the final call.", action: "build", comingSoon: true },
   { act: 3, t: "Capstone: Present What You Built", s: "Present it all — the product you made, who's using it, and what you'd build next. This is your moment to show family and friends what you created; parents are welcome to join this final call to watch.", action: "capstone" },
 ];
-const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Make your parents proud" };
+const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "Learn how to grow it", 3: "Make your parents proud" };
 
 // CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
 export const CHECKIN_TIME = "5:00–6:00 PM PT"; // 60-minute follow-up check-in (the week after the course)
@@ -1025,14 +1025,14 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
       <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 6vw 24px" }}>
         <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works — the journey in <span className="grad">three acts</span></h2>
-          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs as one live, hands-on build — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>grow it into a business</b> (Weeks 8–10), and <b>present what you built</b> at the capstone (Weeks 11–12).</p>
+          <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs as one live, hands-on build — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>learn how to grow it</b> (Weeks 8–10), and <b>present what you built</b> at the capstone (Weeks 11–12).</p>
         </div>
         {Object.keys(ACTS).map(Number).map((act) => {
           const accent = act === 1 ? C.green : act === 2 ? C.pink : C.turq;
           const promise = act === 1
             ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and e-commerce, so a stranger can use it and buy."
             : act === 2
-            ? "Build a funnel, track what's actually working (active users + retention), and grow it into a business. You learn to read the numbers on practice funnels built from YOUR own product — personalized to what you shipped, not textbook examples, with AI to spin up tougher ones on demand. There's no paycheck handed to you — the product you built is the income."
+            ? "Learn how products actually grow: build a funnel, read the numbers that matter — active users, retention, where people drop off — and find the levers that move them. You practice on funnels built from YOUR own product, not textbook examples, with AI to spin up tougher ones on demand. The focus here is the skill of growth — real traction is the long game they keep playing after the course."
             : "Get ready for the capstone, then present what you built — the product, who's using it, and what you'd build next. Week 11 you prep and polish; Week 12 you present it live to family and friends (parents are welcome to join the final call), and graduate with a product you shipped and a certificate.";
           const weeks = WEEKS.map((w, i) => ({ w, n: i + 1 })).filter((x) => x.w.act === act);
           const open = !!openActs[act];
@@ -1899,7 +1899,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>What to expect</h3>
           <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — 0 → 1.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
-          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — 1 → 100.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth. Your income comes from your product.</span></div>
+          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — Learn to grow it.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth — the skills that grow a product.</span></div>
           <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Prepare your capstone.</b> Pull it all together for the final presentation: polish your product and shape the story of what you built and who it's for.</span></div>
           <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Present everything — what you built, who's using it, and what you'd build next. Parents are welcome to join this final call to watch.</span></div>
           <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
@@ -1908,7 +1908,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         <Card style={{ padding: 20 }}>
           <h3 style={sectionTitle}>How each week works</h3>
           <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
-          <div style={li}>{num(2)}<span>Open <b>Course progress</b> and do that week's activity — build your product with AI, grow it into a business, and go get your first customers.</span></div>
+          <div style={li}>{num(2)}<span>Open <b>Course progress</b> and do that week's activity — build your product with AI, learn how to grow it, and go after your first customers.</span></div>
           <div style={li}>{num(3)}<span>Done with the class &amp; that week's activity? Hit <b>Move to next week</b> in <b>Course progress</b> to advance through the course.</span></div>
         </Card>
       </div>
