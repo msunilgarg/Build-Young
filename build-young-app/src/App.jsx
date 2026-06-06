@@ -270,10 +270,10 @@ const WEEKS = [
 const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "1 → 100 · Grow it into a business", 3: "Make your parents proud" };
 
 // CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
-export const CHECKIN_TIME = "5:00–6:00 PM PST"; // 60-minute follow-up check-in (the week after the course)
+export const CHECKIN_TIME = "5:00–6:00 PM PT"; // 60-minute follow-up check-in (the week after the course)
 // The check-in is ONE MONTH after the cohort's final (Week 12) class, kept on the cohort's
 // usual weekday (the same weekday it started/meets). Returns a label like
-// "Mon, Dec 28, 2026 · 5:00–6:00 PM PST", or "" if the start is unparseable.
+// "Mon, Dec 28, 2026 · 5:00–6:00 PM PT", or "" if the start is unparseable.
 export function checkinDateLabel(batch) {
   const start = batch && batch.start ? new Date(batch.start) : null;
   if (!start || isNaN(start.getTime())) return "";
@@ -284,10 +284,10 @@ export function checkinDateLabel(batch) {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }) + " · " + CHECKIN_TIME;
 }
 // The student's NEXT live session, as a CONCRETE date, so the dashboard banner reads
-// "Mon, Sep 7, 2026 · 5:00–6:30 PM PST" rather than just the recurring weekday — making it
+// "Mon, Sep 7, 2026 · 5:00–6:30 PM PT" rather than just the recurring weekday — making it
 // clear it's the upcoming class. During the course, week N's class is start + (N-1)*7 days;
 // once in the follow-up phase we reuse checkinDateLabel. The time-of-day is lifted from the
-// cohort's `day` label ("Mondays · 5:00–6:30 PM PST"). Falls back to batch.day if start is
+// cohort's `day` label ("Mondays · 5:00–6:30 PM PT"). Falls back to batch.day if start is
 // unparseable (mirrors checkinDateLabel's guard).
 export function nextClassLabel(batch, phase, week) {
   if (!batch) return "";
@@ -295,7 +295,7 @@ export function nextClassLabel(batch, phase, week) {
   const start = new Date(batch.start);
   if (isNaN(start.getTime())) return batch.day;
   const d = new Date(start.getTime() + (week - 1) * 7 * 24 * 60 * 60 * 1000);
-  const time = (batch.day.split("·")[1] || "").trim(); // "5:00–6:30 PM PST"
+  const time = (batch.day.split("·")[1] || "").trim(); // "5:00–6:30 PM PT"
   const date = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
   return time ? `${date} · ${time}` : date;
 }
@@ -375,7 +375,7 @@ export function nextClass(batch, day = new Date()) {
   }
   return null;
 }
-// The time-of-day portion of a cohort's `day` label ("Mondays & Wednesdays · 5:00–6:30 PM PST").
+// The time-of-day portion of a cohort's `day` label ("Mondays & Wednesdays · 5:00–6:30 PM PT").
 export function cohortTime(batch) {
   const parts = String((batch && batch.day) || "").split("·");
   return parts.length > 1 ? parts.slice(1).join("·").trim() : "";
