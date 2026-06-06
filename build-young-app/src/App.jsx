@@ -1397,6 +1397,40 @@ function WhyStrip() {
   );
 }
 
+// Drop-off capture on the Enroll page: a one-tap "what's holding you back?" chip row. The picked
+// `reason` is an aggregate-safe value (in the funnel ALLOWED_PROPS) — no PII — so the founder can
+// see WHY people stall at the decision point. Fires once per session, then thanks the visitor.
+const HESITATION_REASONS = [
+  { value: "cost", label: "The price" },
+  { value: "schedule", label: "Schedule or timing" },
+  { value: "fit", label: "Not sure it's a fit" },
+  { value: "ask_teen", label: "Need to ask my teen" },
+  { value: "exploring", label: "Just exploring" },
+];
+function HesitationStrip() {
+  const [picked, setPicked] = useState("");
+  const choose = (value) => {
+    if (picked) return; // fire once
+    setPicked(value);
+    track("hesitation", { reason: value });
+  };
+  return (
+    <div style={{ marginTop: 24, textAlign: "center" }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 10 }}>{picked ? "Thanks — that helps. Take your time; I'm here when you're ready." : "Still deciding? What's holding you back?"}</div>
+      {!picked && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+          {HESITATION_REASONS.map((r) => (
+            <span key={r.value} {...act(() => choose(r.value))}
+              style={{ fontSize: 12.5, color: C.ink2, background: C.card, border: `1px solid ${C.line}`, borderRadius: 999, padding: "6px 14px", cursor: "pointer" }}>
+              {r.label}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const BATCHES = useCohorts(); // live catalog
   const [step, setStep] = useState(1);
@@ -1528,6 +1562,7 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
               </aside>
             </div>
             <WhyStrip />
+            <HesitationStrip />
           </div>
         )}
 
@@ -3734,6 +3769,18 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                   <div key={s.screen} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
                     <span style={{ color: C.ink2 }}>{screenName(s.screen)}</span>
                     <b>{s.count.toLocaleString()} · {ratePct(s.pct)}</b>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <Card style={{ padding: 16 }}>
+              <b style={{ fontSize: 13.5 }}>Why they hesitate</b>
+              <div style={{ marginTop: 10 }}>
+                {eng.hesitations.length === 0 && <div style={muted}>No one's told us yet <span>(from the “what's holding you back?” chips on Enroll).</span></div>}
+                {eng.hesitations.slice(0, 8).map((h) => (
+                  <div key={h.reason} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+                    <span style={{ color: C.ink2 }}>{(HESITATION_REASONS.find((r) => r.value === h.reason) || {}).label || h.reason}</span>
+                    <b>{h.count.toLocaleString()}</b>
                   </div>
                 ))}
               </div>

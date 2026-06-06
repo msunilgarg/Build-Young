@@ -160,6 +160,9 @@ describe("traffic & engagement aggregation", () => {
     ev("exit", { screen: "home" }),
     ev("exit", { screen: "home" }),
     ev("exit", { screen: "enroll" }),
+    ev("hesitation", { reason: "cost" }),
+    ev("hesitation", { reason: "cost" }),
+    ev("hesitation", { reason: "schedule" }),
   ];
   const eng = engagement(events);
 
@@ -183,8 +186,12 @@ describe("traffic & engagement aggregation", () => {
     expect(home.count).toBe(2);
     expect(home.pct).toBeCloseTo(2 / 3, 5);
   });
+  it("ranks hesitation reasons by count, most common first", () => {
+    expect(eng.hesitations[0]).toEqual({ reason: "cost", count: 2 });
+    expect(eng.hesitations.find((h) => h.reason === "schedule").count).toBe(1);
+  });
   it("is empty + safe on no/garbage input", () => {
-    expect(engagement([])).toEqual({ sources: [], countries: [], screens: [], exits: [], exitTotal: 0 });
+    expect(engagement([])).toEqual({ sources: [], countries: [], screens: [], exits: [], exitTotal: 0, hesitations: [] });
     expect(engagement(null).sources).toEqual([]);
   });
 });
