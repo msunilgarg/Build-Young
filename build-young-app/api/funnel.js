@@ -29,6 +29,8 @@ const EVENTS = new Set([
   "visited", "enroll_started", "call_booked", "enrolled",
   "class_started", "week_advanced", "graduated", "checkin_completed", "withdrawn",
   "screen_view", "exit", // traffic & engagement: per-screen dwell + exit screen
+  "schedule_requested", // demand signal: a visitor asked for a different schedule/timezone
+  "hesitation", // drop-off signal: a visitor told us what's holding them back on Enroll
 ]);
 const ALLOWED_PROPS = ["season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall", "stage", "source", "screen", "ms", "reason"];
 

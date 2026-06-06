@@ -19,6 +19,10 @@ export const EVENTS = [
   "class_started", "week_advanced", "graduated", "checkin_completed", "withdrawn",
   // Traffic & engagement signals (not funnel stages): per-screen dwell + the exit screen.
   "screen_view", "exit",
+  // Demand signal (not a funnel stage): a visitor asked for a different schedule/timezone.
+  "schedule_requested",
+  // Drop-off signal (not a funnel stage): a visitor told us why they're hesitating on Enroll.
+  "hesitation",
 ];
 
 // The linear conversion funnel (the spine). `call_booked` is a parallel assist path and the
@@ -191,7 +195,19 @@ export function engagement(events) {
     .map(([screen, count]) => ({ screen, count, pct: exitTotal ? count / exitTotal : 0 }))
     .sort((a, b) => b.count - a.count);
 
-  return { sources, countries, screens, exits, exitTotal };
+  // Why people hesitate on Enroll: the aggregate `reason` from the `hesitation` chip row. Raw
+  // value + count (the UI maps the value to a human label); most common first.
+  const hesCount = {};
+  evs.forEach((e) => {
+    if (e && e.event === "hesitation" && e.props && e.props.reason) {
+      hesCount[e.props.reason] = (hesCount[e.props.reason] || 0) + 1;
+    }
+  });
+  const hesitations = Object.entries(hesCount)
+    .map(([reason, count]) => ({ reason, count }))
+    .sort((a, b) => b.count - a.count);
+
+  return { sources, countries, screens, exits, exitTotal, hesitations };
 }
 
 // ---- Investor data-room exports -----------------------------------------------------------
