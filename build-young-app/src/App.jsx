@@ -36,6 +36,10 @@ const C = {
 const FONTS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 * { box-sizing: border-box; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary { position: relative; padding-right: 28px; }
+details > summary::after { content: "+"; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 20px; font-weight: 400; color: ${C.muted}; line-height: 1; }
+details[open] > summary::after { content: "\\2212"; }
 .flp { font-family: "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; color: ${C.ink}; -webkit-font-smoothing: antialiased; }
 .disp { font-family: "Space Grotesk","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; letter-spacing: -.02em; }
 .grad { background: linear-gradient(95deg, ${C.emerald} 0%, ${C.turq} 45%, ${C.green} 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
@@ -917,6 +921,37 @@ function Testimonials({ items = [] }) {
   );
 }
 
+// Visible FAQ on the landing page. KEEP IN SYNC with the FAQPage JSON-LD in index.html
+// (that block is what search engines read; this is what visitors read).
+const FAQ_ITEMS = [
+  { q: "Who is Build Young for?", a: "Build Young is for high school students. A parent or guardian completes enrollment on the student's behalf. No prior experience is needed." },
+  { q: "Does my teen need to know how to code?", a: "No. Students build their product using AI tools, so they don't need to know how to code beforehand. They learn to build by building, with AI as the tool." },
+  { q: "What will my teen actually do in the program?", a: "Over 12 weeks they find a real problem, build a real product with AI, take it live, grow it with a funnel and metrics, and go get their first customers — finishing with a capstone presentation that parents are welcome to join." },
+  { q: "How long is the program and what is the schedule?", a: "It runs 12 weeks, meeting twice a week (about 3 hours total per week), 100% live online over Zoom. Families choose a cohort that meets either Mondays & Wednesdays or Tuesdays & Thursdays." },
+  { q: "How much does it cost, and what is the refund policy?", a: "Tuition is $999. You get a full refund if you cancel before the cohort starts, and a prorated refund through the first week of class; it is non-refundable after that." },
+  { q: "Can we talk to someone before enrolling?", a: "Yes — every family can book a free 15-minute call with Sunil before enrolling. No pitch, no pressure." },
+];
+function FaqSection({ onCall }) {
+  return (
+    <section style={{ maxWidth: 760, margin: "0 auto", padding: "8px 6vw 54px" }}>
+      <div style={{ textAlign: "center", marginBottom: 22 }}>
+        <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Questions parents ask</h2>
+      </div>
+      <div style={{ display: "grid", gap: 10 }}>
+        {FAQ_ITEMS.map((f, i) => (
+          <details key={i} style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 8, padding: "14px 18px" }}>
+            <summary className="disp" style={{ cursor: "pointer", fontSize: 16, fontWeight: 700, color: C.ink, listStyle: "none" }}>{f.q}</summary>
+            <p style={{ color: C.ink2, fontSize: 14.5, lineHeight: 1.6, margin: "10px 0 0" }}>{f.a}</p>
+          </details>
+        ))}
+      </div>
+      <p style={{ textAlign: "center", fontSize: 14, color: C.muted, marginTop: 20 }}>
+        Still have a question? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Ask me on a free 15-minute call →</span>
+      </p>
+    </section>
+  );
+}
+
 function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, testimonials = [] }) {
   const BATCHES = useCohorts(); // live catalog (hydrated from /api/cohorts; defaults to code)
   const [season, setSeason] = useState(SEASONS[0].key);
@@ -1208,6 +1243,8 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
           Don't see a time that works for you? <span {...act(() => setScheduleOpen(true))} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Tell us your ideal schedule →</span>
         </div>
       </section>
+
+      <FaqSection onCall={onCall} />
 
       <footer style={{ borderTop: `1px solid ${C.line}`, padding: "26px 6vw", textAlign: "center", color: C.muted, fontSize: 13 }}>
         <div>Build Young · Raising builders, not consumers</div>
