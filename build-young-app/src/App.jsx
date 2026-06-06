@@ -124,7 +124,7 @@ export const CONFIG = {
   // DEV / AUTHORING: unlock every course week (each shows its full activity) so the course can be
   // built + previewed without advancing the simulation. Set false before launch so weeks lock
   // again and unlock as the student reaches them.
-  previewAllWeeks: true,
+  previewAllWeeks: false,
 };
 // Auth/state API client. Same-origin fetches carry the HttpOnly session cookie automatically.
 async function postJson(url, body) {
