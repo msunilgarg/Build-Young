@@ -2030,29 +2030,30 @@ function ExampleCard({ subtitle, fields }) {
   );
 }
 
-// Shared build-tools checklist (Claude Pro / GitHub / Vercel…). Same s.prereqs state wherever it
-// appears, so ticking syncs. Used by the week "Pre-req" tab (weekPrereqs).
-function BuildToolsChecklist({ s, setS, title, blurb }) {
+// Checklist for a subset of PREREQS, with the same s.prereqs state everywhere so ticking syncs. Each
+// tool shows its title, sign-up link, and why/when it's needed (matches the dashboard detail).
+function PrereqChecklist({ s, setS, items, title, blurb }) {
   const prereqs = (s && s.prereqs) || {};
-  const buildTools = PREREQS.filter((p) => p.build);
-  const allReady = buildTools.every((p) => prereqs[p.id]);
+  const list = items || [];
+  const allReady = list.every((p) => prereqs[p.id]);
   const togglePrereq = (id) => setS && setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
   return (
     <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
         <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>{title}</span>
-        <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
+        <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${list.filter((p) => prereqs[p.id]).length} of ${list.length} ready`}</span>
       </div>
-      <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>{blurb}</p>
-      {buildTools.map((p) => {
+      {blurb && <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>{blurb}</p>}
+      {list.map((p) => {
         const checked = !!prereqs[p.id];
         return (
           <div key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0" }}>
-            <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+            <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 2, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
             <span style={{ fontSize: 13, lineHeight: 1.45 }}>
               <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
               {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
               {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
+              {p.why && <span style={{ display: "block", color: C.muted, marginTop: 2 }}>{p.why}</span>}
             </span>
           </div>
         );
@@ -2061,16 +2062,25 @@ function BuildToolsChecklist({ s, setS, title, blurb }) {
   );
 }
 
-// The "Pre-req" tab content for a week. Every week shows the tab: the tools checklist on Week 3 (when
-// building starts), and a short "nothing to set up" note on every other week (before/after build).
+// Which week a PREREQS item is needed (from its `when`: "Day one" → 1, "Week N" → N).
+function prereqWeek(when) {
+  if (/day one/i.test(when || "")) return 1;
+  const m = /week\s*(\d+)/i.exec(when || "");
+  return m ? Number(m[1]) : null;
+}
+
+// The "Pre-req" tab content for a week. Every week shows the tab: the tools DUE that week (Claude/
+// GitHub/Vercel in Wk3, Stripe Wk5, Resend Wk6, domain Wk7, a laptop Wk1), else a short note.
 function weekPrereqs(week, s, setS) {
-  if (week === 3) {
-    return <BuildToolsChecklist s={s} setS={setS} title="✅ Set up your tools"
-      blurb="Get these ready before you build (all free except Claude Pro, ~$20/month; a parent can help with sign-ups). Tick each off:" />;
+  const due = PREREQS.filter((p) => prereqWeek(p.when) === week);
+  if (due.length) {
+    return <PrereqChecklist s={s} setS={setS} items={due} title="✅ Get set up for this week"
+      blurb="Get these ready before class — a parent can help (some services need an adult). Tick each off:" />;
   }
-  const msg = week < 3
-    ? "Nothing to set up yet — you'll get your build tools ready in Week 3, when building starts."
-    : "Nothing new to set up — the tools you got ready in Week 3 carry through this week. ✓";
+  const moreLater = PREREQS.some((p) => prereqWeek(p.when) > week);
+  const msg = moreLater
+    ? "Nothing new to set up this week — your tools carry through. You'll add a few more as you need them in later weeks."
+    : "You're all set — every tool you need is ready. ✓";
   return <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, background: C.paper, border: `1px solid ${C.line}`, borderRadius: 6, padding: "12px 14px" }}>{msg}</div>;
 }
 
