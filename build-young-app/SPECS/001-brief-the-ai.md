@@ -39,7 +39,9 @@ states **Goal · Why · Who it's for · What 'done' looks like · What's out of 
   voice, and the rule — **what's TRUE NOW vs. what's the GOAL.**
 - Teach **honest claims**: mark real-now vs. aspirational and phrase it that way (mirrors our own site edits —
   "learn to grow," not "grow into a business"; "go after customers," not "got customers").
-- Use that brief as the context they hand their AI to generate landing/marketing copy.
+- **Writing the marketing copy is the student's own exercise in their AI** (Claude Pro). The dashboard
+  gives them a **copy-to-AI prompt that wraps their positioning brief** — exactly the build-week pattern —
+  not a built-in generator. We guide and hand them the prompt; they produce the copy themselves.
 
 Keep it **ONE evolving product brief** for the student (build half + tell half) — not two docs. No heavy new UI;
 reuse existing cards/components (primer card, build layer, the press-release fields).
@@ -49,6 +51,7 @@ reuse existing cards/components (primer card, build layer, the press-release fie
 - [ ] A concrete vague-vs-clear contrast example is shown (on-brand worked example).
 - [ ] The press release is extended with a "the one promise" + "true now vs. goal" prompt.
 - [ ] An honest-claims check appears before go-to-market copy ("mark what's real vs. aspirational; say it that way").
+- [ ] Marketing copy is produced via a **copy-to-AI prompt** (student's own AI), not a built-in generator.
 - [ ] Framed as a transferable principle, not a Claude-specific template.
 - [ ] No lecture/slideware; learn-by-doing; respects the "no busywork" promise.
 - [ ] Tests pass; landing perf budget unaffected.
@@ -66,7 +69,9 @@ reuse existing cards/components (primer card, build layer, the press-release fie
 
 ## Risks / open questions
 - **Don't let it feel like forms** — that breaks "no busywork" and loses teens. Keep cards short and experiential.
-- **Where does the "tell" brief best land** — Wk7 (Go Live) or Wk8 (Funnel)? Needs your curriculum call.
-- **Is there an AI-copy-generation step** in the dashboard to attach the positioning brief to today? If not, "feed it
-  to your AI" is guidance, not a wired feature — flag whether to add a real copy-with-AI step.
+- **OPEN (your call):** where the "tell" brief lands. **Proposed: Week 7 (Go Live)** — the product goes public
+  there, so it needs honest public-facing copy at that moment; Week 8 (Funnel) then *uses* that copy to drive
+  find → try → return. Confirm Wk7, or move it to Wk8.
+- **RESOLVED:** writing the copy is the student's exercise in their own AI — the dashboard provides a copy-to-AI
+  prompt (build-layer pattern), not a server-side generator. Keeps it hands-on; no copy-gen feature to build.
 - Keep it age-appropriate: one product brief, not two docs.
