@@ -228,22 +228,34 @@ Note: jsdom can't catch *visual* issues (animation continuity, alignment, color,
 mobile wrapping). Those need a real browser / human eyes — the founder reviews screenshots.
 
 ## House style (from the build so far)
+
+> **Copy & messaging are governed by [`POSITIONING.md`](./POSITIONING.md)** — the source of truth
+> for voice, the claims we make/avoid, and canonical phrasings. Some notes below predate this week's
+> narrative pass; **where they conflict, POSITIONING.md wins.** Key changes since: the brand voice is
+> **"us/we"** (the founder's name appears **only in the bio**, not in CTAs/operational copy); CTAs say
+> **"Talk to us"** (never "Talk to Sunil"/"…first"); **Act 2 is "learn how to grow it,"** not "grow it
+> into a business"/"1→100"; we **don't claim customers/income/scale achieved in the 12 weeks** (real
+> traction is the long game — the builder prize is "within a year"); we **build with AI, we don't teach
+> coding**; and **`WHY_STATS` is now builder-era quotes** (Karpathy/Altman/Huang), not survey stats.
+
 - **Tagline / mission:** "**Raising builders, not consumers.**" This is the canonical line —
   it appears as the hero headline, in the footer, and in the SEO/JSON-LD. The full mission
   paragraph lives in the "More than money" section: *"Raising builders, not consumers. AI just
   collapsed the barrier to building — what once took a team and a budget, a motivated teenager
   can now do alone. So the edge isn't a credential; it's taste — knowing what's worth making —
-  and starting early. We teach it by letting them live it: they build, they earn, then they grow
-  what they've made."*
+  and starting early. We teach it by letting them live it: they build, they ship, then they learn to
+  grow what they've made."*
   It is BUILD-LED, and the KEY ARGUMENT is causal: **AI collapsed the barrier to entry** (teams/
   budgets/permission no longer needed) → therefore **the edge is starting early** (ties to the
   brand name *Build Young*). Keep that "always mattered, but the barrier just dropped, so start
   young" chain — don't water it down to a generic "building matters in an AI world." Money-savvy
   is how you grow/protect what you build, not the headline. Keep all instances in sync. Tone is
   confident and forward, never fearful.
-- Tone is first-person from Sunil where the parent is deciding ("…taught by me", "ask me
-  about…"). CTAs say "Talk to Sunil", not "the founder". Keep it warm and grounded — avoid
-  overclaiming/boastful phrasing (e.g. don't promise to "answer anything").
+- **Voice (updated — see POSITIONING.md):** the brand speaks as **"us/we."** The founder's name
+  (Sunil Garg) appears **only in the bio/identity** (founder note card + photo + story + signature,
+  the Book-a-call identity, the certificate, the LinkedIn link, the JSON-LD founder entity) — NOT in
+  CTAs or operational copy. First person is fine **inside** the founder story. CTAs say **"Talk to us"**
+  (an option, never "first"). Keep it warm and grounded — avoid overclaiming/boastful phrasing.
 - **Founder's note positioning (the "Why this exists" card in `Landing`):** after Sunil's
   personal story, the note now carries the product's positioning narrative — keep these three
   beats intact and consistent on future edits: (1) **free content goes unwatched** — banks/
