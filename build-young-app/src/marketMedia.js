@@ -45,3 +45,21 @@ export const WEEK_PREP = [
   "Your product is built and growing — this week we prepare for your capstone. Come ready to pull together the story of what you built: the product, who it's for, and what you'd do next, so you're set to present it.",
   "Be ready to show what you built, who's using it, and what you'd build next. This is your presentation to family and friends, so parents are welcome to join the call to watch.",
 ];
+
+// What you'll learn each class (index = week − 1) — the in-dashboard "kickoff" shown at the top of
+// each week's activity, instead of a slide. Newline-separated bullets. Founder-editable (KV-backed via
+// api/_lib/objectivesStore.js); an empty string means "no objectives card" for that week. DRAFTS.
+export const WEEK_OBJECTIVES = [
+  "Spot a real problem worth solving — one people would pay to fix.\nWork backwards from the customer: who it's for, and why.\nWrite your product's first brief — the idea, the one promise, and what's true now vs. the goal.",
+  "Turn your idea into a clear spec — the brief you hand your AI.\nSee why a clear brief beats a vague one (vague in, vague out).\nGet your build tools set up so you're ready to build.",
+  "Hand your spec to AI and build the core product — the main thing it does.\nLearn the build loop: describe → see → refine.\nShip your first working version live.",
+  "Add sign-in so each person has their own account.\nSave each user's data so the product remembers them.\nSee why accounts + data make it feel real.",
+  "Add a real checkout so people can pay for what you built.\nDecide what's free vs. paid, and what they get.\nHandle payments safely.",
+  "Add the finishing layer: emails, being findable, keeping data safe.\nLearn what makes a product \"production-ready.\"\nGet it ready for real users.",
+  "Point a real web address at your product.\nSwitch on live payments.\nRun your launch checklist — you're open for business.",
+  "Build a funnel into your product: find it → try it → come back.\nAdd tracking so you can see how people move through it.\nList the steps you'll measure at each stage.",
+  "Read your real numbers: active users, retention, and where people drop off.\nLearn what the metrics actually mean.\nPick the one thing to fix first.",
+  "Explore how a product can grow itself.\nFind the reason someone would tell a friend.\nWork out how yours spreads.",
+  "Pull together the story of what you built — product, who it's for, what's next.\nUpdate your positioning honestly (true now vs. the goal).\nPolish your product so it shines on the final call.",
+  "Present what you built, who's using it, and what you'd build next.\nShow your live product.\nCelebrate — parents are welcome to watch.",
+];

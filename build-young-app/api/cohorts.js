@@ -13,6 +13,7 @@
 import { loadCatalog } from "./_lib/cohortStore.js";
 import { loadSettings } from "./_lib/settingsStore.js";
 import { loadHomework } from "./_lib/homeworkStore.js";
+import { loadObjectives } from "./_lib/objectivesStore.js";
 import { getCertById } from "./_lib/cert.js";
 import { countEnrollments } from "./_lib/store.js";
 import { listPublicTestimonials } from "./_lib/showcaseStore.js";
@@ -28,7 +29,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const [catalog, settings, homework] = await Promise.all([loadCatalog(), loadSettings(), loadHomework()]);
+  const [catalog, settings, homework, objectives] = await Promise.all([loadCatalog(), loadSettings(), loadHomework(), loadObjectives()]);
   // Auto-detect full cohorts from real enrollments (enrolled >= seats) so the public site can
   // close enrollment + offer "notify me about the next cohort" — no manual toggle.
   const batches = await Promise.all((catalog.batches || []).map(async (b) => {
@@ -39,5 +40,5 @@ export default async function handler(req, res) {
   // Public testimonials (consented student showcase) — only when the founder has the feature on.
   const testimonials = settings.showcaseEnabled ? await listPublicTestimonials() : [];
   res.setHeader("Cache-Control", "no-store");
-  res.status(200).json({ ...catalog, batches, settings, homework, testimonials });
+  res.status(200).json({ ...catalog, batches, settings, homework, objectives, testimonials });
 }

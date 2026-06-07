@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 // The 12 weekly lesson titles + the per-week homework/prep text live in a dependency-free
 // module (no React/lucide) so the serverless cron can share the same copy.
-import { WEEK_PREP } from "./marketMedia.js";
+import { WEEK_PREP, WEEK_OBJECTIVES } from "./marketMedia.js";
 // recharts is heavy (~344 KB) and only used in the dashboard — load it on demand
 // so the landing/enroll/call pages don't pay for it.
 const Charts = React.lazy(() => import("./Charts.jsx"));
@@ -244,6 +244,10 @@ let _callBookedThisSession = false;
 // The 12 weeks' homework text. Defaults to the code WEEK_PREP; App hydrates it from /api/cohorts
 // (founder-editable) on load so the in-app completion email matches the real reminder email.
 let HOMEWORK = WEEK_PREP;
+
+// The 12 weeks' class objectives ("What you'll learn this class"). Defaults to the code
+// WEEK_OBJECTIVES; App hydrates from /api/cohorts (founder-editable) on load.
+let OBJECTIVES = WEEK_OBJECTIVES;
 
 // Each week carries its lesson (t/s/act) and an optional `materials` list — the place the
 // team adds weekly class content as it's built (verified, primary-source links only, per the
@@ -2026,6 +2030,22 @@ function ExampleCard({ subtitle, fields }) {
   );
 }
 
+// "What you'll learn this class" — the in-dashboard kickoff (replaces a slide), shown at the top of
+// each week's activity. From OBJECTIVES (founder-editable), split into bullets. Null when empty.
+function weekObjectivesCard(week) {
+  const raw = (OBJECTIVES[week - 1] || "").trim();
+  const items = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+  if (!items.length) return null;
+  return (
+    <div style={{ background: "#eef3f0", border: `1px solid ${C.emerald}`, borderRadius: 6, padding: "12px 14px", marginBottom: 16 }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, letterSpacing: ".02em", marginBottom: 7 }}>🎯 What you'll learn this class</div>
+      <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 5 }}>
+        {items.map((it, i) => <li key={i} style={{ fontSize: 13, color: C.ink2, lineHeight: 1.45 }}>{it}</li>)}
+      </ul>
+    </div>
+  );
+}
+
 // The class-material example for a build week (null if that week has none yet).
 function weekExample(week) {
   if (week === 1) return <ExampleCard subtitle="A worked plan — how we'd fill this in" fields={[
@@ -3186,6 +3206,8 @@ function CoursePanel({ s, setState, batch, onAdvance, cert, isFounder }) {
         })()}
       </div>
       <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>
+      {/* Kickoff: what you'll learn this class (in-dashboard, not a slide). */}
+      {weekObjectivesCard(selected)}
       {/* Class material first (consistent with the live week panel), then the student's own work. */}
       <div style={secLabel}>Class materials</div>
       {weekExample(selected) ? (
@@ -3311,6 +3333,7 @@ function WeekPanel({ s, setState, onAdvance, batch, cert, preview }) {
     <div className="rise">
       {action === "build" && (
         <Wrap title={wk.t} blurb={wk.s}>
+          {weekObjectivesCard(s.week)}
           {weekActivity(s.week, s, setState, true) ? (
             // Build weeks with content: the class material is the worked Build Young example, then
             // the student does their own activity.
@@ -3934,6 +3957,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <CohortEditor />
           <h2 style={h2s}>Class recordings</h2>
           <RecordingsEditor />
+          <h2 style={h2s}>Class objectives</h2>
+          <ObjectivesEditor />
           <h2 style={h2s}>Homework</h2>
           <HomeworkEditor />
           <h2 style={h2s}>Next-cohort interest</h2>
@@ -4260,6 +4285,50 @@ function HomeworkEditor() {
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save homework</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
+      </div>
+    </Card>
+  );
+}
+
+// Founder editor for the 12 weeks' class objectives ("What you'll learn this class" — the in-dashboard
+// kickoff shown at the top of each week). KV-backed via PUT /api/funnel?resource=objectives; live
+// immediately. One objective per line.
+function ObjectivesEditor() {
+  const [rows, setRows] = useState(null);
+  const [status, setStatus] = useState("");
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/cohorts"); const c = await r.json(); if (live) setRows(Array.isArray(c.objectives) && c.objectives.length === 12 ? c.objectives : WEEK_OBJECTIVES.slice(0, 12)); }
+      catch { if (live) setRows(WEEK_OBJECTIVES.slice(0, 12)); }
+    })();
+    return () => { live = false; };
+  }, []);
+  if (rows === null) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
+  const set = (i, v) => setRows((rs) => rs.map((r, j) => (j === i ? v : r)));
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel?resource=objectives", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ objectives: rows }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setRows(d.objectives); OBJECTIVES = d.objectives; setStatus("Saved — live now ✓"); }
+      else setStatus(adminSaveErr(r, d, "save objectives"));
+    } catch { setStatus(ADMIN_NET_ERR); }
+  };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>What students see at the top of each week — the class kickoff (instead of a slide). One objective per line. Leave a week blank to hide its card.</div>
+      <div style={{ display: "grid", gap: 12 }}>
+        {rows.map((v, i) => (
+          <label key={i} style={{ display: "block" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, display: "block", marginBottom: 4 }}>Week {i + 1} · {WEEKS[i].t}</span>
+            <textarea aria-label={`Week ${i + 1} objectives`} value={v} onChange={(e) => set(i, e.target.value)} rows={3} style={{ width: "100%", boxSizing: "border-box", fontSize: 13.5, padding: "9px 11px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
+          </label>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save objectives</button>
         {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
@@ -4817,6 +4886,7 @@ export default function App() {
         if (cat && Array.isArray(cat.batches) && cat.batches.length) setBatches(cat.batches);
         if (cat && Array.isArray(cat.testimonials)) setTestimonials(cat.testimonials);
         if (cat && Array.isArray(cat.homework) && cat.homework.length === 12) HOMEWORK = cat.homework;
+        if (cat && Array.isArray(cat.objectives) && cat.objectives.length === 12) OBJECTIVES = cat.objectives;
         if (cat && cat.settings && typeof cat.settings === "object") {
           Object.assign(CONFIG, cat.settings); // mutate the shared CONFIG, then re-render to pick it up
           bumpCfg((n) => n + 1);
