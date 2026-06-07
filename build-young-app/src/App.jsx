@@ -3508,14 +3508,14 @@ export function SetPassword({ token, onSetPassword, onHome }) {
 
 // Shown after enrollment (Stripe return or demo) when auth is on: the account was provisioned
 // server-side and a set-password link was emailed.
-function CheckEmail({ track, email, onHome, onLogin }) {
+function CheckEmail({ track, email, onHome }) {
   return (
     <AuthShell title="You're enrolled! 🎉" sub={`Your seat${track ? ` in the ${track} cohort` : ""} is reserved.`} onHome={onHome}>
-      <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "12px 14px", marginTop: 16 }}>
+      <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "#eef3f0", border: `1px solid ${C.emerald}`, borderRadius: 4, padding: "12px 14px", marginTop: 16 }}>
         <Mail size={16} color={C.emerald} style={{ marginTop: 2, flexShrink: 0 }} />
-        <span style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}>We’ve sent a link to <b>set your password</b>{email ? <> to <b style={{ color: C.ink }}>{email}</b></> : ""}. Once it’s set, you can log in to your dashboard from any device. The link is good for 24 hours.</span>
+        <span style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.5 }}><b style={{ color: C.ink }}>Next step — check your email.</b> We’ve sent a link to <b>set your password</b>{email ? <> to <b style={{ color: C.ink }}>{email}</b></> : ""}. Click it to finish setting up your account and open your dashboard. The link is good for 24 hours.</span>
       </div>
-      <button className="btn" onClick={onLogin} style={{ width: "100%", marginTop: 20, background: C.ink, color: C.paper2, padding: 12, borderRadius: 4, fontSize: 14 }}>Go to login</button>
+      <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginTop: 12 }}>Don’t see it within a few minutes? Check your spam or promotions folder{CONFIG.contactEmail ? <>, or email <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.emerald, fontWeight: 700 }}>{CONFIG.contactEmail}</a> and we’ll sort it out</> : ""}.</p>
     </AuthShell>
   );
 }
@@ -5109,7 +5109,7 @@ export default function App() {
       {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} onFounder={isFounder ? goFounder : null} onHome={goHome} />}
       {route === "login" && <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} />}
       {route === "setpw" && <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} />}
-      {route === "checkemail" && <CheckEmail track={enrolledTrack} email={enrolledEmail} onHome={goHome} onLogin={goLogin} />}
+      {route === "checkemail" && <CheckEmail track={enrolledTrack} email={enrolledEmail} onHome={goHome} />}
       {route === "founder" && <FounderDashboard onHome={goHome} onPreviewStudent={previewStudent} />}
       {route === "verify" && <CertifyVerify certId={verifyId} onHome={goHome} />}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
