@@ -1035,7 +1035,7 @@ function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashLabel, t
         {Object.keys(ACTS).map(Number).map((act) => {
           const accent = act === 1 ? C.green : act === 2 ? C.pink : C.turq;
           const promise = act === 1
-            ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and e-commerce, so a stranger can use it and buy."
+            ? "Build a real product with AI — the one skill it can't replace is taste, knowing what good looks like — then ship it on the live internet with a web address, sign-ins, and e-commerce, so a customer can use it and buy."
             : act === 2
             ? "Learn how products actually grow: build a funnel, read the numbers that matter — active users, retention, where people drop off — and find the levers that move them. You practice on funnels built from YOUR own product, not textbook examples, with AI to spin up tougher ones on demand. The focus here is the skill of growth — real traction is the long game they keep playing after the course."
             : "Get ready for the capstone, then present what you built — the product, who's using it, and what you'd build next. Week 11 you prep and polish; Week 12 you present it live to family and friends (parents are welcome to join the final call), and graduate with a product you shipped and a certificate.";
@@ -2061,14 +2061,17 @@ function BuildToolsChecklist({ s, setS, title, blurb }) {
   );
 }
 
-// The "Pre-req" tab content for a week — the build tools, on the setup weeks (2 + the build week that
-// flags `prereqs`). Null for weeks that need no setup (so they show no Pre-req tab).
+// The "Pre-req" tab content for a week. Every week shows the tab: the tools checklist on Week 3 (when
+// building starts), and a short "nothing to set up" note on every other week (before/after build).
 function weekPrereqs(week, s, setS) {
-  // Tools are first needed when building starts (Week 3) — not Week 2, which is just spec-writing.
-  const needsTools = week === 3;
-  if (!needsTools) return null;
-  return <BuildToolsChecklist s={s} setS={setS} title="✅ Set up your tools"
-    blurb="Get these ready before you build (all free except Claude Pro, ~$20/month; a parent can help with sign-ups). Tick each off:" />;
+  if (week === 3) {
+    return <BuildToolsChecklist s={s} setS={setS} title="✅ Set up your tools"
+      blurb="Get these ready before you build (all free except Claude Pro, ~$20/month; a parent can help with sign-ups). Tick each off:" />;
+  }
+  const msg = week < 3
+    ? "Nothing to set up yet — you'll get your build tools ready in Week 3, when building starts."
+    : "Nothing new to set up — the tools you got ready in Week 3 carry through this week. ✓";
+  return <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, background: C.paper, border: `1px solid ${C.line}`, borderRadius: 6, padding: "12px 14px" }}>{msg}</div>;
 }
 
 // One week's content as horizontal tabs — Pre-req · What you'll learn · Class example · Your exercise.
@@ -2188,7 +2191,7 @@ const METRICS_PRIMER = [
   { t: "North-star metric", d: "the one number that best means “it's working” for YOUR product — tie it to the success you defined in your spec." },
 ];
 const FUNNEL_PRIMER = [
-  { t: "The funnel", d: "the path a stranger takes — find it → try it → come back. It's called a funnel because you lose some people at each step (wide at the top, narrow at the bottom)." },
+  { t: "The funnel", d: "the path a customer takes — find it → try it → come back. It's called a funnel because you lose some people at each step (wide at the top, narrow at the bottom)." },
   { t: "Find it (acquisition)", d: "how people first discover your product — a shared link, a search, or a friend telling them about it." },
   { t: "Try it (the “aha”)", d: "the first time a new user hits the magic moment and gets why it's good. The faster they get there, the more of them stick around." },
   { t: "Come back (retention)", d: "do they return after the first visit? A product people come back to is one that's actually working." },
@@ -2498,9 +2501,9 @@ const GO_LIVE_DEFAULT = [
   { s: "If your app sends email", t: "Emails send from a verified domain", h: "Your email tool (e.g. Resend) → Domains → add + verify yours; it should show 'delivered'." },
   { s: "Findable & trustworthy", t: "The link preview looks right when shared", h: "Paste your URL into a chat — title, description, image should show. Set <title>, meta description, og:image in your HTML head." },
   { s: "Findable & trustworthy", t: "A privacy + terms page exist", h: "Simple /privacy and /terms pages — especially if you take data or money." },
-  { s: "Works for real strangers", t: "You tested the whole flow as a brand-new user", h: "Incognito window, fresh account, start to finish with zero shortcuts." },
-  { s: "Works for real strangers", t: "Bad input doesn't crash it", h: "Try empty fields, huge text, emoji — it should cope, not show a code error." },
-  { s: "Works for real strangers", t: "Basic analytics are on", h: "Vercel → Analytics tab (enable it), or add a privacy-friendly snippet." },
+  { s: "Works for real customers", t: "You tested the whole flow as a brand-new user", h: "Incognito window, fresh account, start to finish with zero shortcuts." },
+  { s: "Works for real customers", t: "Bad input doesn't crash it", h: "Try empty fields, huge text, emoji — it should cope, not show a code error." },
+  { s: "Works for real customers", t: "Basic analytics are on", h: "Vercel → Analytics tab (enable it), or add a privacy-friendly snippet." },
   { s: "Go / no-go", t: "A friend can sign up + use it with zero help", h: "Hand it to someone who's never seen it. If they get stuck, fix that before you call it live." },
 ];
 
@@ -2582,7 +2585,7 @@ const BUILD_LAYERS = {
     instruction: "Use a trusted checkout (like Stripe) — never handle card details yourself. Unlock the paid features only after payment is confirmed. When it's done, tell me how to test a payment safely." },
   6: { key: "production",
     heading: "Make it real — production-ready ✨",
-    lead: "The finishing layer on what you've built — the polish that gets it ready for real strangers.",
+    lead: "The finishing layer on what you've built — the polish that gets it ready for real customers.",
     fieldLabel: "Production-ready",
     promptLabel: "What to make production-ready:",
     placeholder: "(From your Week 2 spec — production-ready: emails, being findable, and keeping data safe.)",
