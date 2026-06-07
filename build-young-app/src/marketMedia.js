@@ -51,8 +51,8 @@ export const WEEK_PREP = [
 // api/_lib/objectivesStore.js); an empty string means "no objectives card" for that week. DRAFTS.
 // Framed as what you'll LEARN (the durable takeaway/insight) — not what you'll DO (the activity).
 export const WEEK_OBJECTIVES = [
-  "A real problem is worth more than a clever idea — that's where products start.\nWork backwards from the customer: who it's for and why come before what you build.\nBeing honest about your idea up front makes everything after easier.",
-  "AI builds what you describe — your job is to direct it, not to code.\nA clear brief beats a vague wish: vague in, vague out.\nThinking clearly before you build is the skill that saves the most time.",
+  "Builders start with a problem, not a product — find one worth solving and you're already ahead of most \"ideas.\"\nHow to work backwards from the customer: who it's for and why, before what you build.\nSpotting real problems is a skill you'll use your whole life — not just in this class.",
+  "AI does the how; you do the what — your power is describing clearly, not coding.\nHow to write a brief so AI builds the right thing the first time (vague in, vague out).\nIn an AI world, clear thinking is the edge — it's the skill behind everything you'll make.",
   "You steer the AI through a loop — describe, see, refine; it can't read your mind.\nA rough version that's real beats a perfect plan that isn't.\n\"Done\" is something you decide, not something the AI decides for you.",
   "Accounts and saved data turn a one-time demo into something people come back to.\nThe data you keep about people is a responsibility, not just a feature.",
   "Getting a stranger to pay takes trust and a clear reason — not just a button.\n\"Free\" and \"worth paying for\" are different things; know which parts are which.",
