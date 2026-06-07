@@ -2064,7 +2064,8 @@ function BuildToolsChecklist({ s, setS, title, blurb }) {
 // The "Pre-req" tab content for a week — the build tools, on the setup weeks (2 + the build week that
 // flags `prereqs`). Null for weeks that need no setup (so they show no Pre-req tab).
 function weekPrereqs(week, s, setS) {
-  const needsTools = week === 2 || (BUILD_LAYERS[week] && BUILD_LAYERS[week].prereqs);
+  // Tools are first needed when building starts (Week 3) — not Week 2, which is just spec-writing.
+  const needsTools = week === 3;
   if (!needsTools) return null;
   return <BuildToolsChecklist s={s} setS={setS} title="✅ Set up your tools"
     blurb="Get these ready before you build (all free except Claude Pro, ~$20/month; a parent can help with sign-ups). Tick each off:" />;
