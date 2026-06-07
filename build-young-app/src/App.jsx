@@ -2030,6 +2030,85 @@ function ExampleCard({ subtitle, fields }) {
   );
 }
 
+// Shared build-tools checklist (Claude Pro / GitHub / Vercel…). Same s.prereqs state wherever it
+// appears, so ticking syncs. Used by the week "Pre-req" tab (weekPrereqs).
+function BuildToolsChecklist({ s, setS, title, blurb }) {
+  const prereqs = (s && s.prereqs) || {};
+  const buildTools = PREREQS.filter((p) => p.build);
+  const allReady = buildTools.every((p) => prereqs[p.id]);
+  const togglePrereq = (id) => setS && setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
+  return (
+    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+        <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>{title}</span>
+        <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
+      </div>
+      <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>{blurb}</p>
+      {buildTools.map((p) => {
+        const checked = !!prereqs[p.id];
+        return (
+          <div key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0" }}>
+            <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
+            <span style={{ fontSize: 13, lineHeight: 1.45 }}>
+              <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
+              {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
+              {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// The "Pre-req" tab content for a week — the build tools, on the setup weeks (2 + the build week that
+// flags `prereqs`). Null for weeks that need no setup (so they show no Pre-req tab).
+function weekPrereqs(week, s, setS) {
+  const needsTools = week === 2 || (BUILD_LAYERS[week] && BUILD_LAYERS[week].prereqs);
+  if (!needsTools) return null;
+  return <BuildToolsChecklist s={s} setS={setS} title="✅ Set up your tools"
+    blurb="Get these ready before you build (all free except Claude Pro, ~$20/month; a parent can help with sign-ups). Tick each off:" />;
+}
+
+// One week's content as horizontal tabs — Pre-req · What you'll learn · Class example · Your exercise.
+// Empty tabs are hidden; defaults to "What you'll learn". Shared by CoursePanel + WeekPanel so they
+// can't drift. Activity input lives in s (lifted), so switching tabs never loses what's typed.
+function WeekTabs({ week, s, setState, materials }) {
+  const prereq = weekPrereqs(week, s, setState);
+  const learn = weekObjectivesCard(week);
+  const example = weekExample(week);
+  const mats = (!example && Array.isArray(materials) && materials.length)
+    ? <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{materials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
+    : null;
+  const exercise = weekActivity(week, s, setState, true);
+  const tabs = [
+    prereq && { id: "prereq", label: "Pre-req", node: prereq },
+    learn && { id: "learn", label: "What you'll learn", node: learn },
+    (example || mats) && { id: "example", label: "Class example", node: example || mats },
+    exercise && { id: "exercise", label: "Your exercise", node: exercise },
+  ].filter(Boolean);
+  const def = tabs.some((t) => t.id === "learn") ? "learn" : (tabs[0] && tabs[0].id);
+  const [active, setActive] = useState(def);
+  if (!tabs.length) return null;
+  const cur = tabs.find((t) => t.id === active) || tabs[0];
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 4, flexWrap: "wrap", borderBottom: `1px solid ${C.line}`, marginBottom: 16, overflowX: "auto" }}>
+        {tabs.map((t) => {
+          const on = t.id === cur.id;
+          return (
+            <span key={t.id} aria-pressed={on} className="tab" {...act(() => setActive(t.id))}
+              style={{ fontSize: 13, fontWeight: 700, color: on ? C.emerald : C.muted, padding: "8px 12px", borderBottom: `2px solid ${on ? C.emerald : "transparent"}`, marginBottom: -1, whiteSpace: "nowrap" }}>
+              {t.label}
+            </span>
+          );
+        })}
+      </div>
+      {cur.node}
+    </div>
+  );
+}
+
 // "What you'll learn this class" — the in-dashboard kickoff (replaces a slide), shown at the top of
 // each week's activity. From OBJECTIVES (founder-editable), split into bullets. Null when empty.
 function weekObjectivesCard(week) {
@@ -2655,12 +2734,6 @@ Why people love it: [the payoff].
 function ShapePlan({ s, setS, bare }) {
   const shape = s.shape || {};
   const setField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
-  // The build tools (Claude Pro, GitHub, Vercel) are set up ONCE here in Week 2 — before building
-  // starts — rather than repeated on every build week. Same s.prereqs state as the Overview.
-  const prereqs = (s && s.prereqs) || {};
-  const buildTools = PREREQS.filter((p) => p.build);
-  const allReady = buildTools.every((p) => prereqs[p.id]);
-  const togglePrereq = (id) => setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
   const field = (k, label, placeholder, rows = 3) => (
@@ -2694,30 +2767,7 @@ function ShapePlan({ s, setS, bare }) {
       {field("payments", "Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
       {field("production", "Production-ready", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
       {field("success", "What success looks like", "Make success measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run.", 5)}
-
-      {/* Build tools — set up ONCE here, before building starts (not repeated each build week). */}
-      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginTop: 4 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Set up your tools</span>
-          <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
-        </div>
-        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
-          Get these ready before you start building (all free except <b>Claude Pro</b>, ~$20/month; a parent can help with sign-ups). Tick each off:
-        </p>
-        {buildTools.map((p) => {
-          const checked = !!prereqs[p.id];
-          return (
-            <div key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0" }}>
-              <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
-              <span style={{ fontSize: 13, lineHeight: 1.45 }}>
-                <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
-                {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
-                {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      {/* Tools setup now lives in this week's "Pre-req" tab (weekPrereqs), not inline here. */}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -2731,10 +2781,6 @@ function ShapePlan({ s, setS, bare }) {
 function BuildLayer({ week, s, setS, bare }) {
   const cfg = BUILD_LAYERS[week];
   const setShapeField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
-  const prereqs = (s && s.prereqs) || {};
-  const buildTools = PREREQS.filter((p) => p.build);
-  const allReady = buildTools.every((p) => prereqs[p.id]);
-  const togglePrereq = (id) => setS((p) => ({ ...p, prereqs: { ...(p.prereqs || {}), [id]: !((p.prereqs || {})[id]) } }));
 
   const shape = s.shape || {};
   const [copied, setCopied] = useState(false);
@@ -2767,32 +2813,7 @@ function BuildLayer({ week, s, setS, bare }) {
         {cfg.lead} You direct; AI writes the code — your job is <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
-      {/* Pre-reqs (Week 3 only): the build tools must be ready before the first build. Same
-          s.prereqs state as the Overview checklist, so ticking here syncs there. */}
-      {cfg.prereqs && (
-        <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px", marginBottom: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
-            <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>✅ Pre-reqs — you'll need these for this week's build</span>
-            <span style={{ fontSize: 11.5, fontWeight: 700, color: allReady ? C.green : C.turq }}>{allReady ? "All set 🎉" : `${buildTools.filter((p) => prereqs[p.id]).length} of ${buildTools.length} ready`}</span>
-          </div>
-          <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "5px 0 8px" }}>
-            You'll build live with AI this week, so you need the builder's tools ready (all free except <b>Claude Pro</b>, ~$20/month; a parent can help with sign-ups). Tick each off:
-          </p>
-          {buildTools.map((p) => {
-            const checked = !!prereqs[p.id];
-            return (
-              <div key={p.id} style={{ display: "flex", gap: 10, alignItems: "flex-start", padding: "6px 0" }}>
-                <input type="checkbox" aria-label={`Mark "${p.title}" as done`} checked={checked} onChange={() => togglePrereq(p.id)} style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
-                <span style={{ fontSize: 13, lineHeight: 1.45 }}>
-                  <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
-                  {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
-                  {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Build pre-reqs (the tools) now live in this week's "Pre-req" tab (weekPrereqs), not inline. */}
 
       {/* This week's prompt — the matching slice of the Week 2 spec (s.shape[cfg.key]). Editing here
           syncs back to Week 2. Copy hands Claude this layer's prompt (the spec slice + instruction). */}
@@ -3206,24 +3227,12 @@ function CoursePanel({ s, setState, batch, onAdvance, cert, isFounder }) {
         })()}
       </div>
       <div style={{ fontSize: 14, color: C.ink2, lineHeight: 1.55, margin: "10px 0 16px" }}>{selW.s}</div>
-      {/* Kickoff: what you'll learn this class (in-dashboard, not a slide). */}
-      {weekObjectivesCard(selected)}
-      {/* Class material first (consistent with the live week panel), then the student's own work. */}
-      <div style={secLabel}>Class materials</div>
-      {weekExample(selected) ? (
-        weekExample(selected)
-      ) : selMaterials.length ? (
-        <div style={pillWrap}>{selMaterials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
+      {/* The week as horizontal tabs — Pre-req · What you'll learn · Class example · Your exercise.
+          Keyed by week so it resets to the default tab when you switch weeks. */}
+      {(weekObjectivesCard(selected) || weekExample(selected) || selMaterials.length || weekActivity(selected, s, setState, true)) ? (
+        <WeekTabs key={selected} week={selected} s={s} setState={setState} materials={selMaterials} />
       ) : (
         <div style={{ fontSize: 12.5, color: C.muted, fontStyle: "italic" }}>Lesson materials coming soon.</div>
-      )}
-      {/* What the student completed this week (the week's own activity — still editable). */}
-      {weekActivity(selected, s, setState, true) && (
-        <div style={{ marginTop: 18, paddingTop: 18, borderTop: `1px solid ${C.line}` }}>
-          <div style={secLabel}>What you worked on — edit any time</div>
-          <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 12px" }}>Even though this class is done, your work here is <b>meant to evolve as you build</b> — come back and tweak it whenever your thinking changes.</div>
-          {weekActivity(selected, s, setState, true)}
-        </div>
       )}
       {selParked.length > 0 && (
         <div style={{ marginTop: 16, padding: 14, background: C.paper, borderRadius: 4, border: `1px dashed ${C.line}` }}>
@@ -3333,27 +3342,8 @@ function WeekPanel({ s, setState, onAdvance, batch, cert, preview }) {
     <div className="rise">
       {action === "build" && (
         <Wrap title={wk.t} blurb={wk.s}>
-          {weekObjectivesCard(s.week)}
-          {weekActivity(s.week, s, setState, true) ? (
-            // Build weeks with content: the class material is the worked Build Young example, then
-            // the student does their own activity.
-            <>
-              {weekExample(s.week) && <>
-                <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 }}>Class material</div>
-                {weekExample(s.week)}
-                <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", margin: "22px 0 8px" }}>Your turn</div>
-              </>}
-              {weekActivity(s.week, s, setState, true)}
-            </>
-          ) : (
-            <div style={{ background: C.paper, borderRadius: 4, padding: 18, textAlign: "center" }}>
-              <Sparkles size={22} color={C.gold} style={{ marginBottom: 8 }} />
-              <div className="disp" style={{ fontWeight: 800, fontSize: 16 }}>Live with us — interactive lesson coming soon</div>
-              <div style={{ fontSize: 13.5, color: C.muted, marginTop: 6, lineHeight: 1.5, maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>
-                This is part of the hands-on <b>Build</b> arc — you'll create something real, with AI as your tool, that people would pay for. Your instructor walks you through it live in class; the in-dashboard activity for this week is being built.
-              </div>
-            </div>
-          )}
+          {/* The week as horizontal tabs — Pre-req · What you'll learn · Class example · Your exercise. */}
+          <WeekTabs key={s.week} week={s.week} s={s} setState={setState} />
         </Wrap>
       )}
 

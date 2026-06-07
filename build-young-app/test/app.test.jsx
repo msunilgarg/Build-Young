@@ -120,7 +120,8 @@ describe("Course hub (per-week resources & catch-up)", () => {
 
     // Week 1 is selected by default — its title shows in the left rail + the right pane.
     expect(screen.getAllByText(/Find a Problem Worth Solving/i).length).toBeGreaterThan(0);
-    // Week 1's activity is the build plan (start from the customer).
+    // The week is now tabbed; the activity (build plan) lives in the "Your exercise" tab.
+    await user.click(screen.getByRole("button", { name: "Your exercise" }));
     expect(screen.getByText(/start from the customer/i)).toBeInTheDocument();
 
     // A future week is locked: selecting it shows the no-spoilers message (no content leaked).

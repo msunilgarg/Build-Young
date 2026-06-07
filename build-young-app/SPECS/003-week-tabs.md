@@ -1,6 +1,6 @@
 # Spec: 003 — Week view as horizontal tabs
 
-**Status:** draft (awaiting approval — no code until then)
+**Status:** shipped (hide-empty-tabs; default = "What you'll learn")
 **Owner:** Sunil Garg
 **Date:** 2026-06-07
 
