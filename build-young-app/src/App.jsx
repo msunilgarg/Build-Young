@@ -2115,12 +2115,18 @@ function weekObjectivesCard(week) {
   const raw = (OBJECTIVES[week - 1] || "").trim();
   const items = raw.split("\n").map((l) => l.trim()).filter(Boolean);
   if (!items.length) return null;
+  // First line is the connective thread — last week → this week → what's next — so the weeks read as
+  // one story. The rest are the takeaway bullets.
+  const [lead, ...bullets] = items;
   return (
     <div style={{ background: "#eef3f0", border: `1px solid ${C.emerald}`, borderRadius: 6, padding: "12px 14px", marginBottom: 16 }}>
       <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, letterSpacing: ".02em", marginBottom: 7 }}>🎯 What you'll learn this class</div>
-      <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 5 }}>
-        {items.map((it, i) => <li key={i} style={{ fontSize: 13, color: C.ink2, lineHeight: 1.45 }}>{it}</li>)}
-      </ul>
+      <p style={{ fontSize: 13, color: C.ink, lineHeight: 1.5, margin: "0 0 9px" }}>{lead}</p>
+      {bullets.length > 0 && (
+        <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 5 }}>
+          {bullets.map((it, i) => <li key={i} style={{ fontSize: 13, color: C.ink2, lineHeight: 1.45 }}>{it}</li>)}
+        </ul>
+      )}
     </div>
   );
 }
@@ -4273,7 +4279,7 @@ function ObjectivesEditor() {
   };
   return (
     <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>What students see at the top of each week — the class kickoff (instead of a slide). One objective per line. Leave a week blank to hide its card.</div>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>What students see at the top of each week — the class kickoff (instead of a slide). The <b>first line</b> is the connective intro (last week → this week → what's next); the rest are the takeaways, one per line. Leave a week blank to hide its card.</div>
       <div style={{ display: "grid", gap: 12 }}>
         {rows.map((v, i) => (
           <label key={i} style={{ display: "block" }}>
