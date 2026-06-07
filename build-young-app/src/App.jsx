@@ -2062,25 +2062,26 @@ function PrereqChecklist({ s, setS, items, title, blurb }) {
   );
 }
 
-// Which week a PREREQS item is needed (from its `when`: "Day one" → 1, "Week N" → N).
+// Which week a PREREQS item is needed (from its `when`: "Week N" → N). "Day one" items (e.g. a
+// laptop) aren't real setup tasks — they're already in class — so they return null (no per-week tab).
 function prereqWeek(when) {
-  if (/day one/i.test(when || "")) return 1;
   const m = /week\s*(\d+)/i.exec(when || "");
   return m ? Number(m[1]) : null;
 }
 
 // The "Pre-req" tab content for a week. Every week shows the tab: the tools DUE that week (Claude/
-// GitHub/Vercel in Wk3, Stripe Wk5, Resend Wk6, domain Wk7, a laptop Wk1), else a short note.
+// GitHub/Vercel in Wk3, Stripe Wk5, Resend Wk6, domain Wk7), else a short note.
 function weekPrereqs(week, s, setS) {
   const due = PREREQS.filter((p) => prereqWeek(p.when) === week);
   if (due.length) {
     return <PrereqChecklist s={s} setS={setS} items={due} title="✅ Get set up for this week"
       blurb="Get these ready before class — a parent can help (some services need an adult). Tick each off:" />;
   }
-  const moreLater = PREREQS.some((p) => prereqWeek(p.when) > week);
-  const msg = moreLater
-    ? "Nothing new to set up this week — your tools carry through. You'll add a few more as you need them in later weeks."
-    : "You're all set — every tool you need is ready. ✓";
+  const firstWeek = Math.min(...PREREQS.map((p) => prereqWeek(p.when)).filter(Boolean)); // Wk3 (first setup)
+  let msg;
+  if (week < firstWeek) msg = `Nothing to set up yet — your first tools come in Week ${firstWeek}, when building starts.`;
+  else if (PREREQS.some((p) => prereqWeek(p.when) > week)) msg = "Nothing new to set up this week — your tools carry through. A few more come as you need them in later weeks.";
+  else msg = "You're all set — every tool you need is ready. ✓";
   return <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, background: C.paper, border: `1px solid ${C.line}`, borderRadius: 6, padding: "12px 14px" }}>{msg}</div>;
 }
 
