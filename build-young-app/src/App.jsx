@@ -2133,8 +2133,6 @@ function weekExample(week) {
     ["Press release", EXAMPLE_BUILD.pr],
     ["Your one promise", EXAMPLE_BUILD.promise],
     ["Honest check — true now vs. the goal", EXAMPLE_BUILD.trueVsGoal],
-    ["What product success looks like", EXAMPLE_BUILD.productSuccess],
-    ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
   ]} />;
   if (week === 2) return <ExampleCard subtitle="A worked spec — how we'd fill it in for Build Young" fields={[
     ["The core product", SHAPE_EXAMPLE.product],
@@ -2708,20 +2706,7 @@ Why people love it: [the payoff].
           placeholder="Be honest: what does it actually do today, and what's still the goal? Say it that way when you talk about it — 'helps you study' (true now) vs. 'gets you an A' (goal). Honest beats hype, and people trust it more."
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
-
-      <label style={{ display: "block", marginBottom: 14 }}>
-        <span style={labelStyle}>What does product success look like?</span>
-        <textarea aria-label="What product success looks like" value={build.productSuccess || ""} onChange={(e) => setField("productSuccess", e.target.value)} rows={3}
-          placeholder="How will you know it's working? Who uses it, what do they do with it, and would they miss it if it disappeared?"
-          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
-      </label>
-
-      <label style={{ display: "block" }}>
-        <span style={labelStyle}>What does financial success look like for your business?</span>
-        <textarea aria-label="What financial success looks like" value={build.financialSuccess || ""} onChange={(e) => setField("financialSuccess", e.target.value)} rows={3}
-          placeholder="What would make this a real business — like making more money than it costs, and people coming back to pay again?"
-          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
-      </label>
+      {/* "What success looks like" lives in Week 2's spec now — Week 1 is the bet (problem/customer/promise). */}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
