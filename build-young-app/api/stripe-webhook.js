@@ -177,18 +177,27 @@ export default async function handler(req, res) {
   // this guard, every retry/re-enroll would re-send a "set your password" email. Returning students
   // who lose the link use the password-reset flow instead.
   let invited = false;
-  if (kvConfigured()) {
+  let inviteNote; // surfaced in the response so a founder can see WHY an invite did/didn't send
+  if (!kvConfigured()) {
+    inviteNote = "store not configured (KV) — cannot provision or invite";
+  } else {
     try {
       const existing = await getUser(email);
       await putUser(email, { name, batchId });
-      if (!existing) {
+      if (existing) {
+        inviteNote = "already provisioned — no re-invite (returning students use password reset)";
+      } else {
         const sent = await sendSetPasswordEmail({ email, name });
         invited = Boolean(sent && sent.ok);
+        if (!invited) {
+          const d = sent && (typeof sent.detail === "string" ? sent.detail : JSON.stringify(sent.detail));
+          inviteNote = `email send failed${sent && sent.status ? ` (status ${sent.status})` : ""}: ${d || "unknown"}`;
+        }
       }
-    } catch {
-      /* enrollment is already stored; a failed invite can be retried via request-reset */
+    } catch (e) {
+      inviteNote = `invite error: ${(e && e.message) || String(e)}`;
     }
   }
 
-  res.status(200).json({ received: true, stored: result.ok, batchId, invited });
+  res.status(200).json({ received: true, stored: result.ok, batchId, invited, inviteNote });
 }
