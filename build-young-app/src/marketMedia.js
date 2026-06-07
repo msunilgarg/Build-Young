@@ -49,17 +49,18 @@ export const WEEK_PREP = [
 // What you'll learn each class (index = week − 1) — the in-dashboard "kickoff" shown at the top of
 // each week's activity, instead of a slide. Newline-separated bullets. Founder-editable (KV-backed via
 // api/_lib/objectivesStore.js); an empty string means "no objectives card" for that week. DRAFTS.
+// Framed as what you'll LEARN (the durable takeaway/insight) — not what you'll DO (the activity).
 export const WEEK_OBJECTIVES = [
-  "Spot a real problem worth solving — one people would pay to fix.\nWork backwards from the customer: who it's for, and why.\nWrite your product's first brief — the idea, the one promise, and what's true now vs. the goal.",
-  "Turn your idea into a clear spec — the brief you hand your AI.\nSee why a clear brief beats a vague one (vague in, vague out).\nGet your build tools set up so you're ready to build.",
-  "Hand your spec to AI and build the core product — the main thing it does.\nLearn the build loop: describe → see → refine.\nShip your first working version live.",
-  "Add sign-in so each person has their own account.\nSave each user's data so the product remembers them.\nSee why accounts + data make it feel real.",
-  "Add a real checkout so people can pay for what you built.\nDecide what's free vs. paid, and what they get.\nHandle payments safely.",
-  "Add the finishing layer: emails, being findable, keeping data safe.\nLearn what makes a product \"production-ready.\"\nGet it ready for real users.",
-  "Point a real web address at your product.\nSwitch on live payments.\nRun your launch checklist — you're open for business.",
-  "Build a funnel into your product: find it → try it → come back.\nAdd tracking so you can see how people move through it.\nList the steps you'll measure at each stage.",
-  "Read your real numbers: active users, retention, and where people drop off.\nLearn what the metrics actually mean.\nPick the one thing to fix first.",
-  "Explore how a product can grow itself.\nFind the reason someone would tell a friend.\nWork out how yours spreads.",
-  "Pull together the story of what you built — product, who it's for, what's next.\nUpdate your positioning honestly (true now vs. the goal).\nPolish your product so it shines on the final call.",
-  "Present what you built, who's using it, and what you'd build next.\nShow your live product.\nCelebrate — parents are welcome to watch.",
+  "A real problem is worth more than a clever idea — that's where products start.\nWork backwards from the customer: who it's for and why come before what you build.\nBeing honest about your idea up front makes everything after easier.",
+  "AI builds what you describe — your job is to direct it, not to code.\nA clear brief beats a vague wish: vague in, vague out.\nThinking clearly before you build is the skill that saves the most time.",
+  "You steer the AI through a loop — describe, see, refine; it can't read your mind.\nA rough version that's real beats a perfect plan that isn't.\n\"Done\" is something you decide, not something the AI decides for you.",
+  "Accounts and saved data turn a one-time demo into something people come back to.\nThe data you keep about people is a responsibility, not just a feature.",
+  "Getting a stranger to pay takes trust and a clear reason — not just a button.\n\"Free\" and \"worth paying for\" are different things; know which parts are which.",
+  "The unglamorous finishing work — emails, being findable, keeping data safe — is what makes a product trustworthy.\nThere's a real gap between a class project and something a stranger can rely on.",
+  "Shipping is a decision, not a finish line — real beats perfect.\n\"Live\" means a real address, real payments, real people — and that changes how you think.",
+  "Strangers become users through a funnel: find it → try it → come back.\nYou can't improve what you don't measure.",
+  "Numbers tell a story — learn to read where people drop off, and why.\nGrowth comes from fixing one thing at a time, not doing everything at once.",
+  "The best growth comes from a product people actually want to share.\nThere's a difference between buying attention and earning it.",
+  "How you tell the story of what you built is as much a skill as building it.\nHonest beats hype — say what's true now vs. what's still the goal.",
+  "You can build something real — and that's yours to own.\nPresenting your work, honestly and proudly, is its own skill.",
 ];
