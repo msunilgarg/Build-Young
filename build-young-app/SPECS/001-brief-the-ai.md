@@ -1,8 +1,14 @@
 # Spec: 001 — Teach students to direct their AI (brief to build + brief to tell)
 
-**Status:** draft (awaiting approval — no code until then)
+**Status:** approved — "establish" phase implemented; "resurface" phase is the next increment
 **Owner:** Sunil Garg
 **Date:** 2026-06-07
+
+> **Implemented (establish phase):** Week 1 (BuildPlan) — a "you're the director, AI is the builder" primer
+> + a persistent **positioning brief** (the one promise + an honest "true now vs. goal" check). Week 2
+> (ShapePlan) — spec reframed as "the brief you hand your AI" + a vague-vs-clear contrast example.
+> **Next increment (resurface phase):** surface the Week-1 positioning brief at go-live / funnel / capstone
+> with an honest-claims check, and a copy-to-AI prompt that wraps it (build-layer pattern).
 
 ## What
 Make **"directing your AI with a clear, honest brief"** an explicit, taught skill — in two halves:
