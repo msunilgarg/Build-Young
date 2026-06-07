@@ -2558,6 +2558,11 @@ Why people love it: [the payoff].
         Before you build anything, get clear on <b>who it's for</b> and <b>why</b>. Pick an idea to start from (or write your own), name the pain you're solving, then write a short <b>press release</b> as if it already launched. Writing it first forces the idea to be clear. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
 
+      <div style={{ background: "#eef3f0", border: `1px solid ${C.emerald}`, borderRadius: 6, padding: "10px 13px", marginBottom: 14 }}>
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: C.ink }}>You're the director — AI is the builder.</div>
+        <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, marginTop: 4 }}>AI can build almost anything — but only as well as you describe it. A good brief says <b>what it is, who it's for, why, and what "done" looks like.</b> The clearer you are here, the less you'll redo later. This is the real skill: not coding, but directing.</div>
+      </div>
+
       <label style={{ display: "block", marginBottom: 14 }}>
         <span style={labelStyle}>Your idea</span>
         <select aria-label="Choose an idea" value={build.scenario || ""} onChange={(e) => setField("scenario", e.target.value)} style={inputStyle}>
@@ -2589,6 +2594,22 @@ Why people love it: [the payoff].
         <span style={labelStyle}>Press release statement</span>
         <textarea aria-label="Press release statement" value={build.pr || ""} onChange={(e) => setField("pr", e.target.value)} rows={6}
           placeholder={PR_PLACEHOLDER}
+          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
+
+      {/* Positioning — how you'll talk about it. This is your north star: you'll come back to it at
+          launch, when you grow it, and at the capstone. Keep it honest (true-now vs. goal). */}
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={labelStyle}>Your one promise (one line)</span>
+        <input aria-label="Your one promise" type="text" value={build.promise || ""} onChange={(e) => setField("promise", e.target.value)}
+          placeholder="The single thing you promise a customer — e.g., 'Quiz yourself from your own notes in 2 minutes.'"
+          style={inputStyle} />
+      </label>
+
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={labelStyle}>Honest check — what's true now vs. the goal</span>
+        <textarea aria-label="What's true now vs. the goal" value={build.trueVsGoal || ""} onChange={(e) => setField("trueVsGoal", e.target.value)} rows={3}
+          placeholder="Be honest: what does it actually do today, and what's still the goal? Say it that way when you talk about it — 'helps you study' (true now) vs. 'gets you an A' (goal). Honest beats hype, and people trust it more."
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
 
@@ -2633,8 +2654,17 @@ function ShapePlan({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Your spec is your product, planned out — <b>what you'll build, plus what success looks like</b> so you know what you're aiming for. The more specific and complete you are, the better. <span style={{ color: C.muted }}>Saved automatically.</span>
+        Your spec is the <b>brief you hand your AI</b> — your product, planned out. AI builds what you describe (vague in, vague out), so the clearer and more complete your spec, the better what comes back. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
+
+      <div style={{ border: `1px solid ${C.line}`, borderRadius: 6, background: C.card, padding: "12px 14px", marginBottom: 14 }}>
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: C.ink, marginBottom: 6 }}>Vague vs. clear — why this matters</div>
+        <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5 }}>
+          <div style={{ marginBottom: 6 }}><b style={{ color: C.muted }}>Vague:</b> “Make me a study app.” → the AI guesses, and you redo it for hours.</div>
+          <div><b style={{ color: C.green }}>Clear:</b> “A web app where a student pastes their notes and gets a 10-question quiz, sees their score, and can retry the ones they missed.” → the AI builds the right thing the first time.</div>
+          <div style={{ marginTop: 6, color: C.muted }}>Same AI. The only difference is the brief.</div>
+        </div>
+      </div>
       {field("product", "The core product", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough to build the core product you can ship live. (Just the core — no accounts or payments yet.)", 6)}
       {field("accounts", "Accounts & saved data", "Who signs in, and what's saved for each person — what does a user see that's theirs?", 4)}
       {field("payments", "Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
