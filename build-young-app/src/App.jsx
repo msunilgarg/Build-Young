@@ -2102,7 +2102,7 @@ function WeekTabs({ week, s, setState, materials }) {
     (example || mats) && { id: "example", label: "Class example", node: example || mats },
     exercise && { id: "exercise", label: "Your exercise", node: exercise },
   ].filter(Boolean);
-  const def = tabs.some((t) => t.id === "learn") ? "learn" : (tabs[0] && tabs[0].id);
+  const def = tabs[0] && tabs[0].id; // land on the first tab (Pre-req) when a week is opened
   const [active, setActive] = useState(def);
   if (!tabs.length) return null;
   const cur = tabs.find((t) => t.id === active) || tabs[0];

@@ -23,7 +23,7 @@ kickoff → learn → example → do flow obvious at a glance.
 ## Behavior (proposed defaults — confirm)
 - Tabs sit at the top of the week view. **Empty tabs are hidden** (most weeks have no pre-req; some have no
   example) — a week shows only its relevant tabs.
-- **Default tab = "What you'll learn"** (the class kickoff) when present, else the first available tab.
+- **Default tab = "Pre-req"** (the first tab) — selecting a week lands there, then learn → example → exercise.
 - Applies to **both** the current-week panel (`WeekPanel`) and the selectable Course-progress view
   (`CoursePanel`) — via **one shared `WeekTabs` component** so they can't drift.
 - Reuse the existing `.tab` style; on mobile the tab row scrolls/wraps.
@@ -34,7 +34,7 @@ kickoff → learn → example → do flow obvious at a glance.
 - [ ] Each week renders as up-to-4 horizontal tabs; empty sections show no tab.
 - [ ] Pre-req content is extracted into the Pre-req tab (and no longer duplicated inside the activity).
 - [ ] Shared `WeekTabs` used by both `CoursePanel` and `WeekPanel`.
-- [ ] Default tab = "What you'll learn"; switching tabs doesn't lose any in-progress input (state lives above).
+- [ ] Default tab = "Pre-req" (first tab); switching tabs doesn't lose any in-progress input (state lives above).
 - [ ] Keyboard-accessible tabs (reuse `act()`/`.tab`), mobile tab row scrolls; a11y + perf hold.
 - [ ] Build clean; 200 tests green.
 
