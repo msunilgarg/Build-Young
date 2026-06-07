@@ -3464,7 +3464,7 @@ export function Login({ onLogin, onReset, onHome, onEnroll }) {
   };
   return (
     <AuthShell title="Log in" sub="Sign in to your student dashboard." onHome={onHome}>
-      {resetSent && <div role="status" style={{ background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "10px 12px", marginTop: 14, fontSize: 13, color: C.ink2 }}>If an account exists for that email, we've sent a link to set a new password.</div>}
+      {resetSent && <div role="status" style={{ background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "10px 12px", marginTop: 14, fontSize: 13, color: C.ink2, lineHeight: 1.5 }}>If an account exists for that email, we've sent a link to set a new password. Don't see it? Check your spam folder{CONFIG.contactEmail ? <>, or email <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.emerald, fontWeight: 700 }}>{CONFIG.contactEmail}</a></> : ""}.</div>}
       <form onSubmit={submit}>
         <div style={{ marginTop: 16 }}><div style={authLabel}>Email</div><input aria-label="Email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={authInput} /></div>
         <div style={{ marginTop: 14 }}><div style={authLabel}>Password</div><input aria-label="Password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Your password" style={authInput} /></div>
