@@ -7,7 +7,8 @@
 ## What
 Make **"directing your AI with a clear, honest brief"** an explicit, taught skill — in two halves:
 1. **Brief to BUILD** (Weeks 1–2): the spec / clear-intent.
-2. **Brief to TELL** (Act 2 / go-to-market): the positioning + promise, with honest claims.
+2. **Brief to TELL**: the positioning + promise — a **persistent north star** set early (Wk 1–2) and used
+   throughout (go-live, funnel, capstone), with honest claims as a standing rule.
 
 Reuse what already exists (Wk1 problem → Wk2 spec/`s.shape` → the build-plan press release); the work is
 **naming the skill, adding a vague-vs-clear contrast, and adding an honest-claims check** — not new weeks.
@@ -20,8 +21,9 @@ prompt is a vague wish instead of a brief.
 
 ## Users & trigger
 Enrolled student, in the dashboard:
-- **Weeks 1–2** — the build brief.
-- **Go-live / go-to-market (≈Wk 7–8)** — the tell brief.
+- **Weeks 1–2** — both briefs are **established**: the build brief (spec) and the positioning brief (the tell).
+- **Wherever they communicate** (Go Live, the Funnel, the Capstone) — the positioning brief is **surfaced,
+  applied, and refined**, with an honest-claims check. It is a persistent north star, not a one-week task.
 
 ## Behavior
 **Framing (tool-agnostic, so it won't go stale):** "You are the director; the AI is the builder. A good brief
@@ -34,14 +36,18 @@ states **Goal · Why · Who it's for · What 'done' looks like · What's out of 
   the second works). Lightweight, experiential — not a graded task.
 - Reinforce that the existing copy-to-AI build prompt **is** their brief to the AI.
 
-**Half 2 — Brief to tell (Act 2 / go-live):**
-- Extend the press release into a short **positioning brief**: what it is, who it's for, the one promise, the
-  voice, and the rule — **what's TRUE NOW vs. what's the GOAL.**
-- Teach **honest claims**: mark real-now vs. aspirational and phrase it that way (mirrors our own site edits —
-  "learn to grow," not "grow into a business"; "go after customers," not "got customers").
-- **Writing the marketing copy is the student's own exercise in their AI** (Claude Pro). The dashboard
-  gives them a **copy-to-AI prompt that wraps their positioning brief** — exactly the build-week pattern —
-  not a built-in generator. We guide and hand them the prompt; they produce the copy themselves.
+**Half 2 — Brief to tell (a north star, NOT a step):**
+Positioning isn't a single week's task — like Build Young's own `POSITIONING.md`, it's **set early and used
+throughout.** So:
+- **Established early (Wk 1–2)**, alongside the spec, by evolving the existing **press release** into a short,
+  **persistent positioning brief**: what it is, who it's for, the one promise, the voice, and the rule —
+  **what's TRUE NOW vs. what's the GOAL.** It lives in the dashboard (like `s.shape` / `s.build` already do).
+- **Referenced wherever they communicate** — at Go Live (write the landing copy from it), in the Funnel (the
+  message that drives find → try → return), at the Capstone (present from it) — and **refined** as the product changes.
+- **Honest claims is a standing rule**, applied whenever they use/refine it — surfaced most sharply at Go Live,
+  when it goes public (mirrors our own edits: "learn to grow," not "grow into a business").
+- **Writing the actual copy is the student's own exercise in their AI** (Claude Pro): the dashboard hands them a
+  **copy-to-AI prompt that wraps their current positioning brief** (build-week pattern), not a generator.
 
 Keep it **ONE evolving product brief** for the student (build half + tell half) — not two docs. No heavy new UI;
 reuse existing cards/components (primer card, build layer, the press-release fields).
@@ -50,6 +56,7 @@ reuse existing cards/components (primer card, build layer, the press-release fie
 - [ ] Wk1–2 explicitly names "you are directing your AI" + a good-brief primer (Goal/Why/Who/Done/Out-of-scope).
 - [ ] A concrete vague-vs-clear contrast example is shown (on-brand worked example).
 - [ ] The press release is extended with a "the one promise" + "true now vs. goal" prompt.
+- [ ] The positioning brief is a **persistent artifact** (set Wk 1–2) surfaced at each communication point — not a single-week task.
 - [ ] An honest-claims check appears before go-to-market copy ("mark what's real vs. aspirational; say it that way").
 - [ ] Marketing copy is produced via a **copy-to-AI prompt** (student's own AI), not a built-in generator.
 - [ ] Framed as a transferable principle, not a Claude-specific template.
@@ -69,9 +76,9 @@ reuse existing cards/components (primer card, build layer, the press-release fie
 
 ## Risks / open questions
 - **Don't let it feel like forms** — that breaks "no busywork" and loses teens. Keep cards short and experiential.
-- **OPEN (your call):** where the "tell" brief lands. **Proposed: Week 7 (Go Live)** — the product goes public
-  there, so it needs honest public-facing copy at that moment; Week 8 (Funnel) then *uses* that copy to drive
-  find → try → return. Confirm Wk7, or move it to Wk8.
+- **RESOLVED (per founder):** positioning is a **persistent north star, not a step** — established early
+  (Wk 1–2 with the spec) and referenced/refined at every communication point (Go Live, Funnel, Capstone),
+  mirroring how Build Young's own `POSITIONING.md` works. It does not "land" in a single week.
 - **RESOLVED:** writing the copy is the student's exercise in their own AI — the dashboard provides a copy-to-AI
   prompt (build-layer pattern), not a server-side generator. Keeps it hands-on; no copy-gen feature to build.
 - Keep it age-appropriate: one product brief, not two docs.
