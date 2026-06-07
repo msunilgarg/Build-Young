@@ -2657,9 +2657,7 @@ Why people love it: [the payoff].
   const inner = (
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your product — start from the customer 🧭</h3>
-      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Before you build anything, get clear on <b>who it's for</b> and <b>why</b>. Pick an idea to start from (or write your own), name the pain you're solving, then write a short <b>press release</b> as if it already launched. Writing it first forces the idea to be clear. <span style={{ color: C.muted }}>Saved automatically.</span>
-      </p>
+      <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 14px" }}>Fill these in as you shape your product. Saved automatically.</p>
 
       <label style={{ display: "block", marginBottom: 14 }}>
         <span style={labelStyle}>Your idea</span>
@@ -2745,23 +2743,7 @@ function ShapePlan({ s, setS, bare }) {
   const inner = (
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
-      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Your spec is the <b>brief you hand your AI</b> — your product, planned out. The clearer and more complete it is, the better what comes back. <span style={{ color: C.muted }}>Saved automatically.</span>
-      </p>
-
-      <div style={{ background: "#eef3f0", border: `1px solid ${C.emerald}`, borderRadius: 6, padding: "10px 13px", marginBottom: 14 }}>
-        <div style={{ fontSize: 12.5, fontWeight: 800, color: C.ink }}>You're the director — AI is the builder.</div>
-        <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, marginTop: 4 }}>AI can build almost anything — but only as well as you describe it. A good brief says <b>what it is, who it's for, why, and what "done" looks like.</b> The clearer you are here, the less you'll redo later. This is the real skill: not coding, but directing.</div>
-      </div>
-
-      <div style={{ border: `1px solid ${C.line}`, borderRadius: 6, background: C.card, padding: "12px 14px", marginBottom: 14 }}>
-        <div style={{ fontSize: 12.5, fontWeight: 800, color: C.ink, marginBottom: 6 }}>Vague vs. clear — why this matters</div>
-        <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5 }}>
-          <div style={{ marginBottom: 6 }}><b style={{ color: C.muted }}>Vague:</b> “Make me a study app.” → the AI guesses, and you redo it for hours.</div>
-          <div><b style={{ color: C.green }}>Clear:</b> “A web app where a student pastes their notes and gets a 10-question quiz, sees their score, and can retry the ones they missed.” → the AI builds the right thing the first time.</div>
-          <div style={{ marginTop: 6, color: C.muted }}>Same AI. The only difference is the brief.</div>
-        </div>
-      </div>
+      <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 14px" }}>Write your spec, one section at a time. Saved automatically.</p>
       {field("product", "The core product", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough to build the core product you can ship live. (Just the core — no accounts or payments yet.)", 6)}
       {field("accounts", "Accounts & saved data", "Who signs in, and what's saved for each person — what does a user see that's theirs?", 4)}
       {field("payments", "Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
@@ -2809,9 +2791,7 @@ function BuildLayer({ week, s, setS, bare }) {
 
   const inner = (
     <>
-      <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 14px" }}>
-        {cfg.lead} You direct; AI writes the code — your job is <b>taste</b>: knowing what <b>good</b> looks like and asking for it until you get there. <span style={{ color: C.muted }}>Saved automatically.</span>
-      </p>
+      <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>{cfg.lead} Saved automatically.</p>
 
       {/* Build pre-reqs (the tools) now live in this week's "Pre-req" tab (weekPrereqs), not inline. */}
 
