@@ -21,6 +21,9 @@ slide) makes that real, and gives students the "here's what we'll do today" kick
   you'll DO** (the activity). "A clear brief beats a vague wish" — not "write a spec." Takeaways, not a to-do list.
   Each week **blends three angles** (one per bullet): the **shift** (the aha), the **capability** (how to…),
   and **why it matters** (the life / AI-era stakes). Weeks 1–2 are the reference; roll the same pattern to 3–12.
+- **Connective thread:** the **first line** of each week's objectives is a connective intro — *last week you did
+  X → this week you'll learn Y → which sets up next week* — rendered as a lead sentence above the bullets, so the
+  12 weeks read as one story, not islands. The remaining lines are the takeaway bullets.
 - **Mirror the homework infrastructure exactly** (it's proven): code defaults + KV store + public read + console editor.
   - Defaults: `WEEK_OBJECTIVES` (12 strings, newline-separated bullets) in `src/marketMedia.js` (dependency-free).
   - Store: `api/_lib/objectivesStore.js` (KV key `course:objectives`), cloned from `homeworkStore.js` — load/save, sanitize to 12 strings, fall back to defaults.
