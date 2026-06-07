@@ -1936,6 +1936,8 @@ How it works: Over 12 weeks, each teen builds their own product with AI, takes i
 Why families love it: It's live and small-group with a standing weekly time, so "someday" becomes "done" — and kids graduate having built a real business from zero.
 
 "My daughter went from 'I don't get money' to running her own little product and explaining compound interest at dinner." — a Build Young parent`,
+  promise: `In 12 weeks, your teen builds a real product with AI and learns to grow it — finishing with a capstone they present.`,
+  trueVsGoal: `True now: they build and launch a real product and learn the growth playbook (funnels, metrics). The goal — not promised in 12 weeks: real paying customers and scale. So we say it honestly — "learn to grow it," not "grow a business."`,
   productSuccess: `Real teens use it and keep coming back — and they'd be bummed if it went away. They like it enough to tell their friends, so classes keep filling up.`,
   financialSuccess: `It makes more money than it costs to run. Most new families come from people telling their friends, so we don't have to spend much to find them — and there's enough left over to keep it going and make it bigger.`,
 };
@@ -2030,6 +2032,8 @@ function weekExample(week) {
     ["The idea", EXAMPLE_BUILD.idea],
     ["Customer pain point(s)", EXAMPLE_BUILD.pain],
     ["Press release", EXAMPLE_BUILD.pr],
+    ["Your one promise", EXAMPLE_BUILD.promise],
+    ["Honest check — true now vs. the goal", EXAMPLE_BUILD.trueVsGoal],
     ["What product success looks like", EXAMPLE_BUILD.productSuccess],
     ["What financial success looks like", EXAMPLE_BUILD.financialSuccess],
   ]} />;
