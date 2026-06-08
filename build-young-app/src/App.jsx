@@ -1648,16 +1648,15 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   setPendingEnroll({ name, email, batch, track: b.track });
                   // client_reference_id carries the cohort id through Stripe so the webhook maps the
                   // payment back to the right cohort (this is what lets ONE shared link serve all cohorts).
-                  // We pack the STUDENT name after a "." (base64url) so the set-password email greets the
-                  // student, not the card-holder. batchId is the part before the "." (and the ?enrolled=
-                  // return URL is a fallback), so this never risks losing the cohort.
+                  // We pack the cohort + STUDENT name as "byq_<base64url JSON>" so the set-password email
+                  // greets the student, not the card-holder. Stripe only allows [A-Za-z0-9_-] in a Payment
+                  // Link's client_reference_id, so base64url + the "byq_" marker keep it valid (a "." would
+                  // make Stripe drop the whole value). The ?enrolled= return URL is still a fallback.
                   let ref = batch;
                   try {
-                    const nm = (name || "").trim();
-                    if (nm) {
-                      const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(nm))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-                      ref = `${batch}.${b64}`;
-                    }
+                    const payload = JSON.stringify({ b: batch, n: (name || "").trim() });
+                    const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(payload))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+                    ref = `byq_${b64}`;
                   } catch { ref = batch; }
                   const sep = stripeLink.includes("?") ? "&" : "?";
                   window.location.href = `${stripeLink}${sep}prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(ref)}`;

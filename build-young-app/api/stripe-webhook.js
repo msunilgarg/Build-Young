@@ -85,14 +85,29 @@ export function verifyStripeSignature(rawBody, header, secret, nowSec = Math.flo
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
+// Decode our client_reference_id. The enroll form packs the cohort + student name as
+// "byq_<base64url JSON {b,n}>" — Stripe only allows [A-Za-z0-9_-] in a Payment Link's
+// client_reference_id, and base64url + the "byq_" marker stay inside that set. A bare value
+// (legacy / hand-set) is treated as the batch id with no name.
+function decodeRef(session) {
+  const cref = String((session && session.client_reference_id) || "");
+  if (cref.startsWith("byq_")) {
+    try {
+      const json = Buffer.from(cref.slice(4).replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8");
+      const o = JSON.parse(json);
+      return { batchId: (o.b || "").trim(), name: (o.n || "").trim() };
+    } catch { return { batchId: "", name: "" }; }
+  }
+  return { batchId: cref, name: "" };
+}
+
 // Pull the cohort id off a completed Checkout Session: metadata.batchId → client_reference_id
 // → an `?enrolled=<id>` param on the redirect/return URL. Payment Links put the redirect in
 // `after_completion.redirect.url` (NOT success_url), so check that too.
 function batchIdFromSession(session) {
   if (session?.metadata?.batchId) return session.metadata.batchId;
-  // client_reference_id may be "batchId" or "batchId.<base64url student name>" — the cohort is the
-  // part before the first ".".
-  if (session?.client_reference_id) return String(session.client_reference_id).split(".")[0];
+  const fromRef = decodeRef(session).batchId;
+  if (fromRef) return fromRef;
   const url = session?.success_url
     || session?.after_completion?.redirect?.url
     || session?.url || "";
@@ -100,15 +115,10 @@ function batchIdFromSession(session) {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
-// The STUDENT name packed into client_reference_id ("batchId.<base64url name>"), or "" if absent.
-// Used so the set-password email greets the student, not the card-holder (often a parent).
+// The STUDENT name packed into client_reference_id, or "" if absent. Used so the set-password
+// email greets the student, not the card-holder (often a parent).
 function studentNameFromRef(session) {
-  const cref = session?.client_reference_id || "";
-  const dot = cref.indexOf(".");
-  if (dot < 0) return "";
-  try {
-    return Buffer.from(cref.slice(dot + 1).replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8").trim();
-  } catch { return ""; }
+  return decodeRef(session).name;
 }
 
 export default async function handler(req, res) {
