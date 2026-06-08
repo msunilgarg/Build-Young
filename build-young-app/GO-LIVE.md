@@ -70,5 +70,22 @@ canonical (www), per-route `<title>`/description, and a prerender step (`postbui
 - [ ] *(optional)* **Bing**: Webmaster Tools → **Import from Google Search Console** (mirrors verify + sitemap).
 - [ ] After a few days, check **Indexing → Pages** for the homepage; URL-inspect → **Request indexing** to nudge it.
 
+## 8. Email — inbound  (so `team@` and direct replies actually arrive)
+Resend is **send-only**: the app sends *from* `team@build-young.com`, but that address has **no inbox**
+until you add mail receiving. Two parts:
+- [ ] **Founder alerts to a real inbox (now, no DNS):** founder console → Settings → **Notifications**
+      → set `notifyEmail` to a monitored inbox (e.g. your Outlook). All founder notifications
+      (next-cohort interest, schedule requests, refunds to issue, FAQ questions) route there,
+      overriding the `team@` default. Live immediately (KV-backed).
+- [ ] **Make `team@build-young.com` receive** — it's the public contact in the footer + legal, so a
+      parent emailing it directly must reach you. Easiest with Vercel DNS: **ImprovMX** (free, no
+      nameserver change):
+      1. improvmx.com → add `build-young.com` → alias `team` → your inbox *(optionally `*` catch-all)*.
+      2. Vercel → Domains → DNS, add on the **root `@`**: **MX** `mx1.improvmx.com` (pri 10) +
+         **MX** `mx2.improvmx.com` (pri 20) + **TXT** `v=spf1 include:spf.improvmx.com ~all`.
+         These don't clash with Resend's `send`-subdomain MX.
+      3. Verify in ImprovMX, then email `team@build-young.com` to confirm it lands in your inbox.
+      *(Alternatives: Cloudflare Email Routing if you move DNS to Cloudflare; Google Workspace / M365 for a real mailbox.)*
+
 ---
 *Launch aid, not legal advice. Architecture/notes live in `CLAUDE.md`.*
