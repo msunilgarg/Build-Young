@@ -2120,7 +2120,7 @@ function weekPrereqs(week, s, setS) {
 // One week's content as horizontal tabs — Pre-req · What you'll learn · Class example · Your exercise.
 // Empty tabs are hidden; defaults to "What you'll learn". Shared by CoursePanel + WeekPanel so they
 // can't drift. Activity input lives in s (lifted), so switching tabs never loses what's typed.
-const BUILD_WEEKS = new Set([3, 4, 5, 6, 7, 8]); // weeks where students actively build with AI
+const BUILD_WEEKS = new Set([3, 4, 5, 6, 8]); // the AI-build weeks (BUILD_LAYERS) — Week 7 "Go Live" is a checklist, not an AI build prompt
 // A recurring "stretch goal" shown under the build-week exercise: the meta-skill of interrogating
 // your AI tools — ask what you're not using / what you're doing the hard way. Taste applied to the
 // tool itself: builders, not consumers, even in HOW they use AI.
