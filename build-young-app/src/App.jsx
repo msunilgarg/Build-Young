@@ -3010,15 +3010,15 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
   // so we fetch it (valid, verifiable certId); the mint can lag the state-save, so retry a few times.
   // Demo mode (no accounts): synthesize one from the student's state so graduates still see and can
   // download their certificate on the Dashboard.
-  // Certificate unlocks ONLY once the course is genuinely complete — the student finished Week 12
-  // (done) or is in the post-course check-in phase, which is always after Week 11. We require an
-  // explicit done/checkin flag (NOT "phase !== course") so a legacy record with an unset phase
-  // can't mis-trigger the cert early — that bug surfaced one student's persisted cert before they
-  // had finished. The week guard is extra defense for malformed state.
-  const graduated = (s.done === true || s.phase === "checkin") && (typeof s.week !== "number" || s.week >= 12);
+  // Certificate unlocks once the student has COMPLETED Week 11 — i.e. advanced into Week 12
+  // (week >= 12) — or has fully graduated / moved to the post-course check-in. We key off the
+  // explicit week/done/checkin (NOT a loose "phase !== course") so a legacy record with an unset
+  // phase can't surface the cert early — that bug once showed one student's cert before they'd
+  // finished.
+  const certEligible = (typeof s.week === "number" && s.week >= 12) || s.done === true || s.phase === "checkin";
   const [cert, setCert] = useState(null);
   useEffect(() => {
-    if (!graduated) return;
+    if (!certEligible) return;
     if (!CONFIG.authEnabled) {
       setCert({ name: s.student.name, track: batch.track, completedAt: Date.now(), certId: "demo" });
       return;
@@ -3032,7 +3032,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
     };
     tryFetch();
     return () => { live = false; };
-  }, [graduated]);
+  }, [certEligible]);
 
   // Calendar-driven progression (there is no manual "advance" button): keep the student's
   // week/started/done in sync with where the cohort actually is on the calendar, and fire each
@@ -3362,14 +3362,15 @@ function WeekPanel({ s, setState, batch, cert, preview }) {
       )}
 
       {action === "capstone" && (<>
-        {/* Week 12 is the finale (no separate check-in). Once finished, lead with the certificate. */}
-        {s.done && cert && <div style={{ marginBottom: 14 }}><CertificateCard cert={cert} /></div>}
+        {/* Week 12 is the finale (no separate check-in). The certificate unlocks once Week 11 is
+            done (the student has reached Week 12), so lead with it here whenever it exists. */}
+        {cert && <div style={{ marginBottom: 14 }}><CertificateCard cert={cert} /></div>}
         <Wrap
           title={s.done ? "You've graduated 🎓" : "Capstone: Present What You Built"}
           blurb={s.done
             ? "That's the program. You built something real, took it live, and grew it — this is what you made."
             : "You started with nothing but an idea. Pull it together — the product you built, who's using it, and what you'd build next — and present it. This is the finish line."}>
-          {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 4 }}>This is your last class — you'll present what you built to family and friends. <b>Parents are welcome to join this call</b> to watch (share the Zoom link). <b>Finish the course</b> to unlock your certificate.</div>}
+          {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 4 }}>This is your last class — you'll present what you built to family and friends. <b>Parents are welcome to join this call</b> to watch (share the Zoom link).{!cert && <> <b>Finish the course</b> to unlock your certificate.</>}</div>}
           {/* Capture the build + a testimonial at the finale (gated by the founder showcase toggle). */}
           {CONFIG.showcaseEnabled && <ShowcaseCapture s={s} />}
         </Wrap>
