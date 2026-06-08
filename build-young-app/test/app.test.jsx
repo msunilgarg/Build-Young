@@ -106,7 +106,7 @@ describe("Course hub (per-week resources & catch-up)", () => {
     // A fresh enrollee (not started) sees the welcome/orientation home.
     expect(await screen.findByText(/WELCOME TO BUILD YOUNG/i)).toBeInTheDocument();
     expect(screen.getByText(/What to expect/i)).toBeInTheDocument();
-    expect(screen.getByText(/How each week works/i)).toBeInTheDocument();
+    expect(screen.getByText(/Get set up before you build/i)).toBeInTheDocument();
     // The home tab is now called "Dashboard" (the old thin Dashboard tab was removed).
     expect(screen.getByRole("button", { name: "Dashboard" })).toBeInTheDocument();
   });
