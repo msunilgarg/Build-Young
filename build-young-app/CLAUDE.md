@@ -169,6 +169,8 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
 These precede the technical go-live items below and some gate them (e.g. Stripe wants a
 business bank account). Founder is in Washington State (Sammamish area). A short paid consult
 with a WA small-business attorney + a CPA is the recommended way to settle all of this at once.
+
+> **Concrete step-by-step + official links + current fees: [`BUSINESS.md`](./BUSINESS.md).**
 1. **Entity:** not legally required to start, but forming an **LLC** is the common choice —
    it shields personal assets (matters more here because the business takes family payments,
    makes refund promises, and works with minors). WA LLC = modest one-time filing + small
