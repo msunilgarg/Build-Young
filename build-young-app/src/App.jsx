@@ -1840,7 +1840,6 @@ function OverviewPanel({ s, batch, onTab, setS }) {
   const first = (s.student.name || "").split(" ")[0] || "there";
   const sectionTitle = { fontSize: 16, fontWeight: 800, color: C.ink, margin: "0 0 8px" };
   const li = { display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, color: C.ink2, lineHeight: 1.5, padding: "7px 0" };
-  const num = (n) => (<span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: 999, background: C.emerald, color: "#fff", fontSize: 12, fontWeight: 800, display: "grid", placeItems: "center" }}>{n}</span>);
   const chip = (numv, label) => (
     <div style={{ display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,.12)", borderRadius: 10, padding: "14px 18px" }}>
       <span className="disp" style={{ fontSize: 30, fontWeight: 800, color: "#fff", lineHeight: 1, minWidth: 36 }}>{numv}</span>
@@ -1911,23 +1910,15 @@ function OverviewPanel({ s, batch, onTab, setS }) {
         </div>
       </Card>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }} className="enroll-grid">
-        <Card style={{ padding: 20 }}>
-          <h3 style={sectionTitle}>What to expect</h3>
-          <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — Build &amp; launch.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
-          <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — Learn to grow it.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth — the skills that grow a product.</span></div>
-          <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Prepare your capstone.</b> Pull it all together for the final presentation: polish your product and shape the story of what you built and who it's for.</span></div>
-          <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Present everything — what you built, who's using it, and what you'd build next. Parents are welcome to join this final call to watch.</span></div>
-          <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
-          <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
-        </Card>
-        <Card style={{ padding: 20 }}>
-          <h3 style={sectionTitle}>How each week works</h3>
-          <div style={li}>{num(1)}<span>Join the <b>live class on Zoom</b> — the same link works every week.</span></div>
-          <div style={li}>{num(2)}<span>Open <b>Course progress</b> and do that week's activity — build your product with AI, learn how to grow it, and go after your first customers.</span></div>
-          <div style={li}>{num(3)}<span>Done with the class &amp; that week's activity? Hit <b>Move to next week</b> in <b>Course progress</b> to advance through the course.</span></div>
-        </Card>
-      </div>
+      <Card style={{ padding: 20 }}>
+        <h3 style={sectionTitle}>What to expect</h3>
+        <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — Build &amp; launch.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
+        <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — Learn to grow it.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth — the skills that grow a product.</span></div>
+        <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Prepare your capstone.</b> Pull it all together for the final presentation: polish your product and shape the story of what you built and who it's for.</span></div>
+        <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Present everything — what you built, who's using it, and what you'd build next. Parents are welcome to join this final call to watch.</span></div>
+        <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
+        <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
+      </Card>
     </div>
   );
 }
@@ -2113,7 +2104,12 @@ function WeekTabs({ week, s, setState, materials }) {
     (example || mats) && { id: "example", label: "Class example", node: example || mats },
     exercise && { id: "exercise", label: "Your exercise", node: exercise },
   ].filter(Boolean);
-  const def = tabs[0] && tabs[0].id; // land on the first tab (Pre-req) when a week is opened
+  // Land on the Pre-req tab ONLY when this week actually has tools DUE (something to act on).
+  // When the pre-req tab is just a "nothing to set up" note, skip it and land on the next tab.
+  const hasDuePrereq = PREREQS.some((p) => prereqWeek(p.when) === week);
+  const def = hasDuePrereq
+    ? "prereq"
+    : ((tabs.find((t) => t.id !== "prereq") || tabs[0] || {}).id);
   const [active, setActive] = useState(def);
   if (!tabs.length) return null;
   const cur = tabs.find((t) => t.id === active) || tabs[0];
@@ -2693,12 +2689,12 @@ Why people love it: [the payoff].
         <span style={labelStyle}>Your idea</span>
         <select aria-label="Choose an idea" value={build.scenario || ""} onChange={(e) => setField("scenario", e.target.value)} style={inputStyle}>
           <option value="">Choose an idea to start from…</option>
+          <option value="custom">✍️  Write my own</option>
           {SCENARIO_GROUPS.map((g) => (
             <optgroup key={g.group} label={g.group}>
               {g.items.map((it) => <option key={it.id} value={it.id}>{it.label}</option>)}
             </optgroup>
           ))}
-          <option value="custom">✍️  Write my own</option>
         </select>
       </label>
 
