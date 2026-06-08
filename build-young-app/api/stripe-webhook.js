@@ -172,10 +172,11 @@ export default async function handler(req, res) {
   // verified payment — this is where account creation belongs). No-op when KV isn't configured,
   // so the webhook still acknowledges cleanly in a store-less/test setup.
   //
-  // IDEMPOTENT INVITE: only email the set-password link the FIRST time we see this email. Stripe
-  // retries failed deliveries (and students may re-enroll), and the webhook is idempotent — without
-  // this guard, every retry/re-enroll would re-send a "set your password" email. Returning students
-  // who lose the link use the password-reset flow instead.
+  // INVITE UNTIL SET UP: send the set-password link whenever the student hasn't set a password yet.
+  // The account isn't truly "created" until they set a password — so if they lost or never got the
+  // first email, a re-attempt with the SAME email re-sends it. Once a password EXISTS we stop
+  // re-inviting (returning students who lose the link use the password-reset flow). putUser merges,
+  // so re-recording name/batchId never clobbers the password.
   let invited = false;
   let inviteNote; // surfaced in the response so a founder can see WHY an invite did/didn't send
   if (!kvConfigured()) {
@@ -184,8 +185,8 @@ export default async function handler(req, res) {
     try {
       const existing = await getUser(email);
       await putUser(email, { name, batchId });
-      if (existing) {
-        inviteNote = "already provisioned — no re-invite (returning students use password reset)";
+      if (existing && existing.passwordHash) {
+        inviteNote = "already set up (password exists) — no re-invite (use password reset)";
       } else {
         const sent = await sendSetPasswordEmail({ email, name });
         invited = Boolean(sent && sent.ok);
