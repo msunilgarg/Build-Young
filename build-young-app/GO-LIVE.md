@@ -58,9 +58,17 @@ From a service:
       `LEGAL` copy (incl. the builder-prize/minors clauses + the earnings language).
 - [ ] **CPA**: tuition is taxable; WA B&O / sales-tax check; business bank account + bookkeeping.
 
-## 7. Post-launch
-- [ ] Submit to Google Search Console + Bing.
-- [ ] *(optional)* SPA prerender for non-JS crawlers.
+## 7. Search / SEO  (post-launch)
+In code already: `sitemap.xml`, `robots.txt`, `llms.txt`, JSON-LD (Organization + Course + FAQ),
+canonical (www), per-route `<title>`/description, and a prerender step (`postbuild` → `scripts/prerender.mjs`).
+- [x] **Verify the domain in Google Search Console.** Add a **Domain** property for `build-young.com`,
+      then put the `google-site-verification=…` value as a **TXT** record on the root in
+      Vercel → Domains → DNS (Name blank, Type TXT). *(Or a **URL-prefix** property for
+      `https://www.build-young.com`, verified by dropping Google's HTML file into `public/`.)*
+- [x] **Submit the sitemap**: Search Console → Sitemaps → `https://www.build-young.com/sitemap.xml`
+      (expect Status **Success**, 3 pages).
+- [ ] *(optional)* **Bing**: Webmaster Tools → **Import from Google Search Console** (mirrors verify + sitemap).
+- [ ] After a few days, check **Indexing → Pages** for the homepage; URL-inspect → **Request indexing** to nudge it.
 
 ---
 *Launch aid, not legal advice. Architecture/notes live in `CLAUDE.md`.*
