@@ -5055,11 +5055,14 @@ export default function App() {
           }
           if (paidBatch) {
             // The Stripe webhook provisioned the account + emailed the set-password link.
-            track("enrolled", { ...cohortMetaFrom(batches, paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
-            const b = batches.find((x) => x.id === paidBatch);
-            // Recover the email they entered at enroll (prefilled into Stripe) to show on the screen.
+            // Recover what they entered at enroll (prefilled into Stripe): their email AND their real
+            // cohort. A SHARED Payment Link has one static ?enrolled= for everyone, so prefer the
+            // student's actual cohort from the pending-enroll record; fall back to the URL param.
             const p = readPendingEnroll(); // localStorage, then the cross-subdomain cookie
+            const realBatch = (p && p.batch) || paidBatch;
             const pendingEmail = p ? (p.email || "") : "";
+            track("enrolled", { ...cohortMetaFrom(batches, realBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
+            const b = batches.find((x) => x.id === realBatch);
             clearPendingEnroll();
             window.history.replaceState({}, "", window.location.pathname);
             setEnrolledTrack(b ? b.track : ""); setEnrolledEmail(pendingEmail); setRoute("checkemail"); setLoaded(true); return;
@@ -5080,14 +5083,17 @@ export default function App() {
         // ---- DEMO MODE: self-contained localStorage flow (no login) ----
         if (paidBatch) {
           const pending = readPendingEnroll();
-          const b = batches.find((x) => x.id === paidBatch);
+          // Prefer the student's real cohort captured at enroll (a shared link's static ?enrolled=
+          // can't vary per cohort); fall back to the URL param.
+          const realBatch = (pending && pending.batch) || paidBatch;
+          const b = batches.find((x) => x.id === realBatch);
           if (b) {
-            const student = pending && pending.batch === paidBatch
+            const student = pending && pending.batch === realBatch
               ? pending
-              : { name: "", email: (pending && pending.email) || "", batch: paidBatch, track: b.track };
+              : { name: "", email: (pending && pending.email) || "", batch: realBatch, track: b.track };
             clearPendingEnroll();
             window.history.replaceState({}, "", window.location.pathname);
-            track("enrolled", { ...cohortMetaFrom(batches, paidBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
+            track("enrolled", { ...cohortMetaFrom(batches, realBatch), fromCall: _callBookedThisSession }); // funnel: payment completed
             // mirror the demo flow: send the welcome email on a real (Stripe) enrollment too
             const w = welcomeEmail(student);
             sendEmail(student.email, w.subject, w.body);
