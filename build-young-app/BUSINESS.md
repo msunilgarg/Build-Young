@@ -5,7 +5,7 @@
 > with a **WA small-business attorney + a CPA** to settle entity, insurance, minors, and tax at once.
 > This file is the practical checklist + official links; companion to **GO-LIVE.md** (technical
 > go-live) and the "Business & legal setup" section of **CLAUDE.md**. Fees/requirements change —
-> **verify current amounts on the official sites** before paying.
+> **verify current amounts on the official sites** before paying — the figures below were spot-checked against the SOS & DOR sites in **June 2026**.
 
 Founder is in WA (Sammamish area); recommended entity is an **LLC** (shields personal assets — matters
 here because of payments, refunds, and minors).
@@ -23,8 +23,7 @@ here because of payments, refunds, and minors).
 - [ ] **Registered agent** — a person/service with a *physical* WA street address for legal mail.
       You can be your own (your WA address) or pay a commercial agent (~$100–150/yr) to keep your
       address private.
-- [ ] **File the Certificate of Formation** online in CCFS — this *creates* the LLC. Fee **~$200
-      online** *(verify)*. Approval is usually quick.
+- [ ] **File the Certificate of Formation** online in CCFS — this *creates* the LLC. Fee **$200 online** ($180 base + a $20 online fee; paper filing is $180) *(WA SOS/CCFS)*. Approval is usually quick.
 
 ## 2. Federal — EIN (IRS)
 - [ ] **Get an EIN** — free, online, instant (IRS "EIN Assistant"). It's your business tax ID; needed
@@ -32,8 +31,7 @@ here because of payments, refunds, and minors).
 
 ## 3. State tax & licensing — WA Dept. of Revenue (DOR)
 - [ ] **File the Business License Application** via DOR's **Business Licensing Service (BLS)** →
-      gives you a **UBI number** and registers you for **B&O tax** (WA's gross-receipts tax). Modest
-      fee *(verify)*.
+      gives you a **UBI number** and registers you for **B&O tax** (WA's gross-receipts tax). **~$50** processing fee to open a new business's first location *(DOR/BLS; source figures vary — verify on the live DOR page)*.
 - [ ] **City endorsement** — Sammamish / your city of operation may require a local business license
       (BLS handles many cities in the same application). Confirm your city's requirement.
 - [ ] **CPA to confirm**: whether **B&O** *and* **sales tax** apply to an online educational service
@@ -67,7 +65,7 @@ here because of payments, refunds, and minors).
 - [ ] File **B&O / sales tax** with DOR on the schedule they assign; tuition is taxable income.
 
 ## 10. Ongoing compliance
-- [ ] File the **WA Annual Report** with the SOS each year (~$60 *(verify)*) to stay in good standing.
+- [ ] File the **WA Annual Report** with the SOS each year (**$70/yr**) to stay in good standing.
 - [ ] Keep the registered agent + addresses current.
 
 ---
