@@ -4034,8 +4034,6 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
         {!error && events !== null && tab === "settings" && (<>
           <h2 style={h2s}>Site settings</h2>
           <SettingsEditor />
-          <h2 style={h2s}>Notifications</h2>
-          <NotificationsEditor />
           <h2 style={h2s}>Funnel simulation agent</h2>
           <ScenarioAgentEditor />
           <h2 style={h2s}>Admins</h2>
@@ -4108,48 +4106,6 @@ function SettingsEditor() {
       </div>
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save settings</button>
-        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
-      </div>
-    </Card>
-  );
-}
-
-// Founder-editable PRIVATE notifications address (where tutor applications etc. are emailed).
-// Read/written via the founder-gated /api/funnel?resource=ops — never exposed publicly or in the
-// client bundle (unlike the public Site settings).
-function NotificationsEditor() {
-  const [email, setEmail] = useState(null);
-  const [status, setStatus] = useState("");
-  useEffect(() => {
-    let live = true;
-    (async () => {
-      try { const r = await fetch("/api/funnel?resource=ops"); const d = r.ok ? await r.json() : {}; if (live) setEmail((d.ops && d.ops.notifyEmail) || ""); }
-      catch { if (live) setEmail(""); }
-    })();
-    return () => { live = false; };
-  }, []);
-  if (email === null) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
-  const save = async () => {
-    setStatus("Saving…");
-    try {
-      const r = await fetch("/api/funnel?resource=ops", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ notifyEmail: email }) });
-      const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok) { setEmail(d.ops.notifyEmail); setStatus("Saved — live now ✓"); }
-      else setStatus(adminSaveErr(r, d, "save notifications"));
-    } catch { setStatus(ADMIN_NET_ERR); }
-  };
-  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
-  return (
-    <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Where founder alerts are emailed — like a new <b>tutor application</b> from Careers. Private (never shown on the public site). Leave blank to use your <b>team/contact email</b>. Sending also requires <code>RESEND_API_KEY</code> on the host.</div>
-      <label style={{ display: "block" }}>
-        <span style={lab}>Notifications email</span>
-        <input aria-label="Notifications email" type="email" value={email} placeholder="you@example.com"
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", maxWidth: 420, boxSizing: "border-box" }} />
-      </label>
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
-        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save</button>
         {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
