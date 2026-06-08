@@ -21,6 +21,7 @@ import { saveObjectives } from "./_lib/objectivesStore.js";
 import { listCerts } from "./_lib/cert.js";
 import { listBuildPlans } from "./_lib/buildPlans.js";
 import { listRefundRequests } from "./_lib/refundStore.js";
+import { addQuestion, listQuestions } from "./_lib/questionStore.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 import { generateScenarios } from "./_lib/scenarioAgent.js";
 
@@ -111,6 +112,11 @@ async function read(req, res) {
 
   if (req.query && req.query.resource === "refunds") {
     res.status(200).json({ refunds: await listRefundRequests() });
+    return;
+  }
+
+  if (req.query && req.query.resource === "questions") {
+    res.status(200).json({ questions: await listQuestions() });
     return;
   }
 
@@ -243,6 +249,12 @@ async function saveScheduleRequest(req, res) {
   res.status(result.ok ? 200 : 400).json(result);
 }
 
+// --- POST ?resource=question: public — a visitor submits a question not covered by the FAQ. ---
+async function saveQuestion(req, res) {
+  const result = await addQuestion((await readBody(req)) || {});
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
 // --- POST ?resource=showcase: public — a graduating student shares their build link + feedback
 // at the capstone (gated client-side by the founder's showcaseEnabled flag). ---
 async function saveShowcase(req, res) {
@@ -255,6 +267,7 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "interest") return saveInterest(req, res); // public
     if (req.query && req.query.resource === "tutor") return saveTutorInterest(req, res); // public
     if (req.query && req.query.resource === "schedule") return saveScheduleRequest(req, res); // public
+    if (req.query && req.query.resource === "question") return saveQuestion(req, res); // public
     if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
     if (req.query && req.query.resource === "scenarios") return makeScenarios(req, res); // public, AI-generated
     return ingest(req, res);     // public: track an event
