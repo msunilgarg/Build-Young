@@ -15,8 +15,13 @@ import { indexStudent } from "./_lib/buildPlans.js";
 
 const MAX_STATE_BYTES = 200 * 1024; // generous cap; the sim state is a few KB
 const stateKey = (email) => `state:${email}`;
-// Course is complete once the student has advanced past Week 12 into the check-in phase.
-const isGraduated = (state) => !!state && (state.phase === "checkin" || state.done === true);
+// Course is complete once the student has finished Week 12 (done) or moved into the post-course
+// check-in phase — always AFTER Week 11. We require the explicit done/checkin flag (not merely
+// "phase !== course") plus a Week-12 guard so the cert is never minted before the course is
+// genuinely complete, even from a malformed/legacy state.
+const isGraduated = (state) => !!state
+  && (state.done === true || state.phase === "checkin")
+  && (typeof state.week !== "number" || state.week >= 12);
 
 export default async function handler(req, res) {
   const session = requireUser(req);
@@ -27,16 +32,11 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     const raw = await kvGet(stateKey(session.email));
-    const cert = await getCertByEmail(session.email);
-    if (!raw) {
-      res.status(200).json({ state: null, cert });
-      return;
-    }
-    try {
-      res.status(200).json({ state: typeof raw === "string" ? JSON.parse(raw) : raw, cert });
-    } catch {
-      res.status(200).json({ state: null, cert });
-    }
+    const parsed = (() => { try { return raw == null ? null : (typeof raw === "string" ? JSON.parse(raw) : raw); } catch { return null; } })();
+    // Only hand back the certificate once the saved state shows the course is actually complete —
+    // so a cert minted in earlier testing can't surface on a student who is mid-course.
+    const cert = isGraduated(parsed) ? await getCertByEmail(session.email) : null;
+    res.status(200).json({ state: parsed, cert });
     return;
   }
 

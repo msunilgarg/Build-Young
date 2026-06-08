@@ -2980,7 +2980,12 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
   // so we fetch it (valid, verifiable certId); the mint can lag the state-save, so retry a few times.
   // Demo mode (no accounts): synthesize one from the student's state so graduates still see and can
   // download their certificate on the Dashboard.
-  const graduated = s.phase !== "course" || s.done;
+  // Certificate unlocks ONLY once the course is genuinely complete — the student finished Week 12
+  // (done) or is in the post-course check-in phase, which is always after Week 11. We require an
+  // explicit done/checkin flag (NOT "phase !== course") so a legacy record with an unset phase
+  // can't mis-trigger the cert early — that bug surfaced one student's persisted cert before they
+  // had finished. The week guard is extra defense for malformed state.
+  const graduated = (s.done === true || s.phase === "checkin") && (typeof s.week !== "number" || s.week >= 12);
   const [cert, setCert] = useState(null);
   useEffect(() => {
     if (!graduated) return;
