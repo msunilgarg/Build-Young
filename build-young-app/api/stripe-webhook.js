@@ -90,12 +90,25 @@ export function verifyStripeSignature(rawBody, header, secret, nowSec = Math.flo
 // `after_completion.redirect.url` (NOT success_url), so check that too.
 function batchIdFromSession(session) {
   if (session?.metadata?.batchId) return session.metadata.batchId;
-  if (session?.client_reference_id) return session.client_reference_id;
+  // client_reference_id may be "batchId" or "batchId.<base64url student name>" — the cohort is the
+  // part before the first ".".
+  if (session?.client_reference_id) return String(session.client_reference_id).split(".")[0];
   const url = session?.success_url
     || session?.after_completion?.redirect?.url
     || session?.url || "";
   const m = /[?&]enrolled=([^&]+)/.exec(url);
   return m ? decodeURIComponent(m[1]) : null;
+}
+
+// The STUDENT name packed into client_reference_id ("batchId.<base64url name>"), or "" if absent.
+// Used so the set-password email greets the student, not the card-holder (often a parent).
+function studentNameFromRef(session) {
+  const cref = session?.client_reference_id || "";
+  const dot = cref.indexOf(".");
+  if (dot < 0) return "";
+  try {
+    return Buffer.from(cref.slice(dot + 1).replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8").trim();
+  } catch { return ""; }
 }
 
 export default async function handler(req, res) {
@@ -145,7 +158,8 @@ export default async function handler(req, res) {
   const session = event.data && event.data.object ? event.data.object : {};
   const batchId = batchIdFromSession(session);
   const email = (session.customer_details && session.customer_details.email) || session.customer_email || "";
-  const name = (session.customer_details && session.customer_details.name) || (session.metadata && session.metadata.name) || "";
+  // Prefer the STUDENT name we packed into client_reference_id; fall back to the card-holder name.
+  const name = studentNameFromRef(session) || (session.customer_details && session.customer_details.name) || (session.metadata && session.metadata.name) || "";
 
   if (!email || !batchId) {
     // Acknowledge (don't make Stripe retry) but report we couldn't map it.

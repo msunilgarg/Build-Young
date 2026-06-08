@@ -1647,9 +1647,20 @@ function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                 <button className="btn" onClick={() => {
                   setPendingEnroll({ name, email, batch, track: b.track });
                   // client_reference_id carries the cohort id through Stripe so the webhook maps the
-                  // payment back to the right cohort — this is what lets ONE shared link serve all cohorts.
+                  // payment back to the right cohort (this is what lets ONE shared link serve all cohorts).
+                  // We pack the STUDENT name after a "." (base64url) so the set-password email greets the
+                  // student, not the card-holder. batchId is the part before the "." (and the ?enrolled=
+                  // return URL is a fallback), so this never risks losing the cohort.
+                  let ref = batch;
+                  try {
+                    const nm = (name || "").trim();
+                    if (nm) {
+                      const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(nm))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+                      ref = `${batch}.${b64}`;
+                    }
+                  } catch { ref = batch; }
                   const sep = stripeLink.includes("?") ? "&" : "?";
-                  window.location.href = `${stripeLink}${sep}prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(batch)}`;
+                  window.location.href = `${stripeLink}${sep}prefilled_email=${encodeURIComponent(email)}&client_reference_id=${encodeURIComponent(ref)}`;
                 }} style={{ width: "100%", marginTop: 22, background: C.emerald, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16 }}>Pay ${b.price} securely →</button>
               </div>
             );
