@@ -998,10 +998,7 @@ function FaqSection({ onCall }) {
           </details>
         ))}
       </div>
-      <p style={{ textAlign: "center", fontSize: 14, color: C.muted, marginTop: 20 }}>
-        Still have a question? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Ask us on a free 15-minute call →</span>
-      </p>
-      <div style={{ maxWidth: 520, margin: "12px auto 0", background: C.card, border: `1px solid ${C.line}`, borderRadius: 8, padding: "18px 18px" }}>
+      <div style={{ maxWidth: 520, margin: "22px auto 0", background: C.card, border: `1px solid ${C.line}`, borderRadius: 8, padding: "18px 18px" }}>
         {askStatus === "done" ? (
           <p style={{ textAlign: "center", fontSize: 14.5, color: C.ink2, lineHeight: 1.6, margin: 0 }}>
             <Check size={17} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
@@ -1019,6 +1016,7 @@ function FaqSection({ onCall }) {
           </label>
           {askErr && <div style={{ fontSize: 13, color: C.pink, marginTop: 4 }}>{askErr}</div>}
           <button className="btn" onClick={submitAsk} disabled={!canAsk} style={{ width: "100%", marginTop: 10, background: canAsk ? C.emerald : C.line, color: "#fff", padding: "12px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: canAsk ? "pointer" : "not-allowed" }}><Mail size={16} /> {askStatus === "sending" ? "Sending…" : "Send my question"}</button>
+          <p style={{ textAlign: "center", fontSize: 13, color: C.muted, margin: "12px 0 0" }}>Prefer to talk it through? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Book a free 15-minute call →</span></p>
         </>)}
       </div>
     </section>
