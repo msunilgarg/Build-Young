@@ -4976,6 +4976,21 @@ export default function App() {
     if (route === "verify") return; // keep the /verify/<id> URL intact (id lives in the path)
     const PATHS = { home: "/", enroll: "/enroll", call: "/book-call", app: "/dashboard", login: "/login", setpw: "/set-password", checkemail: "/enrolled", founder: "/admin" };
     try { window.history.replaceState({}, "", PATHS[route] || "/"); } catch (e) { /* ignore */ }
+    // Per-route <title> + meta description so each screen reads as its own page for crawlers, browser
+    // tabs, and link shares (the SPA otherwise reuses index.html's landing title everywhere).
+    const META = {
+      home: { t: "Build Young — build a real product with AI, then grow it into a business", d: "Build Young is a live, hands-on program where teens build a real product with AI, grow it into a business, and go get their first customers. In an AI world, the edge isn't a degree — it's what you can build. Raising builders, not consumers." },
+      enroll: { t: "Enroll — Build Young", d: "Reserve your seat in a Build Young cohort — 12 weeks, live and online, where teens build a real product with AI and learn to grow it." },
+      call: { t: "Talk to us — Build Young", d: "Book a free 15-minute call to see whether Build Young is the right fit for your teen." },
+    };
+    const m = META[route];
+    if (m) {
+      try {
+        document.title = m.t;
+        const el = document.querySelector('meta[name="description"]');
+        if (el) el.setAttribute("content", m.d);
+      } catch (e) { /* ignore */ }
+    }
   }, [route, loaded]);
   // remember scroll position per route so Back lands where you left off
   const pendingScroll = useRef(null); // px to restore after next render (null = scroll to top)
