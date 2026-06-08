@@ -383,6 +383,36 @@ export function nextClass(batch, day = new Date()) {
   }
   return null;
 }
+// Build Young runs on Pacific Time (class times are "… PM PT"). All week progression is anchored to
+// PT so every student — whatever their device timezone — and the UTC server/cron compute the SAME
+// "current week", with no drift near midnight.
+export const PROGRAM_TZ = "America/Los_Angeles";
+// A calendar day as a stable integer index (days since the epoch), built from explicit Y/M/D — TZ
+// independent because it goes through Date.UTC, never the local zone.
+const calDayIndex = (y, m, d) => Math.round(Date.UTC(y, m - 1, d) / 86400000);
+// "Now" as a PT calendar-day index: read the year/month/day of the instant *in PT*, then index it.
+function ptDayIndex(when = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: PROGRAM_TZ, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(when);
+  const get = (t) => Number(parts.find((p) => p.type === t).value);
+  return calDayIndex(get("year"), get("month"), get("day"));
+}
+// The cohort's LIVE position from the calendar — what drives week progression now that there's no
+// manual "advance" button. Week N runs from its anchor day for 7 days; the student has `started`
+// once the first class day (PT) arrives, and is `done` (graduated) the day after the final Week 12
+// class. Before the cohort starts we report week 1 / not started. `now` injectable for tests.
+export function coursePosition(batch, now = new Date()) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime())) return { week: 1, started: false, done: false };
+  // Anchor the start to the literal calendar date the founder set ("Sep 7, 2026") as a PT date, and
+  // read "now" in PT — so neither a student's device TZ nor a UTC server can shift which week it is.
+  const startIdx = calDayIndex(start.getFullYear(), start.getMonth() + 1, start.getDate());
+  const offset = ptDayIndex(now) - startIdx;
+  if (offset < 0) return { week: 1, started: false, done: false };
+  const finalIdx = startIdx + 11 * 7 + 2; // Week 12, session 2 — the final class
+  const done = ptDayIndex(now) > finalIdx;
+  const week = Math.min(12, Math.floor(offset / 7) + 1);
+  return { week, started: true, done };
+}
 // The time-of-day portion of a cohort's `day` label ("Mondays & Wednesdays · 5:00–6:30 PM PT").
 export function cohortTime(batch) {
   const parts = String((batch && batch.day) || "").split("·");
@@ -2933,7 +2963,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
   const BATCHES = useCohorts(); // live catalog
   const isFounder = !!onFounder; // a founder viewing the dashboard (for course-authoring preview)
   // "My dashboard" always opens on the Dashboard (home) tab — the week-by-week work is one tap
-  // away under Course progress (and doAdvance switches there after you advance a week).
+  // away under Course progress.
   const [tab, setTab] = useState("overview");
   const [toast, setToast] = useState(null);
   const [withdraw, setWithdraw] = useState(false); // false | 'confirm' | 'done'
@@ -3004,31 +3034,27 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
     return () => { live = false; };
   }, [graduated]);
 
-  const doAdvance = async () => {
-    // 12 weeks flat: weeks 1→12, then finishing Week 12 graduates you (no separate check-in).
-    // `advance()` is pure week progression; we send the week recap / course-complete email.
-    const before = s.week; // the week just completed (pre-advance)
-    let mailToSend = null;
-    setState((p) => {
-      const ns = advance(p);
-      const mail = followupEmail(ns, before, batch);
-      if (mail) { ns.emails = [mail, ...(ns.emails || [])]; mailToSend = mail; }
-      return ns;
-    });
-    const who = s.student.email;
-    if (mailToSend) sendEmail(who, mailToSend.subject, mailToSend.body);
-    // Funnel: this advance is the first session (class started), a weekly step, or the graduation
-    // transition (finishing Week 12). `s` is the pre-advance snapshot.
+  // Calendar-driven progression (there is no manual "advance" button): keep the student's
+  // week/started/done in sync with where the cohort actually is on the calendar, and fire each
+  // funnel transition once as the cohort crosses it. Persisting a graduated state is what mints the
+  // certificate server-side (api/state.js), so this IS the graduation trigger. Scheduled emails
+  // (class reminders, week recaps) are owned by the cron, not re-sent here, so a reload never
+  // double-emails. Skipped for founders (preview/authoring) so it can't pollute the funnel.
+  useEffect(() => {
+    if (!batch || !s || s.phase !== "course" || isFounder) return;
+    const pos = coursePosition(batch);
+    if (s.week === pos.week && s.started === pos.started && s.done === pos.done) return;
     const fmeta = { season: batch.season, track: batch.track, batchId: batch.id };
-    if (!s.started) track("class_started", fmeta);
-    if (s.week >= 12) track("graduated", fmeta);
-    else track("week_advanced", { ...fmeta, week: s.week + 1 });
-    ping(s.week >= 12 ? `Course-complete email sent to ${who}` : `Week ${s.week} recap sent to ${who}`);
-    setTab("course");
-  };
+    if (!s.started && pos.started) track("class_started", fmeta);
+    if (pos.week > (s.week || 1)) track("week_advanced", { ...fmeta, week: pos.week });
+    if (!s.done && pos.done) track("graduated", fmeta);
+    setState((p) => (p && p.phase === "course"
+      ? { ...p, week: pos.week, started: pos.started, done: pos.done }
+      : p));
+  }, [batch]); // eslint-disable-line react-hooks/exhaustive-deps -- sync on mount + catalog hydration
 
   // The post-enrollment tabs. "Dashboard" is the home base (welcome, setup, cancel); the
-  // week-by-week coursework + progress + "move to next week" live under "Course progress".
+  // week-by-week coursework + progress live under "Course progress".
   const tabs = [
     { id: "overview", label: "Dashboard", icon: LineIcon },
     { id: "course", label: "Course progress", icon: GraduationCap },
@@ -3131,7 +3157,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
       {tab === "course" && (
         /* Course progress: a horizontal week stepper with the selected week's activity below
            (Zoom + advance live inside the current week — no separate panel). */
-        <CoursePanel s={s} setState={setState} batch={batch} onAdvance={doAdvance} cert={cert} isFounder={isFounder} />
+        <CoursePanel s={s} setState={setState} batch={batch} cert={cert} isFounder={isFounder} />
       )}
       <div style={{ textAlign: "center", fontSize: 12.5, color: C.muted, padding: "30px 16px 8px", lineHeight: 1.6 }}>
         Questions about the program or your account? Email <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.emerald, fontWeight: 600 }}>{CONFIG.contactEmail}</a> — we're happy to help.
@@ -3169,7 +3195,7 @@ function WeekNotes({ week, s, setState }) {
   );
 }
 
-function CoursePanel({ s, setState, batch, onAdvance, cert, isFounder }) {
+function CoursePanel({ s, setState, batch, cert, isFounder }) {
   // Preview (every week open + each shows its full activity) is for the FOUNDER only, for course
   // authoring — students always get normal gating (only Week 1 open on signup; later weeks unlock
   // as they advance).
@@ -3277,7 +3303,7 @@ function CoursePanel({ s, setState, batch, onAdvance, cert, isFounder }) {
       <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
         <div style={{ flex: "1 1 460px", minWidth: 0 }}>
           {previewAll ? (
-            <WeekPanel s={{ ...s, week: selected, phase: "course", started: true }} setState={setState} onAdvance={onAdvance} batch={batch} cert={cert} preview />
+            <WeekPanel s={{ ...s, week: selected, phase: "course", started: true }} setState={setState} batch={batch} cert={cert} preview />
           ) : !selUnlocked ? (
             <Card style={{ padding: 22 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".04em" }}>WEEK {selected} · UPCOMING</div>
@@ -3286,17 +3312,7 @@ function CoursePanel({ s, setState, batch, onAdvance, cert, isFounder }) {
               </div>
             </Card>
           ) : isThisWeek ? (
-            <>
-              <WeekPanel s={s} setState={setState} onAdvance={onAdvance} batch={batch} cert={cert} />
-              {!offCourse && !s.done && (
-                <Card style={{ padding: 18, marginTop: 14 }}>
-                  <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                    Done with this week's class &amp; activity? Move on to the next week.
-                  </div>
-                  <AdvanceButton s={s} onAdvance={onAdvance} />
-                </Card>
-              )}
-            </>
+            <WeekPanel s={s} setState={setState} batch={batch} cert={cert} />
           ) : catchUp}
         </div>
 
@@ -3312,7 +3328,7 @@ function CoursePanel({ s, setState, batch, onAdvance, cert, isFounder }) {
 }
 
 /* ---- the weekly action panel ---- */
-function WeekPanel({ s, setState, onAdvance, batch, cert, preview }) {
+function WeekPanel({ s, setState, batch, cert, preview }) {
   const wk = WEEKS[s.week - 1];
   const action = s.phase === "course" ? wk.action : "checkin";
 
@@ -3360,18 +3376,6 @@ function WeekPanel({ s, setState, onAdvance, batch, cert, preview }) {
       </>)}
 
     </div>
-  );
-}
-
-// The "move to the next week" button on the Dashboard. (Finance removed: no income/net-worth — it's
-// pure week progression. `advance()` still runs under the hood for funnel events + the sim harness.)
-function AdvanceButton({ s, onAdvance }) {
-  if (s.done) return null;
-  const label = s.week >= 12 ? "Finish the course 🎓" : `Move to Week ${s.week + 1}`;
-  return (
-    <button className="btn" onClick={onAdvance} style={{ width: "100%", marginTop: 14, background: C.ink, color: C.paper2, padding: 15, borderRadius: 4, fontSize: 16 }}>
-      {label} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} />
-    </button>
   );
 }
 

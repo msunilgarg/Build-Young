@@ -3,6 +3,7 @@ import {
   validEmail, newState, advance, BATCHES,
   nextClassLabel, checkinDateLabel, classDateLabel, withdrawalEmail, refundFor,
   canWithdrawNow, REFUND_WEEKS, cohortStartInfo, enrollClosed, cohortClosed,
+  coursePosition,
 } from "../src/App.jsx";
 
 const STUDENT = { name: "Jordan Rivera", email: "jordan@example.com", batch: "fall-mw", track: "Builders" };
@@ -190,6 +191,44 @@ describe("advance (week progression)", () => {
     const next = advance(s);
     expect(next.week).toBe(12);
     expect(next.done).toBe(true);
+  });
+});
+
+describe("coursePosition (calendar-driven progression, PT-anchored)", () => {
+  // fall-mw: Week 1 = Mon Sep 7, 2026 (PT). Week N anchor = start + 7*(N-1) days; final class
+  // (Week 12 session 2) = Nov 25, 2026; graduation is the day AFTER that.
+  const batch = BATCHES.find((b) => b.id === "fall-mw");
+
+  it("before the cohort starts → week 1, not started, not done", () => {
+    expect(coursePosition(batch, new Date("2026-08-01T12:00:00Z"))).toEqual({ week: 1, started: false, done: false });
+  });
+
+  it("on the start day (PT) → started, week 1", () => {
+    // Noon PT on Sep 7 is unambiguously the start day.
+    expect(coursePosition(batch, new Date("2026-09-07T19:00:00Z"))).toEqual({ week: 1, started: true, done: false });
+  });
+
+  it("counts weeks from the start: +7 days → week 2, +14 → week 3", () => {
+    expect(coursePosition(batch, new Date("2026-09-14T19:00:00Z")).week).toBe(2);
+    expect(coursePosition(batch, new Date("2026-09-21T19:00:00Z")).week).toBe(3);
+  });
+
+  it("caps at week 12 and graduates the day after the final class", () => {
+    // Week 12 anchor = Nov 23; final class (session 2) = Nov 25. Still week 12, not yet done.
+    expect(coursePosition(batch, new Date("2026-11-23T19:00:00Z"))).toMatchObject({ week: 12, done: false });
+    // The day after the final class → graduated.
+    expect(coursePosition(batch, new Date("2026-11-26T19:00:00Z")).done).toBe(true);
+  });
+
+  it("is anchored to Pacific Time, not the UTC instant, near midnight", () => {
+    // 2026-09-07T04:00Z is Sep 6, 9pm PT → still BEFORE the cohort starts.
+    expect(coursePosition(batch, new Date("2026-09-07T04:00:00Z")).started).toBe(false);
+    // 2026-09-07T08:00Z is Sep 7, 1am PT → the cohort has started.
+    expect(coursePosition(batch, new Date("2026-09-07T08:00:00Z")).started).toBe(true);
+  });
+
+  it("returns a safe default for an unparseable start date", () => {
+    expect(coursePosition({ start: "nope" }, new Date("2026-09-07T19:00:00Z"))).toEqual({ week: 1, started: false, done: false });
   });
 });
 
