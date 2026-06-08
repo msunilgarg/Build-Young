@@ -971,6 +971,20 @@ const FAQ_ITEMS = [
   { q: "Can we talk to someone before enrolling?", a: "Yes — every family can book a free 15-minute call with us before enrolling. No pitch, no pressure." },
 ];
 function FaqSection({ onCall }) {
+  const [askEmail, setAskEmail] = useState("");
+  const [askQ, setAskQ] = useState("");
+  const [askStatus, setAskStatus] = useState("idle"); // idle | sending | done
+  const [askErr, setAskErr] = useState("");
+  const canAsk = validEmail(askEmail) && askQ.trim().length > 3 && askStatus !== "sending";
+  const submitAsk = async () => {
+    if (!canAsk) return;
+    setAskStatus("sending"); setAskErr("");
+    const r = await postJson("/api/funnel?resource=question", { email: askEmail.trim(), question: askQ.trim() });
+    if (r.ok) setAskStatus("done");
+    else { setAskStatus("idle"); setAskErr(r.error || "Couldn't submit just now — please try again."); }
+  };
+  const askLabel = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const askInput = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
   return (
     <section style={{ maxWidth: 760, margin: "0 auto", padding: "8px 6vw 54px" }}>
       <div style={{ textAlign: "center", marginBottom: 22 }}>
@@ -987,6 +1001,26 @@ function FaqSection({ onCall }) {
       <p style={{ textAlign: "center", fontSize: 14, color: C.muted, marginTop: 20 }}>
         Still have a question? <span {...act(onCall)} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Ask us on a free 15-minute call →</span>
       </p>
+      <div style={{ maxWidth: 520, margin: "12px auto 0", background: C.card, border: `1px solid ${C.line}`, borderRadius: 8, padding: "18px 18px" }}>
+        {askStatus === "done" ? (
+          <p style={{ textAlign: "center", fontSize: 14.5, color: C.ink2, lineHeight: 1.6, margin: 0 }}>
+            <Check size={17} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
+            Thanks — got your question. We'll email you a reply, usually within a day. 🙌
+          </p>
+        ) : (<>
+          <div className="disp" style={{ textAlign: "center", fontSize: 16, fontWeight: 700, color: C.ink, marginBottom: 12 }}>Don't see your question? Ask it.</div>
+          <label style={{ display: "block", marginBottom: 10 }}>
+            <span style={askLabel}>Your email</span>
+            <input type="email" aria-label="Your email" value={askEmail} onChange={(e) => setAskEmail(e.target.value)} placeholder="you@example.com" style={askInput} />
+          </label>
+          <label style={{ display: "block", marginBottom: 6 }}>
+            <span style={askLabel}>Your question</span>
+            <textarea aria-label="Your question" value={askQ} onChange={(e) => setAskQ(e.target.value)} rows={3} placeholder="What would you like to know?" style={{ ...askInput, resize: "vertical", lineHeight: 1.5 }} />
+          </label>
+          {askErr && <div style={{ fontSize: 13, color: C.pink, marginTop: 4 }}>{askErr}</div>}
+          <button className="btn" onClick={submitAsk} disabled={!canAsk} style={{ width: "100%", marginTop: 10, background: canAsk ? C.emerald : C.line, color: "#fff", padding: "12px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: canAsk ? "pointer" : "not-allowed" }}><Mail size={16} /> {askStatus === "sending" ? "Sending…" : "Send my question"}</button>
+        </>)}
+      </div>
     </section>
   );
 }
@@ -3987,6 +4021,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <BuildPlansAdmin />
           <h2 style={h2s}>Tutor applications</h2>
           <TutorInterestAdmin />
+          <h2 style={h2s}>Questions from visitors</h2>
+          <QuestionsAdmin />
           <h2 style={h2s}>Schedule requests</h2>
           <ScheduleRequestsAdmin />
           <h2 style={h2s}>Refunds to issue</h2>
@@ -4808,6 +4844,34 @@ function TutorInterestAdmin() {
 // Founder view of schedule/timezone requests from the landing ("Tell us your ideal schedule").
 // Read-only demand signal; also emailed to your inbox, and these people are auto-notified when new
 // cohorts open.
+function QuestionsAdmin() {
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=questions"); const d = r.ok ? await r.json() : {}; if (live) setList(Array.isArray(d.questions) ? d.questions : []); }
+      catch { if (live) setList([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>Questions visitors submitted from the FAQ ("don't see your question?"). Emailed to you as they arrive — reply directly. A recurring one is a good candidate to add to the FAQ.</div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
+      {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No questions yet.</div>}
+      {list && list.map((r, i) => (
+        <div key={i} style={{ padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+            <b style={{ color: C.ink }}>{r.email}</b>
+            <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
+          </div>
+          <div style={{ color: C.ink2, marginTop: 2 }}>{r.question}</div>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
 function ScheduleRequestsAdmin() {
   const [list, setList] = useState(null);
   useEffect(() => {
