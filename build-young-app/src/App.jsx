@@ -2120,6 +2120,21 @@ function weekPrereqs(week, s, setS) {
 // One week's content as horizontal tabs — Pre-req · What you'll learn · Class example · Your exercise.
 // Empty tabs are hidden; defaults to "What you'll learn". Shared by CoursePanel + WeekPanel so they
 // can't drift. Activity input lives in s (lifted), so switching tabs never loses what's typed.
+const BUILD_WEEKS = new Set([3, 4, 5, 6, 7, 8]); // weeks where students actively build with AI
+// A recurring "stretch goal" shown under the build-week exercise: the meta-skill of interrogating
+// your AI tools — ask what you're not using / what you're doing the hard way. Taste applied to the
+// tool itself: builders, not consumers, even in HOW they use AI.
+function StretchGoal() {
+  return (
+    <div style={{ marginTop: 16, border: `1px dashed ${C.gold}`, borderRadius: 6, background: "#f7f4fb", padding: "12px 14px" }}>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, marginBottom: 6 }}>⭐ Stretch goal</div>
+      <p style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, margin: 0 }}>
+        While you build this week — especially when you’re stuck or repeating yourself — ask your AI: <b style={{ color: C.ink }}>“What can you do that I’m not using? What am I doing the hard way?”</b> Try one suggestion, and bring what you learned. The gap between a good build and a great one is usually a question you didn’t think to ask.
+      </p>
+    </div>
+  );
+}
+
 function WeekTabs({ week, s, setState, materials }) {
   const prereq = weekPrereqs(week, s, setState);
   const learn = weekObjectivesCard(week);
@@ -2127,7 +2142,8 @@ function WeekTabs({ week, s, setState, materials }) {
   const mats = (!example && Array.isArray(materials) && materials.length)
     ? <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{materials.map((r, j) => <ResLink key={j} r={r} icon={BookOpen} />)}</div>
     : null;
-  const exercise = weekActivity(week, s, setState, true);
+  const _activity = weekActivity(week, s, setState, true);
+  const exercise = _activity ? <>{_activity}{BUILD_WEEKS.has(week) && <StretchGoal />}</> : null;
   const tabs = [
     prereq && { id: "prereq", label: "Pre-req", node: prereq },
     learn && { id: "learn", label: "What you'll learn", node: learn },
