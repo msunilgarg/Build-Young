@@ -20,7 +20,7 @@ You generate (any long random string):
 - [ ] `AUTH_SECRET` — `openssl rand -hex 32`
 - [ ] `CRON_SECRET` — `openssl rand -hex 32`
 Simple values:
-- [ ] `PUBLIC_BASE_URL` = `https://build-young.com`
+- [ ] `PUBLIC_BASE_URL` = `https://www.build-young.com`  *(www — the canonical host; apex 307-redirects, which breaks set-password & cert links)*
 - [ ] `FOUNDER_EMAILS` = your founder email(s), comma-separated
 From a service:
 - [ ] `RESEND_API_KEY` — resend.com (and **verify the build-young.com domain** in Resend)
@@ -32,7 +32,7 @@ From a service:
 - [ ] One **$999 Payment Link (Live)** → founder console → Site settings →
       **"Shared Stripe Payment Link."** (Differently-priced cohorts get their own link in
       the cohort editor, which overrides the shared one.)
-- [ ] **Webhook** `https://build-young.com/api/stripe-webhook`, scope "Your account",
+- [ ] **Webhook** `https://www.build-young.com/api/stripe-webhook`  *(www — apex 307-redirects and Stripe doesn't follow, so events fail signature)*, scope "Your account",
       events **`checkout.session.completed`** + **`charge.refunded`**.
 - [ ] Put that endpoint's Live `whsec_…` into `STRIPE_WEBHOOK_SECRET` (§2).
 - [ ] On a SHARED link, do **NOT** set metadata `batchId` (it would misfile every payment
