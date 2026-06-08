@@ -2129,7 +2129,7 @@ function StretchGoal() {
     <div style={{ marginTop: 16, border: `1px dashed ${C.gold}`, borderRadius: 6, background: "#f7f4fb", padding: "12px 14px" }}>
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, marginBottom: 6 }}>⭐ Stretch goal</div>
       <p style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, margin: 0 }}>
-        While you build this week — especially when you’re stuck or repeating yourself — ask your AI: <b style={{ color: C.ink }}>“What can you do that I’m not using? What am I doing the hard way?”</b> Try one suggestion, and bring what you learned. The gap between a good build and a great one is usually a question you didn’t think to ask.
+        While you build this week — especially when you’re stuck or repeating yourself — ask your AI: <b style={{ color: C.ink }}>“What can you do that I’m not using? What am I doing the hard way?”</b> Try one suggestion, and bring what you learned. The gap between a good builder and a great one is usually a question you didn’t think to ask.
       </p>
     </div>
   );
