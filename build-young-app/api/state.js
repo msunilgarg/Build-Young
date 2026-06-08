@@ -12,6 +12,7 @@ import { requireUser } from "./_lib/auth.js";
 import { kvGet, kvSet } from "./_lib/kv.js";
 import { issueCertForEmail, getCertByEmail } from "./_lib/cert.js";
 import { indexStudent } from "./_lib/buildPlans.js";
+import { addRefundRequest } from "./_lib/refundStore.js";
 
 const MAX_STATE_BYTES = 200 * 1024; // generous cap; the sim state is a few KB
 const stateKey = (email) => `state:${email}`;
@@ -57,6 +58,24 @@ export default async function handler(req, res) {
     let cert = null;
     if (ok && certEligible(state)) {
       try { cert = await issueCertForEmail(session.email); } catch { /* best-effort */ }
+    }
+    // Cancellation → record a pending refund + email the founder to issue it in Stripe (keyless, so
+    // the app can't refund automatically). Idempotent per { email, withdrawal.at }, so repeated
+    // state-saves don't re-notify. Never blocks the state save.
+    if (ok && state.withdrawal && typeof state.withdrawal === "object") {
+      const w = state.withdrawal;
+      try {
+        await addRefundRequest({
+          email: session.email,
+          name: (state.student && state.student.name) || "",
+          batchId: (state.student && state.student.batch) || "",
+          refundCents: w.refundCents,
+          tier: w.tier,
+          reason: w.reason,
+          week: state.week,
+          at: w.at,
+        });
+      } catch { /* best-effort — the founder can still see analytics */ }
     }
     res.status(ok ? 200 : 500).json({ ok, cert });
     return;

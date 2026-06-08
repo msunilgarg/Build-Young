@@ -20,6 +20,7 @@ import { saveHomework } from "./_lib/homeworkStore.js";
 import { saveObjectives } from "./_lib/objectivesStore.js";
 import { listCerts } from "./_lib/cert.js";
 import { listBuildPlans } from "./_lib/buildPlans.js";
+import { listRefundRequests } from "./_lib/refundStore.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 import { generateScenarios } from "./_lib/scenarioAgent.js";
 
@@ -105,6 +106,11 @@ async function read(req, res) {
 
   if (req.query && req.query.resource === "schedule") {
     res.status(200).json({ schedule: await listScheduleRequests() });
+    return;
+  }
+
+  if (req.query && req.query.resource === "refunds") {
+    res.status(200).json({ refunds: await listRefundRequests() });
     return;
   }
 

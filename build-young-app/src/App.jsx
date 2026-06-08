@@ -502,7 +502,7 @@ export function withdrawalEmail(s, batch, refund, notStarted, reasonText) {
     body: notStarted
       ? `Hi ${first},
 
-We've canceled your enrollment in the ${batch.track} cohort, as requested. A full refund of ${fmt(refund)} is on its way back to your original payment method — refunds typically land within 5–10 business days.
+We've canceled your enrollment in the ${batch.track} cohort, as requested, and started your refund. A full refund of ${fmt(refund)} will be returned to your original payment method — refunds typically land within 5–10 business days.
 
   •  Cohort: ${batch.track} — ${batch.day}
   •  Refund: ${fmt(refund)} (full)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
@@ -513,7 +513,7 @@ Take care,
 The Build Young Team`
       : `Hi ${first},
 
-We've processed your withdrawal from the ${batch.track} cohort. A prorated refund of ${fmt(refund)} — covering the ${unheld} weeks not yet held — is on its way back to your original payment method, typically within 5–10 business days.
+We've processed your withdrawal from the ${batch.track} cohort and started your refund. A prorated refund of ${fmt(refund)} — covering the ${unheld} weeks not yet held — will be returned to your original payment method, typically within 5–10 business days.
 
   •  Cohort: ${batch.track} — ${batch.day}
   •  Attended: ${attended} of 12 weeks
@@ -3001,7 +3001,13 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
       refundTier: notStarted ? "full" : "prorated", refundCents: Math.round(refund * 100),
       week: s.week, stage: notStarted ? "before_start" : "in_progress", reason,
     });
-    setState((p) => ({ ...p, emails: [mail, ...(p.emails || [])] }));
+    // Record the cancellation on the state so the server (/api/state) records a pending refund and
+    // emails the founder to issue it in Stripe — the app is keyless and can't refund automatically.
+    setState((p) => ({
+      ...p,
+      withdrawal: { at: Date.now(), refundCents: Math.round(refund * 100), tier: notStarted ? "full" : "prorated", reason: reasonText },
+      emails: [mail, ...(p.emails || [])],
+    }));
     setWithdraw("done");
   };
   const wk = WEEKS[s.week - 1];
@@ -3100,7 +3106,7 @@ function Platform({ state, setState, onExit, onFounder, onHome }) {
               <div style={{ textAlign: "center" }}>
                 <div style={{ width: 56, height: 56, borderRadius: 4, background: C.emerald, display: "grid", placeItems: "center", margin: "4px auto 14px" }}><Check size={28} color="#fff" /></div>
                 <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Withdrawal complete</div>
-                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "prorated"} refund of <b>{fmt(refund)}</b> has been issued to {s.student.email} <span style={{ color: C.muted }}>(demo)</span>, and a confirmation email is on its way. We're sorry to see you go.</p>
+                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "prorated"} refund of <b>{fmt(refund)}</b> is being processed to {s.student.email} and will land on your original payment method within 5–10 business days. A confirmation email is on its way. We're sorry to see you go.</p>
                 <button className="btn" onClick={onExit} style={{ width: "100%", marginTop: 18, background: C.ink, color: C.paper2, padding: 12, borderRadius: 4, fontSize: 14 }}>Return home</button>
               </div>
             )}
@@ -3967,6 +3973,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <TutorInterestAdmin />
           <h2 style={h2s}>Schedule requests</h2>
           <ScheduleRequestsAdmin />
+          <h2 style={h2s}>Refunds to issue</h2>
+          <RefundsAdmin />
           <h2 style={h2s}>Student showcase</h2>
           <ShowcaseAdmin />
           <h2 style={h2s}>Reset a test account</h2>
@@ -4804,6 +4812,37 @@ function ScheduleRequestsAdmin() {
           <span style={{ minWidth: 0 }}>
             <b style={{ color: C.ink }}>{r.email}</b>
             {(r.preference || r.timezone) && <span style={{ color: C.ink2 }}> — {[r.preference, r.timezone].filter(Boolean).join(" · ")}</span>}
+          </span>
+          <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+// Founder view of pending refunds. The app is keyless (Payment Links), so it can't refund via the
+// Stripe API — each cancellation lands here AND is emailed to you to issue manually in Stripe.
+function RefundsAdmin() {
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=refunds"); const d = r.ok ? await r.json() : {}; if (live) setList(Array.isArray(d.refunds) ? d.refunds : []); }
+      catch { if (live) setList([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>Students who cancelled. The app can't refund automatically (keyless Payment Links), so issue each one in the <b>Stripe dashboard</b> (Payments → find the payment → Refund). You're emailed each one as it comes in; once refunded in Stripe, the seat frees automatically.</div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
+      {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No refunds to issue. 🎉</div>}
+      {list && list.map((r, i) => (
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
+          <span style={{ minWidth: 0 }}>
+            <b style={{ color: C.ink }}>{r.name || r.email}</b>
+            <span style={{ color: C.ink2 }}> — {fmt((Number(r.refundCents) || 0) / 100)} ({r.tier}) · {r.batchId}{r.week ? ` · wk ${r.week}` : ""}</span>
+            {r.reason && <span style={{ display: "block", color: C.muted }}>{r.reason}</span>}
           </span>
           <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
         </div>
