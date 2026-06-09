@@ -225,6 +225,46 @@ export function engagement(events) {
   return { sources, countries, sourceCountry, screens, exits, exitTotal, hesitations };
 }
 
+// The ordered paths visitors take through the site, stitched per visit by the anonymous, ephemeral
+// `sid` (random per-tab token, no PII — only screen_view/exit carry it). Each `screen_view` records
+// a screen the visitor was on (logged when they leave it), so ordering a session's screen_views by
+// time reconstructs its journey; an `exit` marks that the visit ended ("left"). Consecutive repeats
+// (e.g. a tab-away/return on the same screen) collapse so we don't show "Landing → Landing". Returns
+// the most common paths first with how many visits took each, plus the total visits traced.
+export function journeys(events, { limit = 12 } = {}) {
+  const evs = Array.isArray(events) ? events : [];
+  const bySid = new Map(); // sid -> [path events]
+  evs.forEach((e) => {
+    if (!e || !e.props || !e.props.sid) return;
+    if (e.event !== "screen_view" && e.event !== "exit") return;
+    if (!bySid.has(e.props.sid)) bySid.set(e.props.sid, []);
+    bySid.get(e.props.sid).push(e);
+  });
+  const paths = new Map(); // key -> { steps, left, count }
+  let sessions = 0;
+  bySid.forEach((list) => {
+    list.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    const steps = [];
+    let left = false;
+    list.forEach((e) => {
+      if (e.event === "exit") { left = true; return; } // position-independent: just marks "ended"
+      const s = e.props.screen;
+      if (!s) return;
+      if (steps.length === 0 || steps[steps.length - 1] !== s) steps.push(s);
+    });
+    if (steps.length === 0) return; // an exit with no screen_view tells us nothing about the path
+    sessions += 1;
+    const key = steps.join(">") + (left ? "|left" : "");
+    const cur = paths.get(key) || { steps, left, count: 0 };
+    cur.count += 1;
+    paths.set(key, cur);
+  });
+  return {
+    paths: Array.from(paths.values()).sort((a, b) => b.count - a.count).slice(0, limit),
+    sessions,
+  };
+}
+
 // ---- Time-slicing: month scope + weekly trend (calendar weeks, UTC) --------------------------
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
