@@ -3884,11 +3884,9 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           </div>
           {filter && <div style={{ ...muted, marginTop: 8 }}>Segmented views start at <b>Enrolled</b> — top-of-funnel events (visits, enroll-starts) aren’t tied to a cohort.</div>}
 
-          {/* funnel data controls: exclude this browser + reset the stream (your own visits aren't tagged, so a reset clears everything) */}
+          {/* exclude this browser from tracking (the destructive "reset the stream" lives under Settings → Danger zone so it can't be clicked by mistake) */}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
             <NoTrackToggle />
-            <span {...act(resetFunnel)} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.rust, border: `1px solid ${C.line}`, borderRadius: 4, padding: "6px 12px" }}>Reset funnel data</span>
-            {resetMsg && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>{resetMsg}</span>}
           </div>
           {/* period: slice the whole funnel to a calendar month */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
@@ -4125,6 +4123,15 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <FoundersEditor founders={founders} />
           <h2 style={h2s}>System status</h2>
           <SystemStatus />
+          <h2 style={h2s}>Danger zone</h2>
+          <Card style={{ padding: 18, borderColor: C.rust }}>
+            <b style={{ fontSize: 13.5, color: C.ink }}>Reset funnel data</b>
+            <div style={{ ...muted, margin: "4px 0 12px" }}>Permanently clears ALL funnel events (yours and everyone’s) and starts fresh. This can’t be undone — it lives here, out of the way, so it isn’t clicked by mistake.</div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+              <span {...act(resetFunnel)} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: "#fff", background: C.rust, borderRadius: 4, padding: "8px 14px" }}>Reset funnel data</span>
+              {resetMsg && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>{resetMsg}</span>}
+            </div>
+          </Card>
         </>)}
       </div>
     </div>
