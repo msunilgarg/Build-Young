@@ -88,7 +88,7 @@ import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
 import { certName, certVerifyUrl, linkedInAddUrl, certDate, CERT_ORG } from "./cert.js";
 import { SCENARIO_GROUPS, scenarioLabel } from "./scenarios.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
-import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engagement } from "./funnel.js";
+import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engagement, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS } from "./funnel.js";
 
 // Live cohort catalog: the public site hydrates this from /api/cohorts on load (founder-editable
 // in the dashboard), defaulting to the code `BATCHES`. Components read it via useCohorts(); App
@@ -3775,6 +3775,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const [seg, setSeg] = useState({ kind: "all", key: null }); // all | {season} | {track}
   const [tab, setTab] = useState("today"); // today | funnel | cohorts | students | settings — keeps the console short
   const [resetMsg, setResetMsg] = useState("");
+  const [period, setPeriod] = useState("all"); // "all" | "YYYY-MM" — scopes the funnel + trend to a month
+  const [trendMetric, setTrendMetric] = useState("visited");
 
   // Authorized by the session cookie (sent automatically): the server admits only a logged-in
   // founder (email on the allowlist). 401/403 → not signed in as a founder.
@@ -3792,7 +3794,10 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   }, []);
 
   const filter = seg.kind === "season" ? { season: seg.key } : seg.kind === "track" ? { track: seg.key } : null;
-  const summary = useMemo(() => summarize(events || [], filter), [events, seg.kind, seg.key]);
+  const scoped = useMemo(() => eventsInMonth(events || [], period), [events, period]);
+  const months = useMemo(() => monthsIn(events || []), [events]);
+  const summary = useMemo(() => summarize(scoped, filter), [scoped, seg.kind, seg.key]);
+  const trendData = useMemo(() => weeklyTrend(scoped, { metric: trendMetric, filter }), [scoped, trendMetric, seg.kind, seg.key]);
   // Traffic & engagement is whole-site (not segmented by cohort) — it's the top-of-funnel picture.
   const eng = useMemo(() => engagement(events || []), [events]);
 
@@ -3878,6 +3883,15 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             <span {...act(resetFunnel)} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.rust, border: `1px solid ${C.line}`, borderRadius: 4, padding: "6px 12px" }}>Reset funnel data</span>
             {resetMsg && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>{resetMsg}</span>}
           </div>
+          {/* period: slice the whole funnel to a calendar month */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
+            <span style={{ ...muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", marginRight: 4 }}>Period</span>
+            <select aria-label="Funnel period" value={period} onChange={(e) => setPeriod(e.target.value)} style={{ fontSize: 13, padding: "6px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.card, color: C.ink2, fontWeight: 700 }}>
+              <option value="all">All time</option>
+              {months.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+            </select>
+            {period !== "all" && <span style={muted}>Funnel + trend scoped to this month.</span>}
+          </div>
           {/* funnel + revenue */}
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18, marginTop: 14, alignItems: "start" }} className="enroll-grid">
             <Card style={{ padding: 18 }}>
@@ -3895,6 +3909,24 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
               <Stat label="Calls booked" value={summary.calls.booked.toLocaleString()} sub="“Talk to Sunil” assist path" icon={Video} color={C.turq} />
             </div>
           </div>
+
+          {/* weekly trend — calendar weeks on the x-axis (distinct from the course-week progression further down) */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "26px 0 10px", flexWrap: "wrap", gap: 8 }}>
+            <h2 style={{ ...h2s, margin: 0 }}>Weekly trend{period !== "all" ? ` · ${(months.find((m) => m.key === period) || {}).label || ""}` : ""}</h2>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {TREND_METRICS.map((m) => segBtn(m.label, trendMetric === m.key, () => setTrendMetric(m.key)))}
+            </div>
+          </div>
+          <Card style={{ padding: 18 }}>
+            <div style={muted}>{(TREND_METRICS.find((m) => m.key === trendMetric) || {}).label} by calendar week{period !== "all" ? " (selected month)" : ""} — most recent on the right.</div>
+            {trendData.length === 0 ? (
+              <div style={{ ...muted, marginTop: 10 }}>No data in this period yet.</div>
+            ) : (
+              <React.Suspense fallback={<div style={{ height: 220, display: "grid", placeItems: "center", color: C.muted, fontSize: 13 }}>Loading chart…</div>}>
+                <Charts kind="countline" data={trendData} color={C.emerald} mutedColor={C.muted} fmt={fmt} />
+              </React.Suspense>
+            )}
+          </Card>
 
           {/* step conversions */}
           <h2 style={h2s}>Drop-off — where you lose people</h2>

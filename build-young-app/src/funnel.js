@@ -225,6 +225,63 @@ export function engagement(events) {
   return { sources, countries, sourceCountry, screens, exits, exitTotal, hesitations };
 }
 
+// ---- Time-slicing: month scope + weekly trend (calendar weeks, UTC) --------------------------
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// Distinct calendar months present in the events (UTC), oldest -> newest. [{ key:"2026-06", label:"Jun 2026" }]
+export function monthsIn(events) {
+  const m = new Map();
+  (events || []).forEach((e) => {
+    if (!e || e.ts == null) return;
+    const d = new Date(e.ts); if (isNaN(d.getTime())) return;
+    const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    if (!m.has(key)) m.set(key, { key, label: `${MON[d.getUTCMonth()]} ${d.getUTCFullYear()}` });
+  });
+  return [...m.values()].sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+}
+
+// Events whose ts falls in the given month key ("YYYY-MM"); "all"/empty -> all events.
+export function eventsInMonth(events, key) {
+  if (!key || key === "all") return events || [];
+  return (events || []).filter((e) => {
+    if (!e || e.ts == null) return false;
+    const d = new Date(e.ts); if (isNaN(d.getTime())) return false;
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}` === key;
+  });
+}
+
+// The Monday (UTC) that starts a timestamp's calendar week -> { key:"YYYY-MM-DD", label:"Jun 8" }.
+function weekOf(ts) {
+  const d = new Date(ts); if (isNaN(d.getTime())) return null;
+  const dow = (d.getUTCDay() + 6) % 7; // Mon=0 .. Sun=6
+  const mon = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() - dow));
+  return { key: mon.toISOString().slice(0, 10), label: `${MON[mon.getUTCMonth()]} ${mon.getUTCDate()}` };
+}
+
+const TREND = {
+  visited: { label: "Visited", get: (su) => su.counts.visited },
+  enrolled: { label: "Enrolled", get: (su) => su.counts.enrolled },
+  conv: { label: "Visited → Enrolled %", get: (su) => Math.round(su.overall * 1000) / 10 },
+  net: { label: "Net revenue ($)", get: (su) => Math.round(su.revenue.netCents / 100) },
+};
+export const TREND_METRICS = Object.entries(TREND).map(([key, v]) => ({ key, label: v.label }));
+
+// One point per calendar week present in `events` (oldest -> newest): { label, value } where value is
+// `metric` over that week's events (respecting the season/track filter). Drives the weekly chart.
+export function weeklyTrend(events, { metric = "visited", filter = null } = {}) {
+  const m = TREND[metric] || TREND.visited;
+  const buckets = new Map();
+  (events || []).forEach((e) => {
+    const w = e && e.ts != null ? weekOf(e.ts) : null;
+    if (!w) return;
+    if (!buckets.has(w.key)) buckets.set(w.key, { label: w.label, events: [] });
+    buckets.get(w.key).events.push(e);
+  });
+  return [...buckets.entries()]
+    .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+    .map(([, b]) => ({ label: b.label, value: m.get(summarize(b.events, filter)) }));
+}
+
 // ---- Investor data-room exports -----------------------------------------------------------
 
 const CSV_COLS = ["ts", "iso", "event", "season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall"];
