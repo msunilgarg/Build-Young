@@ -173,3 +173,15 @@ export function trackVisitOnce() {
   } catch (e) { /* ignore */ }
   track("visited", { source: visitSource() });
 }
+
+// Trigger a client-side download of `text` as a file (used by the founder exports + the
+// certificate Download button).
+export function downloadFile(filename, text, type) {
+  try {
+    const blob = new Blob([text], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    document.body.removeChild(a); setTimeout(() => URL.revokeObjectURL(url), 1500);
+  } catch (e) { /* ignore */ }
+}
