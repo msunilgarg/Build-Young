@@ -138,11 +138,16 @@ size.
 
 ## Meta: keeping this current
 
-When we hit a pattern worth remembering, append it to the relevant section and add a dated Changelog
-line. When a rule proves wrong, fix it in place and note the correction — a playbook is only as good as
-its honesty about what didn't work.
+This doc is maintained by the **`update-playbook` skill** (`.claude/skills/update-playbook/`), which the
+agent invokes **proactively** — when a session establishes a durable, generalizable lesson, when a rule
+here proves wrong, or when you say "remember this." You shouldn't have to ask. The skill adds the entry
+as *principle + why*, in the right section, and a dated Changelog line, then ships it via a PR.
+
+When a rule proves wrong, fix it in place and note the correction — a playbook is only as good as its
+honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-09** — Added the `update-playbook` skill so this doc is kept current proactively (no asking).
 - **2026-06-09** — Initial version. Distilled from splitting a ~5,400-line single-file React app into
   per-feature modules, establishing the parallel-agent protocol, and wiring SessionStart/commit guards.
