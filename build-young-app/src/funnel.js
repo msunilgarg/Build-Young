@@ -258,6 +258,29 @@ function weekOf(ts) {
   return { key: mon.toISOString().slice(0, 10), label: `${MON[mon.getUTCMonth()]} ${mon.getUTCDate()}` };
 }
 
+// A week's { key (Monday ISO), label } from its Monday Date. Label is a range so it reads as a WEEK,
+// e.g. "Jun 8-14" (or "Jun 29-Jul 5" across a month boundary), never a single day.
+function weekLabelFor(mon) {
+  const end = new Date(mon.getTime() + 6 * 86400000);
+  const md = mon.getUTCDate(), ed = end.getUTCDate();
+  const label = mon.getUTCMonth() === end.getUTCMonth()
+    ? `${MON[mon.getUTCMonth()]} ${md}-${ed}`
+    : `${MON[mon.getUTCMonth()]} ${md}-${MON[end.getUTCMonth()]} ${ed}`;
+  return { key: mon.toISOString().slice(0, 10), label };
+}
+
+// Every week (Monday) overlapping a "YYYY-MM" month, oldest -> newest — so a month's weekly trend
+// spans the WHOLE month even where a week has no events (a flat-zero point, not a missing one).
+function monthWeekStarts(monthKey) {
+  const [y, mo] = monthKey.split("-").map(Number);
+  const first = new Date(Date.UTC(y, mo - 1, 1));
+  const dow1 = (first.getUTCDay() + 6) % 7;
+  const lastMs = Date.UTC(y, mo - 1, new Date(Date.UTC(y, mo, 0)).getUTCDate());
+  const out = [];
+  for (let cur = new Date(Date.UTC(y, mo - 1, 1 - dow1)); cur.getTime() <= lastMs; cur = new Date(cur.getTime() + 7 * 86400000)) out.push(weekLabelFor(cur));
+  return out;
+}
+
 const TREND = {
   visited: { label: "Visited", get: (su) => su.counts.visited },
   enrolled: { label: "Enrolled", get: (su) => su.counts.enrolled },
@@ -268,18 +291,21 @@ export const TREND_METRICS = Object.entries(TREND).map(([key, v]) => ({ key, lab
 
 // One point per calendar week present in `events` (oldest -> newest): { label, value } where value is
 // `metric` over that week's events (respecting the season/track filter). Drives the weekly chart.
-export function weeklyTrend(events, { metric = "visited", filter = null } = {}) {
+export function weeklyTrend(events, { metric = "visited", filter = null, month = "all" } = {}) {
   const m = TREND[metric] || TREND.visited;
-  const buckets = new Map();
+  const byKey = new Map(); // Monday-ISO -> events[]
   (events || []).forEach((e) => {
     const w = e && e.ts != null ? weekOf(e.ts) : null;
     if (!w) return;
-    if (!buckets.has(w.key)) buckets.set(w.key, { label: w.label, events: [] });
-    buckets.get(w.key).events.push(e);
+    if (!byKey.has(w.key)) byKey.set(w.key, []);
+    byKey.get(w.key).push(e);
   });
-  return [...buckets.entries()]
-    .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
-    .map(([, b]) => ({ label: b.label, value: m.get(summarize(b.events, filter)) }));
+  // For a month: show every week of the month (incl. empty) so the x-axis is the month's weeks.
+  // For "all time": the weeks that actually have data, oldest -> newest.
+  const weeks = (month && month !== "all")
+    ? monthWeekStarts(month)
+    : [...byKey.keys()].sort().map((key) => weekLabelFor(new Date(key + "T00:00:00Z")));
+  return weeks.map((w) => ({ label: w.label, value: m.get(summarize(byKey.get(w.key) || [], filter)) }));
 }
 
 // ---- Investor data-room exports -----------------------------------------------------------
