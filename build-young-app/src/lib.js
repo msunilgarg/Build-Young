@@ -195,3 +195,8 @@ export const HESITATION_REASONS = [
   { value: "ask_teen", label: "Need to ask my teen" },
   { value: "exploring", label: "Just exploring" },
 ];
+
+// "Talk to Sunil" call booked earlier this session -> tags the call->enroll funnel branch. A live
+// binding so App (which fires the enrolled event) sees what BookCall set via markCallBooked().
+export let callBooked = false;
+export const markCallBooked = () => { callBooked = true; };
