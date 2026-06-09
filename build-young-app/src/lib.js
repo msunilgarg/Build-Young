@@ -185,3 +185,13 @@ export function downloadFile(filename, text, type) {
     document.body.removeChild(a); setTimeout(() => URL.revokeObjectURL(url), 1500);
   } catch (e) { /* ignore */ }
 }
+
+// Why a visitor hesitates on Enroll — the aggregate-safe reason chips (shared by the Enroll
+// form's HesitationStrip + the founder console's label mapping).
+export const HESITATION_REASONS = [
+  { value: "cost", label: "The price" },
+  { value: "schedule", label: "Schedule or timing" },
+  { value: "fit", label: "Not sure it's a fit" },
+  { value: "ask_teen", label: "Need to ask my teen" },
+  { value: "exploring", label: "Just exploring" },
+];
