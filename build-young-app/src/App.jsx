@@ -3921,10 +3921,6 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "26px 0 10px", flexWrap: "wrap", gap: 8 }}>
             <h2 style={{ ...h2s, margin: 0 }}>Weekly trend{period !== "all" ? ` · ${(months.find((m) => m.key === period) || {}).label || ""}` : ""}</h2>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-              <select aria-label="Trend month" value={period} onChange={(e) => setPeriod(e.target.value)} style={{ fontSize: 12.5, padding: "6px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.card, color: C.ink2, fontWeight: 700 }}>
-                <option value="all">All time (weekly)</option>
-                {months.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
-              </select>
               {TREND_METRICS.map((m) => segBtn(m.label, trendMetric === m.key, () => setTrendMetric(m.key)))}
             </div>
           </div>
