@@ -20,15 +20,21 @@ describe("funnel time-slicing (month scope + weekly trend)", () => {
     const evs = [visited("2026-06-09T12:00:00Z"), visited("2026-06-10T12:00:00Z"), visited("2026-06-15T12:00:00Z")];
     const t = weeklyTrend(evs, { metric: "visited" });
     expect(t.map((p) => p.value)).toEqual([2, 1]);
-    expect(t.map((p) => p.label)).toEqual(["Jun 8", "Jun 15"]);
+    expect(t.map((p) => p.label)).toEqual(["Jun 8-14", "Jun 15-21"]);
   });
   it("respects the chosen metric (enrolled)", () => {
     const evs = [visited("2026-06-09T12:00:00Z"), enrolled("2026-06-09T13:00:00Z")];
-    expect(weeklyTrend(evs, { metric: "enrolled" })).toEqual([{ label: "Jun 8", value: 1 }]);
+    expect(weeklyTrend(evs, { metric: "enrolled" })).toEqual([{ label: "Jun 8-14", value: 1 }]);
   });
   it("TREND_METRICS exposes the selectable metrics; empty input → empty", () => {
     expect(TREND_METRICS.map((m) => m.key)).toEqual(expect.arrayContaining(["visited", "enrolled", "conv", "net"]));
     expect(weeklyTrend([], { metric: "visited" })).toEqual([]);
     expect(monthsIn([])).toEqual([]);
+  });
+  it("month scope enumerates the whole month's weeks (zeros included), with range labels", () => {
+    const evs = [visited("2026-06-09T12:00:00Z"), visited("2026-06-10T12:00:00Z"), visited("2026-06-15T12:00:00Z")];
+    const t2 = weeklyTrend(evs, { metric: "visited", month: "2026-06" });
+    expect(t2.map((p) => p.label)).toEqual(["Jun 1-7", "Jun 8-14", "Jun 15-21", "Jun 22-28", "Jun 29-Jul 5"]);
+    expect(t2.map((p) => p.value)).toEqual([0, 2, 1, 0, 0]);
   });
 });

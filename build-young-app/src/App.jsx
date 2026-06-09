@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from "re
 import {
   TrendingUp, LineChart as LineIcon, GraduationCap, ArrowRight, Check, Lock, Newspaper,
   CircleDollarSign, Sparkles, Video, Mail, Briefcase,
-  Anchor, Linkedin, BookOpen, Download, Users, Activity, Award, Calendar, Clock, Flag,
+  Anchor, Linkedin, BookOpen, Download, Users, Activity, Award, Calendar, Clock, Flag, RefreshCw,
 } from "lucide-react";
 // The 12 weekly lesson titles + the per-week homework/prep text live in a dependency-free
 // module (no React/lucide) so the serverless cron can share the same copy.
@@ -69,6 +69,7 @@ input:focus,select:focus{outline:2px solid ${C.emerald};outline-offset:-1px;}
 .hp-live{animation:livePulse 1.8s ease-in-out infinite;}
 .hp-grow{transform:scaleX(0);transform-box:fill-box;transform-origin:left;animation:hpGrow 1s cubic-bezier(.2,.8,.2,1) forwards;}
 @keyframes hpGrow{to{transform:scaleX(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 .enroll-grid{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start;}
 @media(max-width:760px){.enroll-grid{grid-template-columns:1fr;}}
 @media(max-width:560px){.nav-talk{display:none!important;}}
@@ -3777,27 +3778,32 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const [resetMsg, setResetMsg] = useState("");
   const [period, setPeriod] = useState("all"); // "all" | "YYYY-MM" — scopes the funnel + trend to a month
   const [trendMetric, setTrendMetric] = useState("visited");
+  const [refreshing, setRefreshing] = useState(false); // a manual Refresh re-pulls the funnel without a browser reload
 
   // Authorized by the session cookie (sent automatically): the server admits only a logged-in
-  // founder (email on the allowlist). 401/403 → not signed in as a founder.
-  useEffect(() => {
-    let live = true;
-    (async () => {
-      try {
-        const r = await fetch("/api/funnel");
-        if (r.status === 401 || r.status === 403) { if (live) setError("Access denied — sign in with your founder account to view this."); return; }
-        const data = await r.json();
-        if (live) { setEvents(Array.isArray(data.events) ? data.events : []); setFounders(Array.isArray(data.founders) ? data.founders : []); }
-      } catch (e) { if (live) setError("Couldn’t load analytics (network error)."); }
-    })();
-    return () => { live = false; };
+  // founder (email on the allowlist). 401/403 → not signed in as a founder. Pulled on mount and
+  // again whenever the founder hits Refresh, so new visits/enrollments show without a page reload.
+  const loadFunnel = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const r = await fetch("/api/funnel");
+      if (r.status === 401 || r.status === 403) { setError("Access denied — sign in with your founder account to view this."); return; }
+      const data = await r.json();
+      setError(null);
+      setEvents(Array.isArray(data.events) ? data.events : []);
+      setFounders(Array.isArray(data.founders) ? data.founders : []);
+    } catch (e) { setError("Couldn’t load analytics (network error)."); }
+    finally { setRefreshing(false); }
   }, []);
+  useEffect(() => { loadFunnel(); }, [loadFunnel]);
 
   const filter = seg.kind === "season" ? { season: seg.key } : seg.kind === "track" ? { track: seg.key } : null;
   const scoped = useMemo(() => eventsInMonth(events || [], period), [events, period]);
   const months = useMemo(() => monthsIn(events || []), [events]);
+  const didDefaultPeriod = React.useRef(false);
+  useEffect(() => { if (!didDefaultPeriod.current && months.length) { setPeriod(months[months.length - 1].key); didDefaultPeriod.current = true; } }, [months]); // default to the latest month so it reads as a monthly trend
   const summary = useMemo(() => summarize(scoped, filter), [scoped, seg.kind, seg.key]);
-  const trendData = useMemo(() => weeklyTrend(scoped, { metric: trendMetric, filter }), [scoped, trendMetric, seg.kind, seg.key]);
+  const trendData = useMemo(() => weeklyTrend(scoped, { metric: trendMetric, filter, month: period }), [scoped, trendMetric, period, seg.kind, seg.key]);
   // Traffic & engagement is whole-site (not segmented by cohort) — it's the top-of-funnel picture.
   const eng = useMemo(() => engagement(events || []), [events]);
 
@@ -3840,6 +3846,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             <div style={muted}>Funnel, cohorts, admins &amp; account tools · aggregate data only (no student PII).</div>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span {...act(() => { if (!refreshing) loadFunnel(); })} aria-busy={refreshing} title="Re-pull the latest funnel data (no browser refresh needed)" style={{ cursor: refreshing ? "default" : "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px", opacity: refreshing ? 0.6 : 1 }}><RefreshCw size={14} style={refreshing ? { animation: "spin 1s linear infinite" } : undefined} /> {refreshing ? "Refreshing…" : "Refresh"}</span>
             <span {...act(() => downloadFile("build-young-funnel.csv", toCSV(events || []), "text/csv"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> CSV</span>
             <span {...act(() => downloadFile("build-young-funnel.json", JSON.stringify(toDataRoom(events || []), null, 2), "application/json"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> JSON</span>
             {onPreviewStudent && <span {...act(onPreviewStudent)} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#fff", background: C.emerald, borderRadius: 4, padding: "8px 12px" }}><GraduationCap size={14} /> Preview student dashboard</span>}
@@ -3913,12 +3920,16 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           {/* weekly trend — calendar weeks on the x-axis (distinct from the course-week progression further down) */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "26px 0 10px", flexWrap: "wrap", gap: 8 }}>
             <h2 style={{ ...h2s, margin: 0 }}>Weekly trend{period !== "all" ? ` · ${(months.find((m) => m.key === period) || {}).label || ""}` : ""}</h2>
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <select aria-label="Trend month" value={period} onChange={(e) => setPeriod(e.target.value)} style={{ fontSize: 12.5, padding: "6px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.card, color: C.ink2, fontWeight: 700 }}>
+                <option value="all">All time (weekly)</option>
+                {months.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
+              </select>
               {TREND_METRICS.map((m) => segBtn(m.label, trendMetric === m.key, () => setTrendMetric(m.key)))}
             </div>
           </div>
           <Card style={{ padding: 18 }}>
-            <div style={muted}>{(TREND_METRICS.find((m) => m.key === trendMetric) || {}).label} by calendar week{period !== "all" ? " (selected month)" : ""} — most recent on the right.</div>
+            <div style={muted}>{(TREND_METRICS.find((m) => m.key === trendMetric) || {}).label} by week (Mon–Sun){period !== "all" ? ", across the month" : ", weeks with data"} — most recent on the right.</div>
             {trendData.length === 0 ? (
               <div style={{ ...muted, marginTop: 10 }}>No data in this period yet.</div>
             ) : (
@@ -3980,29 +3991,38 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             </Card>
             <Card style={{ padding: 16 }}>
               <b style={{ fontSize: 13.5 }}>Which screens hold attention</b>
-              <div style={{ marginTop: 10 }}>
+              <div style={{ fontSize: 11, color: C.muted, margin: "2px 0 2px" }}>How many times each screen was seen, and the average time on it.</div>
+              <div style={{ marginTop: 8 }}>
                 {eng.screens.length === 0 && <div style={muted}>No screen views recorded yet.</div>}
                 {eng.screens.length > 0 && (
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", paddingBottom: 4 }}>
-                    <span>Screen</span><span>Views · avg time</span>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", paddingBottom: 4 }}>
+                    <span>Screen</span><span style={{ textAlign: "right", minWidth: 44 }}>Views</span><span style={{ textAlign: "right", minWidth: 56 }}>Avg time</span>
                   </div>
                 )}
                 {eng.screens.slice(0, 8).map((s) => (
-                  <div key={s.screen} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+                  <div key={s.screen} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, alignItems: "center", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
                     <span style={{ color: C.ink2 }}>{screenName(s.screen)}</span>
-                    <b>{s.views.toLocaleString()} · {fmtDwell(s.avgMs)}</b>
+                    <b style={{ textAlign: "right", minWidth: 44 }}>{s.views.toLocaleString()}</b>
+                    <b style={{ textAlign: "right", minWidth: 56 }}>{fmtDwell(s.avgMs)}</b>
                   </div>
                 ))}
               </div>
             </Card>
             <Card style={{ padding: 16 }}>
               <b style={{ fontSize: 13.5 }}>Where they leave</b>
-              <div style={{ marginTop: 10 }}>
+              <div style={{ fontSize: 11, color: C.muted, margin: "2px 0 2px" }}>The last screen before leaving — how many left there, and that screen’s share of all exits.</div>
+              <div style={{ marginTop: 8 }}>
                 {eng.exits.length === 0 && <div style={muted}>No exits recorded yet.</div>}
+                {eng.exits.length > 0 && (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", paddingBottom: 4 }}>
+                    <span>Screen</span><span style={{ textAlign: "right", minWidth: 44 }}>Exits</span><span style={{ textAlign: "right", minWidth: 56 }}>Share</span>
+                  </div>
+                )}
                 {eng.exits.slice(0, 8).map((s) => (
-                  <div key={s.screen} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+                  <div key={s.screen} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, alignItems: "center", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
                     <span style={{ color: C.ink2 }}>{screenName(s.screen)}</span>
-                    <b>{s.count.toLocaleString()} · {ratePct(s.pct)}</b>
+                    <b style={{ textAlign: "right", minWidth: 44 }}>{s.count.toLocaleString()}</b>
+                    <b style={{ textAlign: "right", minWidth: 56 }}>{ratePct(s.pct)}</b>
                   </div>
                 ))}
               </div>
