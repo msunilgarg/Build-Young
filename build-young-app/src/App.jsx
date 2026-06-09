@@ -211,6 +211,7 @@ function track(event, props = {}) {
   try {
     if (typeof window === "undefined") return;
     if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.MODE === "test") return;
+    try { if (window.localStorage && window.localStorage.getItem("by:notrack") === "1") return; } catch (e) {} // founder excluded this browser
     const clean = {};
     for (const k in props) if (props[k] !== undefined && props[k] !== null) clean[k] = props[k];
     const body = JSON.stringify({ event, props: clean });
@@ -3745,12 +3746,35 @@ function TeachingSchedule() {
   );
 }
 
+// Per-browser "don't count my visits" flag (localStorage by:notrack), read by track(). Defaults ON
+// the first time you open the founder console (reaching it means this is your browser), so your own
+// testing doesn't pollute the funnel. Toggle off to let this browser count again.
+function NoTrackToggle() {
+  const [on, setOn] = useState(() => {
+    try {
+      const v = window.localStorage.getItem("by:notrack");
+      if (v == null) { window.localStorage.setItem("by:notrack", "1"); return true; }
+      return v === "1";
+    } catch { return false; }
+  });
+  const toggle = () => { const next = !on; try { window.localStorage.setItem("by:notrack", next ? "1" : "0"); } catch (e) {} setOn(next); };
+  return (
+    <span {...act(toggle)} aria-pressed={on} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12.5, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "6px 12px" }}>
+      <span style={{ width: 30, height: 16, borderRadius: 999, background: on ? C.emerald : C.line, position: "relative", flexShrink: 0 }}>
+        <span style={{ position: "absolute", top: 2, left: on ? 16 : 2, width: 12, height: 12, borderRadius: 999, background: "#fff" }} />
+      </span>
+      Exclude my visits (this browser)
+    </span>
+  );
+}
+
 export function FounderDashboard({ onHome, onPreviewStudent }) {
   const [events, setEvents] = useState(null); // null = loading
   const [founders, setFounders] = useState([]); // admin allowlist (effective: env ∪ KV)
   const [error, setError] = useState(null);
   const [seg, setSeg] = useState({ kind: "all", key: null }); // all | {season} | {track}
   const [tab, setTab] = useState("today"); // today | funnel | cohorts | students | settings — keeps the console short
+  const [resetMsg, setResetMsg] = useState("");
 
   // Authorized by the session cookie (sent automatically): the server admits only a logged-in
   // founder (email on the allowlist). 401/403 → not signed in as a founder.
@@ -3790,6 +3814,16 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const wrap = { maxWidth: 1080, margin: "0 auto", padding: "0 20px 80px", position: "relative", zIndex: 1 };
   const h2s = { fontSize: 17, fontWeight: 800, color: C.ink, margin: "30px 0 12px" };
   const muted = { fontSize: 12.5, color: C.muted };
+  const resetFunnel = async () => {
+    if (typeof window !== "undefined" && !window.confirm("Clear ALL funnel data (yours and everyone's) and start fresh? This can't be undone.")) return;
+    setResetMsg("Clearing…");
+    try {
+      const r = await fetch("/api/funnel?resource=events", { method: "DELETE" });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setEvents([]); setResetMsg("Funnel cleared ✓"); }
+      else setResetMsg("Couldn't clear — try again.");
+    } catch { setResetMsg("Network error."); }
+  };
 
   return (
     <div style={{ minHeight: "100vh", paddingTop: 24 }}>
@@ -3838,6 +3872,12 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           </div>
           {filter && <div style={{ ...muted, marginTop: 8 }}>Segmented views start at <b>Enrolled</b> — top-of-funnel events (visits, enroll-starts) aren’t tied to a cohort.</div>}
 
+          {/* funnel data controls: exclude this browser + reset the stream (your own visits aren't tagged, so a reset clears everything) */}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
+            <NoTrackToggle />
+            <span {...act(resetFunnel)} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.rust, border: `1px solid ${C.line}`, borderRadius: 4, padding: "6px 12px" }}>Reset funnel data</span>
+            {resetMsg && <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>{resetMsg}</span>}
+          </div>
           {/* funnel + revenue */}
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18, marginTop: 14, alignItems: "start" }} className="enroll-grid">
             <Card style={{ padding: 18 }}>

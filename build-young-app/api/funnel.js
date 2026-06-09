@@ -229,6 +229,16 @@ async function resetAccount(req, res) {
   res.status(200).json({ ok: true, deleted: [`user:${email}`, `state:${email}`] });
 }
 
+// --- DELETE ?resource=events: founder wipes the whole funnel stream (start clean). Aggregate events
+// carry no identity (no email/name/session id), so individual sessions can't be removed — this
+// clears ALL events. ---
+async function clearFunnel(req, res) {
+  if (!(await founderGate(req, res))) return;
+  if (!kvConfigured()) { res.status(200).json({ ok: false, reason: "store not configured" }); return; }
+  try { await kvDel(KEY); } catch { res.status(200).json({ ok: false }); return; }
+  res.status(200).json({ ok: true, cleared: KEY });
+}
+
 // --- POST ?resource=interest: public — capture a family's interest when a cohort is full (so we
 // can notify them about the NEXT cohort). ---
 async function saveInterest(req, res) {
@@ -281,6 +291,9 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "objectives") return saveCourseObjectives(req, res);
     return saveCohorts(req, res);
   }
-  if (req.method === "DELETE") return resetAccount(req, res); // founder: reset a test account
+  if (req.method === "DELETE") {
+    if (req.query && req.query.resource === "events") return clearFunnel(req, res); // founder: wipe the funnel stream
+    return resetAccount(req, res); // founder: reset a test account
+  }
   res.status(405).json({ error: "Method not allowed" });
 }
