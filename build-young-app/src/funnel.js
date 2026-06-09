@@ -167,6 +167,21 @@ export function engagement(events) {
     .map(([country, count]) => ({ country, count }))
     .sort((a, b) => b.count - a.count);
 
+  // Source x country cross-tab: each visit source broken down by country (both live on `visited`).
+  const sc = {};
+  evs.forEach((e) => {
+    if (e && e.event === "visited") {
+      const src = (e.props && e.props.source) || "direct";
+      const c = (e.props && e.props.country) || null;
+      if (!sc[src]) sc[src] = { total: 0, byCountry: {} };
+      sc[src].total += 1;
+      if (c) sc[src].byCountry[c] = (sc[src].byCountry[c] || 0) + 1;
+    }
+  });
+  const sourceCountry = Object.entries(sc)
+    .map(([source, v]) => ({ source, count: v.total, byCountry: Object.entries(v.byCountry).map(([country, count]) => ({ country, count })).sort((a, b) => b.count - a.count) }))
+    .sort((a, b) => b.count - a.count);
+
   // Per-screen attention: count of views + mean dwell (ms), from `screen_view`.
   const agg = {}; // screen -> { views, totalMs }
   evs.forEach((e) => {
@@ -207,7 +222,7 @@ export function engagement(events) {
     .map(([reason, count]) => ({ reason, count }))
     .sort((a, b) => b.count - a.count);
 
-  return { sources, countries, screens, exits, exitTotal, hesitations };
+  return { sources, countries, sourceCountry, screens, exits, exitTotal, hesitations };
 }
 
 // ---- Investor data-room exports -----------------------------------------------------------

@@ -3927,27 +3927,23 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", gap: 18 }} className="enroll-grid">
             <Card style={{ padding: 16 }}>
               <b style={{ fontSize: 13.5 }}>Where visitors come from</b>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 10 }}>
-                <div>
-                  <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", paddingBottom: 4 }}>Source</div>
-                  {eng.sources.length === 0 && <div style={muted}>No visits yet.</div>}
-                  {eng.sources.slice(0, 8).map((s) => (
-                    <div key={s.source} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
-                      <span style={{ color: C.ink2 }}>{s.source === "direct" ? "Direct / typed in" : s.source}</span>
+              <div style={{ fontSize: 11, color: C.muted, margin: "2px 0 2px" }}>Each source, broken down by country.</div>
+              <div style={{ marginTop: 4 }}>
+                {eng.sourceCountry.length === 0 && <div style={muted}>No visits yet.</div>}
+                {eng.sourceCountry.map((s) => (
+                  <div key={s.source} style={{ padding: "9px 0", borderTop: `1px solid ${C.line}` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                      <span style={{ color: C.ink, fontWeight: 600 }}>{s.source === "direct" ? "Direct / typed in" : s.source}</span>
                       <b>{s.count.toLocaleString()}</b>
                     </div>
-                  ))}
-                </div>
-                <div>
-                  <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", paddingBottom: 4 }}>Country</div>
-                  {eng.countries.length === 0 && <div style={muted}>No geography yet.</div>}
-                  {eng.countries.slice(0, 8).map((c) => (
-                    <div key={c.country} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
-                      <span style={{ color: C.ink2 }}>{flagEmoji(c.country)} {c.country}</span>
-                      <b>{c.count.toLocaleString()}</b>
-                    </div>
-                  ))}
-                </div>
+                    {s.byCountry.length > 0 ? (
+                      <div style={{ fontSize: 12, color: C.ink2, marginTop: 3, lineHeight: 1.5 }}>
+                        {s.byCountry.slice(0, 6).map((c, i) => <span key={c.country}>{i > 0 ? " · " : ""}{c.country} {c.count.toLocaleString()}</span>)}
+                        {s.byCountry.length > 6 && <span style={{ color: C.muted }}> · +{s.byCountry.length - 6} more</span>}
+                      </div>
+                    ) : <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>No geography yet</div>}
+                  </div>
+                ))}
               </div>
             </Card>
             <Card style={{ padding: 16 }}>
