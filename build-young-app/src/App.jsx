@@ -89,7 +89,7 @@ import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
 import { certName, certVerifyUrl, linkedInAddUrl, certDate, CERT_ORG } from "./cert.js";
 import { SCENARIO_GROUPS, scenarioLabel } from "./scenarios.js";
 // Funnel analytics: stage definitions + conversion/curve/revenue math (single source of truth).
-import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engagement, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS } from "./funnel.js";
+import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS } from "./funnel.js";
 
 // Live cohort catalog: the public site hydrates this from /api/cohorts on load (founder-editable
 // in the dashboard), defaulting to the code `BATCHES`. Components read it via useCohorts(); App
@@ -219,6 +219,21 @@ function track(event, props = {}) {
     if (navigator.sendBeacon) navigator.sendBeacon("/api/funnel", new Blob([body], { type: "application/json" }));
     else fetch("/api/funnel", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
   } catch (e) { /* analytics must never break the app */ }
+}
+// An ephemeral, random per-tab id used ONLY to stitch one visit's screen views into an ordered path
+// in the founder console. Lives in sessionStorage, so it's cleared when the tab closes and is NOT
+// stable across visits; it carries no name/email/IP — not PII. Best-effort: if storage is blocked
+// we just omit it (that visit simply won't appear in the path view).
+function sessionId() {
+  try {
+    if (typeof window === "undefined" || !window.sessionStorage) return null;
+    let id = window.sessionStorage.getItem("by:sid");
+    if (!id) {
+      id = (window.crypto && window.crypto.randomUUID) ? window.crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36));
+      window.sessionStorage.setItem("by:sid", id);
+    }
+    return id;
+  } catch (e) { return null; }
 }
 // The visit's traffic source: the external referrer's host, or "direct" (no referrer / same-site).
 // Aggregate-only — a hostname, never a full URL/path, so no query strings or PII leak through.
@@ -3806,6 +3821,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const trendData = useMemo(() => weeklyTrend(scoped, { metric: trendMetric, filter, month: period }), [scoped, trendMetric, period, seg.kind, seg.key]);
   // Traffic & engagement is whole-site (not segmented by cohort) — it's the top-of-funnel picture.
   const eng = useMemo(() => engagement(events || []), [events]);
+  const paths = useMemo(() => journeys(events || [], { limit: 12 }), [events]);
 
   const funnelData = STAGES.map((st, i) => {
     const count = summary.counts[st.key];
@@ -4034,6 +4050,34 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
               </div>
             </Card>
           </div>
+
+          {/* top paths — the ordered screens each visit moves through (anonymous, stitched per visit
+              by a random session id; explains the drop-off above as actual journeys). */}
+          <h2 style={h2s}>Top paths through the site</h2>
+          <div style={{ ...muted, marginBottom: 10 }}>The screens each visit moves through, in order — most common first. Stitched only by a random per-visit id (no PII); “left” marks where the visit ended.</div>
+          <Card style={{ padding: 16 }}>
+            {paths.sessions === 0 ? (
+              <div style={muted}>No journeys recorded yet — paths appear once visitors move through a few screens.</div>
+            ) : (
+              <>
+                <div style={{ ...muted, marginBottom: 6 }}>{paths.sessions.toLocaleString()} visit{paths.sessions === 1 ? "" : "s"} traced.</div>
+                {paths.paths.map((p, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, fontSize: 13 }}>
+                      {p.steps.map((s, j) => (
+                        <React.Fragment key={j}>
+                          {j > 0 && <ArrowRight size={12} style={{ color: C.muted, flexShrink: 0 }} />}
+                          <span style={{ color: C.ink2, fontWeight: 600 }}>{screenName(s)}</span>
+                        </React.Fragment>
+                      ))}
+                      {p.left && <><ArrowRight size={12} style={{ color: C.muted, flexShrink: 0 }} /><span style={{ color: C.muted, fontStyle: "italic" }}>left</span></>}
+                    </div>
+                    <b style={{ fontSize: 13, flexShrink: 0 }}>{p.count.toLocaleString()}</b>
+                  </div>
+                ))}
+              </>
+            )}
+          </Card>
 
           {/* curves */}
           <div style={{ display: "grid", gridTemplateColumns: summary.checkinCurve.length ? "1fr 1fr" : "1fr", gap: 18, marginTop: 8 }} className="enroll-grid">
@@ -5060,7 +5104,7 @@ export default function App() {
   useEffect(() => {
     if (!loaded) return;
     const now = Date.now();
-    if (screenRef.current) track("screen_view", { screen: screenRef.current.screen, ms: now - screenRef.current.at });
+    if (screenRef.current) track("screen_view", { screen: screenRef.current.screen, ms: now - screenRef.current.at, sid: sessionId() });
     screenRef.current = { screen: route, at: now };
   }, [route, loaded]);
   useEffect(() => {
@@ -5068,8 +5112,9 @@ export default function App() {
     const flush = () => {
       if (!screenRef.current) return;
       const { screen, at } = screenRef.current;
-      track("screen_view", { screen, ms: Date.now() - at });
-      track("exit", { screen });
+      const sid = sessionId();
+      track("screen_view", { screen, ms: Date.now() - at, sid });
+      track("exit", { screen, sid });
       screenRef.current = { screen, at: Date.now() }; // reset so a return visit doesn't double-count
     };
     const onVis = () => { if (typeof document !== "undefined" && document.visibilityState === "hidden") flush(); };

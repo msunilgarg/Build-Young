@@ -35,7 +35,7 @@ const EVENTS = new Set([
   "schedule_requested", // demand signal: a visitor asked for a different schedule/timezone
   "hesitation", // drop-off signal: a visitor told us what's holding them back on Enroll
 ]);
-const ALLOWED_PROPS = ["season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall", "stage", "source", "screen", "ms", "reason"];
+const ALLOWED_PROPS = ["season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall", "stage", "source", "screen", "ms", "reason", "sid"];
 
 // Admin gate: a logged-in founder (session email on the allowlist). 403 otherwise.
 async function founderGate(req, res) {
@@ -62,6 +62,13 @@ async function ingest(req, res) {
   const src = (body.props && typeof body.props === "object") ? body.props : {};
   const props = {};
   for (const k of ALLOWED_PROPS) if (src[k] !== undefined && src[k] !== null) props[k] = src[k];
+
+  // The path-stitching session id is a random, ephemeral per-tab token (no PII). Hard-cap its
+  // shape so a crafted POST can't stash anything large or unexpected under it.
+  if (props.sid !== undefined) {
+    const sid = String(props.sid).replace(/[^a-zA-Z0-9-]/g, "").slice(0, 40);
+    if (sid) props.sid = sid; else delete props.sid;
+  }
 
   // Geography: stamp the visitor's country (2-letter code) server-side from Vercel's geo header on
   // `visited`. Country-level only — no city/precise location, no IP stored. Empty when not on Vercel.
