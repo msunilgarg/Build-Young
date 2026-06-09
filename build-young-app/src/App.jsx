@@ -36,145 +36,12 @@ import { Login, SetPassword, CheckEmail } from "./auth.jsx";
 export { Login, SetPassword };
 import { WEEKS, ACTS } from "./course.js";
 import { Landing } from "./Landing.jsx";
+import { HOMEWORK, OBJECTIVES, setHomework, setObjectives } from "./courseState.js";
+import { MAIL_FROM, welcomeEmail, followupEmail, CANCEL_REASONS, cancelReasonLabel, withdrawalEmail, newState, advance } from "./engine.js";
+export { withdrawalEmail, newState, advance, CANCEL_REASONS, cancelReasonLabel };
 
 // Whether a "Talk to Sunil" call was booked earlier this session — tags the call→enroll branch.
 let _callBookedThisSession = false;
-// The 12 weeks' homework text. Defaults to the code WEEK_PREP; App hydrates it from /api/cohorts
-// (founder-editable) on load so the in-app completion email matches the real reminder email.
-let HOMEWORK = WEEK_PREP;
-
-// The 12 weeks' class objectives ("What you'll learn this class"). Defaults to the code
-// WEEK_OBJECTIVES; App hydrates from /api/cohorts (founder-editable) on load.
-let OBJECTIVES = WEEK_OBJECTIVES;
-
-
-// CHECKINS now lives in cohorts.js (single source) and is imported + re-exported above.
-
-const MAIL_FROM = CONFIG.contactEmail;
-function welcomeEmail(student) {
-  const b = BATCHES.find((x) => x.id === student.batch) || BATCHES[0];
-  const first = student.name.split(" ")[0];
-  return {
-    id: "w" + Date.now(), from: MAIL_FROM, when: "Just now", type: "welcome",
-    subject: "Welcome to Build Young — your class details inside",
-    body: `Hi ${first},
-
-Welcome aboard! Your seat in the ${b.track} cohort is confirmed.
-
-  •  When: ${b.day}
-  •  Where: Live online over Zoom
-  •  Your Zoom link (same one for every class): ${b.zoom}
-
-Your username is your email (${student.email}) — use it to log in to your student portal anytime.
-
-Week 1 is "Find a Problem Worth Solving" — the start of building a product you believe people would pay for. Over the weeks ahead you'll build it, take it live, learn to grow it, and go after your first customers. Everything runs inside your student dashboard.
-
-One more thing to aim for: the BUILDER PRIZE. The first builder in your cohort to land a real paying customer — within a year of today — gets their tuition refunded (a real sale, with proof, plus a short video about what you built). The whole point of Build Young, rewarded. See the Terms for details.
-
-See you in class,
-The Build Young Team`,
-  };
-}
-function followupEmail(s, week, batch) {
-  const first = s.student.name.split(" ")[0];
-  const wk = WEEKS[week - 1];
-  const last = week >= 12; // finishing Week 12 = course complete (no separate check-in)
-  const next = WEEKS[week];
-  return {
-    id: "f" + week + "_" + Date.now(), from: MAIL_FROM, when: "Just now", type: "followup",
-    subject: last ? "Course complete — you did it 🎓" : `Week ${week} recap + your next class`,
-    body: last
-      ? `Hi ${first},
-
-You finished all 12 weeks of Build Young.
-
-You built something real, took it live, and learned how to grow it and go after your first customers. Your certificate of completion is waiting in your dashboard — download it and add it to LinkedIn.
-
-Proud of you,
-The Team`
-      : `Hi ${first},
-
-Great work in Week ${week}: "${wk.t}."
-
-Your next session is Week ${week + 1}: "${next.t}"
-${batch.day}  ·  Join on Zoom: ${batch.zoom}
-${HOMEWORK[week] ? `\nHomework — to prepare for next week:\n${HOMEWORK[week]}\n` : ""}
-See you there,
-The Team`,
-  };
-}
-// Refund/cancellation confirmation — sent when a student confirms a withdrawal. Full refund if
-// the cohort hasn't started; prorated (for the unattended sessions) within the first week.
-// Why a family cancels — preset options (the `value` is aggregate-safe for the funnel; the
-// optional free-text note goes only to the founder's email, never the analytics stream).
-export const CANCEL_REASONS = [
-  { value: "cost", label: "Cost — too expensive" },
-  { value: "schedule", label: "Schedule or timing doesn't work" },
-  { value: "fit", label: "Not the right fit" },
-  { value: "other_program", label: "Going with another program" },
-  { value: "interest", label: "Lost interest" },
-  { value: "other", label: "Other" },
-];
-export const cancelReasonLabel = (v) => (CANCEL_REASONS.find((r) => r.value === v) || {}).label || "";
-
-export function withdrawalEmail(s, batch, refund, notStarted, reasonText) {
-  const first = s.student.name.split(" ")[0] || "there";
-  // week increments on each advance, so weeks held = week − 1 once started; the rest are
-  // "not yet held" (the prorated refund basis — matches the Terms).
-  const attended = notStarted ? 0 : s.week - 1;
-  const unheld = 12 - attended;
-  return {
-    id: "x" + Date.now(), from: MAIL_FROM, when: "Just now", type: "withdrawal",
-    subject: notStarted ? "Your Build Young enrollment is canceled" : "Your Build Young withdrawal is confirmed",
-    body: notStarted
-      ? `Hi ${first},
-
-We've canceled your enrollment in the ${batch.track} cohort, as requested, and started your refund. A full refund of ${fmt(refund)} will be returned to your original payment method — refunds typically land within 5–10 business days.
-
-  •  Cohort: ${batch.track} — ${batch.day}
-  •  Refund: ${fmt(refund)} (full)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
-
-No hard feelings — your seat is freed up for someone else, and you're welcome back anytime. Just reply to this email if anything looks off.
-
-Take care,
-The Build Young Team`
-      : `Hi ${first},
-
-We've processed your withdrawal from the ${batch.track} cohort and started your refund. A prorated refund of ${fmt(refund)} — covering the ${unheld} weeks not yet held — will be returned to your original payment method, typically within 5–10 business days.
-
-  •  Cohort: ${batch.track} — ${batch.day}
-  •  Attended: ${attended} of 12 weeks
-  •  Refund: ${fmt(refund)} (prorated)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
-
-Thanks for giving it a try — you're welcome back anytime. Just reply to this email if anything looks off.
-
-Take care,
-The Build Young Team`,
-  };
-}
-
-export const newState = (student) => ({
-  student,
-  started: false, // class hasn't begun yet — full refund available until first session
-  week: 1,
-  phase: "course",
-  checkin: 0,
-  done: false,
-  emails: [welcomeEmail(student)],
-});
-
-/* ============================ ENGINE ============================ */
-// Advance the simulation one week. The course is 12 weeks flat: each call moves to the next
-// week; finishing Week 12 graduates the student (done:true). `started` flips true on the first
-// advance (class has begun). Pure — returns a NEW state, never mutates `prev` (preserves the
-// functional-update / no-lost-update guarantee under rapid double-clicks).
-export function advance(prev) {
-  const s = JSON.parse(JSON.stringify(prev));
-  s.started = true;
-  if (s.week >= 12) { s.week = 12; s.done = true; }
-  else s.week += 1;
-  return s;
-}
 
 /* ============================ UI BITS ============================ */
 
@@ -2991,7 +2858,7 @@ function HomeworkEditor() {
     try {
       const r = await fetch("/api/funnel?resource=homework", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ homework: rows }) });
       const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok) { setRows(d.homework); HOMEWORK = d.homework; setStatus("Saved — live now ✓"); }
+      if (r.ok && d.ok) { setRows(d.homework); setHomework(d.homework); setStatus("Saved — live now ✓"); }
       else setStatus(adminSaveErr(r, d, "save homework"));
     } catch { setStatus(ADMIN_NET_ERR); }
   };
@@ -3035,7 +2902,7 @@ function ObjectivesEditor() {
     try {
       const r = await fetch("/api/funnel?resource=objectives", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ objectives: rows }) });
       const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok) { setRows(d.objectives); OBJECTIVES = d.objectives; setStatus("Saved — live now ✓"); }
+      if (r.ok && d.ok) { setRows(d.objectives); setObjectives(d.objectives); setStatus("Saved — live now ✓"); }
       else setStatus(adminSaveErr(r, d, "save objectives"));
     } catch { setStatus(ADMIN_NET_ERR); }
   };
@@ -3667,8 +3534,8 @@ export default function App() {
         if (!live) return;
         if (cat && Array.isArray(cat.batches) && cat.batches.length) setBatches(cat.batches);
         if (cat && Array.isArray(cat.testimonials)) setTestimonials(cat.testimonials);
-        if (cat && Array.isArray(cat.homework) && cat.homework.length === 12) HOMEWORK = cat.homework;
-        if (cat && Array.isArray(cat.objectives) && cat.objectives.length === 12) OBJECTIVES = cat.objectives;
+        if (cat && Array.isArray(cat.homework) && cat.homework.length === 12) setHomework(cat.homework);
+        if (cat && Array.isArray(cat.objectives) && cat.objectives.length === 12) setObjectives(cat.objectives);
         if (cat && cat.settings && typeof cat.settings === "object") {
           Object.assign(CONFIG, cat.settings); // mutate the shared CONFIG, then re-render to pick it up
           bumpCfg((n) => n + 1);
