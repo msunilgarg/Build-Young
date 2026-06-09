@@ -4612,7 +4612,7 @@ function CertificateView({ cert, compact }) {
             <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Date of completion</div>
           </div>
         </div>
-        <div style={{ fontSize: 10.5, color: C.muted, marginTop: 16 }}>Credential ID {cert.certId} · verify at {CONFIG.brandDomain}/verify/{cert.certId}</div>
+        <div style={{ fontSize: 10.5, color: C.muted, marginTop: 16 }}>Credential ID {cert.certId} · verify at www.{CONFIG.brandDomain}/verify/{cert.certId}</div>
       </div>
     </div>
   );
