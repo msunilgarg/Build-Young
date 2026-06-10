@@ -1,6 +1,6 @@
 # Build Young — website
 
-A live, hands-on money program for teens (ages 13+). This is the marketing site, enrollment flow, founder-call booking, and the interactive learning simulation, in one React app.
+A live, hands-on entrepreneurship program for high schoolers — over 12 weeks they build a real product with AI, take it live, and learn to grow it. This repo is the marketing site, enrollment flow, founder-call booking, and the post-enrollment course dashboard, in one React app.
 
 > **Status:** This runs end-to-end in "demo mode" out of the box (no real money, bookings, or emails). Flip on the real services below to go live. Nothing here charges a card or sends email until you connect your own accounts.
 
@@ -73,7 +73,7 @@ In `BATCHES`, set real start dates, days/times, prices, and seat counts.
 
 ### 6. Legal (do not skip — this serves teens)
 - `public/privacy.html` and `public/terms.html` are **drafts**. Have a privacy attorney review and finalize them, then set the `[DATE]` placeholders.
-- The program is **13+**, which keeps you outside COPPA (the US under-13 rule). Keep enrollment adult-completed and don't collect data from under-13s.
+- The program serves **high schoolers** (all 13+), which keeps you outside COPPA (the US under-13 rule). Keep enrollment adult-completed and don't collect data from under-13s.
 - Don't sell/share student data and don't use it to train AI (both are stated in the policy).
 
 ### 7. Domain & brand
