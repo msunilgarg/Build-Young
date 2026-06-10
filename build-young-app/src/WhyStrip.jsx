@@ -7,7 +7,7 @@ import { track, HESITATION_REASONS } from "./lib.js";
 // strip (WhyStrip) and the 'what's holding you back?' chips (HesitationStrip).
 
 const WHY_STATS = [
-  { quote: "The hottest new programming language is English.", who: "Andrej Karpathy", role: "OpenAI co-founding member", src: "@karpathy, 2023", url: "https://x.com/karpathy/status/1617979122625712128" },
+  { quote: "The hottest new programming language is English.", who: "Andrej Karpathy", role: "AI researcher, Anthropic", src: "@karpathy, 2023", url: "https://x.com/karpathy/status/1617979122625712128" },
   { quote: "A one-person billion-dollar company would have been unimaginable without AI — and now it will happen.", who: "Sam Altman", role: "OpenAI CEO", src: "Fortune, 2024", url: "https://fortune.com/2024/02/04/sam-altman-one-person-unicorn-silicon-valley-founder-myth/" },
   { quote: "Everyone is a programmer — now, you just have to say something to the computer.", who: "Jensen Huang", role: "NVIDIA CEO", src: "Computex, 2023", url: "https://www.cnbc.com/2023/05/30/everyone-is-a-programmer-with-generative-ai-nvidia-ceo-.html" },
 ];
