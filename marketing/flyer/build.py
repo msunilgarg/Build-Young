@@ -72,7 +72,7 @@ body{{margin:0;font-family:"Liberation Sans","DejaVu Sans",Arial,sans-serif;colo
 .qcol .who{{font-size:7.5pt;font-weight:700;color:{BLUE};margin-top:5px;}}
 .cta{{margin-top:auto;background:linear-gradient(110deg,{TEAL},{GREEN});color:#fff;padding:0.26in 0.5in;display:flex;align-items:center;justify-content:space-between;gap:0.3in;}}
 .cta .big{{font-size:17pt;font-weight:700;}}
-.cta .url{{font-size:15pt;font-weight:700;margin-top:3px;}}
+.cta .url{{font-size:15pt;font-weight:700;margin-top:3px;color:#fff;text-decoration:none;display:inline-block;}}
 .cta .sm{{font-size:10pt;opacity:0.95;margin-top:5px;}}
 .qr{{background:#fff;border-radius:9px;padding:8px;text-align:center;flex-shrink:0;}}
 .qr img{{width:1.15in;height:1.15in;display:block;}}
@@ -101,7 +101,7 @@ body{{margin:0;font-family:"Liberation Sans","DejaVu Sans",Arial,sans-serif;colo
     {quote("Everyone is a programmer — now you just say something to the computer.","Jensen Huang &middot; NVIDIA")}
   </div>
   <div class="cta">
-    <div><div class="big">Now enrolling — starts September</div><div class="url">www.build-young.com</div><div class="sm">See all dates &amp; enroll online &middot; Free 15-min intro call — talk to us.</div></div>
+    <div><div class="big">Now enrolling — starts September</div><a class="url" href="https://www.build-young.com">www.build-young.com</a><div class="sm">See all dates &amp; enroll online &middot; Free 15-min intro call — talk to us.</div></div>
     <div class="qr"><img src="data:image/png;base64,{QR}"><div class="cap">SCAN TO LEARN MORE</div></div>
   </div>
 </div></body></html>'''
