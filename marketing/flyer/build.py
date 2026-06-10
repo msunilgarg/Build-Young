@@ -20,6 +20,7 @@ ICONS={
 "badge":'<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>',
 "trophy":'<path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978"/><path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978"/><path d="M18 9h1.5a1 1 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6 9H4.5a1 1 0 0 1 0-5H6"/>',
 "arrow":'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+"extlink":'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
 }
 def ic(n,size,color,sw="2"):
     return f'<svg viewBox="0 0 24 24" width="{size}" height="{size}" fill="none" stroke="{color}" stroke-width="{sw}" stroke-linecap="round" stroke-linejoin="round">{ICONS[n]}</svg>'
@@ -72,7 +73,7 @@ body{{margin:0;font-family:"Liberation Sans","DejaVu Sans",Arial,sans-serif;colo
 .qcol .who{{font-size:7.5pt;font-weight:700;color:{BLUE};margin-top:5px;}}
 .cta{{margin-top:auto;background:linear-gradient(110deg,{TEAL},{GREEN});color:#fff;padding:0.26in 0.5in;display:flex;align-items:center;justify-content:space-between;gap:0.3in;}}
 .cta .big{{font-size:17pt;font-weight:700;}}
-.cta .url{{font-size:15pt;font-weight:700;margin-top:3px;color:#fff;text-decoration:none;display:inline-block;}}
+.cta .url{{display:inline-flex;align-items:center;gap:6px;color:#fff;font-size:14pt;font-weight:700;margin-top:6px;text-decoration:underline;text-underline-offset:3px;}}
 .cta .sm{{font-size:10pt;opacity:0.95;margin-top:5px;}}
 .qr{{background:#fff;border-radius:9px;padding:8px;text-align:center;flex-shrink:0;}}
 .qr img{{width:1.15in;height:1.15in;display:block;}}
@@ -101,7 +102,7 @@ body{{margin:0;font-family:"Liberation Sans","DejaVu Sans",Arial,sans-serif;colo
     {quote("Everyone is a programmer — now you just say something to the computer.","Jensen Huang &middot; NVIDIA")}
   </div>
   <div class="cta">
-    <div><div class="big">Now enrolling — starts September</div><a class="url" href="https://www.build-young.com">www.build-young.com</a><div class="sm">See all dates &amp; enroll online &middot; Free 15-min intro call — talk to us.</div></div>
+    <div><div class="big">Now enrolling — starts September</div><a class="url" href="https://www.build-young.com">www.build-young.com {ic("extlink","0.16in","#fff","2.3")}</a><div class="sm">See all dates &amp; enroll online &middot; Free 15-min intro call — talk to us.</div></div>
     <div class="qr"><img src="data:image/png;base64,{QR}"><div class="cap">SCAN TO LEARN MORE</div></div>
   </div>
 </div></body></html>'''
