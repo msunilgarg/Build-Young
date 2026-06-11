@@ -25,8 +25,6 @@ const FUNNEL_COLORS = [C.emerald, C.turq, C.gold, C.sky, C.green];
 // Friendly names for the internal route keys used as `screen` in engagement events.
 const SCREEN_LABELS = { home: "Landing page", enroll: "Enroll flow", call: "Book a call", app: "Student dashboard", login: "Log in", setpw: "Set password", checkemail: "Check your email", founder: "Founder console" };
 const screenName = (s) => SCREEN_LABELS[s] || s || "—";
-// 2-letter country code → flag emoji (regional indicator symbols); "" for anything malformed.
-const flagEmoji = (cc) => (/^[A-Za-z]{2}$/.test(cc || "") ? cc.toUpperCase().replace(/./g, (ch) => String.fromCodePoint(0x1F1E6 + ch.charCodeAt(0) - 65)) : "");
 // Human dwell time from milliseconds: "0s" / "45s" / "2m 5s" / "1h 3m".
 function fmtDwell(ms) {
   const sec = Math.max(0, Math.round((Number(ms) || 0) / 1000));
@@ -398,7 +396,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
               </div>
               {eng.usStates && eng.usStates.length > 0 && (
                 <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${C.line}` }}>
-                  <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 3 }}>🇺🇸 US visits by state</div>
+                  <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 3 }}>US visits by state</div>
                   <div style={{ fontSize: 12, color: C.ink2, lineHeight: 1.5 }}>
                     {eng.usStates.slice(0, 8).map((s, i) => <span key={s.region}>{i > 0 ? " · " : ""}{s.region} {s.count.toLocaleString()}</span>)}
                     {eng.usStates.length > 8 && <span style={{ color: C.muted }}> · +{eng.usStates.length - 8} more</span>}
@@ -472,7 +470,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                   <div style={{ ...muted, display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 8 }}>
                     <span style={{ fontWeight: 700 }}>Top countries:</span>
                     {paths.countries.slice(0, 6).map((c) => (
-                      <span key={c.country || "unknown"}>{c.country ? `${flagEmoji(c.country)} ${c.country}` : "—"} {c.count.toLocaleString()}</span>
+                      <span key={c.country || "unknown"}>{c.country || "—"} {c.count.toLocaleString()}</span>
                     ))}
                   </div>
                 )}
@@ -490,7 +488,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                     <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
                       {p.byCountry && p.byCountry.length > 0 && (
                         <span style={{ fontSize: 11.5, color: C.muted }} title={p.byCountry.map((c) => `${c.country || "Unknown"} ${c.count}`).join(" · ")}>
-                          {p.byCountry.slice(0, 3).map((c) => (c.country ? flagEmoji(c.country) : "—")).join(" ")}
+                          {p.byCountry.slice(0, 3).map((c) => c.country || "—").join(" · ")}
                         </span>
                       )}
                       <b style={{ fontSize: 13 }}>{p.count.toLocaleString()}</b>
