@@ -24,17 +24,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 ---
 
 
-## [ ] T8 — Break down US traffic by state  ·  risk: med  ·  (do after T7)
-Goal: for visits whose country is **US**, show a **state/region** breakdown in the founder traffic view (the natural drill-down under country).
-Context: only `country` is captured today; the region is NOT. Vercel exposes the subdivision via the `x-vercel-ip-country-region` header (e.g. `WA`, `CA`) alongside the country header already read in `api/funnel.js`.
-Acceptance criteria:
-- `api/funnel.js` stamps a `region` prop on `visited` (US state code) ONLY when country is `US`, validated/short like the existing country stamp, and `region` is added to `ALLOWED_PROPS`
-- `src/funnel.js` `engagement()` aggregates a US-state breakdown (additive field, e.g. `usStates: [{ region, count }]`, descending)
-- `FounderDashboard.jsx` shows the US-state breakdown (only meaningful when US traffic exists; empty/absent renders gracefully) — keep it aggregate, no PII
-- `test/funnel.test.js` covers the US-state aggregation (incl. non-US visits excluded); `npm run build` + `npx vitest run` green (count ≥ current)
-Files: build-young-app/api/funnel.js, build-young-app/src/funnel.js, build-young-app/src/FounderDashboard.jsx, build-young-app/test/funnel.test.js
-Stop-and-ask if: surfacing state-level geo for a site serving minors feels like it crosses from coarse/aggregate analytics into per-visitor tracking — it should stay aggregate counts only (no IPs, no per-visitor rows). If that can't be guaranteed, stop.
-
 ## [ ] T5 — Make the App.jsx router data-driven (routes registry)  ·  risk: high
 Goal: convert routing so adding a screen is an append-only registry entry (the deferred parallel-work optimization in CLAUDE.md), removing App.jsx as a per-feature edit point.
 Acceptance criteria:
@@ -47,6 +36,14 @@ Stop-and-ask: YES — this is architectural. Implement on a branch, open a PR, a
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T8 — Break down US traffic by state  ·  risk: med
+Done: `api/funnel.js` stamps a `region` (2-letter US state) on `visited` only when country is `US`,
+from Vercel's `x-vercel-ip-country-region` header — **server-stamped, NOT in `ALLOWED_PROPS`** (so it
+can't be spoofed, mirroring `country`; an intentional security improvement over the task's literal
+wording). `engagement()` adds an additive `usStates: [{region,count}]` (US-only, region-required,
+descending); the "Where visitors come from" card shows a "US visits by state" line (hidden when none).
+New engagement test + updated exact-shape assertion. Aggregate, no PII. Suite 35 files / 237 passing.
 
 ## [x] T7 — Show country in the "Top paths through the site" view  ·  risk: med
 Done: `journeys()` now joins each visit's server-stamped `country` (via the visit's `sid`, now also

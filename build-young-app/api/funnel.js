@@ -72,10 +72,20 @@ async function ingest(req, res) {
 
   // Geography: stamp the visitor's country (2-letter code) server-side from Vercel's geo header on
   // `visited`. Country-level only — no city/precise location, no IP stored. Empty when not on Vercel.
+  // Stamped server-side (NOT in ALLOWED_PROPS) so a crafted POST can't spoof geography.
   if (event === "visited") {
     const cc = (req.headers && (req.headers["x-vercel-ip-country"] || req.headers["X-Vercel-IP-Country"])) || "";
     const country = String(cc).trim().toUpperCase().slice(0, 2);
-    if (/^[A-Z]{2}$/.test(country)) props.country = country;
+    if (/^[A-Z]{2}$/.test(country)) {
+      props.country = country;
+      // For US visits, also stamp the 2-letter state/region (Vercel's subdivision header).
+      // State-level only — no city, no IP. Server-stamped too, so it can't be spoofed.
+      if (country === "US") {
+        const rr = (req.headers && (req.headers["x-vercel-ip-country-region"] || req.headers["X-Vercel-IP-Country-Region"])) || "";
+        const region = String(rr).trim().toUpperCase().slice(0, 3);
+        if (/^[A-Z]{2,3}$/.test(region)) props.region = region;
+      }
+    }
   }
 
   const record = JSON.stringify({ event, ts: Date.now(), props });
