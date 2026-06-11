@@ -23,23 +23,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T1 — Remove the unused lazy `Charts` import from App.jsx  ·  risk: low
-Goal: App.jsx no longer declares `const Charts = React.lazy(...)` if nothing in App.jsx uses it (it moved to FounderDashboard.jsx).
-Acceptance criteria:
-- confirm `Charts` is not referenced anywhere in `src/App.jsx` (only the import/declaration); if truly unused, remove the declaration
-- `npm run build` succeeds; `npx vitest run` stays green (230 passing)
-Files: build-young-app/src/App.jsx
-Stop-and-ask if: `Charts` turns out to be referenced in App.jsx (then it's not dead — skip and note it).
-
-## [ ] T2 — Refresh the stale technical sections of build-young-app/README.md  ·  risk: low
-Goal: the README's "go-live" / "project layout" sections describe the CURRENT app, not the old money-sim monolith.
-Acceptance criteria:
-- the "market-news scheduler" section reflects the current cron (class-reminders, not a market-news drip) — cross-check `api/cron/` + CLAUDE.md
-- pricing/batch ids that say `$599 MS / $799 HS` and `ms-mon/hs-wed` are corrected to the current per-cohort model (high-school only)
-- "Project layout" reflects the split (App.jsx is the router; features in their own files) — mirror CLAUDE.md's module map
-- no code changed; build + tests unaffected
-Files: build-young-app/README.md
-Stop-and-ask if: a fact is genuinely unclear from the codebase (don't invent specifics).
 
 ## [ ] T3 — Co-locate tests per feature module  ·  risk: med
 Goal: split the monolithic `test/app.test.jsx` into per-feature test files so a failure names one owner (loop-engineering: independent verification per slice).
@@ -71,6 +54,18 @@ Stop-and-ask: YES — this is architectural. Implement on a branch, open a PR, a
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T2 — Refresh the stale technical sections of build-young-app/README.md  ·  risk: low
+Done: refreshed the go-live + layout sections to the current app — class-reminder cron (not a
+market-news drip), high-school-only cohorts (`fall-mw`/`fall-tt`, one $999 price; no MS/HS tiers),
+`CONFIG` now in `src/lib.js` + founder-console live-editing, server/KV-authoritative state, and a
+Project-layout block mirroring CLAUDE.md's module map (App.jsx = router; screens + foundation + the
+real `api/` set). Docs only — build + 230 tests green.
+
+## [x] T1 — Remove the unused lazy `Charts` import from App.jsx  ·  risk: low
+Done: removed the dead `const Charts = React.lazy(() => import("./Charts.jsx"))` (+ its comment) from
+the router; charts are lazy-loaded from FounderDashboard.jsx. Build still code-splits recharts; 230
+tests green.
 
 ## [x] T6 — Create ARCHITECTURE.md (living diagrams) + the keep-it-updated rule  ·  risk: med
 Done: `ARCHITECTURE.md` added at the repo root with two **Mermaid** diagrams + component tables —

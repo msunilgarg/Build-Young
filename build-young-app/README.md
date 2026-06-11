@@ -31,15 +31,17 @@ Point your domain (e.g. `build-young.com`) at the host per its DNS instructions.
 
 ## Go-live checklist
 
-Everything below is what *only you* can set up. Each item maps to a value in `src/App.jsx` → `CONFIG` (near the top).
+Everything below is what *only you* can set up. Code defaults live in `src/lib.js` → `CONFIG`; the
+runtime, non-secret values (booking link, contact email, and the cohorts/Stripe links) are
+**live-editable in the hidden founder console** without a redeploy.
 
-### 1. Payments — Stripe (no backend required)
+### 1. Payments — Stripe (hosted Payment Links)
 1. Create a Stripe account and finish business verification.
-2. Create one **Payment Link** per cohort (Products → Payment Links) at the right price ($599 MS / $799 HS).
+2. Create one **Payment Link** per cohort (Products → Payment Links) at the cohort price (currently **$999** per seat). There's **one combined high-school track ("Builders")** — no separate middle-school tier.
 3. For each link, set the **success URL** to: `https://YOURDOMAIN/?enrolled=BATCHID`
-   where `BATCHID` is one of `ms-mon`, `ms-tue`, `hs-wed`, `hs-thu`.
+   where `BATCHID` is a cohort id from `src/cohorts.js` — e.g. `fall-mw` (Mon & Wed) or `fall-tt` (Tue & Thu); ids follow `<season>-<daypair>`.
    (On return, the app reads the name/email captured before checkout and opens the dashboard.)
-4. Paste each link into `CONFIG.stripeLinks`. Empty = demo checkout stays on.
+4. Paste each link into its cohort's `stripeLink` — **live-editable in the founder console** (Cohort editor), or as the code default in `src/cohorts.js`. Empty = demo checkout stays on.
 
 ### 2. The founder call — Calendly (or Cal.com)
 1. Create a free 15-minute event (consistent 5:00 PM PT slots, your available days).
@@ -49,27 +51,27 @@ Everything below is what *only you* can set up. Each item maps to a value in `sr
 A serverless function is already included at `api/send-email.js` (Vercel-style). To turn on real delivery:
 1. Create a **Resend** account (resend.com) and verify your domain `build-young.com` (add the SPF/DKIM records they give you).
 2. In your host's settings, add an environment variable: `RESEND_API_KEY = re_xxxxxxxx`.
-3. In `src/App.jsx` → `CONFIG`, set `emailEnabled: true`.
+3. In `src/lib.js` → `CONFIG`, set `emailEnabled: true`.
 
-That's it — the welcome email fires on enrollment and a recap email fires each time a student advances a week/check-in. Until you enable it, the app shows the "email sent" confirmation but doesn't deliver (and Stripe's own receipt still covers payment confirmation).
+That's it — the welcome email fires on enrollment and a recap email fires each time a student advances a week. Until you enable it, the app shows the "email sent" confirmation but doesn't deliver (and Stripe's own receipt still covers payment confirmation).
 *On Netlify instead of Vercel:* move `api/send-email.js` to `netlify/functions/send-email.js`, adjust the handler signature to Netlify's format, and set `CONFIG.emailEndpoint` to `/.netlify/functions/send-email`.
 
-### 3b. Daily market-news scheduler (server-side cron)
-Before each weekly class with a live market event (Weeks 3–12), a 3-email drip goes out on the **real calendar days** −3 / −2 / −1 (breaking news → analysis → research challenge). This is driven by a daily Vercel Cron, not by the in-app click.
+### 3b. Daily class-reminder cron (server-side)
+Two days before each weekly class (Weeks 1–12), every enrolled student gets a "prepare for next week" heads-up. This is driven by a daily Vercel Cron, not by an in-app click. (The old market-news drip and its simulated market events were removed — the program is pure entrepreneurship now.)
 
 - **Endpoint:** `api/cron/market-news.js`. **Schedule:** `vercel.json` runs it daily at `0 16 * * *` (16:00 UTC ≈ morning PT).
-- **What it does:** computes which cohorts have a class 3/2/1 days out today (`api/_lib/schedule.js`), then sends the matching media email to every enrolled student of those cohorts. Content is single-sourced from `src/marketMedia.js` (same source the app uses).
+- **What it does:** `dueReminders(today)` (`api/_lib/schedule.js`) computes which cohorts have a class in `REMINDER_OFFSET` (= 2) days, then emails each enrolled student of those cohorts. What to prepare comes from the founder-editable homework (`api/_lib/homeworkStore.js`, defaulting to `WEEK_PREP` in `src/marketMedia.js`); week titles come from `WEEK_TITLES`.
 - **Required env vars:**
   - `RESEND_API_KEY` — same key as the email function. Missing ⇒ the cron is a graceful no-op (sends nothing).
   - `CRON_SECRET` — a random secret. Vercel Cron sends it as `Authorization: Bearer <CRON_SECRET>`; the endpoint 401s on any other/missing value. **Set this before deploying** or the cron stays locked (401).
-  - `ROSTER_JSON` — the enrollment roster (see next bullet).
-- **Roster gap (important):** the app has **no server-side enrollment store** yet — enrollment round-trips through Stripe + the browser. `api/_lib/roster.js` defines the `getRoster(batchId)` interface the scheduler depends on, with a placeholder that reads `ROSTER_JSON` (a JSON array like `[{"email":"a@x.com","name":"Avery Lee","batchId":"fall-hs-wed"}]`). **For real cohorts, wire `getRoster()` to a durable store** — recommended: a Stripe `checkout.session.completed` webhook that persists `{email, name, batchId}` to a database (serverless memory won't survive). Until then the scheduler runs end-to-end but only emails whoever is in `ROSTER_JSON`.
+  - `ROSTER_JSON` — optional pilot/testing fallback roster (see next bullet).
+- **Roster:** `api/_lib/roster.js` resolves `getRoster(batchId)` from the **durable enrollment store** (`api/_lib/store.js`), which the **Stripe webhook** (`api/stripe-webhook.js`) writes on `checkout.session.completed` (and clears on `charge.refunded`). If the store is empty it falls back to the `ROSTER_JSON` env var — a JSON array like `[{"email":"a@x.com","name":"Avery Lee","batchId":"fall-mw"}]` — handy for a pilot cohort before real checkouts. Returns `[]` (never throws) when neither has data, so a missing roster is a graceful no-op.
 
 ### 4. Video — Zoom
-Replace the placeholder Zoom links in the `BATCHES` array (`src/App.jsx`) with your real recurring meeting links.
+Replace the placeholder Zoom links in the `BATCHES` array (`src/cohorts.js`) with your real recurring meeting links (or edit them live in the founder console's Cohort editor).
 
 ### 5. Cohort details
-In `BATCHES`, set real start dates, days/times, prices, and seat counts.
+In `BATCHES` (`src/cohorts.js`), set real start dates, days/times, prices, and seat counts — or edit them live in the founder console. `SEASONS` groups cohorts into seasonal intakes (Fall/Winter/Spring).
 
 ### 6. Legal (do not skip — this serves teens)
 - `public/privacy.html` and `public/terms.html` are **drafts**. Have a privacy attorney review and finalize them, then set the `[DATE]` placeholders.
@@ -97,23 +99,31 @@ This is optional polish — out of the box the site is already discoverable and 
 ---
 
 ## How persistence works
-Student progress is saved in the browser via `localStorage` (see the shim in `index.html`). It's per-device and great for a prototype/first cohort. If you later want students' progress to follow them across devices, that's the "Tier 2" step: real accounts + a database.
+Once accounts + KV are enabled, student progress is **server-authoritative**: each student's course
+state lives in Vercel KV keyed by their signed-in email (`api/state.js`), so progress follows them
+across devices. Without a backend, the app still runs in demo mode with browser-local state. The live
+cohort catalog + founder-editable site settings are also KV-backed (`api/cohorts.js`).
 
 ## Project layout
+The app was split so each feature lives in its own file; `App.jsx` is now the router only. See
+[`build-young-app/CLAUDE.md`](./CLAUDE.md) for the full module map and
+[`../ARCHITECTURE.md`](../ARCHITECTURE.md) for diagrams.
 ```
-index.html          meta, favicon, localStorage storage shim
-src/main.jsx        mounts the app
-src/App.jsx         the entire site + simulation (CONFIG block near the top)
-src/marketMedia.js  dependency-free market-event schedule + media content (shared w/ cron)
-src/cohorts.js      dependency-free cohort catalog (SEASONS + BATCHES), shared w/ cron
-api/send-email.js   serverless email sender (Resend)
-api/cron/market-news.js   daily cron: sends the pre-class media drip on real dates
-api/_lib/           shared server helpers: sendEmail (Resend), schedule (date math), roster
-vercel.json         Vercel Cron schedule for the market-news scheduler
-public/favicon.svg  the Build Young mark
-public/og-image.png social/link-preview image
-public/robots.txt   crawler permissions (search + AI bots)
-public/sitemap.xml  page list for search engines
-public/llms.txt     curated summary for AI agents
-public/privacy.html, terms.html   legal drafts
+index.html            meta, favicon, SEO/JSON-LD, storage shim
+src/main.jsx          mounts <App/>
+src/App.jsx           ROUTER ONLY — route/history/scroll, persistence, modal state
+src/  (screens)       Landing · Enroll · BookCall · Platform · FounderDashboard ·
+                      auth · Certificate · WhyStrip · Legal · Charts (lazy recharts)
+src/  (foundation)    theme · ui · lib (CONFIG) · course/courseDates/courseState/engine ·
+                      funnel · cohorts · cert · scenarios · site · marketMedia
+api/funnel.js         method-routed: POST event ingest · GET founder read · PUT save · DELETE reset
+api/cohorts.js        public catalog + site settings (KV-backed)
+api/state.js          per-student course state (KV, account-gated)
+api/auth/*            login · logout · me · request-reset · set-password
+api/send-email.js     serverless email sender (Resend)
+api/stripe-webhook.js enrollment lifecycle (checkout.session.completed / charge.refunded)
+api/cron/market-news.js  daily cron: class reminders 2 days before each weekly class
+api/_lib/             shared server helpers: kv · auth · stores · schedule · resendAudience · scenarioAgent
+vercel.json           Vercel Cron schedule + SPA rewrites
+public/               favicon.svg · og-image.png · robots.txt · sitemap.xml · llms.txt · privacy.html · terms.html
 ```
