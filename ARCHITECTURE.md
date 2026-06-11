@@ -12,6 +12,10 @@ Two systems live in this repo, and this document maps both:
 > **Living-document rule:** any PR that adds/removes/moves a module, endpoint, skill, hook, or
 > external service — or changes how the loop/ship flow works — **updates this file in the same PR.**
 >
+> **Node colors (see the Legend in each diagram):** purple = an **AI agent** (dashed = an *ephemeral
+> spawned sub-agent*), teal = **tool / automation**, amber = **committed state**, blue = **external
+> service**, pink = **human**.
+>
 > **Rendered exports (zoomable):** [`docs/architecture/loop.pdf`](docs/architecture/loop.pdf) ·
 > [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside). They're for places that don't render
 > Mermaid (chat, decks, the app). **When you edit a Mermaid block here, regenerate them in the SAME
@@ -61,6 +65,31 @@ flowchart LR
 
     machinery["🛡 Always-on machinery<br/>SessionStart resync · commit guards ·<br/>settings allowlist · GitHub MCP · worktrees"]
     machinery -. guards every step .-> LOOP
+
+    %% ── visual taxonomy (see Legend): agent · sub-agent · tool · state · external · human ──
+    classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
+    classDef subagent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,stroke-dasharray:6 3,color:#311b92;
+    classDef tool fill:#e0f2f1,stroke:#00897b,stroke-width:2px,color:#004d40;
+    classDef state fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#5f4300;
+    classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
+    classDef human fill:#fce4ec,stroke:#d81b60,stroke-width:2px,color:#880e4f;
+    class driver,doer agent;
+    class verifier subagent;
+    class issue,machinery tool;
+    class tasks,docs state;
+    class you human;
+    class live ext;
+
+    subgraph legend["Legend"]
+        direction LR
+        lgA["AI agent"]:::agent
+        lgS["ephemeral sub-agent"]:::subagent
+        lgT["tool / automation"]:::tool
+        lgD["committed state"]:::state
+        lgE["external service"]:::ext
+        lgH["human"]:::human
+        lgA ~~~ lgS ~~~ lgT ~~~ lgD ~~~ lgE ~~~ lgH
+    end
 ```
 
 | Node | What it is / its responsibility |
@@ -156,6 +185,19 @@ flowchart TB
     lib -->|"generate funnels"| anthropic
     app -.deployed on.-> vercel
     api -.deployed on.-> vercel
+
+    %% ── same taxonomy: the Anthropic scenario-agent is an AI agent; the rest are external services / code ──
+    classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
+    classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
+    class anthropic agent;
+    class kv,stripe,resend,vercel ext;
+    subgraph legendB["Legend"]
+        direction LR
+        lbA["AI agent"]:::agent
+        lbE["external service"]:::ext
+        lbC["app / api code = default"]
+        lbA ~~~ lbE ~~~ lbC
+    end
 ```
 
 | Node | Responsibility |
@@ -173,3 +215,25 @@ flowchart TB
 
 For deeper detail on any node, see [`build-young-app/CLAUDE.md`](./build-young-app/CLAUDE.md) (module map,
 quality bars, navigation/perf invariants) and [`LOOP.md`](./LOOP.md) (the loop).
+
+---
+
+## Acceptance criteria for this doc (so changes can be *verified*, not just eyeballed)
+
+The "done" conditions for any change to `ARCHITECTURE.md` — most are objectively checkable (by the
+loop's verifier or a grep), which is what keeps diagram edits from turning into back-and-forth:
+
+- **Both layers present:** the agentic loop AND the app, each with a Mermaid diagram + a component table.
+- **No invented nodes:** every node maps to a real artifact in the repo (module / endpoint / skill /
+  hook / external service); names match the code.
+- **The loop reads as a loop:** the loop diagram has the explicit return edge closing `record → driver`
+  (plus the verifier→doer FAIL retry) — not a top-to-bottom pipeline.
+- **Visual taxonomy + legend:** agents, ephemeral sub-agents, tools/automation, committed state,
+  external services, and humans are styled distinctly (the `classDef`s), and each diagram carries a Legend.
+- **The verifier shows its inputs:** the diff (from the doer) AND the acceptance-criteria source (`TASKS.md`).
+- **Exports current:** `docs/architecture/*.png|pdf` were regenerated from these Mermaid blocks in the
+  SAME change (`scripts/render-architecture.sh`) and render with no Mermaid syntax error.
+- **Cross-linked:** links to `CLAUDE.md` / `LOOP.md` for depth.
+
+The only genuinely subjective bit — "is it *clear*?" — is the one thing that needs a human eye;
+everything above is checkable, so the loop can grade a diagram change instead of bouncing it to you.
