@@ -69,6 +69,14 @@ parallel pain is un-agreed interfaces, not the code itself.
   until then" note the change just resolved** — update the doc (and any ARCHITECTURE/README/playbook it
   touches) *in that same change*. This is a standing chore, not a question: **don't ask permission for an
   obvious doc-sync follow-up — just do it.** An out-of-date guide is worse than none.
+- **Make living-doc upkeep a *standing check*, not a memory.** "Update the diagram in the same change"
+  is itself a remember-to rule — and those get forgotten (a living architecture diagram silently drifted
+  through several changes because its upkeep relied on vigilance, and the per-task verifier only graded
+  each task's stated acceptance criteria, which didn't mention the diagram). Fix: make doc currency part
+  of the **independent verification step's *standing* checklist** — on every change, the verifier asks
+  "did this add/remove/move a module, endpoint, or route, or change the loop/ship flow? If so, is the
+  architecture doc updated in the same change?" — independent of whether the task spec called for it.
+  Enforce the upkeep where work is already gated, don't just intend it (see §4).
 - **Keep it lean; scope the detail.** Long always-loaded docs cost context and dilute adherence. Put
   broad rules in the root doc; push file-specific lore into path-scoped rules (`.claude/rules/*.md`)
   that load only when relevant.
@@ -151,6 +159,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-11** — §3: make living-doc/diagram upkeep a *standing* check in the independent verifier (a living architecture diagram had drifted because upkeep relied on memory and per-task criteria).
 - **2026-06-11** — §3: made the stale-docs rule explicitly proactive — fix docs (incl. flipping resolved "deferred/TODO" notes) in the same change, without asking permission.
 - **2026-06-09** — Added the `update-playbook` skill so this doc is kept current proactively (no asking).
 - **2026-06-09** — Initial version. Distilled from splitting a ~5,400-line single-file React app into

@@ -103,7 +103,7 @@ flowchart TB
     browser["🌐 Browser (SPA)"]
 
     subgraph app["build-young-app/src — React SPA"]
-        appjsx["App.jsx<br/>ROUTER ONLY (~370 lines): route/history/scroll,<br/>persistence, hydration, legal modal"]
+        appjsx["App.jsx<br/>ROUTER ONLY (~375 lines): data-driven ROUTES registry,<br/>history/scroll, persistence, hydration, legal modal"]
         subgraph screens["Screens (one feature = one file)"]
             landing["Landing.jsx"]
             enroll["Enroll.jsx"]
@@ -117,7 +117,7 @@ flowchart TB
             charts["Charts.jsx<br/>(lazy recharts)"]
         end
         subgraph foundation["Foundation (shared, dependency-light, additive-only API)"]
-            funnel["funnel.js — stage/conversion math"]
+            funnel["funnel.js — stage/conversion math<br/>+ engagement/journeys geography (country · US-state)"]
             cohortsjs["cohorts.js — SEASONS/BATCHES"]
             coursejs["course.js · courseDates.js · courseState.js · engine.js"]
             data["theme.js · ui.jsx · lib.js · site.js · cert.js · scenarios.js · marketMedia.js"]
@@ -125,7 +125,7 @@ flowchart TB
     end
 
     subgraph api["build-young-app/api — Vercel serverless (12-fn cap → method-routed)"]
-        funnelapi["funnel.js<br/>POST ingest · GET founder read · PUT save · DELETE reset"]
+        funnelapi["funnel.js<br/>POST ingest (stamps geo: country/US-state) · GET founder read · PUT save · DELETE reset"]
         cohortsapi["cohorts.js — public catalog + settings"]
         stateapi["state.js — student course state"]
         authapi["auth/* — login·logout·me·request-reset·set-password"]
@@ -166,9 +166,9 @@ flowchart TB
 
 | Node | Responsibility |
 |---|---|
-| **App.jsx** | The router only — route/history stack, scroll restore, the single-flight `navLock`, persistence/hydration, and the legal modal. New features go in their own file, never back here. |
+| **App.jsx** | The router only — a **data-driven `ROUTES` registry** (`{key, path, title, desc, el}`) drives both the render and the URL/`<title>`, so adding a screen is one appended entry. Owns the route/history stack, scroll restore, the single-flight `navLock`, persistence/hydration, and the legal modal. New features go in their own file, never back here. |
 | **Screens** | One feature per file: `Landing` (marketing), `Enroll` (3-step), `BookCall` (intro call), `Platform` (student dashboard + course hub), `FounderDashboard` (hidden `?founder` analytics/admin console), `auth` (login/set-password), `Certificate` (cert + public `/verify`), `WhyStrip` (social-proof strips), `Legal` (privacy/terms modal), `Charts` (lazy-loaded recharts). |
-| **Foundation** | Shared, dependency-light single-sources-of-truth — imported by everything, so changes are **additive-only** during parallel work: `funnel.js` (stage/conversion/revenue math), `cohorts.js` (`SEASONS`/`BATCHES`), `course*.js`/`engine.js` (curriculum + week progression), `theme/ui/lib/site/cert/scenarios/marketMedia`. |
+| **Foundation** | Shared, dependency-light single-sources-of-truth — imported by everything, so changes are **additive-only** during parallel work: `funnel.js` (stage/conversion/revenue math + traffic geography — country & US-state), `cohorts.js` (`SEASONS`/`BATCHES`), `course*.js`/`engine.js` (curriculum + week progression), `theme/ui/lib/site/cert/scenarios/marketMedia`. |
 | **api/funnel.js** | One method-routed endpoint (Hobby 12-function cap): **POST** public event ingest, **GET** founder funnel read, **PUT** saves cohorts/allowlist/settings, **DELETE** resets a test account. Non-POST requires a founder session. |
 | **api/cohorts.js** | Public read of the live catalog (`batches`, `checkins`, `settings`) so clients hydrate cohorts + site settings without a redeploy. |
 | **api/state.js · auth/\*** | Student course state; account auth (login/logout/me/reset/set-password) — founder gating via `FOUNDER_EMAILS`. |
