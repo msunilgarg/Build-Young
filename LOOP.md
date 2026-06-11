@@ -42,6 +42,11 @@ failure mode to design against, not the agent count.
 ## Running it
 - **Manually:** type `/run-loop`. It drains `TASKS.md` until empty or it hits a stop condition.
 - **One task:** `/run-loop T2` runs just that task.
+- **By opening an issue (event-driven):** open a GitHub Issue shaped like a `TASKS.md` task and add
+  the `loop-task` label — the [`run-loop.yml`](.github/workflows/run-loop.yml) Action runs the driver
+  on it automatically (low/med ship + close the issue; high-risk opens a PR and pauses). This is the
+  "anytime I add a task, it triggers the driver" on-ramp. Setup:
+  [`.github/workflows/RUN-LOOP-SETUP.md`](.github/workflows/RUN-LOOP-SETUP.md).
 - **Unattended / scheduled:** use this environment's automations (or `/loop`) to invoke `/run-loop`
   on a cadence; or have it triggered by PR/CI events for the autofix loop.
 
