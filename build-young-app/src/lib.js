@@ -171,7 +171,9 @@ export function trackVisitOnce() {
       window.sessionStorage.setItem("by_visited", "1");
     }
   } catch (e) { /* ignore */ }
-  track("visited", { source: visitSource() });
+  // `sid` ties this visit to its later screen_view/exit events so the founder "Top paths" view can
+  // attach the visit's (server-stamped) country to the stitched journey. Aggregate, no PII.
+  track("visited", { source: visitSource(), sid: sessionId() });
 }
 
 // Trigger a client-side download of `text` as a file (used by the founder exports + the

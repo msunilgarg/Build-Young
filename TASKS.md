@@ -24,17 +24,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 ---
 
 
-## [ ] T7 — Show country in the "Top paths through the site" view  ·  risk: med
-Goal: surface visitor **country** in the founder dashboard's "Top paths" (journeys) section — the chart currently shows only the ordered screens per visit, with no geography.
-Context (already in code — build ON this, don't re-collect): the `visited` event is already stamped server-side with a 2-letter `country` (`api/funnel.js` from Vercel's `x-vercel-ip-country` header; in `ALLOWED_PROPS`). `src/funnel.js` `engagement()` already returns `countries` + `sourceCountry`, and there's a country→flag helper in `FounderDashboard.jsx`. The gap is that `journeys()` stitches `screen_view`/`exit` by `sid` and never joins the visit's country, and the "Top paths" card shows no country.
-Acceptance criteria:
-- `journeys()` in `src/funnel.js` joins each visit's `country` (map the visit's `sid` → the `country` on that visit's `visited`/events) and returns it per traced visit/path (additive — existing return shape stays back-compatible)
-- the "Top paths through the site" card in `FounderDashboard.jsx` shows country per path (e.g. a small flag + code, or a per-path country breakdown), AND a compact standalone "Top countries" line/list is shown for traffic (reuse the existing `countries` from `engagement()` if simpler) — pick the cleaner UX; keep it calm/aggregate, no PII
-- aggregate-only, no new data collected, no per-visitor identifier beyond the existing ephemeral `sid`; visits with no country render gracefully (e.g. "—"/"Unknown")
-- `test/funnel.test.js` gains a case asserting `journeys()` carries country; `npm run build` + `npx vitest run` green (count ≥ current)
-Files: build-young-app/src/funnel.js, build-young-app/src/FounderDashboard.jsx, build-young-app/test/funnel.test.js
-Stop-and-ask if: joining country to a journey would require storing an IP or any non-ephemeral identifier (it must not) — then stop.
-
 ## [ ] T8 — Break down US traffic by state  ·  risk: med  ·  (do after T7)
 Goal: for visits whose country is **US**, show a **state/region** breakdown in the founder traffic view (the natural drill-down under country).
 Context: only `country` is captured today; the region is NOT. Vercel exposes the subdivision via the `x-vercel-ip-country-region` header (e.g. `WA`, `CA`) alongside the country header already read in `api/funnel.js`.
@@ -58,6 +47,13 @@ Stop-and-ask: YES — this is architectural. Implement on a branch, open a PR, a
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T7 — Show country in the "Top paths through the site" view  ·  risk: med
+Done: `journeys()` now joins each visit's server-stamped `country` (via the visit's `sid`, now also
+on the `visited` event) and returns it additively — `byCountry` per path + an overall `countries`
+tally (existing `steps/left/count`/`sessions` unchanged). The "Top paths" card shows a "Top countries"
+line + per-path flags (unknown → "—"). Aggregate, no PII (sole join key is the existing ephemeral
+`sid`; country is server-only, not client-settable). New journeys test; suite 35 files / 235 passing.
 
 ## [x] T4 — Add render tests for the certificate route + card  ·  risk: med
 Done: `test/cert-ui.test.jsx` (4 tests) — `CertifyVerify` verified path (mocked `/api/cohorts?cert=`

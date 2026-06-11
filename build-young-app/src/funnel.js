@@ -233,6 +233,12 @@ export function engagement(events) {
 // the most common paths first with how many visits took each, plus the total visits traced.
 export function journeys(events, { limit = 12 } = {}) {
   const evs = Array.isArray(events) ? events : [];
+  // sid -> country (2-letter), from the `visited` event (stamped server-side with the visitor's
+  // country). Lets us attach coarse geography to each stitched journey — aggregate, still no PII.
+  const sidCountry = new Map();
+  evs.forEach((e) => {
+    if (e && e.event === "visited" && e.props && e.props.sid && e.props.country) sidCountry.set(e.props.sid, e.props.country);
+  });
   const bySid = new Map(); // sid -> [path events]
   evs.forEach((e) => {
     if (!e || !e.props || !e.props.sid) return;
@@ -240,9 +246,10 @@ export function journeys(events, { limit = 12 } = {}) {
     if (!bySid.has(e.props.sid)) bySid.set(e.props.sid, []);
     bySid.get(e.props.sid).push(e);
   });
-  const paths = new Map(); // key -> { steps, left, count }
+  const paths = new Map(); // key -> { steps, left, count, byCountry: Map<country,count> }
+  const countryTally = new Map(); // country -> count across all traced visits ("" = unknown)
   let sessions = 0;
-  bySid.forEach((list) => {
+  bySid.forEach((list, sid) => {
     list.sort((a, b) => (a.ts || 0) - (b.ts || 0));
     const steps = [];
     let left = false;
@@ -254,14 +261,23 @@ export function journeys(events, { limit = 12 } = {}) {
     });
     if (steps.length === 0) return; // an exit with no screen_view tells us nothing about the path
     sessions += 1;
+    const country = sidCountry.get(sid) || ""; // "" = unknown (no country on the visit)
+    countryTally.set(country, (countryTally.get(country) || 0) + 1);
     const key = steps.join(">") + (left ? "|left" : "");
-    const cur = paths.get(key) || { steps, left, count: 0 };
+    const cur = paths.get(key) || { steps, left, count: 0, byCountry: new Map() };
     cur.count += 1;
+    cur.byCountry.set(country, (cur.byCountry.get(country) || 0) + 1);
     paths.set(key, cur);
   });
+  // country-count Map -> [{ country, count }] sorted most-common first (stable on ties).
+  const tally = (m) => Array.from(m.entries()).map(([country, count]) => ({ country, count })).sort((a, b) => b.count - a.count);
   return {
-    paths: Array.from(paths.values()).sort((a, b) => b.count - a.count).slice(0, limit),
+    paths: Array.from(paths.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit)
+      .map((p) => ({ steps: p.steps, left: p.left, count: p.count, byCountry: tally(p.byCountry) })),
     sessions,
+    countries: tally(countryTally), // overall geography of the traced visits
   };
 }
 

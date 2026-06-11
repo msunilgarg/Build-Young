@@ -459,6 +459,14 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             ) : (
               <>
                 <div style={{ ...muted, marginBottom: 6 }}>{paths.sessions.toLocaleString()} visit{paths.sessions === 1 ? "" : "s"} traced.</div>
+                {paths.countries && paths.countries.length > 0 && (
+                  <div style={{ ...muted, display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 8 }}>
+                    <span style={{ fontWeight: 700 }}>Top countries:</span>
+                    {paths.countries.slice(0, 6).map((c) => (
+                      <span key={c.country || "unknown"}>{c.country ? `${flagEmoji(c.country)} ${c.country}` : "—"} {c.count.toLocaleString()}</span>
+                    ))}
+                  </div>
+                )}
                 {paths.paths.map((p, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, fontSize: 13 }}>
@@ -470,7 +478,14 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                       ))}
                       {p.left && <><ArrowRight size={12} style={{ color: C.muted, flexShrink: 0 }} /><span style={{ color: C.muted, fontStyle: "italic" }}>left</span></>}
                     </div>
-                    <b style={{ fontSize: 13, flexShrink: 0 }}>{p.count.toLocaleString()}</b>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                      {p.byCountry && p.byCountry.length > 0 && (
+                        <span style={{ fontSize: 11.5, color: C.muted }} title={p.byCountry.map((c) => `${c.country || "Unknown"} ${c.count}`).join(" · ")}>
+                          {p.byCountry.slice(0, 3).map((c) => (c.country ? flagEmoji(c.country) : "—")).join(" ")}
+                        </span>
+                      )}
+                      <b style={{ fontSize: 13 }}>{p.count.toLocaleString()}</b>
+                    </div>
                   </div>
                 ))}
               </>
