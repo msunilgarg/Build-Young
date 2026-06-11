@@ -5,6 +5,8 @@ import { journeys } from "../src/funnel.js";
 // and exit (the visit ended), both tagged with the anonymous per-visit `sid`.
 const view = (sid, screen, ts) => ({ event: "screen_view", ts, props: { sid, screen } });
 const exit = (sid, screen, ts) => ({ event: "exit", ts, props: { sid, screen } });
+// The visit's `visited` event carries the server-stamped country (and the same per-visit sid).
+const visited = (sid, country) => ({ event: "visited", ts: 0, props: { sid, source: "direct", country } });
 
 describe("journeys (per-visit ordered paths)", () => {
   it("reconstructs a visit's path in time order and marks where it left", () => {
@@ -61,7 +63,30 @@ describe("journeys (per-visit ordered paths)", () => {
       exit("z", "home", 2), // exit but no screen_view for z
       { event: "visited", ts: 1, props: { sid: "a", source: "direct" } }, // not a path event
     ];
-    expect(journeys(evs)).toEqual({ paths: [], sessions: 0 });
+    expect(journeys(evs)).toEqual({ paths: [], sessions: 0, countries: [] });
+  });
+
+  it("attaches each visit's country (from its `visited` event) per path + an overall tally", () => {
+    const evs = [
+      visited("a", "US"), view("a", "home", 1), exit("a", "home", 2),
+      visited("b", "US"), view("b", "home", 1), exit("b", "home", 2),
+      visited("c", "CA"), view("c", "home", 1), exit("c", "home", 2),
+      view("d", "enroll", 1), exit("d", "enroll", 2), // no `visited`/country → unknown bucket
+    ];
+    const { paths, countries } = journeys(evs);
+    // overall geography of the traced visits, most common first (US 2, then the count-1 ties stable)
+    expect(countries).toEqual([
+      { country: "US", count: 2 },
+      { country: "CA", count: 1 },
+      { country: "", count: 1 },
+    ]);
+    // the "home → left" path (3 visits) breaks down by country
+    const home = paths.find((p) => p.steps.join(">") === "home" && p.left);
+    expect(home.count).toBe(3);
+    expect(home.byCountry).toEqual([{ country: "US", count: 2 }, { country: "CA", count: 1 }]);
+    // a visit with no country lands in the unknown ("") bucket
+    const enroll = paths.find((p) => p.steps.join(">") === "enroll");
+    expect(enroll.byCountry).toEqual([{ country: "", count: 1 }]);
   });
 
   it("respects the limit", () => {
@@ -71,8 +96,8 @@ describe("journeys (per-visit ordered paths)", () => {
   });
 
   it("is empty + safe on no/garbage input", () => {
-    expect(journeys(null)).toEqual({ paths: [], sessions: 0 });
-    expect(journeys(undefined)).toEqual({ paths: [], sessions: 0 });
-    expect(journeys([{}, null, { event: "exit" }])).toEqual({ paths: [], sessions: 0 });
+    expect(journeys(null)).toEqual({ paths: [], sessions: 0, countries: [] });
+    expect(journeys(undefined)).toEqual({ paths: [], sessions: 0, countries: [] });
+    expect(journeys([{}, null, { event: "exit" }])).toEqual({ paths: [], sessions: 0, countries: [] });
   });
 });
