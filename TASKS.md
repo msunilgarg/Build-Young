@@ -42,6 +42,28 @@ Acceptance criteria:
 Files: build-young-app/test/cert-ui.test.jsx (new), imports from src/Certificate.jsx
 Stop-and-ask if: the components need prop/context wiring that isn't obvious.
 
+## [ ] T7 — Show country in the "Top paths through the site" view  ·  risk: med
+Goal: surface visitor **country** in the founder dashboard's "Top paths" (journeys) section — the chart currently shows only the ordered screens per visit, with no geography.
+Context (already in code — build ON this, don't re-collect): the `visited` event is already stamped server-side with a 2-letter `country` (`api/funnel.js` from Vercel's `x-vercel-ip-country` header; in `ALLOWED_PROPS`). `src/funnel.js` `engagement()` already returns `countries` + `sourceCountry`, and there's a country→flag helper in `FounderDashboard.jsx`. The gap is that `journeys()` stitches `screen_view`/`exit` by `sid` and never joins the visit's country, and the "Top paths" card shows no country.
+Acceptance criteria:
+- `journeys()` in `src/funnel.js` joins each visit's `country` (map the visit's `sid` → the `country` on that visit's `visited`/events) and returns it per traced visit/path (additive — existing return shape stays back-compatible)
+- the "Top paths through the site" card in `FounderDashboard.jsx` shows country per path (e.g. a small flag + code, or a per-path country breakdown), AND a compact standalone "Top countries" line/list is shown for traffic (reuse the existing `countries` from `engagement()` if simpler) — pick the cleaner UX; keep it calm/aggregate, no PII
+- aggregate-only, no new data collected, no per-visitor identifier beyond the existing ephemeral `sid`; visits with no country render gracefully (e.g. "—"/"Unknown")
+- `test/funnel.test.js` gains a case asserting `journeys()` carries country; `npm run build` + `npx vitest run` green (count ≥ current)
+Files: build-young-app/src/funnel.js, build-young-app/src/FounderDashboard.jsx, build-young-app/test/funnel.test.js
+Stop-and-ask if: joining country to a journey would require storing an IP or any non-ephemeral identifier (it must not) — then stop.
+
+## [ ] T8 — Break down US traffic by state  ·  risk: med  ·  (do after T7)
+Goal: for visits whose country is **US**, show a **state/region** breakdown in the founder traffic view (the natural drill-down under country).
+Context: only `country` is captured today; the region is NOT. Vercel exposes the subdivision via the `x-vercel-ip-country-region` header (e.g. `WA`, `CA`) alongside the country header already read in `api/funnel.js`.
+Acceptance criteria:
+- `api/funnel.js` stamps a `region` prop on `visited` (US state code) ONLY when country is `US`, validated/short like the existing country stamp, and `region` is added to `ALLOWED_PROPS`
+- `src/funnel.js` `engagement()` aggregates a US-state breakdown (additive field, e.g. `usStates: [{ region, count }]`, descending)
+- `FounderDashboard.jsx` shows the US-state breakdown (only meaningful when US traffic exists; empty/absent renders gracefully) — keep it aggregate, no PII
+- `test/funnel.test.js` covers the US-state aggregation (incl. non-US visits excluded); `npm run build` + `npx vitest run` green (count ≥ current)
+Files: build-young-app/api/funnel.js, build-young-app/src/funnel.js, build-young-app/src/FounderDashboard.jsx, build-young-app/test/funnel.test.js
+Stop-and-ask if: surfacing state-level geo for a site serving minors feels like it crosses from coarse/aggregate analytics into per-visitor tracking — it should stay aggregate counts only (no IPs, no per-visitor rows). If that can't be guaranteed, stop.
+
 ## [ ] T5 — Make the App.jsx router data-driven (routes registry)  ·  risk: high
 Goal: convert routing so adding a screen is an append-only registry entry (the deferred parallel-work optimization in CLAUDE.md), removing App.jsx as a per-feature edit point.
 Acceptance criteria:
