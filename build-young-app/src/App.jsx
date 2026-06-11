@@ -9,9 +9,6 @@ import {
 import { WEEK_PREP, WEEK_OBJECTIVES } from "./marketMedia.js";
 import { C, FONTS, fmt, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, Pill, act, PageBackdrop, Stat } from "./ui.jsx";
-// recharts is heavy (~344 KB) and only used in the dashboard — load it on demand
-// so the landing/enroll/call pages don't pay for it.
-const Charts = React.lazy(() => import("./Charts.jsx"));
 
 
 // Lightweight email check — good enough to gate the UI (server-side validation is authoritative).
