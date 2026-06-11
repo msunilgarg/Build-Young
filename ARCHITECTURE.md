@@ -43,10 +43,13 @@ flowchart LR
 
     subgraph LOOP["♻ THE LOOP — one task at a time; repeats until the backlog is empty (or it hits a stop condition)"]
         direction LR
-        driver["③ DRIVER (/run-loop)<br/>picks the next task; each step comes from concrete<br/>feedback (failing test · verifier gap · next task),<br/>never guesswork"]
-        doer["④ DOER<br/>implements the<br/>smallest change"]
+        subgraph mainagent["③④ MAIN AGENT — one shared context (driver &amp; doer are the SAME agent, two hats)"]
+            direction LR
+            driver["DRIVER hat<br/>picks the next task; each step from concrete<br/>feedback (failing test · verifier gap · next task)"]
+            doer["DOER hat<br/>writes the smallest change<br/>(may fan out to a worktree sub-agent)"]
+        end
         check["⑤ Self-check<br/>build · tests · guards"]
-        verifier["⑥ VERIFIER<br/>fresh, ephemeral sub-agent —<br/>grades the diff vs the<br/>task's acceptance criteria"]
+        verifier["⑥ VERIFIER — a SEPARATE,<br/>fresh, ephemeral sub-agent<br/>(own context) grades the diff vs the<br/>task's acceptance criteria — can't<br/>grade its own homework"]
         gate{"low / med<br/>risk?"}
         ship["⑦ SHIP<br/>PR → verify →<br/>squash-merge → sync"]
         record["⑧ mark [x]<br/>in TASKS.md"]
@@ -79,11 +82,12 @@ flowchart LR
     class tasks,docs state;
     class you human;
     class live ext;
+    style mainagent fill:#f6f1fb,stroke:#5e35b1,stroke-width:1px,color:#311b92;
 
     subgraph legend["Legend"]
         direction LR
-        lgA["AI agent"]:::agent
-        lgS["ephemeral sub-agent"]:::subagent
+        lgA["AI agent (one context: driver + doer)"]:::agent
+        lgS["separate ephemeral sub-agent (verifier)"]:::subagent
         lgT["tool / automation"]:::tool
         lgD["committed state"]:::state
         lgE["external service"]:::ext
@@ -96,9 +100,8 @@ flowchart LR
 |---|---|
 | **Triggers** | Two on-ramps to the same driver. **Local `/run-loop`** (runs in your Claude Code, covered by your subscription) and an **issue-triggered GitHub Action** (`.github/workflows/run-loop.yml`, gated by the `loop-task` label, billed to Anthropic API credits). Same procedure either way. |
 | **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `TASKS.md` (queue + done log), `CLAUDE.md` (project rules/module map), `LOOP.md` (manual), `ENGINEERING-PLAYBOOK.md` (portable rules). |
-| **Driver** (`.claude/skills/run-loop`) | The orchestrator. Picks the first unchecked task and drives it; never guesses the next step — it comes from a **signal** (failing build/test, verifier gap report, or the next backlog item). |
+| **Driver + Doer** (`.claude/skills/run-loop`) | **The same agent, one context, two hats.** As *driver* it picks the first unchecked task and never guesses the next step — it comes from a **signal** (failing build/test, verifier gap, or the next backlog item); as *doer* it writes the smallest change that meets the acceptance criteria, staying in the task's file lane. (The doer *may* fan out to a **worktree**-isolated sub-agent for parallel work — the exception, not the default.) |
 | **Risk gate** | Reads the task's `risk:`. Everything is implemented; only the **merge** decision differs (see ship gate). |
-| **Doer** | Writes the smallest change that meets the acceptance criteria, staying in the task's file lane. May run in a **worktree**-isolated sub-agent for parallel work. |
 | **Self-check** | `npm run build` + `npx vitest run` + repo guards (no `\uXXXX`, no internal model id, no resurrected money-sim markers). Fix until green. |
 | **Verifier** | A **fresh, ephemeral sub-agent** in its own context, given only **the task's acceptance criteria (from `TASKS.md`) + the diff**. It independently re-runs build/tests and returns **PASS** or **FAIL + gaps**. The doer can't grade its own homework. ~3 rounds, then stop. |
 | **Ship** | Commit (author `Claude <noreply@anthropic.com>`) → push dev branch → open PR → **verify the PR's file diff is non-empty** → squash-merge → sync `main` and re-push the dev branch. |
