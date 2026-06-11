@@ -386,6 +386,12 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   what keeps it credible rather than cheap. The SVG dashboard-mock wordmark uses an equivalent
   `<linearGradient id="bygrad">` fill. Gradient text keeps its real text content underneath
   (transparent fill only), so screen readers and axe are unaffected — preserve that.
+- **No flag/emoji glyphs for meaningful UI content** (labels, data). They render inconsistently
+  across platforms — a flag emoji (`🇺🇸`) falls back to the bare country letters on Windows/Chrome,
+  which also *duplicates* an adjacent code (we shipped "US US visits by state" this way). Use plain
+  text / 2-letter codes (the founder geography shows `US`, `WA`, …) or a tested inline-SVG icon
+  (`lucide-react`/`lucide-static`), never raw emoji for content. Decorative emoji are fine only where a
+  degraded fallback is harmless.
 - The site is **entrepreneurship education** — it teaches teens to build and sell a real product.
   It is **not** financial/investment advice, and there is no money simulation.
 - **Statistics integrity:** every stat in `WHY_STATS` (and any new claim) must link to its
