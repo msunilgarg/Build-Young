@@ -1,0 +1,108 @@
+name: Run loop — issue-triggered task driver
+
+# Turns a GitHub Issue into a backlog task and runs the loop driver on it automatically.
+# This is the "anytime I add a task, it triggers the driver" automation: instead of editing
+# TASKS.md and typing /run-loop, you open an Issue describing the goal + acceptance criteria
+# and add the `loop-task` label. This Action then implements it per the same rules as the
+# local /run-loop skill (build + tests + guards + an independent verifier) and ships it.
+#
+# AUTONOMY MIRRORS THE SKILL — with the high-risk pause kept:
+#   • low / med risk  → implement, verify, open a PR, squash-merge, then close the issue.
+#   • high / architectural / destructive / outward-facing / ambiguous (a "Stop-and-ask"
+#     condition) → implement on a branch, open a PR, comment WHY it paused, and STOP.
+#     A human reviews + merges. It never auto-merges a high-risk change.
+#
+# Why issues (not a TASKS.md file-watch): it's recursion-proof. The loop CLOSES issues, it
+# never opens them, so an automated run can't trigger another run. The `loop-task` label is
+# the explicit opt-in (an unlabeled issue does nothing).
+#
+# ── ONE-TIME SETUP (see .github/workflows/RUN-LOOP-SETUP.md for the full checklist) ──
+#   1. Add an `ANTHROPIC_API_KEY` repo secret  (Settings → Secrets and variables → Actions),
+#      OR run `/install-github-app` once to install the Anthropic GitHub App.
+#   2. Create the `loop-task` label (lowercase) once: `gh label create loop-task`.
+#   3. This file must be on the DEFAULT branch (main) for the `issues` trigger to fire —
+#      merge it to activate. The built-in GITHUB_TOKEN already grants the merge/PR scopes below.
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  contents: write          # branch + commits + squash-merge
+  pull-requests: write     # open the PR
+  issues: write            # comment on + close the issue
+
+concurrency:
+  # one run per issue; never cancel an in-flight run (a half-merged PR is worse than a wait)
+  group: run-loop-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  run-loop-task:
+    # only act on issues explicitly opted into the loop (case-sensitive lowercase label)
+    if: contains(github.event.issue.labels.*.name, 'loop-task')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(npm:*),Bash(npx:*),Bash(git:*),Bash(gh:*)"
+            --max-turns 30
+          prompt: |
+            You are the Build Young **loop driver**, triggered by a GitHub Issue. Treat the issue
+            as ONE backlog task (the same kind that lives in TASKS.md). Read these first and follow
+            them exactly — they are the contract:
+              - `.claude/skills/run-loop/SKILL.md`  (the loop procedure + stop conditions)
+              - `LOOP.md`                            (what the loop does + guardrails)
+              - `build-young-app/CLAUDE.md`          (project rules, module map, quality bars)
+
+            The task to implement is GitHub Issue #${{ github.event.issue.number }}:
+              TITLE: ${{ github.event.issue.title }}
+              BODY:
+              ${{ github.event.issue.body }}
+
+            Parse the Goal + Acceptance criteria + risk from the body (same format as TASKS.md).
+            If the body doesn't state a risk, INFER it conservatively (architectural / behavioral /
+            money-auth / data-deleting / ambiguous ⇒ treat as HIGH).
+
+            Procedure:
+            1. Start from latest `origin/main` on a fresh `claude/issue-${{ github.event.issue.number }}`
+               branch (never push to main — it's a protected, denied target).
+            2. Implement the SMALLEST change that satisfies the acceptance criteria. Stay strictly in
+               the task's lane (only the file(s) it names; respect CLAUDE.md's parallel-work protocol —
+               foundation modules are additive-only).
+            3. Self-check until green:
+                 cd build-young-app && npm ci && npm run build && npx vitest run
+               Run the repo guards: no `\uXXXX` escapes, no internal/model identifiers in any
+               committed artifact, no resurrected money-simulation markers.
+            4. INDEPENDENT VERIFICATION (do not skip — the doer can't grade its own homework):
+               re-read the acceptance criteria and `git diff origin/main` with fresh eyes, and confirm
+               EVERY criterion is met and nothing obvious is broken. If a criterion fails, fix it and
+               re-check (max ~3 rounds, then stop and explain).
+            5. Commit (author `Claude <noreply@anthropic.com>`), push the branch, and open a PR against
+               `main` with `gh pr create` (body must list what changed + how you verified, and end with
+               the session link if known). VERIFY the PR's file diff is non-empty before going further.
+
+            THEN BRANCH ON RISK (this is the required pause):
+              • LOW or MED risk  → squash-merge the PR (`gh pr merge <N> --squash`), then CLOSE the
+                issue with a one-line summary comment linking the merged PR.
+              • HIGH / architectural / destructive / irreversible / outward-facing (changes auth,
+                money, enrollment, sends email/charges, deletes data) / AMBIGUOUS, OR any "Stop-and-ask"
+                condition in the task → DO NOT MERGE. Leave the PR open, post an issue comment that
+                says it's paused for human review and WHY (one or two sentences), and STOP. Do not
+                close the issue. A human will review and merge.
+
+            Hard rules:
+            - Never push to `main` directly; never auto-merge a high-risk/ambiguous change.
+            - Never put internal/model identifiers in commits, PR text, code, or comments.
+            - If the build/tests can't be made green, or the task is underspecified, STOP and comment
+              on the issue with the blocker instead of merging a half-done change.
