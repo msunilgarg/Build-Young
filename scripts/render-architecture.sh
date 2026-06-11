@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Render the Mermaid diagrams in ARCHITECTURE.md to versioned exports (docs/architecture/).
+# Run this in the SAME change whenever you edit a ```mermaid block in ARCHITECTURE.md, so the
+# rendered exports never drift from the source. One command:  bash scripts/render-architecture.sh
+#
+# Outputs, per diagram:  <name>.png (quick inline preview)  +  <name>.pdf (vector — zoom without pixelating).
+# Why bother when GitHub renders Mermaid natively? The exports are readable where Mermaid ISN'T rendered
+# — chat, slide decks, PDFs, the app — and the PDF is zoomable for the dense diagrams.
+set -euo pipefail
+cd "$(dirname "$0")/.."   # repo root
+
+SRC="ARCHITECTURE.md"
+OUT="docs/architecture"
+mkdir -p "$OUT"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+# Puppeteer needs --no-sandbox when the renderer runs as root (CI / containers).
+echo '{"args":["--no-sandbox","--disable-setuid-sandbox"]}' > "$TMP/pconf.json"
+
+# Extract each ```mermaid fenced block into its own .mmd file, in document order.
+python3 - "$SRC" "$TMP" <<'PY'
+import re, sys
+src, tmp = sys.argv[1], sys.argv[2]
+blocks = re.findall(r"```mermaid\n(.*?)```", open(src).read(), re.S)
+if not blocks:
+    sys.exit("no ```mermaid blocks found in " + src)
+for i, b in enumerate(blocks, 1):
+    open(f"{tmp}/block{i}.mmd", "w").write(b)
+print(len(blocks))
+PY
+
+# Diagram 1 = the agentic loop, diagram 2 = the app architecture (their order in ARCHITECTURE.md).
+names=("loop" "app")
+i=1
+for f in "$TMP"/block*.mmd; do
+  name="${names[$((i-1))]:-diagram$i}"
+  echo "rendering $f -> $OUT/$name.{png,pdf}"
+  npx -y @mermaid-js/mermaid-cli@latest -p "$TMP/pconf.json" -i "$f" -o "$OUT/$name.png" -w 1800 -b white
+  npx -y @mermaid-js/mermaid-cli@latest -p "$TMP/pconf.json" -i "$f" -o "$OUT/$name.pdf" --pdfFit -b white
+  i=$((i+1))
+done
+echo "Done. Wrote PNG + PDF to $OUT/"

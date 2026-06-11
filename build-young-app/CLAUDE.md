@@ -9,7 +9,8 @@ confidently. Read it fully before making changes.
 > or renames a module, an `api/` endpoint, a skill, a hook, or an external service — or changes how
 > the loop / ship flow works — must update `ARCHITECTURE.md` (and its Mermaid diagrams) in the same
 > PR.** Same principle as keeping this guide in sync with the code: the diagram is wrong the moment
-> the structure changes without it.
+> the structure changes without it. **If you change a Mermaid block, also regenerate the rendered
+> exports in the same PR — `bash scripts/render-architecture.sh` (writes `docs/architecture/*.png|pdf`).**
 
 ## What this is
 **Build Young** is a live, online entrepreneurship program for high schoolers: over 12 weeks
