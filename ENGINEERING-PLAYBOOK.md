@@ -77,14 +77,20 @@ parallel pain is un-agreed interfaces, not the code itself.
   "did this add/remove/move a module, endpoint, or route, or change the loop/ship flow? If so, is the
   architecture doc updated in the same change?" — independent of whether the task spec called for it.
   Enforce the upkeep where work is already gated, don't just intend it (see §4).
-- **A fixed bug that isn't written down gets reintroduced.** The moment you fix an *instance of a class*
-  — a platform gotcha, a sharp edge, a "looks fine here but breaks there" — record the rule in the SAME
-  change: a project-specific fact in `CLAUDE.md`, a transferable one here. The agent re-remembers only
-  what's committed; a fix that lives in a finished session's context is gone, so the next session repeats
-  it. (That's what the `update-playbook` skill is for — invoke it proactively when you fix such a bug,
-  not just when asked.) Example that bit us: relying on glyphs that render inconsistently across platforms
-  (a flag emoji silently falls back to bare country letters on Windows) — caught, fixed, then reintroduced
-  because it was never made a rule.
+- **Every bug fix that fits a pattern becomes a rule — applied at the next similar change, not
+  rediscovered.** The moment a fix generalizes to a *class* (a platform gotcha, a sharp edge, a "fine
+  here / breaks there"), record the learning in the SAME change, and put it where it will be **read when
+  that kind of code is next touched**: a project-specific rule in `CLAUDE.md` (or a path-scoped
+  `.claude/rules/<area>.md` that loads with those files), a transferable one here. The point isn't a
+  museum of past bugs — it's that the next person/agent making that kind of change **implements the
+  learning as part of the change**, so the same bug never ships twice. Mechanics that make it real:
+  (1) **record it the same change** (the agent re-remembers only what's committed — a fix that lived only
+  in a finished session's context is gone, so the next session repeats it); (2) **place it where it
+  surfaces at the point of change** (house-style / path-scoped rules beat a buried note); (3) **lean on
+  the standing verifier check** where the rule is checkable. Invoke the `update-playbook` skill
+  proactively the instant you spot the pattern — don't wait to be asked. (This bit us: a flag emoji that
+  silently degrades to bare country letters on Windows — caught, fixed, then reintroduced because it was
+  never made a rule.)
 - **Keep it lean; scope the detail.** Long always-loaded docs cost context and dilute adherence. Put
   broad rules in the root doc; push file-specific lore into path-scoped rules (`.claude/rules/*.md`)
   that load only when relevant.
@@ -167,7 +173,7 @@ honesty about what didn't work.
 
 ## Changelog
 
-- **2026-06-11** — §3: record a fixed bug-class as a rule in the same change (we reintroduced a cross-platform glyph bug — flag emoji → bare letters on Windows — because the earlier fix was never written down).
+- **2026-06-11** — §3: strengthened the "patterned bug → standing rule" practice — record the learning in the same change AND place it where it's read at the next similar change, so the fix is implemented with that change (not rediscovered after the bug returns).
 - **2026-06-11** — §3: make living-doc/diagram upkeep a *standing* check in the independent verifier (a living architecture diagram had drifted because upkeep relied on memory and per-task criteria).
 - **2026-06-11** — §3: made the stale-docs rule explicitly proactive — fix docs (incl. flipping resolved "deferred/TODO" notes) in the same change, without asking permission.
 - **2026-06-09** — Added the `update-playbook` skill so this doc is kept current proactively (no asking).
