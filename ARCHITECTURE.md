@@ -11,6 +11,11 @@ Two systems live in this repo, and this document maps both:
 > and they're plain text so an agent can edit them in the same PR that changes the architecture.
 > **Living-document rule:** any PR that adds/removes/moves a module, endpoint, skill, hook, or
 > external service — or changes how the loop/ship flow works — **updates this file in the same PR.**
+>
+> **Rendered exports (zoomable):** [`docs/architecture/loop.pdf`](docs/architecture/loop.pdf) ·
+> [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside). They're for places that don't render
+> Mermaid (chat, decks, the app). **When you edit a Mermaid block here, regenerate them in the SAME
+> change:** `bash scripts/render-architecture.sh`.
 
 ---
 

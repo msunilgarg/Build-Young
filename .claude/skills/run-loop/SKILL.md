@@ -35,6 +35,8 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
      loop or ship flow, it MUST also update `ARCHITECTURE.md` (and `CLAUDE.md` where relevant) in the
      SAME diff. **FAIL** if the structure changed but the architecture doc didn't. (A living diagram
      drifts silently when its upkeep relies on memory — so the independent check owns it, not the spec.)
+     Likewise, if a `ARCHITECTURE.md` **Mermaid block** changed, the regenerated exports
+     (`docs/architecture/*.png|pdf` via `scripts/render-architecture.sh`) must be in the SAME diff — **FAIL** if not.
    - **FAIL** → address the listed gaps and re-verify. After ~3 failed rounds on the same task,
      **stop** and surface the blocker (don't thrash).
    - **PASS** → continue.
