@@ -63,7 +63,7 @@ import { BookCall } from "./BookCall.jsx";
 // just collapsed, so the edge is starting young — which is exactly what Build Young teaches.
 
 export default function App() {
-  const [route, setRoute] = useState("home"); // home | enroll | call | app | login | setpw | checkemail | founder
+  const [route, setRoute] = useState("home"); // active screen key — the set of screens is the ROUTES registry (near the return)
   const [history, setHistory] = useState([]); // stack of routes we navigated from
   const [preselect, setPreselect] = useState(null);
   const [state, setState] = useState(null);
@@ -133,21 +133,16 @@ export default function App() {
   useEffect(() => {
     if (!loaded) return;
     if (route === "verify") return; // keep the /verify/<id> URL intact (id lives in the path)
-    const PATHS = { home: "/", enroll: "/enroll", call: "/book-call", app: "/dashboard", login: "/login", setpw: "/set-password", checkemail: "/enrolled", founder: "/admin" };
-    try { window.history.replaceState({}, "", PATHS[route] || "/"); } catch (e) { /* ignore */ }
-    // Per-route <title> + meta description so each screen reads as its own page for crawlers, browser
-    // tabs, and link shares (the SPA otherwise reuses index.html's landing title everywhere).
-    const META = {
-      home: { t: "Build Young — build a real product with AI, then grow it into a business", d: "Build Young is a live, hands-on program where teens build a real product with AI, grow it into a business, and go get their first customers. In an AI world, the edge isn't a degree — it's what you can build. Raising builders, not consumers." },
-      enroll: { t: "Enroll — Build Young", d: "Reserve your seat in a Build Young cohort — 12 weeks, live and online, where teens build a real product with AI and learn to grow it." },
-      call: { t: "Talk to us — Build Young", d: "Book a free 15-minute call to see whether Build Young is the right fit for your teen." },
-    };
-    const m = META[route];
-    if (m) {
+    // The active route's URL path + per-route <title>/description both come from the ROUTES registry
+    // (defined near the return) — the single place a screen is declared. Per-route <title>/desc make
+    // each screen read as its own page for crawlers, browser tabs, and link shares.
+    const r = ROUTES.find((x) => x.key === route);
+    try { window.history.replaceState({}, "", (r && r.path) || "/"); } catch (e) { /* ignore */ }
+    if (r && r.title) {
       try {
-        document.title = m.t;
+        document.title = r.title;
         const el = document.querySelector('meta[name="description"]');
-        if (el) el.setAttribute("content", m.d);
+        if (el && r.desc) el.setAttribute("content", r.desc);
       } catch (e) { /* ignore */ }
     }
   }, [route, loaded]);
@@ -351,19 +346,29 @@ export default function App() {
   };
   const goLogin = () => guard(() => { pendingScroll.current = 0; setHistory([]); setRoute("login"); });
 
+  // ── Route registry — the SINGLE place a screen is declared. Each entry wires the screen's render
+  // (`el`), its URL `path` (for the analytics replaceState above), and an optional per-route
+  // <title>/`desc`. The render below and the URL/title effect both DERIVE from this table, so adding
+  // a screen is one appended entry — no more editing the router in several scattered spots.
+  // (`verify` keeps the /verify/<id> URL, whose id lives in the path, so it has no static `path`.)
+  const ROUTES = [
+    { key: "home", path: "/", title: "Build Young — build a real product with AI, then grow it into a business", desc: "Build Young is a live, hands-on program where teens build a real product with AI, grow it into a business, and go get their first customers. In an AI world, the edge isn't a degree — it's what you can build. Raising builders, not consumers.", el: <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} /> },
+    { key: "enroll", path: "/enroll", title: "Enroll — Build Young", desc: "Reserve your seat in a Build Young cohort — 12 weeks, live and online, where teens build a real product with AI and learn to grow it.", el: <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} /> },
+    { key: "call", path: "/book-call", title: "Talk to us — Build Young", desc: "Book a free 15-minute call to see whether Build Young is the right fit for your teen.", el: <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} /> },
+    { key: "app", path: "/dashboard", el: state ? <Platform state={state} setState={setState} onExit={exitApp} onFounder={isFounder ? goFounder : null} onHome={goHome} /> : null },
+    { key: "login", path: "/login", el: <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} /> },
+    { key: "setpw", path: "/set-password", el: <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} /> },
+    { key: "checkemail", path: "/enrolled", el: <CheckEmail track={enrolledTrack} email={enrolledEmail} onHome={goHome} /> },
+    { key: "founder", path: "/admin", el: <FounderDashboard onHome={goHome} onPreviewStudent={previewStudent} /> },
+    { key: "verify", el: <CertifyVerify certId={verifyId} onHome={goHome} /> },
+  ];
+  const activeRoute = ROUTES.find((r) => r.key === route);
+
   return (
     <CohortsContext.Provider value={batches}>
     <div className="flp" style={{ minHeight: "100vh", background: C.paper }}>
       <style>{FONTS}</style>
-      {route === "home" && <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} />}
-      {route === "enroll" && <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} />}
-      {route === "call" && <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} />}
-      {route === "app" && state && <Platform state={state} setState={setState} onExit={exitApp} onFounder={isFounder ? goFounder : null} onHome={goHome} />}
-      {route === "login" && <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} />}
-      {route === "setpw" && <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} />}
-      {route === "checkemail" && <CheckEmail track={enrolledTrack} email={enrolledEmail} onHome={goHome} />}
-      {route === "founder" && <FounderDashboard onHome={goHome} onPreviewStudent={previewStudent} />}
-      {route === "verify" && <CertifyVerify certId={verifyId} onHome={goHome} />}
+      {activeRoute ? activeRoute.el : null}
       {legal && <LegalModal kind={legal} onClose={() => setLegal(null)} />}
     </div>
     </CohortsContext.Provider>
