@@ -67,6 +67,16 @@ Acceptance criteria:
 Files: build-young-app/src/App.jsx
 Stop-and-ask: YES — this is architectural. Implement on a branch, open a PR, and STOP for human review before merge.
 
+## [ ] T6 — Create ARCHITECTURE.md (living diagrams) + the keep-it-updated rule  ·  risk: med
+Goal: a single `ARCHITECTURE.md` at the repo root that gives a newcomer (or agent) a real understanding of BOTH layers: (a) the **agentic engineering system** — the loop driver, skills, hooks/guards, sub-agents/verifier, state files, GitHub connector, and how a change flows from TASKS.md to the live site; and (b) the **app architecture** — App.jsx router, the screen modules, the foundation modules, the api/ serverless endpoints + KV, and the external services (Stripe, Resend, Vercel), each with a one-line description of its functionality.
+Acceptance criteria:
+- diagrams are **Mermaid** (text-based, renders on GitHub, agent-editable — NOT binary images), one per layer, plus a short component table per diagram explaining each node's responsibility
+- content is derived from the actual code/CLAUDE.md/LOOP.md — no invented components; module names match the repo
+- **the living-document rule is installed:** CLAUDE.md gains a short rule that any PR changing the architecture (adding/removing/moving a module, endpoint, skill, or hook, or changing how the loop/ship flow works) must update ARCHITECTURE.md in the same PR — mirroring the existing "update the doc in the same change" principle
+- ARCHITECTURE.md links to CLAUDE.md/LOOP.md for depth; no app code changed; build + tests unaffected
+Files: ARCHITECTURE.md (new), build-young-app/CLAUDE.md (the rule)
+Stop-and-ask if: the two-layer split materially misrepresents something (ask rather than draw a wrong picture).
+
 ---
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
