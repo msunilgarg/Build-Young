@@ -25,53 +25,42 @@ How work gets done here: you write a **goal** (a task), and the loop drives it t
 implement → verify (independently) → ship — pausing only on the conditions noted below.
 
 ```mermaid
-flowchart TB
-    subgraph triggers["① Triggers (on-ramps)"]
-        you["You — local prompt<br/>/run-loop (covered by your Claude plan)"]
-        issue["GitHub Issue + 'loop-task' label<br/>(unattended / from anywhere)"]
-    end
-
-    subgraph state["② Durable state (committed → survives container resets)"]
-        tasks["TASKS.md<br/>backlog + progress"]
-        claude["CLAUDE.md<br/>project knowledge"]
-        loopmd["LOOP.md<br/>operating manual"]
-        playbook["ENGINEERING-PLAYBOOK.md<br/>cross-project rules"]
-    end
-
-    driver["③ DRIVER — /run-loop skill<br/>picks next task, derives each step from a SIGNAL<br/>(failing test / verifier gap / next backlog item)"]
-    risk{"④ Risk gate"}
-    doer["⑤ DOER — implements smallest change<br/>(optionally in a git worktree)"]
-    selfcheck["⑥ Self-check<br/>npm run build · npx vitest run · repo guards"]
-    verifier["⑦ VERIFIER — fresh sub-agent, own context<br/>grades diff vs acceptance criteria · PASS / FAIL+gaps"]
-    ship["⑧ SHIP — PR → verify get_files →<br/>squash-merge → sync main"]
-    live["🌐 Live site (Vercel)"]
-    pause["⏸ PAUSE for human<br/>open PR + comment, do NOT merge"]
+flowchart LR
+    %% ── what starts / feeds a run (inputs, left) ──
+    you["You — /run-loop<br/>(your Claude plan)"]
+    issue["GitHub Issue + 'loop-task'<br/>→ run-loop.yml Action (unattended)"]
+    tasks[("TASKS.md<br/>backlog + progress")]
+    docs["CLAUDE.md · LOOP.md ·<br/>ENGINEERING-PLAYBOOK.md"]
 
     you --> driver
-    issue --> action["GitHub Action: run-loop.yml<br/>(claude-code-action, API-billed)"] --> driver
-    tasks --> driver
-    claude -.-> driver
-    loopmd -.-> driver
-    playbook -.-> driver
+    issue --> driver
+    tasks ==> driver
+    docs -. context .-> driver
 
-    driver --> risk
-    risk -- "low / med" --> doer
-    risk -- "high · architectural · destructive · ambiguous" --> doer
-    doer --> selfcheck --> verifier
-    verifier -- FAIL --> doer
-    verifier -- PASS --> shipgate{"low / med?"}
-    shipgate -- yes --> ship --> live
-    shipgate -- "no (high-risk)" --> pause
-    ship --> done["mark [x] in TASKS.md"] --> driver
+    subgraph LOOP["♻ THE LOOP — one task at a time; repeats until the backlog is empty (or it hits a stop condition)"]
+        direction LR
+        driver["③ DRIVER (/run-loop)<br/>picks the next task; each step comes from concrete<br/>feedback (failing test · verifier gap · next task),<br/>never guesswork"]
+        doer["④ DOER<br/>implements the<br/>smallest change"]
+        check["⑤ Self-check<br/>build · tests · guards"]
+        verifier["⑥ VERIFIER<br/>fresh, ephemeral sub-agent —<br/>grades the diff vs the<br/>task's acceptance criteria"]
+        gate{"low / med<br/>risk?"}
+        ship["⑦ SHIP<br/>PR → verify →<br/>squash-merge → sync"]
+        record["⑧ mark [x]<br/>in TASKS.md"]
 
-    subgraph machinery["Always-on machinery (automations + guards + connectors)"]
-        hook["SessionStart hook<br/>resync to origin/main + reinstall commit guards"]
-        guards["commit guards<br/>pre-commit · commit-msg · uXXXX"]
-        settings[".claude/settings.json<br/>tool allowlist + deny push to main"]
-        mcp["GitHub MCP<br/>issues · PRs · merge · diff verify"]
-        worktrees[".claude/worktrees<br/>parallel isolation"]
+        driver --> doer --> check --> verifier --> gate
+        verifier -. "FAIL → fix the gaps (↺ inner retry)" .-> doer
+        gate -- "yes" --> ship --> record
+        record == "↻ next task (the loop closes)" ==> driver
     end
-    machinery -.guards every step.-> ship
+
+    %% ── the grading rubric comes FROM the task ──
+    tasks -. "acceptance criteria (the grading rubric)" .-> verifier
+    %% ── exits from the loop ──
+    gate -- "no — high-risk / ambiguous" --> pause["⏸ PAUSE for human<br/>open PR + comment, don't merge"]
+    ship --> live["🌐 Live site (Vercel)"]
+
+    machinery["🛡 Always-on machinery<br/>SessionStart resync · commit guards ·<br/>settings allowlist · GitHub MCP · worktrees"]
+    machinery -. guards every step .-> LOOP
 ```
 
 | Node | What it is / its responsibility |
@@ -82,7 +71,7 @@ flowchart TB
 | **Risk gate** | Reads the task's `risk:`. Everything is implemented; only the **merge** decision differs (see ship gate). |
 | **Doer** | Writes the smallest change that meets the acceptance criteria, staying in the task's file lane. May run in a **worktree**-isolated sub-agent for parallel work. |
 | **Self-check** | `npm run build` + `npx vitest run` + repo guards (no `\uXXXX`, no internal model id, no resurrected money-sim markers). Fix until green. |
-| **Verifier** | A **fresh sub-agent** in its own context, given only the acceptance criteria + the diff. It independently re-runs build/tests and returns **PASS** or **FAIL + gaps**. The doer can't grade its own homework. ~3 rounds, then stop. |
+| **Verifier** | A **fresh, ephemeral sub-agent** in its own context, given only **the task's acceptance criteria (from `TASKS.md`) + the diff**. It independently re-runs build/tests and returns **PASS** or **FAIL + gaps**. The doer can't grade its own homework. ~3 rounds, then stop. |
 | **Ship** | Commit (author `Claude <noreply@anthropic.com>`) → push dev branch → open PR → **verify the PR's file diff is non-empty** → squash-merge → sync `main` and re-push the dev branch. |
 | **Ship gate / Pause** | **low/med** → auto squash-merge to the live site. **high / architectural / destructive / outward-facing / ambiguous** → leave the PR open, comment why, and **stop for human review**. |
 | **Machinery** | The SessionStart hook (state resurrection: resync + reinstall guards), the commit guards, the settings allowlist (and the deny-push-to-`main` rule), the **GitHub MCP** connector, and worktrees for isolation. |
