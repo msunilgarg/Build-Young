@@ -191,7 +191,7 @@ describe("traffic & engagement aggregation", () => {
     expect(eng.hesitations.find((h) => h.reason === "schedule").count).toBe(1);
   });
   it("is empty + safe on no/garbage input", () => {
-    expect(engagement([])).toEqual({ sources: [], countries: [], sourceCountry: [], screens: [], exits: [], exitTotal: 0, hesitations: [] });
+    expect(engagement([])).toEqual({ sources: [], countries: [], usStates: [], sourceCountry: [], screens: [], exits: [], exitTotal: 0, hesitations: [] });
     expect(engagement(null).sources).toEqual([]);
   });
 });

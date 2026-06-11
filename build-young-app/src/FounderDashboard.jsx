@@ -396,6 +396,15 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                   </div>
                 ))}
               </div>
+              {eng.usStates && eng.usStates.length > 0 && (
+                <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${C.line}` }}>
+                  <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 3 }}>🇺🇸 US visits by state</div>
+                  <div style={{ fontSize: 12, color: C.ink2, lineHeight: 1.5 }}>
+                    {eng.usStates.slice(0, 8).map((s, i) => <span key={s.region}>{i > 0 ? " · " : ""}{s.region} {s.count.toLocaleString()}</span>)}
+                    {eng.usStates.length > 8 && <span style={{ color: C.muted }}> · +{eng.usStates.length - 8} more</span>}
+                  </div>
+                </div>
+              )}
             </Card>
             <Card style={{ padding: 16 }}>
               <b style={{ fontSize: 13.5 }}>Which screens hold attention</b>

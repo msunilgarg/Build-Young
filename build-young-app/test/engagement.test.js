@@ -21,3 +21,21 @@ describe("engagement sourceCountry cross-tab", () => {
     expect(engagement([]).sourceCountry).toEqual([]);
   });
 });
+
+const visitedGeo = (source, country, region) => ({ event: "visited", ts: 1, props: { source, country, region } });
+
+describe("engagement usStates (US state breakdown)", () => {
+  it("aggregates US visits by state (sorted), excluding non-US and region-less visits", () => {
+    const eng = engagement([
+      visitedGeo("direct", "US", "WA"),
+      visitedGeo("direct", "US", "WA"),
+      visitedGeo("google.com", "US", "CA"), // US-California (not Canada — country is US)
+      visitedGeo("direct", "CA", "BC"),      // Canada → excluded (country !== "US")
+      visitedGeo("direct", "US", undefined), // US but no region → excluded
+    ]);
+    expect(eng.usStates).toEqual([{ region: "WA", count: 2 }, { region: "CA", count: 1 }]);
+  });
+  it("is empty with no US-state data", () => {
+    expect(engagement([]).usStates).toEqual([]);
+  });
+});

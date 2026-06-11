@@ -136,6 +136,7 @@ export function segments(events) {
 // `screen_view` (a `screen` + dwell `ms`), and `exit` (the last `screen` before leaving) — into:
 //   • sources — where visits come from (referrer host / "direct"), most common first
 //   • countries — visitor country (2-letter code, server-stamped from Vercel geo), most common first
+//   • usStates — for US visits only, the 2-letter state breakdown (server-stamped region), most first
 //   • screens — per-screen view count + average time spent (ms), busiest first
 //   • exits   — which screen people leave from, count + share of all exits, most common first
 // Pure aggregate, no PII. Returns empty arrays when there's nothing yet.
@@ -165,6 +166,18 @@ export function engagement(events) {
   });
   const countries = Object.entries(ctyCount)
     .map(([country, count]) => ({ country, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // US state breakdown: the `region` (2-letter state code) stamped on `visited` for US visits only
+  // (the natural drill-down under country === "US"). State-level aggregate counts — no PII.
+  const stCount = {};
+  evs.forEach((e) => {
+    if (e && e.event === "visited" && e.props && e.props.country === "US" && e.props.region) {
+      stCount[e.props.region] = (stCount[e.props.region] || 0) + 1;
+    }
+  });
+  const usStates = Object.entries(stCount)
+    .map(([region, count]) => ({ region, count }))
     .sort((a, b) => b.count - a.count);
 
   // Source x country cross-tab: each visit source broken down by country (both live on `visited`).
@@ -222,7 +235,7 @@ export function engagement(events) {
     .map(([reason, count]) => ({ reason, count }))
     .sort((a, b) => b.count - a.count);
 
-  return { sources, countries, sourceCountry, screens, exits, exitTotal, hesitations };
+  return { sources, countries, usStates, sourceCountry, screens, exits, exitTotal, hesitations };
 }
 
 // The ordered paths visitors take through the site, stitched per visit by the anonymous, ephemeral
