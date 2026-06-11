@@ -34,7 +34,7 @@ flowchart LR
     you["You — /run-loop<br/>(your Claude plan)"]
     issue["GitHub Issue + 'loop-task'<br/>→ run-loop.yml Action (unattended)"]
     tasks[("TASKS.md<br/>backlog + progress")]
-    docs["CLAUDE.md · LOOP.md ·<br/>ENGINEERING-PLAYBOOK.md"]
+    docs["CLAUDE.md · POSITIONING.md ·<br/>LOOP.md · ENGINEERING-PLAYBOOK.md"]
 
     you --> driver
     issue --> driver
@@ -99,7 +99,7 @@ flowchart LR
 | Node | What it is / its responsibility |
 |---|---|
 | **Triggers** | Two on-ramps to the same driver. **Local `/run-loop`** (runs in your Claude Code, covered by your subscription) and an **issue-triggered GitHub Action** (`.github/workflows/run-loop.yml`, gated by the `loop-task` label, billed to Anthropic API credits). Same procedure either way. |
-| **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `TASKS.md` (queue + done log), `CLAUDE.md` (project rules/module map), `LOOP.md` (manual), `ENGINEERING-PLAYBOOK.md` (portable rules). |
+| **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `TASKS.md` (queue + done log), `CLAUDE.md` (project rules/module map), `POSITIONING.md` (copy & voice source of truth), `LOOP.md` (manual), `ENGINEERING-PLAYBOOK.md` (portable rules). |
 | **Driver + Doer** (`.claude/skills/run-loop`) | **The same agent, one context, two hats.** As *driver* it picks the first unchecked task and never guesses the next step — it comes from a **signal** (failing build/test, verifier gap, or the next backlog item); as *doer* it writes the smallest change that meets the acceptance criteria, staying in the task's file lane. (The doer *may* fan out to a **worktree**-isolated sub-agent for parallel work — the exception, not the default.) |
 | **Risk gate** | Reads the task's `risk:`. Everything is implemented; only the **merge** decision differs (see ship gate). |
 | **Self-check** | `npm run build` + `npx vitest run` + repo guards (no `\uXXXX`, no internal model id, no resurrected money-sim markers). Fix until green. |
