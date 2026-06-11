@@ -63,9 +63,12 @@ parallel pain is un-agreed interfaces, not the code itself.
 - **Agents follow `CLAUDE.md` religiously** — that's the mechanism that makes any convention stick (and
   the same reflex that quietly perpetuates bad ones). So encode conventions *there*, not just in your
   head or one session's memory.
-- **Stale docs actively cause drift.** A `CLAUDE.md` that still says "everything lives in one file" will
-  make the next agent rebuild the monolith. Update the doc in the *same* change that changes the
-  structure. An out-of-date guide is worse than none.
+- **Stale docs actively cause drift — fix them in the same change, proactively.** A `CLAUDE.md` that
+  still says "everything lives in one file" will make the next agent rebuild the monolith. So whenever a
+  change makes a doc statement stale — a moved/renamed module, a removed step, or a **"deferred / TODO /
+  until then" note the change just resolved** — update the doc (and any ARCHITECTURE/README/playbook it
+  touches) *in that same change*. This is a standing chore, not a question: **don't ask permission for an
+  obvious doc-sync follow-up — just do it.** An out-of-date guide is worse than none.
 - **Keep it lean; scope the detail.** Long always-loaded docs cost context and dilute adherence. Put
   broad rules in the root doc; push file-specific lore into path-scoped rules (`.claude/rules/*.md`)
   that load only when relevant.
@@ -148,6 +151,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-11** — §3: made the stale-docs rule explicitly proactive — fix docs (incl. flipping resolved "deferred/TODO" notes) in the same change, without asking permission.
 - **2026-06-09** — Added the `update-playbook` skill so this doc is kept current proactively (no asking).
 - **2026-06-09** — Initial version. Distilled from splitting a ~5,400-line single-file React app into
   per-feature modules, establishing the parallel-agent protocol, and wiring SessionStart/commit guards.

@@ -41,8 +41,9 @@ build-young-app/
 ├── index.html            # SEO meta, JSON-LD (EducationalOrganization + Course), noscript fallback
 ├── src/
 │   ├── main.jsx          # entry; mounts <App/> in React.StrictMode
-│   ├── App.jsx           # ~370 lines: the ROUTER ONLY — route/history/persistence/hydration + modal
-│   │                     #   state. Keep it thin; new features go in their own file, never back in here.
+│   ├── App.jsx           # ~375 lines: the ROUTER ONLY — route/history/persistence/hydration + modal
+│   │                     #   state. Routing is a data-driven `ROUTES` registry ({key,path,title,desc,el});
+│   │                     #   adding a screen = ONE appended entry. Keep it thin; features go in their own file.
 │   │   ── SCREENS (one feature = one file; safe for one agent each) ──
 │   ├── Landing.jsx       # marketing page (hero, teaser, testimonials, FAQ, careers/schedule modals)
 │   ├── Enroll.jsx        # 3-step enrollment
@@ -78,7 +79,8 @@ only four ways parallel work breaks:
 
 1. **One feature = one file = one agent (no shared files).** Assign each agent a DISJOINT set of files
    from the map above. If a task spans two feature files, give the whole vertical slice to ONE agent
-   rather than splitting it. `App.jsx` (the router) is orchestrator-owned — don't grow features into it.
+   rather than splitting it. `App.jsx` (the router) is orchestrator-owned — don't grow features into it;
+   adding a screen is one appended entry in its data-driven `ROUTES` registry (append-only = low-conflict).
 2. **Freeze the foundation during a parallel run — THE #1 rule.** The FOUNDATION modules
    (theme/ui/lib/courseDates/course/courseState/engine/funnel/cohorts/cert/scenarios/site/marketMedia)
    are imported by everything, so a change there silently breaks every other agent's branch. During
@@ -96,9 +98,9 @@ only four ways parallel work breaks:
 
 **Stay in your lane:** an agent that finds it needs a file it doesn't own STOPS and surfaces it to the
 orchestrator instead of editing across the boundary — cross-boundary edits are exactly how silent
-conflicts happen. (Deferred optimization: make the `App.jsx` router data-driven so adding a screen is an
-append-only registry entry; until then, route additions to `App.jsx` are an orchestrator-owned,
-serialized step.)
+conflicts happen. (The `App.jsx` router is now **data-driven**: routing is a `ROUTES` registry, so adding
+a screen is an append-only one-entry change — low-conflict for parallel agents, no longer a serialized
+orchestrator-only step.)
 
 ## Code map (what each piece does — now spread across the feature files above)
 The pieces below moved out of `App.jsx` into the files in Project structure (e.g. `Landing`, `Platform`,
