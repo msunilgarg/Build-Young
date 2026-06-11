@@ -473,6 +473,7 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
         <div className="rise" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 26 }}>
           {[
             { icon: Video, t: "Live & instructor-led on Zoom" },
+            { icon: Sparkles, t: "Build with Claude Code" },
             { icon: Lock, t: "A safe sandbox — build for real, low stakes" },
             { icon: GraduationCap, t: "Led by the founder · ex-Microsoft" },
             { icon: Check, t: "Full refund before class starts" },
