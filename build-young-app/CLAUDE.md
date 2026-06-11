@@ -3,6 +3,14 @@
 This file orients you (Claude Code) to the project so you can build new functionality
 confidently. Read it fully before making changes.
 
+> **Keep the architecture doc alive (living-document rule).** The repo-root
+> [`ARCHITECTURE.md`](../ARCHITECTURE.md) maps both layers — the agentic loop and the app
+> (router → screens → foundation → `api/` → external services). Any PR that **adds, removes, moves,
+> or renames a module, an `api/` endpoint, a skill, a hook, or an external service — or changes how
+> the loop / ship flow works — must update `ARCHITECTURE.md` (and its Mermaid diagrams) in the same
+> PR.** Same principle as keeping this guide in sync with the code: the diagram is wrong the moment
+> the structure changes without it.
+
 ## What this is
 **Build Young** is a live, online entrepreneurship program for high schoolers: over 12 weeks
 they build a real product with AI, take it live, grow it, and go to market for their first
