@@ -24,18 +24,18 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 ---
 
 
-## [ ] T5 — Make the App.jsx router data-driven (routes registry)  ·  risk: high
-Goal: convert routing so adding a screen is an append-only registry entry (the deferred parallel-work optimization in CLAUDE.md), removing App.jsx as a per-feature edit point.
-Acceptance criteria:
-- routes are a table/registry; `nav`/render derive from it; adding a screen = one appended entry
-- all existing navigation behavior + tests unchanged (back-stack, scroll restore, deep links)
-Files: build-young-app/src/App.jsx
-Stop-and-ask: YES — this is architectural. Implement on a branch, open a PR, and STOP for human review before merge.
-
 ---
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T5 — Make the App.jsx router data-driven (routes registry)  ·  risk: high
+Done (human-authorized to merge without the usual high-risk pause): App.jsx routing is now a single
+`ROUTES` registry (`{ key, path, title, desc, el }`); the render block and the URL-path/`<title>`
+effect both derive from it, so adding a screen is one appended entry. Behavior unchanged — same
+component/props per route, the `app` route keeps its `state` guard, paths + per-route titles match the
+old maps, `verify` keeps `/verify/<id>`. nav/goBack/navLock/scroll-restore/deep-link load untouched.
+Independently verified route-by-route. Build + 237 tests green.
 
 ## [x] T8 — Break down US traffic by state  ·  risk: med
 Done: `api/funnel.js` stamps a `region` (2-letter US state) on `visited` only when country is `US`,
