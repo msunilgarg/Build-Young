@@ -3,6 +3,9 @@
 This file orients you (Claude Code) to the project so you can build new functionality
 confidently. Read it fully before making changes.
 
+**Portable engineering rules — apply on top of this project guide (imported so they travel with the
+repo, e.g. to CI / the cloud loop):** @../ENGINEERING-PLAYBOOK.md
+
 > **Keep the architecture doc alive (living-document rule).** The repo-root
 > [`ARCHITECTURE.md`](../ARCHITECTURE.md) maps both layers — the agentic loop and the app
 > (router → screens → foundation → `api/` → external services). Any PR that **adds, removes, moves,
