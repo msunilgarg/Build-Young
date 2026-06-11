@@ -8,6 +8,9 @@ ships it, marks it done, and moves on. Because it's committed to git, it **survi
 **You (the human) own this file.** Add tasks as goals + acceptance criteria; the loop does the rest.
 Keep each task small, single-feature, and independently shippable (one file/feature where possible).
 
+> Not-yet-scheduled ideas live in [`BACKLOG.md`](./BACKLOG.md) (a parking lot the loop ignores).
+> Promote one into this file as a task when it's ready to build.
+
 ## Format
 ```
 ## [ ] T<id> — <title>  ·  risk: low | med | high
