@@ -552,7 +552,7 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(230px,1fr))", gap: 14 }}>
           {[
-            { icon: Sparkles, c: C.emerald, t: "Build with AI, step by step", d: "Write your product spec, then copy a ready-made prompt straight into AI to build that piece — and ship it live." },
+            { icon: Sparkles, c: C.emerald, t: "Build with AI, step by step", d: "Write your product spec, then copy a ready-made prompt straight into Claude Code to build that piece — and ship it live." },
             { icon: Flag, c: C.green, t: "A real launch checklist", d: "Work through what it takes to go live — a web address, payments switched on, data kept safe — until your product is open for business." },
             { icon: TrendingUp, c: C.turq, t: "Your own numbers to read", d: "Active users, retention, and where people drop off — on practice funnels built from what YOU shipped, not textbook examples. Then pick the one thing to fix." },
             { icon: Award, c: C.gold, t: "A capstone you present", d: "Pull together the story of what you built — the product, who's using it, what's next — and present it live. Parents are welcome to join." },
