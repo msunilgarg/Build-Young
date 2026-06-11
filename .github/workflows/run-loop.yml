@@ -31,6 +31,7 @@ permissions:
   contents: write          # branch + commits + squash-merge
   pull-requests: write     # open the PR
   issues: write            # comment on + close the issue
+  id-token: write          # claude-code-action exchanges an OIDC token for its GitHub token
 
 concurrency:
   # one run per issue; never cancel an in-flight run (a half-merged PR is worse than a wait)
