@@ -34,7 +34,7 @@ flowchart LR
     you["You — /run-loop<br/>(your Claude plan)"]
     issue["GitHub Issue + 'loop-task'<br/>→ run-loop.yml Action (unattended)"]
     tasks[("TASKS.md<br/>backlog + progress")]
-    docs["CLAUDE.md · POSITIONING.md ·<br/>LOOP.md · ENGINEERING-PLAYBOOK.md"]
+    docs["Governing docs — context for the agent:<br/>CLAUDE.md · project rules &amp; module map<br/>POSITIONING.md · copy &amp; voice source of truth<br/>LOOP.md · the loop's operating manual<br/>ENGINEERING-PLAYBOOK.md · portable cross-project rules"]
 
     you --> driver
     issue --> driver
