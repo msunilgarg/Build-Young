@@ -96,6 +96,13 @@ parallel pain is un-agreed interfaces, not the code itself.
   that load only when relevant.
 - **Write rules as principle + why,** so an agent can adapt them to a novel case instead of
   pattern-matching and getting it wrong.
+- **A diagram or reference list must be self-explanatory — every node carries a one-line purpose.** A
+  box (or list entry) that's only a *name* — a filename, a module, a service — forces the reader to
+  already know the system, which defeats the artifact. Give each node a one-liner ("what it is / what it
+  does"); distinguish *kinds* with color + a legend; group things that are one unit (and don't draw one
+  component as several); and for a living diagram, give it acceptance criteria + a regen step so it can
+  be *verified*, not babysat. The test: a newcomer reads it without asking "what's this box?" or "are
+  these two the same thing?"
 
 ## 4. Workflow & shipping
 
@@ -173,6 +180,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-11** — §3: diagrams/reference lists must be self-explanatory — a one-line purpose per node, kinds distinguished + legend, real relationships, and acceptance criteria so a living diagram is verified not babysat.
 - **2026-06-11** — §3: strengthened the "patterned bug → standing rule" practice — record the learning in the same change AND place it where it's read at the next similar change, so the fix is implemented with that change (not rediscovered after the bug returns).
 - **2026-06-11** — §3: make living-doc/diagram upkeep a *standing* check in the independent verifier (a living architecture diagram had drifted because upkeep relied on memory and per-task criteria).
 - **2026-06-11** — §3: made the stale-docs rule explicitly proactive — fix docs (incl. flipping resolved "deferred/TODO" notes) in the same change, without asking permission.
