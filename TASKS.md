@@ -24,15 +24,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 ---
 
 
-## [ ] T3 — Co-locate tests per feature module  ·  risk: med
-Goal: split the monolithic `test/app.test.jsx` into per-feature test files so a failure names one owner (loop-engineering: independent verification per slice).
-Acceptance criteria:
-- the Landing render+a11y tests live in `test/Landing.test.jsx`; the Enroll-flow tests in `test/Enroll.test.jsx`; the Course-hub tests in `test/Platform.test.jsx`
-- no test coverage is lost — total passing count is >= the current 230
-- `npm run build` + `npx vitest run` green
-Files: build-young-app/test/app.test.jsx (+ new per-feature test files)
-Stop-and-ask if: splitting would require changing app source (it shouldn't — tests only).
-
 ## [ ] T4 — Add render tests for the certificate route + card  ·  risk: med
 Goal: close the under-tested cert UI gap (CertifyVerify `/verify/<id>` page + CertificateCard) flagged during the split.
 Acceptance criteria:
@@ -76,6 +67,11 @@ Stop-and-ask: YES — this is architectural. Implement on a branch, open a PR, a
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T3 — Co-locate tests per feature module  ·  risk: med
+Done: split `test/app.test.jsx` (10 tests) into per-feature files — `Landing.test.jsx` (2),
+`Enroll.test.jsx` (3), `Legal.test.jsx` (2), `Platform.test.jsx` (3); removed the monolith. Tests
+moved verbatim; suite stays 34 files / 230 passing (no coverage lost). Tests only — no app source.
 
 ## [x] T2 — Refresh the stale technical sections of build-young-app/README.md  ·  risk: low
 Done: refreshed the go-live + layout sections to the current app — class-reminder cron (not a
