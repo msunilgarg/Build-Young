@@ -24,15 +24,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 ---
 
 
-## [ ] T4 — Add render tests for the certificate route + card  ·  risk: med
-Goal: close the under-tested cert UI gap (CertifyVerify `/verify/<id>` page + CertificateCard) flagged during the split.
-Acceptance criteria:
-- a test mounts `CertifyVerify` with a mocked `/api/cohorts?cert=` response and asserts the verified certificate renders (and the not-found path)
-- a test renders `CertificateCard` with a sample cert and asserts the name + actions show
-- green build + tests; new tests included in the count
-Files: build-young-app/test/cert-ui.test.jsx (new), imports from src/Certificate.jsx
-Stop-and-ask if: the components need prop/context wiring that isn't obvious.
-
 ## [ ] T7 — Show country in the "Top paths through the site" view  ·  risk: med
 Goal: surface visitor **country** in the founder dashboard's "Top paths" (journeys) section — the chart currently shows only the ordered screens per visit, with no geography.
 Context (already in code — build ON this, don't re-collect): the `visited` event is already stamped server-side with a 2-letter `country` (`api/funnel.js` from Vercel's `x-vercel-ip-country` header; in `ALLOWED_PROPS`). `src/funnel.js` `engagement()` already returns `countries` + `sourceCountry`, and there's a country→flag helper in `FounderDashboard.jsx`. The gap is that `journeys()` stitches `screen_view`/`exit` by `sid` and never joins the visit's country, and the "Top paths" card shows no country.
@@ -67,6 +58,12 @@ Stop-and-ask: YES — this is architectural. Implement on a branch, open a PR, a
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T4 — Add render tests for the certificate route + card  ·  risk: med
+Done: `test/cert-ui.test.jsx` (4 tests) — `CertifyVerify` verified path (mocked `/api/cohorts?cert=`
+→ name + "Verified by Build Young" + correct lookup URL) and not-found path; `CertificateCard` renders
+the graduate name + all three actions (Add to LinkedIn / Download / View public page) and renders
+nothing without a cert. Tests only — no app source. Suite 35 files / 234 passing.
 
 ## [x] T3 — Co-locate tests per feature module  ·  risk: med
 Done: split `test/app.test.jsx` (10 tests) into per-feature files — `Landing.test.jsx` (2),
