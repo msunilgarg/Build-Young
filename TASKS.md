@@ -26,6 +26,28 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
+## [ ] T9 — Make every crawlable surface 100% accurate + drive Google to re-index  ·  risk: low
+Goal: ensure everything a search engine reads about Build Young is current, internally consistent, and
+matches the live positioning — so once Google re-crawls, the result is exactly right. (Context: the
+live SERP currently shows an OLD cached snippet — "financial literacy… growing their money" — from a
+crawl that predates the repositioning. The live files are already correct; this task locks that in and
+documents the human follow-through to force a refresh.)
+Acceptance criteria (loop-able audit):
+- grep ALL crawlable surfaces for any stale/old-positioning copy and fix anything found: `index.html`
+  (`<title>`, meta description, OG + Twitter, keywords, the JSON-LD `EducationalOrganization` / `Course`
+  / `FAQPage`, the `<noscript>` block), `public/llms.txt`, `public/sitemap.xml`, `public/privacy.html`,
+  `public/terms.html`. Stale markers to catch: "financial literacy", "economic value", "growing their
+  money", "investing/portfolio/markets/net worth", and "teens" where "high schoolers" is the canonical term.
+- confirm `<title>` / description / OG / Twitter / canonical are mutually consistent AND match the
+  per-route home `title`/`desc` in `App.jsx`'s `ROUTES` registry.
+- confirm the JSON-LD + `llms.txt` describe the CURRENT program (build a real product with AI; no money
+  sim) and the price/cohort facts match `cohorts.js`.
+- `npm run build` + `npx vitest run` green; no behavior change.
+Files: build-young-app/index.html, build-young-app/public/llms.txt (+ any stale surface found)
+Human follow-through (NOT loop-able — note in the PR, don't try to automate): after deploy, GSC → URL
+Inspection → **Request Indexing** for `https://www.build-young.com/`, `/enroll`, `/book-call`; then
+monitor GSC → Performance until the SERP snippet shows the new title (days–weeks; Google controls timing).
+Stop-and-ask if: a surface needs positioning copy that isn't obvious from POSITIONING.md/CLAUDE.md (don't invent).
 
 ---
 
