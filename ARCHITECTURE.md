@@ -33,8 +33,18 @@ flowchart LR
     %% ── what starts / feeds a run (inputs, left) ──
     you["You — /run-loop<br/>(your Claude plan)"]
     issue["GitHub Issue + 'loop-task'<br/>→ run-loop.yml Action (unattended)"]
-    tasks[("TASKS.md<br/>backlog + progress")]
-    docs["Governing docs — context for the agent:<br/>CLAUDE.md · project rules &amp; module map<br/>POSITIONING.md · copy &amp; voice source of truth<br/>LOOP.md · the loop's operating manual<br/>ENGINEERING-PLAYBOOK.md · portable cross-project rules"]
+    tasks[("TASKS.md · backlog + progress")]
+
+    subgraph docs["Governing docs — how each enters the agent's context"]
+        direction TB
+        claudemd["CLAUDE.md · project rules &amp; module map<br/>— AUTO-LOADED (the entry point)"]
+        playbook["ENGINEERING-PLAYBOOK.md<br/>· portable cross-project rules"]
+        positioning["POSITIONING.md<br/>· copy &amp; voice source of truth"]
+        loopmd["LOOP.md<br/>· the loop's operating manual"]
+        claudemd == "@import → auto-loaded with it" ==> playbook
+        claudemd -. "read on demand (copy work)" .-> positioning
+        claudemd -. "read on demand (running the loop)" .-> loopmd
+    end
 
     you --> driver
     issue --> driver
@@ -79,7 +89,7 @@ flowchart LR
     class driver,doer agent;
     class verifier subagent;
     class issue,machinery tool;
-    class tasks,docs state;
+    class tasks,claudemd,playbook,positioning,loopmd state;
     class you human;
     class live ext;
     style mainagent fill:#f6f1fb,stroke:#5e35b1,stroke-width:1px,color:#311b92;
