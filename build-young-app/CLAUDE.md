@@ -106,6 +106,12 @@ only four ways parallel work breaks:
    **one at a time** (squash). After each merge, the next agent rebases. Keep each PR to its owned files
    so review + revert stay clean.
 
+**Parallelize the work, not the rigor.** Each parallel agent runs the **full loop** on its slice — its
+own self-check (build/tests/guards) **and an independent verifier** (a fresh sub-agent grading the diff vs
+the task's acceptance criteria), with the **FAIL → fix → re-verify** retry — and **only a PASS'd PR joins
+the one-at-a-time merge queue.** Fan-out spreads the *doing*; it never skips verification. (Same rigor as
+the sequential loop — see `ARCHITECTURE.md` → "Parallel fan-out".)
+
 **Stay in your lane:** an agent that finds it needs a file it doesn't own STOPS and surfaces it to the
 orchestrator instead of editing across the boundary — cross-boundary edits are exactly how silent
 conflicts happen. (The `App.jsx` router is now **data-driven**: routing is a `ROUTES` registry, so adding
