@@ -52,6 +52,8 @@ a quality/cost judgment; propose a default and confirm. Also pause before merge 
 how the autonomous system spends and verifies, so a human signs off on the policy.
 
 ---
+
+<!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
 ## [x] T9 — Make every crawlable surface 100% accurate + fix the search-result favicon  ·  risk: low
