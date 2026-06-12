@@ -30,8 +30,8 @@ for i, b in enumerate(blocks, 1):
 print(len(blocks))
 PY
 
-# Diagram 1 = the agentic loop, diagram 2 = the app architecture (their order in ARCHITECTURE.md).
-names=("loop" "app")
+# Diagrams in their order in ARCHITECTURE.md: ① the loop, ② parallel fan-out, ③ the app.
+names=("loop" "parallel" "app")
 i=1
 for f in "$TMP"/block*.mmd; do
   name="${names[$((i-1))]:-diagram$i}"

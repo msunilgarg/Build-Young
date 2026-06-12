@@ -81,6 +81,12 @@ The app is split so independent features live in their own files (see Project st
 several agents/sessions work at once **without colliding**, follow these four rules — they target the
 only four ways parallel work breaks:
 
+> **When to fan out (the decision rule):** the default is **sequential** (one task at a time). Fan out to
+> parallel sub-agents **only when ALL hold:** (1) ≥2 tasks on **disjoint files**, (2) **no foundation
+> change** mid-flight (do a needed one first, serially, then branch), (3) **no ordering dependency**
+> between them, (4) the **contract is pinnable** up front. Any miss → stay sequential. Borderline → ask
+> the human. The human can override either way. (Diagram: `ARCHITECTURE.md` → "Parallel fan-out".)
+
 1. **One feature = one file = one agent (no shared files).** Assign each agent a DISJOINT set of files
    from the map above. If a task spans two feature files, give the whole vertical slice to ONE agent
    rather than splitting it. `App.jsx` (the router) is orchestrator-owned — don't grow features into it;
