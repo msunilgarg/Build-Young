@@ -12,9 +12,9 @@ Two systems live in this repo, and this document maps both:
 > **Living-document rule:** any PR that adds/removes/moves a module, endpoint, skill, hook, or
 > external service — or changes how the loop/ship flow works — **updates this file in the same PR.**
 >
-> **Node colors (see the Legend in each diagram):** purple = an **AI agent** (dashed = an *ephemeral
-> spawned sub-agent*), teal = **tool / automation**, amber = **committed state**, blue = **external
-> service**, pink = **human**.
+> **Node colors:** purple = an **AI agent** (dashed = an *ephemeral spawned sub-agent*), teal = **tool /
+> automation**, amber = **committed state**, blue = **external service**, pink = **human**. (Kept as a
+> text key rather than an in-diagram legend so the diagrams stay compact — no floating legend box.)
 >
 > **Rendered exports (zoomable):** [`docs/architecture/loop.pdf`](docs/architecture/loop.pdf) ·
 > [`parallel.pdf`](docs/architecture/parallel.pdf) · [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside). They're for places that don't render
@@ -70,7 +70,7 @@ flowchart TB
     machinery["🛡 Always-on machinery · SessionStart resync · commit guards ·<br/>settings allowlist · GitHub MCP · worktrees"]
     machinery -. guards every step .-> LOOP
 
-    %% ── visual taxonomy (see Legend): agent · sub-agent · tool · state · external · human ──
+    %% ── visual taxonomy (color key is text, in the doc intro): agent · sub-agent · tool · state · external · human ──
     classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
     classDef subagent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,stroke-dasharray:6 3,color:#311b92;
     classDef tool fill:#e0f2f1,stroke:#00897b,stroke-width:2px,color:#004d40;
@@ -84,17 +84,6 @@ flowchart TB
     class you human;
     class live ext;
     style mainagent fill:#f6f1fb,stroke:#5e35b1,stroke-width:1px,color:#311b92;
-
-    subgraph legend["Legend"]
-        direction LR
-        lgA["AI agent (one context: driver + doer)"]:::agent
-        lgS["separate ephemeral sub-agent (verifier)"]:::subagent
-        lgT["tool / automation"]:::tool
-        lgD["committed state"]:::state
-        lgE["external service"]:::ext
-        lgH["human"]:::human
-        lgA ~~~ lgS ~~~ lgT ~~~ lgD ~~~ lgE ~~~ lgH
-    end
 ```
 
 | Node | What it is / its responsibility |
@@ -266,13 +255,6 @@ flowchart TB
     classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
     class anthropic agent;
     class kv,stripe,resend,vercel ext;
-    subgraph legendB["Legend"]
-        direction LR
-        lbA["AI agent"]:::agent
-        lbE["external service"]:::ext
-        lbC["app / api code = default"]
-        lbA ~~~ lbE ~~~ lbC
-    end
 ```
 
 | Node | Responsibility |
@@ -303,12 +285,22 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
   hook / external service); names match the code.
 - **The loop reads as a loop:** the loop diagram has the explicit return edge closing `record → driver`
   (plus the verifier→doer FAIL retry) — not a top-to-bottom pipeline.
-- **Visual taxonomy + legend:** agents, ephemeral sub-agents, tools/automation, committed state,
-  external services, and humans are styled distinctly (the `classDef`s), and each diagram carries a Legend.
+- **Visual taxonomy:** agents, ephemeral sub-agents, tools/automation, committed state, external
+  services, and humans are styled distinctly (the `classDef`s). The color meaning is stated once as a
+  **text key** in the intro — *not* as an in-diagram `Legend` subgraph (a disconnected legend node is a
+  whitespace trap: dagre floats it off to one side and stretches the canvas, leaving a large empty
+  quadrant). Keep the key out of the diagram.
+- **Compact — no large empty regions, readable without zooming.** When you change a Mermaid block,
+  **VIEW the regenerated PNG** (the verifier does this — it can Read the image) and confirm the content
+  fills the frame: no big empty quadrant, no disconnected node stretching the canvas, no need to zoom to
+  read a node. If there's a dead region, fix the cause (most common: a disconnected/`~~~`-chained node,
+  or `LR` where `TB` packs tighter) — don't ship it and don't defer it to a human to flag. This is a
+  *done-condition*, not a nicety.
 - **The verifier shows its inputs:** the diff (from the doer) AND the acceptance-criteria source (`TASKS.md`).
 - **Exports current:** `docs/architecture/*.png|pdf` were regenerated from these Mermaid blocks in the
   SAME change (`scripts/render-architecture.sh`) and render with no Mermaid syntax error.
 - **Cross-linked:** links to `CLAUDE.md` / `ENGINEERING-PLAYBOOK.md` for depth.
 
-The only genuinely subjective bit — "is it *clear*?" — is the one thing that needs a human eye;
-everything above is checkable, so the loop can grade a diagram change instead of bouncing it to you.
+Almost everything above is checkable — by a grep, a re-render, or the verifier **viewing the PNG** —
+so the loop grades a diagram change (including its visual compactness) instead of bouncing it to you.
+The only bit that still needs a human eye is the subjective "is the *story* right?"
