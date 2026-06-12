@@ -54,6 +54,11 @@ Parallel agents collide in exactly four ways; each has one rule.
    its PR**, and PRs merge **one at a time**. After each merge, the next agent rebases. Keep each PR to
    its owned files. *(Prevents: a pile-up of mutually-conflicting branches at the end.)*
 
+**Parallelize the work, not the rigor.** Each parallel agent runs the **full loop** on its slice — its own
+build/test/guards **and an independent verifier** with the FAIL→fix retry — and **only a verified change
+joins the one-at-a-time merge**. Fan-out spreads the *doing*; it must never become a shortcut around
+verification. *(Prevents: parallel speed quietly trading away the check that keeps each change correct.)*
+
 **Stay in your lane:** an agent that finds it needs a file it doesn't own STOPS and surfaces it to the
 orchestrator instead of editing across the boundary. **Design the seams first, then parallelize** — most
 parallel pain is un-agreed interfaces, not the code itself.
