@@ -27,7 +27,31 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 ---
 ---
 
-<!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
+## [ ] T10 — Make the loop model-tiered (cheap execution, premium reasoning)  ·  risk: high
+Goal: the loop and ship flows spend the expensive frontier model only where it changes the outcome —
+planning, architecture/design, and high-risk tasks — and run routine execution (the independent
+verifier's re-run + low-risk doer passes) on a cheaper, faster model, so a fixed plan/budget isn't
+burned on the easy parts.
+Acceptance criteria:
+- A documented **model-tiering policy** lives in `ENGINEERING-PLAYBOOK.md` (portable: principle + why —
+  match model to role; cheap for bulk execution/verification, premium for planning + high-risk; don't
+  trade away the *rigor*, only the cost) and the project specifics in `build-young-app/CLAUDE.md`.
+- `.claude/skills/run-loop/SKILL.md` and `.claude/skills/ship/SKILL.md` instruct: spawn the independent
+  **verifier sub-agent on a cheaper model** (e.g. the Agent tool's `model:` set to a Sonnet/Haiku-class
+  id) and reserve the premium model for planning and any `risk: high` task — WITHOUT weakening the
+  verifier's standing checks (it still re-runs build/tests, grades the diff, views diagrams, ~3 rounds).
+- The tier is named by **model family/role, not a hardcoded marketing name that will age** — reference
+  the `claude-api` skill for current valid model ids so the doc doesn't pin a stale string.
+- No change to the guardrails: high-risk still pauses, never push main directly, no internal/model
+  identifiers in committed artifacts, verifier never skipped.
+- Build + tests stay green; docs/skills-only change (no app source) unless the Action needs a model arg.
+Files: `ENGINEERING-PLAYBOOK.md`, `build-young-app/CLAUDE.md`, `.claude/skills/run-loop/SKILL.md`,
+`.claude/skills/ship/SKILL.md`, optionally `.github/workflows/run-loop.yml` (its `claude_args` model).
+Stop-and-ask if: choosing the *specific* cheaper model id for verifiers (which Sonnet/Haiku tier) — it's
+a quality/cost judgment; propose a default and confirm. Also pause before merge (high risk): this changes
+how the autonomous system spends and verifies, so a human signs off on the policy.
+
+---
 ## Done
 
 ## [x] T9 — Make every crawlable surface 100% accurate + fix the search-result favicon  ·  risk: low
