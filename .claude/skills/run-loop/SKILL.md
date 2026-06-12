@@ -32,10 +32,10 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
    else **FAIL** with the specific gaps. The doer cannot grade its own homework.
    - **Standing check — EVERY task, independent of the acceptance criteria above:** if the diff
      adds, removes, moves, or renames a module / endpoint / route / skill / hook, or changes the
-     loop or ship flow, it MUST also update `ARCHITECTURE.md` (and `CLAUDE.md` where relevant) in the
+     loop or ship flow, it MUST also update `BUILD-YOUNG-ARCHITECTURE.md` (and `CLAUDE.md` where relevant) in the
      SAME diff. **FAIL** if the structure changed but the architecture doc didn't. (A living diagram
      drifts silently when its upkeep relies on memory — so the independent check owns it, not the spec.)
-     Likewise, if a `ARCHITECTURE.md` **Mermaid block** changed, the regenerated exports
+     Likewise, if a `BUILD-YOUNG-ARCHITECTURE.md` **Mermaid block** changed, the regenerated exports
      (`docs/architecture/*.png|pdf` via `scripts/render-architecture.sh`) must be in the SAME diff — **FAIL** if not.
      And **diagram ↔ policy consistency (bidirectional):** if the diff makes a diagram/doc *assert* a
      behavior or rule, confirm the governing policy (`CLAUDE.md` protocols / the playbook) states the same —

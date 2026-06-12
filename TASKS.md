@@ -85,11 +85,11 @@ Done: removed the dead `const Charts = React.lazy(() => import("./Charts.jsx"))`
 the router; charts are lazy-loaded from FounderDashboard.jsx. Build still code-splits recharts; 230
 tests green.
 
-## [x] T6 — Create ARCHITECTURE.md (living diagrams) + the keep-it-updated rule  ·  risk: med
-Done: `ARCHITECTURE.md` added at the repo root with two **Mermaid** diagrams + component tables —
+## [x] T6 — Create BUILD-YOUNG-ARCHITECTURE.md (living diagrams) + the keep-it-updated rule  ·  risk: med
+Done: `BUILD-YOUNG-ARCHITECTURE.md` added at the repo root with two **Mermaid** diagrams + component tables —
 (1) the agentic loop (triggers incl. the new issue-triggered `run-loop.yml` Action → durable state →
 driver → doer → verifier → ship/pause → live, plus the always-on guards/hooks/MCP/worktrees machinery)
 and (2) the app (App.jsx router → screen modules → foundation modules → `api/` serverless endpoints →
 KV + Stripe/Resend/Vercel/Anthropic). Module/endpoint names match the repo. The **living-document
 rule** is installed in `build-young-app/CLAUDE.md` (any PR changing a module/endpoint/skill/hook/
-service or the loop flow updates ARCHITECTURE.md in the same PR). Docs only — no app code touched.
+service or the loop flow updates BUILD-YOUNG-ARCHITECTURE.md in the same PR). Docs only — no app code touched.
