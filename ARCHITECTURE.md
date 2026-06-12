@@ -29,28 +29,36 @@ How work gets done here: you write a **goal** (a task), and the loop drives it t
 implement → verify (independently) → ship — pausing only on the conditions noted below.
 
 ```mermaid
+---
+title: Build Young — Agent Harness (the autonomous loop)
+---
 flowchart LR
-    %% ── what starts a run: ONE on-ramp, not both (this OR that) ──
-    subgraph onramps["① Start a run — ONE on-ramp (this OR that, never both)"]
-        you["You — /run-loop locally<br/>· drains the TASKS.md backlog"]
-        issue["GitHub Issue + 'loop-task' → run-loop.yml Action<br/>(unattended) · the issue IS the task (no TASKS.md)"]
-    end
-    tasks[("TASKS.md · backlog + progress")]
-
-    subgraph docs["Governing docs — how each enters the agent's context"]
+    %% ── inputs to the driver, ordered top→bottom: ① start → ② backlog → ③ context ──
+    subgraph inputs["Inputs to the driver"]
         direction TB
-        claudemd["CLAUDE.md · project rules &amp; module map<br/>— AUTO-LOADED (the entry point)"]
-        playbook["ENGINEERING-PLAYBOOK.md<br/>· portable cross-project rules"]
-        positioning["POSITIONING.md<br/>· copy &amp; voice source of truth"]
-        loopmd["LOOP.md<br/>· the loop's operating manual"]
-        claudemd == "@import → auto-loaded with it" ==> playbook
-        claudemd -. "read on demand (copy work)" .-> positioning
-        claudemd -. "read on demand (running the loop)" .-> loopmd
+        subgraph onramps["① Start a run — ONE on-ramp (this OR that, never both)"]
+            direction TB
+            you["You — /run-loop locally<br/>· drains the TASKS.md backlog"]
+            issue["GitHub Issue + 'loop-task' → run-loop.yml Action<br/>(unattended) · the issue IS the task (no TASKS.md)"]
+        end
+        tasks[("② TASKS.md · backlog + progress<br/>(read by the local /run-loop path)")]
+        subgraph docs["③ Governing docs — how each enters the agent's context"]
+            direction TB
+            claudemd["CLAUDE.md · project rules &amp; module map<br/>— AUTO-LOADED (the entry point)"]
+            playbook["ENGINEERING-PLAYBOOK.md<br/>· portable cross-project rules"]
+            positioning["POSITIONING.md<br/>· copy &amp; voice source of truth"]
+            loopmd["LOOP.md<br/>· the loop's operating manual"]
+            claudemd == "@import → auto-loaded with it" ==> playbook
+            claudemd -. "read on demand (copy work)" .-> positioning
+            claudemd -. "read on demand (running the loop)" .-> loopmd
+        end
+        onramps ~~~ tasks
+        tasks ~~~ docs
     end
 
     you --> driver
     issue --> driver
-    tasks == "backlog · used by the local /run-loop path only" ==> driver
+    tasks ==> driver
     docs -. context .-> driver
 
     subgraph LOOP["♻ THE LOOP — one task at a time; repeats until the backlog is empty (or it hits a stop condition)"]
@@ -137,6 +145,9 @@ modules, dependency-light foundation modules, and Vercel **serverless functions*
 talk to KV and a few external services.
 
 ```mermaid
+---
+title: Build Young — Application Architecture
+---
 flowchart TB
     browser["🌐 Browser (SPA)"]
 
