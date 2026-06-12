@@ -1,6 +1,6 @@
 # Build Young — task backlog (the loop's queue + state)
 
-This file is the **durable state** for the autonomous loop (see `LOOP.md`). The loop drains it
+This file is the **durable state** for the autonomous loop (see `ENGINEERING-PLAYBOOK.md` §9). The loop drains it
 top-to-bottom: it picks the first unchecked task, implements it, has a separate verifier check it,
 ships it, marks it done, and moves on. Because it's committed to git, it **survives container resets**
 — a fresh session re-reads this file and resumes where the last one stopped.

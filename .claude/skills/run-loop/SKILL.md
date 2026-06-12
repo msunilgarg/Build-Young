@@ -7,7 +7,7 @@ description: Autonomously drain the Build Young task backlog (TASKS.md) — the 
 
 You are the **driver**. The user has handed you the goals (in `TASKS.md`); your job is to pursue them
 without being prompted per step. The next step always comes from a **signal** — a failing test, the
-verifier's gap report, or the next backlog item — never from guesswork. Read `LOOP.md` once for the
+verifier's gap report, or the next backlog item — never from guesswork. Read `ENGINEERING-PLAYBOOK.md` §9 (loop engineering) once for the
 full picture.
 
 ## Autonomy: FULL AUTO

@@ -7,7 +7,7 @@ tests + guards + an independent verifier) and ships it — **except high-risk ta
 implements and opens a PR for, then pauses for you.**
 
 It's the cloud twin of the local `/run-loop` skill: same rules (`.claude/skills/run-loop/SKILL.md`
-+ `LOOP.md` + `build-young-app/CLAUDE.md`), just triggered by an issue instead of a prompt.
++ `ENGINEERING-PLAYBOOK.md` §9 + `build-young-app/CLAUDE.md`), just triggered by an issue instead of a prompt.
 
 ## One-time setup (≈3 minutes)
 

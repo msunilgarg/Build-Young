@@ -176,6 +176,37 @@ size.
   forever."
 - Internal/build identifiers and model strings never land in committed artifacts (enforce with a guard).
 
+## 9. Loop engineering (drive a backlog autonomously)
+
+Set up a project so an agent **drains a backlog without being prompted step by step** — you write goals;
+a **driver** pursues them. The payoff isn't "more agents"; it's that each next step comes from a
+**feedback signal**, never guesswork.
+
+- **You write the done-condition; the loop does the rest.** A task = a goal + **acceptance criteria** +
+  a risk level. The loop picks it, implements the smallest change, self-checks (build/tests/guards), has
+  an **independent verifier** grade it against the criteria, ships it, marks it done, next. You only weigh
+  in on ambiguity, a destructive/irreversible action, a high-risk task, or a verifier it can't satisfy.
+- **The next step is a signal, not an idea.** A failing test → "fix this." The verifier's gap report →
+  "not done, here's the gap." CI on an open PR → the log is the next prompt. The next backlog item → the
+  next goal. So engineering the loop = engineering **clear done-conditions** + **fast feedback**; a vague
+  goal or weak signal makes it spin — that's the failure mode to design against, not the agent count.
+- **Split writing from checking — the doer can't grade its own homework.** The doer and a **fresh-context,
+  independent verifier** must be different contexts; the verifier re-runs build/tests and grades the diff
+  against the acceptance criteria, then returns PASS or FAIL+gaps. (Fan this out in parallel per §2.)
+- **Every shipped change is independently verified — regardless of how it was triggered.** Don't let a
+  "direct edit" become an unverified path: verification is a property of *shipping*, not of one entry
+  point. Scale the check to the change (trivial vs substantive), but never skip it.
+- **Risk drives autonomy.** Low/med-risk changes ship on their own; high-risk / architectural / money- or
+  auth-touching / ambiguous changes are implemented but **pause for human review** before merge.
+- **State lives in committed files so a fresh/ephemeral session resumes** — the backlog + progress, the
+  project guide, this playbook: memory that survives container resets.
+- **Trigger it however suits the moment** — a human prompt, a schedule, or an event (e.g. a labeled
+  issue) — but the *procedure* is identical once started.
+- **Guardrails stay on even in full auto:** never auto-merge a destructive/irreversible/outward-facing
+  action without confirming; never push the main branch directly (enforce with a deny rule); never put
+  internal/model identifiers in committed artifacts (enforce with a commit guard); if the verifier fails
+  the same task ~3 rounds, stop and surface the blocker instead of thrashing.
+
 ---
 
 ## Meta: keeping this current
@@ -190,6 +221,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-12** — Added §9 "Loop engineering" (folded in the portable loop-engineering principles from the retired `LOOP.md`) — one playbook for all engineering practice; project-specific loop wiring lives in the project's architecture doc + CLAUDE.md.
 - **2026-06-11** — §3: diagrams/reference lists must be self-explanatory — a one-line purpose per node, kinds distinguished + legend, real relationships, and acceptance criteria so a living diagram is verified not babysat.
 - **2026-06-11** — §3: strengthened the "patterned bug → standing rule" practice — record the learning in the same change AND place it where it's read at the next similar change, so the fix is implemented with that change (not rediscovered after the bug returns).
 - **2026-06-11** — §3: make living-doc/diagram upkeep a *standing* check in the independent verifier (a living architecture diagram had drifted because upkeep relied on memory and per-task criteria).
