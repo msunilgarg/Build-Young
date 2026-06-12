@@ -20,7 +20,7 @@ this, edit the "Autonomy" section of `.claude/skills/run-loop/SKILL.md`.
 ## The six components (and where each lives here)
 | Component | What it is | In this repo |
 |---|---|---|
-| **State file** | survives between runs so the loop has memory | `TASKS.md` (backlog + progress), `CLAUDE.md` (project knowledge), `ENGINEERING-PLAYBOOK.md` (cross-project) — all committed, so they survive ephemeral container resets |
+| **State file** | survives between runs so the loop has memory | `TASKS.md` (backlog + progress), `CLAUDE.md` (project knowledge — auto-loaded, and `@import`s `ENGINEERING-PLAYBOOK.md`), `POSITIONING.md` (copy & voice source of truth), `LOOP.md` (this manual) — all committed, so they survive ephemeral container resets. (See the "Governing docs" cluster in `ARCHITECTURE.md` for which are auto-loaded vs read on demand.) |
 | **Skills** | reusable procedures the agent loads on demand | `/run-loop` (the driver), `/ship` (build→test→guards→PR→merge→sync), `/update-playbook` |
 | **Connectors** | reach real tools | the **GitHub MCP** (issues, PRs, merge, diff verification) |
 | **Sub-agents** | split *writing* from *checking* | `/run-loop` spawns a **doer** (optionally worktree-isolated) and a **fresh verifier subagent** that grades the diff in its own context — the doer can't grade its own homework |
