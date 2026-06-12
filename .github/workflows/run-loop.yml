@@ -63,7 +63,7 @@ jobs:
             as ONE backlog task (the same kind that lives in TASKS.md). Read these first and follow
             them exactly — they are the contract:
               - `.claude/skills/run-loop/SKILL.md`  (the loop procedure + stop conditions)
-              - `LOOP.md`                            (what the loop does + guardrails)
+              - `ENGINEERING-PLAYBOOK.md` §9                            (what the loop does + guardrails)
               - `build-young-app/CLAUDE.md`          (project rules, module map, quality bars)
 
             The task to implement is GitHub Issue #${{ github.event.issue.number }}:

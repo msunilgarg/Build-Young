@@ -3,7 +3,7 @@
 Two systems live in this repo, and this document maps both:
 
 1. **The agentic engineering system** — how a goal becomes a shipped change to the live site,
-   mostly without per-step prompting (the "loop"). See also [`LOOP.md`](./LOOP.md).
+   mostly without per-step prompting (the "loop"). See also [`ENGINEERING-PLAYBOOK.md`](./ENGINEERING-PLAYBOOK.md) §9 "Loop engineering".
 2. **The application** — the React marketing site + enrollment + course dashboard, its serverless
    API, and the external services it talks to. See also [`build-young-app/CLAUDE.md`](./build-young-app/CLAUDE.md).
 
@@ -40,7 +40,7 @@ flowchart TB
         issue["GitHub Issue + 'loop-task' → Action<br/>(the issue IS the task; no TASKS.md)"]
     end
     tasks[("② TASKS.md · backlog")]
-    docs["③ Governing docs (context)<br/>CLAUDE.md — auto-loaded, @imports ENGINEERING-PLAYBOOK.md<br/>POSITIONING.md · LOOP.md — read on demand"]
+    docs["③ Governing docs (context)<br/>CLAUDE.md — auto-loaded, @imports ENGINEERING-PLAYBOOK.md<br/>(playbook §9 = loop engineering) · POSITIONING.md — read on demand"]
 
     onramps --> driver
     tasks ==> driver
@@ -100,7 +100,7 @@ flowchart TB
 | Node | What it is / its responsibility |
 |---|---|
 | **Triggers** | Two on-ramps to the same driver — **use one OR the other for a given task, never both.** **Local `/run-loop`** (runs in your Claude Code on your subscription; drains the `TASKS.md` backlog) **or** the **issue-triggered GitHub Action** (`.github/workflows/run-loop.yml`, gated by the `loop-task` label, billed to Anthropic API credits; the **issue itself is the task** — it doesn't read `TASKS.md`). Same procedure once started. |
-| **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `TASKS.md` (queue + done log), `CLAUDE.md` (project rules/module map), `POSITIONING.md` (copy & voice source of truth), `LOOP.md` (manual), `ENGINEERING-PLAYBOOK.md` (portable rules). |
+| **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `TASKS.md` (queue + done log), `CLAUDE.md` (project rules/module map), `POSITIONING.md` (copy & voice source of truth), `ENGINEERING-PLAYBOOK.md` (portable rules + §9 loop engineering). |
 | **Driver + Doer** (`.claude/skills/run-loop`) | **The same agent, one context, two hats.** As *driver* it picks the first unchecked task and never guesses the next step — it comes from a **signal** (failing build/test, verifier gap, or the next backlog item); as *doer* it writes the smallest change that meets the acceptance criteria, staying in the task's file lane. (The doer *may* fan out to a **worktree**-isolated sub-agent for parallel work — the exception, not the default.) |
 | **Risk gate** | Reads the task's `risk:`. Everything is implemented; only the **merge** decision differs (see ship gate). |
 | **Self-check** | `npm run build` + `npx vitest run` + repo guards (no `\uXXXX`, no internal model id, no resurrected money-sim markers). Fix until green. |
@@ -111,7 +111,7 @@ flowchart TB
 
 **Stop conditions** (the loop bounces back to you instead of merging): `risk: high`, a destructive/
 irreversible/outward-facing action, an ambiguous/underspecified task, or a verifier that keeps
-failing. Detail in [`LOOP.md`](./LOOP.md) and [`.claude/skills/run-loop/SKILL.md`](./.claude/skills/run-loop/SKILL.md).
+failing. Detail in [`ENGINEERING-PLAYBOOK.md`](./ENGINEERING-PLAYBOOK.md) §9 and [`.claude/skills/run-loop/SKILL.md`](./.claude/skills/run-loop/SKILL.md).
 
 There is also a **second automation** that predates the loop: [`.github/workflows/content-integrity.yml`](./.github/workflows/content-integrity.yml)
 — a weekly scheduled agent that verifies curriculum links/stats and opens a PR for human review
@@ -289,7 +289,7 @@ flowchart TB
 | **External services** | **Vercel KV** (all persisted state), **Stripe** (Payment Links + webhook), **Resend** (email + broadcast audiences, key-gated/best-effort), **Vercel** (hosting + cookieless Web Analytics), **Anthropic API** (the scenario agent). Secrets stay env-only. |
 
 For deeper detail on any node, see [`build-young-app/CLAUDE.md`](./build-young-app/CLAUDE.md) (module map,
-quality bars, navigation/perf invariants) and [`LOOP.md`](./LOOP.md) (the loop).
+quality bars, navigation/perf invariants) and [`ENGINEERING-PLAYBOOK.md`](./ENGINEERING-PLAYBOOK.md) §9 (loop engineering).
 
 ---
 
@@ -308,7 +308,7 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
 - **The verifier shows its inputs:** the diff (from the doer) AND the acceptance-criteria source (`TASKS.md`).
 - **Exports current:** `docs/architecture/*.png|pdf` were regenerated from these Mermaid blocks in the
   SAME change (`scripts/render-architecture.sh`) and render with no Mermaid syntax error.
-- **Cross-linked:** links to `CLAUDE.md` / `LOOP.md` for depth.
+- **Cross-linked:** links to `CLAUDE.md` / `ENGINEERING-PLAYBOOK.md` for depth.
 
 The only genuinely subjective bit — "is it *clear*?" — is the one thing that needs a human eye;
 everything above is checkable, so the loop can grade a diagram change instead of bouncing it to you.
