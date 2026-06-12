@@ -15,6 +15,10 @@ repo, e.g. to CI / the cloud loop):** @../ENGINEERING-PLAYBOOK.md
 > the structure changes without it. **If you change a Mermaid block, also regenerate the rendered
 > exports in the same PR — `bash scripts/render-architecture.sh` (writes `docs/architecture/*.png|pdf`).**
 
+> **Shipping any change — use `/ship`** (build → tests → guards → an **independent verifier** sub-agent →
+> PR → squash-merge → sync). Verification is part of shipping, not optional: a *direct edit* gets the same
+> verifier as a `/run-loop` task, so nothing merges unverified. (Playbook §9; the skill is `.claude/skills/ship`.)
+
 ## What this is
 **Build Young** is a live, online entrepreneurship program for high schoolers: over 12 weeks
 they build a real product with AI, take it live, grow it, and go to market for their first
