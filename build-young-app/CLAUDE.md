@@ -7,10 +7,10 @@ confidently. Read it fully before making changes.
 repo, e.g. to CI / the cloud loop):** @../ENGINEERING-PLAYBOOK.md
 
 > **Keep the architecture doc alive (living-document rule).** The repo-root
-> [`ARCHITECTURE.md`](../ARCHITECTURE.md) maps both layers — the agentic loop and the app
+> [`BUILD-YOUNG-ARCHITECTURE.md`](../BUILD-YOUNG-ARCHITECTURE.md) maps both layers — the agentic loop and the app
 > (router → screens → foundation → `api/` → external services). Any PR that **adds, removes, moves,
 > or renames a module, an `api/` endpoint, a skill, a hook, or an external service — or changes how
-> the loop / ship flow works — must update `ARCHITECTURE.md` (and its Mermaid diagrams) in the same
+> the loop / ship flow works — must update `BUILD-YOUNG-ARCHITECTURE.md` (and its Mermaid diagrams) in the same
 > PR.** Same principle as keeping this guide in sync with the code: the diagram is wrong the moment
 > the structure changes without it. **If you change a Mermaid block, also regenerate the rendered
 > exports in the same PR — `bash scripts/render-architecture.sh` (writes `docs/architecture/*.png|pdf`).**
@@ -85,7 +85,7 @@ only four ways parallel work breaks:
 > parallel sub-agents **only when ALL hold:** (1) ≥2 tasks on **disjoint files**, (2) **no foundation
 > change** mid-flight (do a needed one first, serially, then branch), (3) **no ordering dependency**
 > between them, (4) the **contract is pinnable** up front. Any miss → stay sequential. Borderline → ask
-> the human. The human can override either way. (Diagram: `ARCHITECTURE.md` → "Parallel fan-out".)
+> the human. The human can override either way. (Diagram: `BUILD-YOUNG-ARCHITECTURE.md` → "Parallel fan-out".)
 
 1. **One feature = one file = one agent (no shared files).** Assign each agent a DISJOINT set of files
    from the map above. If a task spans two feature files, give the whole vertical slice to ONE agent
@@ -110,7 +110,7 @@ only four ways parallel work breaks:
 own self-check (build/tests/guards) **and an independent verifier** (a fresh sub-agent grading the diff vs
 the task's acceptance criteria), with the **FAIL → fix → re-verify** retry — and **only a PASS'd PR joins
 the one-at-a-time merge queue.** Fan-out spreads the *doing*; it never skips verification. (Same rigor as
-the sequential loop — see `ARCHITECTURE.md` → "Parallel fan-out".)
+the sequential loop — see `BUILD-YOUNG-ARCHITECTURE.md` → "Parallel fan-out".)
 
 **Stay in your lane:** an agent that finds it needs a file it doesn't own STOPS and surfaces it to the
 orchestrator instead of editing across the boundary — cross-boundary edits are exactly how silent

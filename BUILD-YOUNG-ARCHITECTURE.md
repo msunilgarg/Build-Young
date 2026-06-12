@@ -295,7 +295,7 @@ quality bars, navigation/perf invariants) and [`LOOP.md`](./LOOP.md) (the loop).
 
 ## Acceptance criteria for this doc (so changes can be *verified*, not just eyeballed)
 
-The "done" conditions for any change to `ARCHITECTURE.md` — most are objectively checkable (by the
+The "done" conditions for any change to `BUILD-YOUNG-ARCHITECTURE.md` — most are objectively checkable (by the
 loop's verifier or a grep), which is what keeps diagram edits from turning into back-and-forth:
 
 - **Both layers present:** the agentic loop AND the app, each with a Mermaid diagram + a component table.

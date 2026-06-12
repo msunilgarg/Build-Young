@@ -107,7 +107,7 @@ cohort catalog + founder-editable site settings are also KV-backed (`api/cohorts
 ## Project layout
 The app was split so each feature lives in its own file; `App.jsx` is now the router only. See
 [`build-young-app/CLAUDE.md`](./CLAUDE.md) for the full module map and
-[`../ARCHITECTURE.md`](../ARCHITECTURE.md) for diagrams.
+[`../BUILD-YOUNG-ARCHITECTURE.md`](../BUILD-YOUNG-ARCHITECTURE.md) for diagrams.
 ```
 index.html            meta, favicon, SEO/JSON-LD, storage shim
 src/main.jsx          mounts <App/>

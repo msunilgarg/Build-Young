@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Render the Mermaid diagrams in ARCHITECTURE.md to versioned exports (docs/architecture/).
-# Run this in the SAME change whenever you edit a ```mermaid block in ARCHITECTURE.md, so the
+# Render the Mermaid diagrams in BUILD-YOUNG-ARCHITECTURE.md to versioned exports (docs/architecture/).
+# Run this in the SAME change whenever you edit a ```mermaid block in BUILD-YOUNG-ARCHITECTURE.md, so the
 # rendered exports never drift from the source. One command:  bash scripts/render-architecture.sh
 #
 # Outputs, per diagram:  <name>.png (quick inline preview)  +  <name>.pdf (vector — zoom without pixelating).
@@ -9,7 +9,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."   # repo root
 
-SRC="ARCHITECTURE.md"
+SRC="BUILD-YOUNG-ARCHITECTURE.md"
 OUT="docs/architecture"
 mkdir -p "$OUT"
 TMP="$(mktemp -d)"
@@ -30,7 +30,7 @@ for i, b in enumerate(blocks, 1):
 print(len(blocks))
 PY
 
-# Diagrams in their order in ARCHITECTURE.md: ① the loop, ② parallel fan-out, ③ the app.
+# Diagrams in their order in BUILD-YOUNG-ARCHITECTURE.md: ① the loop, ② parallel fan-out, ③ the app.
 names=("loop" "parallel" "app")
 i=1
 for f in "$TMP"/block*.mmd; do
