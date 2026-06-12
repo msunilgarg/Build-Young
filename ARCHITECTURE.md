@@ -30,9 +30,11 @@ implement → verify (independently) → ship — pausing only on the conditions
 
 ```mermaid
 flowchart LR
-    %% ── what starts / feeds a run (inputs, left) ──
-    you["You — /run-loop<br/>(your Claude plan)"]
-    issue["GitHub Issue + 'loop-task'<br/>→ run-loop.yml Action (unattended)"]
+    %% ── what starts a run: ONE on-ramp, not both (this OR that) ──
+    subgraph onramps["① Start a run — ONE on-ramp (this OR that, never both)"]
+        you["You — /run-loop locally<br/>· drains the TASKS.md backlog"]
+        issue["GitHub Issue + 'loop-task' → run-loop.yml Action<br/>(unattended) · the issue IS the task (no TASKS.md)"]
+    end
     tasks[("TASKS.md · backlog + progress")]
 
     subgraph docs["Governing docs — how each enters the agent's context"]
@@ -48,7 +50,7 @@ flowchart LR
 
     you --> driver
     issue --> driver
-    tasks ==> driver
+    tasks == "backlog · used by the local /run-loop path only" ==> driver
     docs -. context .-> driver
 
     subgraph LOOP["♻ THE LOOP — one task at a time; repeats until the backlog is empty (or it hits a stop condition)"]
@@ -108,7 +110,7 @@ flowchart LR
 
 | Node | What it is / its responsibility |
 |---|---|
-| **Triggers** | Two on-ramps to the same driver. **Local `/run-loop`** (runs in your Claude Code, covered by your subscription) and an **issue-triggered GitHub Action** (`.github/workflows/run-loop.yml`, gated by the `loop-task` label, billed to Anthropic API credits). Same procedure either way. |
+| **Triggers** | Two on-ramps to the same driver — **use one OR the other for a given task, never both.** **Local `/run-loop`** (runs in your Claude Code on your subscription; drains the `TASKS.md` backlog) **or** the **issue-triggered GitHub Action** (`.github/workflows/run-loop.yml`, gated by the `loop-task` label, billed to Anthropic API credits; the **issue itself is the task** — it doesn't read `TASKS.md`). Same procedure once started. |
 | **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `TASKS.md` (queue + done log), `CLAUDE.md` (project rules/module map), `POSITIONING.md` (copy & voice source of truth), `LOOP.md` (manual), `ENGINEERING-PLAYBOOK.md` (portable rules). |
 | **Driver + Doer** (`.claude/skills/run-loop`) | **The same agent, one context, two hats.** As *driver* it picks the first unchecked task and never guesses the next step — it comes from a **signal** (failing build/test, verifier gap, or the next backlog item); as *doer* it writes the smallest change that meets the acceptance criteria, staying in the task's file lane. (The doer *may* fan out to a **worktree**-isolated sub-agent for parallel work — the exception, not the default.) |
 | **Risk gate** | Reads the task's `risk:`. Everything is implemented; only the **merge** decision differs (see ship gate). |
