@@ -127,32 +127,56 @@ own git worktree, converging on a one-at-a-time merge.
 
 ```mermaid
 ---
-title: Parallel fan-out — the harness running N sub-agents at once
+title: Parallel fan-out — each sub-agent runs its OWN doer↔verifier loop
 ---
 flowchart TB
     orch["ORCHESTRATOR (the driver) · splits work into disjoint slices ·<br/>pins the contract · freezes the foundation (additive-only)"]
-    orch --> a["sub-agent A<br/>git worktree · branch claude/feat-a · files {X}"]
-    orch --> b["sub-agent B<br/>git worktree · branch claude/feat-b · files {Y}"]
-    orch --> c["sub-agent C<br/>git worktree · branch claude/feat-c · files {Z}"]
-    a --> av["A: own self-check + verifier"]
-    b --> bv["B: own self-check + verifier"]
-    c --> cv["C: own self-check + verifier"]
-    av --> merge["INTEGRATION · each rebases on main ·<br/>PRs squash-merge ONE at a time"]
-    bv --> merge
-    cv --> merge
+    orch --> da
+    orch --> db
+    orch --> dc
+
+    subgraph A["sub-agent A · worktree · branch claude/feat-a · files {X}"]
+        direction TB
+        da["DOER · writes the change"]
+        va["self-check + VERIFIER<br/>(its own ephemeral sub-agent)"]
+        da --> va
+        va -. "FAIL → fix the gaps (↺ retry)" .-> da
+    end
+    subgraph B["sub-agent B · worktree · branch claude/feat-b · files {Y}"]
+        direction TB
+        db["DOER · writes the change"]
+        vb["self-check + VERIFIER<br/>(its own ephemeral sub-agent)"]
+        db --> vb
+        vb -. "FAIL → fix the gaps (↺ retry)" .-> db
+    end
+    subgraph C["sub-agent C · worktree · branch claude/feat-c · files {Z}"]
+        direction TB
+        dc["DOER · writes the change"]
+        vc["self-check + VERIFIER<br/>(its own ephemeral sub-agent)"]
+        dc --> vc
+        vc -. "FAIL → fix the gaps (↺ retry)" .-> dc
+    end
+
+    va == "PASS → PR" ==> merge
+    vb == "PASS → PR" ==> merge
+    vc == "PASS → PR" ==> merge
+    merge["INTEGRATION · each rebases on main ·<br/>PRs squash-merge ONE at a time"]
     merge --> main["🌐 main / live site"]
+
     classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
     classDef subagent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,stroke-dasharray:6 3,color:#311b92;
     classDef tool fill:#e0f2f1,stroke:#00897b,stroke-width:2px,color:#004d40;
     classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
-    class orch agent;
-    class a,b,c subagent;
+    class orch,da,db,dc agent;
+    class va,vb,vc subagent;
     class merge tool;
     class main ext;
 ```
 
-**They never share a file or talk to each other** — each sub-agent has its own context + git worktree.
-Coordination is the **contract** (seams pinned up front) + the **serialized merge order**, not inter-agent chat.
+**Each branch is the full loop, not a one-shot** — every sub-agent runs the same **doer → self-check →
+verifier** cycle (with the **FAIL → fix → re-verify** retry from the main loop), just on its own slice.
+**They never share a file or talk to each other** — each has its own context + git worktree. Coordination
+is the **contract** (seams pinned up front) + the **serialized merge order**, not inter-agent chat.
 
 **When the harness fans out (the decision rule):** default is **sequential**; the orchestrator parallelizes
 **only when ALL hold** — (1) ≥2 tasks on **disjoint files**, (2) **no foundation change** mid-flight
