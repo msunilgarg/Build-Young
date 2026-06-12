@@ -29,21 +29,31 @@ How work gets done here: you write a **goal** (a task), and the loop drives it t
 implement → verify (independently) → ship — pausing only on the conditions noted below.
 
 ```mermaid
+---
+title: Build Young — Agent Harness (the autonomous loop)
+---
 flowchart LR
-    %% ── what starts / feeds a run (inputs, left) ──
-    you["You — /run-loop<br/>(your Claude plan)"]
-    issue["GitHub Issue + 'loop-task'<br/>→ run-loop.yml Action (unattended)"]
-    tasks[("TASKS.md · backlog + progress")]
-
-    subgraph docs["Governing docs — how each enters the agent's context"]
+    %% ── inputs to the driver, ordered top→bottom: ① start → ② backlog → ③ context ──
+    subgraph inputs["Inputs to the driver"]
         direction TB
-        claudemd["CLAUDE.md · project rules &amp; module map<br/>— AUTO-LOADED (the entry point)"]
-        playbook["ENGINEERING-PLAYBOOK.md<br/>· portable cross-project rules"]
-        positioning["POSITIONING.md<br/>· copy &amp; voice source of truth"]
-        loopmd["LOOP.md<br/>· the loop's operating manual"]
-        claudemd == "@import → auto-loaded with it" ==> playbook
-        claudemd -. "read on demand (copy work)" .-> positioning
-        claudemd -. "read on demand (running the loop)" .-> loopmd
+        subgraph onramps["① Start a run — ONE on-ramp (this OR that, never both)"]
+            direction TB
+            you["You — /run-loop locally<br/>· drains the TASKS.md backlog"]
+            issue["GitHub Issue + 'loop-task' → run-loop.yml Action<br/>(unattended) · the issue IS the task (no TASKS.md)"]
+        end
+        tasks[("② TASKS.md · backlog + progress<br/>(read by the local /run-loop path)")]
+        subgraph docs["③ Governing docs — how each enters the agent's context"]
+            direction TB
+            claudemd["CLAUDE.md · project rules &amp; module map<br/>— AUTO-LOADED (the entry point)"]
+            playbook["ENGINEERING-PLAYBOOK.md<br/>· portable cross-project rules"]
+            positioning["POSITIONING.md<br/>· copy &amp; voice source of truth"]
+            loopmd["LOOP.md<br/>· the loop's operating manual"]
+            claudemd == "@import → auto-loaded with it" ==> playbook
+            claudemd -. "read on demand (copy work)" .-> positioning
+            claudemd -. "read on demand (running the loop)" .-> loopmd
+        end
+        onramps ~~~ tasks
+        tasks ~~~ docs
     end
 
     you --> driver
@@ -108,7 +118,7 @@ flowchart LR
 
 | Node | What it is / its responsibility |
 |---|---|
-| **Triggers** | Two on-ramps to the same driver. **Local `/run-loop`** (runs in your Claude Code, covered by your subscription) and an **issue-triggered GitHub Action** (`.github/workflows/run-loop.yml`, gated by the `loop-task` label, billed to Anthropic API credits). Same procedure either way. |
+| **Triggers** | Two on-ramps to the same driver — **use one OR the other for a given task, never both.** **Local `/run-loop`** (runs in your Claude Code on your subscription; drains the `TASKS.md` backlog) **or** the **issue-triggered GitHub Action** (`.github/workflows/run-loop.yml`, gated by the `loop-task` label, billed to Anthropic API credits; the **issue itself is the task** — it doesn't read `TASKS.md`). Same procedure once started. |
 | **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `TASKS.md` (queue + done log), `CLAUDE.md` (project rules/module map), `POSITIONING.md` (copy & voice source of truth), `LOOP.md` (manual), `ENGINEERING-PLAYBOOK.md` (portable rules). |
 | **Driver + Doer** (`.claude/skills/run-loop`) | **The same agent, one context, two hats.** As *driver* it picks the first unchecked task and never guesses the next step — it comes from a **signal** (failing build/test, verifier gap, or the next backlog item); as *doer* it writes the smallest change that meets the acceptance criteria, staying in the task's file lane. (The doer *may* fan out to a **worktree**-isolated sub-agent for parallel work — the exception, not the default.) |
 | **Risk gate** | Reads the task's `risk:`. Everything is implemented; only the **merge** decision differs (see ship gate). |
@@ -135,6 +145,9 @@ modules, dependency-light foundation modules, and Vercel **serverless functions*
 talk to KV and a few external services.
 
 ```mermaid
+---
+title: Build Young — Application Architecture
+---
 flowchart TB
     browser["🌐 Browser (SPA)"]
 
