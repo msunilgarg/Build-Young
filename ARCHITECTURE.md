@@ -17,7 +17,7 @@ Two systems live in this repo, and this document maps both:
 > service**, pink = **human**.
 >
 > **Rendered exports (zoomable):** [`docs/architecture/loop.pdf`](docs/architecture/loop.pdf) ·
-> [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside). They're for places that don't render
+> [`parallel.pdf`](docs/architecture/parallel.pdf) · [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside). They're for places that don't render
 > Mermaid (chat, decks, the app). **When you edit a Mermaid block here, regenerate them in the SAME
 > change:** `bash scripts/render-architecture.sh`.
 
@@ -30,63 +30,44 @@ implement → verify (independently) → ship — pausing only on the conditions
 
 ```mermaid
 ---
-title: Build Young — Agent Harness (the autonomous loop)
+title: Build Young — Agent Harness (one loop; built to fan out to parallel sub-agents)
 ---
-flowchart LR
-    %% ── inputs to the driver, ordered top→bottom: ① start → ② backlog → ③ context ──
-    subgraph inputs["Inputs to the driver"]
-        direction TB
-        subgraph onramps["① Start a run — ONE on-ramp (this OR that, never both)"]
-            direction TB
-            you["You — /run-loop locally<br/>· drains the TASKS.md backlog"]
-            issue["GitHub Issue + 'loop-task' → run-loop.yml Action<br/>(unattended) · the issue IS the task (no TASKS.md)"]
-        end
-        tasks[("② TASKS.md · backlog + progress<br/>(read by the local /run-loop path)")]
-        subgraph docs["③ Governing docs — how each enters the agent's context"]
-            direction TB
-            claudemd["CLAUDE.md · project rules &amp; module map<br/>— AUTO-LOADED (the entry point)"]
-            playbook["ENGINEERING-PLAYBOOK.md<br/>· portable cross-project rules"]
-            positioning["POSITIONING.md<br/>· copy &amp; voice source of truth"]
-            loopmd["LOOP.md<br/>· the loop's operating manual"]
-            claudemd == "@import → auto-loaded with it" ==> playbook
-            claudemd -. "read on demand (copy work)" .-> positioning
-            claudemd -. "read on demand (running the loop)" .-> loopmd
-        end
-        onramps ~~~ tasks
-        tasks ~~~ docs
+flowchart TB
+    %% ① start a run — pick ONE on-ramp (detail in the table below)
+    subgraph onramps["① Start a run — ONE on-ramp (this OR that, never both)"]
+        direction LR
+        you["You · /run-loop locally<br/>(drains the TASKS.md backlog)"]
+        issue["GitHub Issue + 'loop-task' → Action<br/>(the issue IS the task; no TASKS.md)"]
     end
+    tasks[("② TASKS.md · backlog")]
+    docs["③ Governing docs (context)<br/>CLAUDE.md — auto-loaded, @imports ENGINEERING-PLAYBOOK.md<br/>POSITIONING.md · LOOP.md — read on demand"]
 
-    you --> driver
-    issue --> driver
+    onramps --> driver
     tasks ==> driver
+    tasks -. "acceptance criteria" .-> verifier
     docs -. context .-> driver
 
-    subgraph LOOP["♻ THE LOOP — one task at a time; repeats until the backlog is empty (or it hits a stop condition)"]
-        direction LR
-        subgraph mainagent["③④ MAIN AGENT — one shared context (driver &amp; doer are the SAME agent, two hats)"]
+    subgraph LOOP["♻ THE LOOP — one task at a time (until the backlog is empty or a stop condition)"]
+        direction TB
+        subgraph mainagent["MAIN AGENT · one context (driver + doer = the SAME agent)"]
             direction LR
-            driver["DRIVER hat<br/>picks the next task; each step from concrete<br/>feedback (failing test · verifier gap · next task)"]
-            doer["DOER hat<br/>writes the smallest change<br/>(may fan out to a worktree sub-agent)"]
+            driver["DRIVER · picks the next task<br/>(next step = a signal, never a guess)"]
+            doer["DOER · writes the smallest change<br/>↳ can fan out to parallel sub-agents"]
         end
-        check["⑤ Self-check<br/>build · tests · guards"]
-        verifier["⑥ VERIFIER — a SEPARATE,<br/>fresh, ephemeral sub-agent<br/>(own context) grades the diff vs the<br/>task's acceptance criteria — can't<br/>grade its own homework"]
-        gate{"low / med<br/>risk?"}
-        ship["⑦ SHIP<br/>PR → verify →<br/>squash-merge → sync"]
-        record["⑧ mark [x]<br/>in TASKS.md"]
-
+        check["Self-check · build · tests · guards"]
+        verifier["VERIFIER · a SEPARATE ephemeral sub-agent (own context)<br/>grades the diff vs the acceptance criteria"]
+        gate{"low / med risk?"}
+        ship["SHIP · PR → verify → squash-merge → sync"]
+        record["mark [x] in TASKS.md"]
         driver --> doer --> check --> verifier --> gate
-        verifier -. "FAIL → fix the gaps (↺ inner retry)" .-> doer
+        verifier -. "FAIL → fix the gaps" .-> doer
         gate -- "yes" --> ship --> record
-        record == "↻ next task (the loop closes)" ==> driver
+        record == "↻ next task" ==> driver
     end
 
-    %% ── the grading rubric comes FROM the task ──
-    tasks -. "acceptance criteria (the grading rubric)" .-> verifier
-    %% ── exits from the loop ──
-    gate -- "no — high-risk / ambiguous" --> pause["⏸ PAUSE for human<br/>open PR + comment, don't merge"]
+    gate -- "no · high-risk / ambiguous" --> pause["⏸ PAUSE for human · open PR, don't merge"]
     ship --> live["🌐 Live site (Vercel)"]
-
-    machinery["🛡 Always-on machinery<br/>SessionStart resync · commit guards ·<br/>settings allowlist · GitHub MCP · worktrees"]
+    machinery["🛡 Always-on machinery · SessionStart resync · commit guards ·<br/>settings allowlist · GitHub MCP · worktrees"]
     machinery -. guards every step .-> LOOP
 
     %% ── visual taxonomy (see Legend): agent · sub-agent · tool · state · external · human ──
@@ -99,7 +80,7 @@ flowchart LR
     class driver,doer agent;
     class verifier subagent;
     class issue,machinery tool;
-    class tasks,claudemd,playbook,positioning,loopmd state;
+    class tasks,docs state;
     class you human;
     class live ext;
     style mainagent fill:#f6f1fb,stroke:#5e35b1,stroke-width:1px,color:#311b92;
@@ -135,6 +116,50 @@ failing. Detail in [`LOOP.md`](./LOOP.md) and [`.claude/skills/run-loop/SKILL.md
 There is also a **second automation** that predates the loop: [`.github/workflows/content-integrity.yml`](./.github/workflows/content-integrity.yml)
 — a weekly scheduled agent that verifies curriculum links/stats and opens a PR for human review
 (it never merges).
+
+---
+
+## 1a. Parallel fan-out — the same harness, optimized for sub-agents
+
+The loop above runs **sequentially** (one task at a time). But the architecture is **built to fan out**:
+when several tasks are independent, the orchestrator runs them as **parallel sub-agents**, each in its
+own git worktree, converging on a one-at-a-time merge.
+
+```mermaid
+---
+title: Parallel fan-out — the harness running N sub-agents at once
+---
+flowchart TB
+    orch["ORCHESTRATOR (the driver) · splits work into disjoint slices ·<br/>pins the contract · freezes the foundation (additive-only)"]
+    orch --> a["sub-agent A<br/>git worktree · branch claude/feat-a · files {X}"]
+    orch --> b["sub-agent B<br/>git worktree · branch claude/feat-b · files {Y}"]
+    orch --> c["sub-agent C<br/>git worktree · branch claude/feat-c · files {Z}"]
+    a --> av["A: own self-check + verifier"]
+    b --> bv["B: own self-check + verifier"]
+    c --> cv["C: own self-check + verifier"]
+    av --> merge["INTEGRATION · each rebases on main ·<br/>PRs squash-merge ONE at a time"]
+    bv --> merge
+    cv --> merge
+    merge --> main["🌐 main / live site"]
+    classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
+    classDef subagent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,stroke-dasharray:6 3,color:#311b92;
+    classDef tool fill:#e0f2f1,stroke:#00897b,stroke-width:2px,color:#004d40;
+    classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
+    class orch agent;
+    class a,b,c subagent;
+    class merge tool;
+    class main ext;
+```
+
+**They never share a file or talk to each other** — each sub-agent has its own context + git worktree.
+Coordination is the **contract** (seams pinned up front) + the **serialized merge order**, not inter-agent chat.
+
+**When the harness fans out (the decision rule):** default is **sequential**; the orchestrator parallelizes
+**only when ALL hold** — (1) ≥2 tasks on **disjoint files**, (2) **no foundation change** mid-flight
+(foundation changes go first, serially), (3) **no ordering dependency** between them, (4) the **contract is
+pinnable** up front. Any miss → sequential. Borderline → ask the human; you can override either way. The four
+guard-rails (one feature = one file · freeze the foundation · contract-first · merge one-at-a-time) live in
+[`build-young-app/CLAUDE.md`](./build-young-app/CLAUDE.md) → "Parallel work protocol."
 
 ---
 
