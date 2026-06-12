@@ -109,10 +109,20 @@ parallel pain is un-agreed interfaces, not the code itself.
 - **A diagram or reference list must be self-explanatory — every node carries a one-line purpose.** A
   box (or list entry) that's only a *name* — a filename, a module, a service — forces the reader to
   already know the system, which defeats the artifact. Give each node a one-liner ("what it is / what it
-  does"); distinguish *kinds* with color + a legend; group things that are one unit (and don't draw one
-  component as several); and for a living diagram, give it acceptance criteria + a regen step so it can
-  be *verified*, not babysat. The test: a newcomer reads it without asking "what's this box?" or "are
-  these two the same thing?"
+  does"); distinguish *kinds* with color (state the color key as text, see below); group things that are
+  one unit (and don't draw one component as several); and for a living diagram, give it acceptance
+  criteria + a regen step so it can be *verified*, not babysat. The test: a newcomer reads it without
+  asking "what's this box?" or "are these two the same thing?"
+- **A rendered diagram is a visual artifact — grade it visually, in the same change. "Compact, no large
+  empty regions, readable without zooming" is a verifier-checkable done-condition, not a human-only
+  nicety.** A whitespace defect (a big empty quadrant, a node you must zoom to read) is a *defect* — so
+  fix it as part of the change; **don't defer it back to the human as a "should I…?" question.** (This
+  bit us repeatedly: I kept shipping a diagram with a ton of whitespace and waiting to be told.) Two
+  mechanics make it stick: (1) **the color key is text, not an in-diagram `Legend` node** — a
+  disconnected legend box is the classic whitespace trap (auto-layout floats it to a corner and stretches
+  the canvas); (2) **the verifier VIEWS the regenerated image** (it can Read a PNG) and FAILs on a dead
+  region or unreadable node, just as it would on a wrong label — visual quality is checked where every
+  other change is gated (§4), not left to whoever happens to glance at it.
 
 ## 4. Workflow & shipping
 
@@ -221,6 +231,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-12** — §3: a rendered diagram's *visual compactness* (no large empty regions, readable without zooming) is a verifier-checkable done-condition — the verifier VIEWS the regenerated PNG and FAILs whitespace defects; color key is text, never an in-diagram legend node (the classic whitespace trap). Don't defer a visual defect back to the human as a question.
 - **2026-06-12** — Added §9 "Loop engineering" (folded in the portable loop-engineering principles from the retired `LOOP.md`) — one playbook for all engineering practice; project-specific loop wiring lives in the project's architecture doc + CLAUDE.md.
 - **2026-06-11** — §3: diagrams/reference lists must be self-explanatory — a one-line purpose per node, kinds distinguished + legend, real relationships, and acceptance criteria so a living diagram is verified not babysat.
 - **2026-06-11** — §3: strengthened the "patterned bug → standing rule" practice — record the learning in the same change AND place it where it's read at the next similar change, so the fix is implemented with that change (not rediscovered after the bug returns).
