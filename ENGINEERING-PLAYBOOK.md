@@ -73,7 +73,12 @@ parallel pain is un-agreed interfaces, not the code itself.
   change makes a doc statement stale — a moved/renamed module, a removed step, or a **"deferred / TODO /
   until then" note the change just resolved** — update the doc (and any ARCHITECTURE/README/playbook it
   touches) *in that same change*. This is a standing chore, not a question: **don't ask permission for an
-  obvious doc-sync follow-up — just do it.** An out-of-date guide is worse than none.
+  obvious doc-sync follow-up — just do it.** An out-of-date guide is worse than none. **And it's
+  bidirectional: diagram, policy/docs, and code are three views of ONE system — when a change makes any
+  one of them *assert* something new, reconcile the others in the SAME change.** A diagram must never
+  claim a behavior the governing policy doesn't require (the parallel diagram showed each sub-agent
+  running the full loop before the protocol said so) — and a policy change must update the diagrams that
+  depict it. Don't wait to be told they disagree.
 - **Make living-doc upkeep a *standing check*, not a memory.** "Update the diagram in the same change"
   is itself a remember-to rule — and those get forgotten (a living architecture diagram silently drifted
   through several changes because its upkeep relied on vigilance, and the per-task verifier only graded
