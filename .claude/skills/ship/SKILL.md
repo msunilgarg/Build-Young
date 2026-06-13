@@ -18,18 +18,21 @@ unverified path to `main`. Use it for any substantive change you're about to lan
 3. **Independent verification — do NOT skip (the doer can't grade its own homework).** Spawn a **fresh
    sub-agent** (general-purpose, own context) **on the cheaper verifier tier — the Agent tool's
    `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — don't drop
-   below Sonnet for grading). Give it ONLY: the change's intent / acceptance + `git
-   diff origin/main`. It must *independently* re-run build/tests, inspect the diff, and apply the
-   **standing checks**:
+   below Sonnet for grading). Give it: the change's intent / acceptance + `git diff origin/main`, **and
+   tell it to first READ `ENGINEERING-PLAYBOOK.md`** (its standing rules — esp. **§3** diagram/doc rules
+   and **§4** shipping rules) **and, when `BUILD-YOUNG-ARCHITECTURE.md` changed, that doc's *"Acceptance
+   criteria for this doc"* section.** The **playbook is the single source of truth** — grade the diff
+   against **every rule it reads there**, so a rule added to the playbook is enforced *without editing this
+   skill* (don't hand-copy rules here, where they drift out of sync with §3). It must *independently*
+   re-run build/tests, inspect the diff, and apply the **operational triggers** (these turn the playbook's
+   standing rules into "on THIS diff, check Y" — the rule *content* lives in the playbook, not here):
    - every stated acceptance condition met, nothing obviously broken;
    - **architecture-doc currency** — if the diff adds/removes/moves/renames a module/endpoint/route/
      skill/hook or changes the loop/ship flow, `BUILD-YOUNG-ARCHITECTURE.md` (+ `CLAUDE.md`) is updated
      in the SAME diff, and if a Mermaid block changed the exports were regenerated;
    - **diagram quality (visual)** — if a Mermaid block changed, the verifier **Reads the regenerated
-     PNG** (`docs/architecture/*.png`) and FAILs on (a) a large empty region or a node you must zoom to
-     read (no in-diagram `Legend` node — the color key is text), or (b) **one component drawn as several**
-     (two boxes for one instance — one agent in two hats is ONE node); a diagram-quality defect is a
-     defect, not a human-only nicety;
+     PNG** (`docs/architecture/*.png`) and **FAILs on any §3 diagram-quality violation** (e.g. a whitespace /
+     dead region, one component drawn as several, an unlabeled node) — §3 is authoritative;
    - **diagram ↔ policy consistency (bidirectional)** — a diagram/doc must not *assert* a behavior the
      governing policy (`CLAUDE.md`/the playbook) doesn't state, and a policy change must update the
      diagrams that depict it.

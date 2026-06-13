@@ -127,9 +127,13 @@ parallel pain is un-agreed interfaces, not the code itself.
   Both get **fixed as part of the change — never deferred back to the human as a "should I…?" question.**
   *Meta-lesson (why this bullet exists): a stated rule isn't enough — a diagram drew driver+doer as two
   boxes and shipped a "ton of whitespace" repeatedly, even though §3 already forbade both, because the
-  rules lived as advice and weren't in the **verifier's standing checklist**. The lesson isn't "add the
-  rule" (it was there); it's "**a diagram-clarity rule only holds once the verifier checks it**" — so when
-  you write a diagram rule, wire it into the standing visual check, don't just state it.*
+  rules lived as advice the verifier never read. The lesson isn't "add the rule" (it was there); it's
+  "**a rule only holds once the verifier checks it**." The robust mechanism is **make the verifier READ
+  this playbook and grade against it** — so the playbook is the single source of truth and a rule added
+  here is enforced automatically. Do **not** hand-copy each rule into the loop/ship skills' checklists:
+  that creates a second copy that drifts out of sync with §3 (which is exactly how the violation shipped).
+  The skill's job is the *operational trigger* ("on a Mermaid change, VIEW the PNG"); the rule *content*
+  lives here.*
 
 ## 4. Workflow & shipping
 
@@ -209,7 +213,9 @@ a **driver** pursues them. The payoff isn't "more agents"; it's that each next s
   goal or weak signal makes it spin — that's the failure mode to design against, not the agent count.
 - **Split writing from checking — the doer can't grade its own homework.** The doer and a **fresh-context,
   independent verifier** must be different contexts; the verifier re-runs build/tests and grades the diff
-  against the acceptance criteria, then returns PASS or FAIL+gaps. (Fan this out in parallel per §2.)
+  against the acceptance criteria **and this playbook's standing rules — it READS the playbook, which is
+  the single source of truth, so a rule added here is enforced without editing the loop/ship skills** —
+  then returns PASS or FAIL+gaps. (Fan this out in parallel per §2.)
 - **Every shipped change is independently verified — regardless of how it was triggered.** Don't let a
   "direct edit" become an unverified path: verification is a property of *shipping*, not of one entry
   point. Scale the check to the change (trivial vs substantive), but never skip it.
@@ -250,6 +256,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-13** — §3/§9: the verifier **reads this playbook and grades against it** — the playbook is the single source of truth for standing rules, so a rule added here is enforced without hand-copying it into the loop/ship skills' checklists (that duplication is what drifts; the skills now carry only the *operational trigger*, the rule content lives here). Supersedes the prior "wire each rule into the checklist" framing.
 - **2026-06-13** — §3: a diagram-clarity rule only holds once the verifier *checks* it — folded "one component = one node" (don't split one instance across boxes) into the standing visual check alongside compactness, after a stated-but-unchecked rule let driver+doer ship as two boxes. When you write a diagram rule, wire it into the verifier's PNG check; don't just state it.
 - **2026-06-13** — §9: tier the model to the role — cheap, faster model for the bulk (the independent verifier's re-run-and-grade + low-risk mechanical doer passes), premium frontier model for planning/architecture/high-risk. Cheapen the *work*, never the *rigor* (the verifier still runs every standing check); name tiers by model family, not a dated string.
 - **2026-06-12** — §3: a rendered diagram's *visual compactness* (no large empty regions, readable without zooming) is a verifier-checkable done-condition — the verifier VIEWS the regenerated PNG and FAILs whitespace defects; color key is text, never an in-diagram legend node (the classic whitespace trap). Don't defer a visual defect back to the human as a question.
