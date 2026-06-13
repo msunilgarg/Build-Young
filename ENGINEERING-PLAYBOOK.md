@@ -134,6 +134,11 @@ parallel pain is un-agreed interfaces, not the code itself.
   that creates a second copy that drifts out of sync with §3 (which is exactly how the violation shipped).
   The skill's job is the *operational trigger* ("on a Mermaid change, VIEW the PNG"); the rule *content*
   lives here.*
+- **Give the rendered diagram back after you change it — don't make the human ask.** When a change
+  updates a diagram, the regenerated image *is* the deliverable — surface it to the human as part of
+  reporting the change (alongside the merged PR), the same turn. They shouldn't have to say "show me the
+  diagram" after every edit. *(Why: a diagram lives to be looked at; a text-only "done" hides the one
+  artifact the change was about, and the human ends up re-requesting it every time.)*
 
 ## 4. Workflow & shipping
 
@@ -256,6 +261,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-13** — §3: give the rendered diagram back after a change — surface the regenerated PNG to the human as part of reporting (don't make them re-ask "show me the diagram"); the diagram is the deliverable.
 - **2026-06-13** — §3/§9: the verifier **reads this playbook and grades against it** — the playbook is the single source of truth for standing rules, so a rule added here is enforced without hand-copying it into the loop/ship skills' checklists (that duplication is what drifts; the skills now carry only the *operational trigger*, the rule content lives here). Supersedes the prior "wire each rule into the checklist" framing.
 - **2026-06-13** — §3: a diagram-clarity rule only holds once the verifier *checks* it — folded "one component = one node" (don't split one instance across boxes) into the standing visual check alongside compactness, after a stated-but-unchecked rule let driver+doer ship as two boxes. When you write a diagram rule, wire it into the verifier's PNG check; don't just state it.
 - **2026-06-13** — §9: tier the model to the role — cheap, faster model for the bulk (the independent verifier's re-run-and-grade + low-risk mechanical doer passes), premium frontier model for planning/architecture/high-risk. Cheapen the *work*, never the *rigor* (the verifier still runs every standing check); name tiers by model family, not a dated string.
