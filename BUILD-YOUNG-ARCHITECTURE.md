@@ -40,12 +40,13 @@ flowchart TB
         issue["GitHub Issue + 'loop-task' → Action<br/>(the issue IS the task; no TASKS.md)"]
     end
     tasks[("② TASKS.md · backlog")]
-    docs["③ Governing docs (context)<br/>CLAUDE.md — auto-loaded, @imports ENGINEERING-PLAYBOOK.md<br/>(playbook §9 = loop engineering) · POSITIONING.md — read on demand"]
+    docs["③ Governing docs<br/>CLAUDE.md (@imports ENGINEERING-PLAYBOOK.md · playbook §9 = loop engineering)<br/>· POSITIONING.md = copy/voice source of truth"]
 
     onramps --> agent
     tasks ==> agent
     tasks -. "acceptance criteria" .-> verifier
-    docs -. context .-> agent
+    docs -. "auto-loaded context" .-> agent
+    docs -. "spawned to READ (fresh context inherits none):<br/>playbook always · POSITIONING on copy changes" .-> verifier
 
     subgraph LOOP["♻ THE LOOP — one task at a time (until the backlog is empty or a stop condition)"]
         direction TB
@@ -88,7 +89,7 @@ flowchart TB
 | **Driver + Doer** (`.claude/skills/run-loop`) | **The same agent, one context, two hats.** As *driver* it picks the first unchecked task and never guesses the next step — it comes from a **signal** (failing build/test, verifier gap, or the next backlog item); as *doer* it writes the smallest change that meets the acceptance criteria, staying in the task's file lane. (The doer *may* fan out to a **worktree**-isolated sub-agent for parallel work — the exception, not the default.) Runs on the **premium tier** — it's the planning/reasoning seat (and high-risk tasks live here); the cheaper tier is for the verifier + low-risk mechanical passes. |
 | **Risk gate** | Reads the task's `risk:`. Everything is implemented; only the **merge** decision differs (see ship gate). |
 | **Self-check** | `npm run build` + `npx vitest run` + repo guards (no `\uXXXX`, no internal model id, no resurrected money-sim markers). Fix until green. |
-| **Verifier** | A **fresh, ephemeral sub-agent** in its own context, given **the task's acceptance criteria (from `TASKS.md`) + the diff**, and told to **read `ENGINEERING-PLAYBOOK.md`** (the single source of truth for standing rules — §3 diagram/doc + §4 shipping) so a rule added there is enforced without editing the skills. It independently re-runs build/tests and grades the diff against the criteria **and** those standing rules → **PASS** or **FAIL + gaps**. The doer can't grade its own homework. ~3 rounds, then stop. **Runs on the cheaper model tier** (Sonnet-class — `model: "sonnet"`): cost discipline for the per-task volume, with the rigor unchanged (every standing rule + FAIL→fix retry). See [model tiering](./build-young-app/CLAUDE.md) / playbook §9. |
+| **Verifier** | A **fresh, ephemeral sub-agent** in its own context. It **inherits none of the driver/doer's auto-loaded context** (no `CLAUDE.md`, no `@imports`) — so the spawn prompt must hand it everything: the task's acceptance criteria (`TASKS.md`) + the diff, **and an explicit instruction to read** `ENGINEERING-PLAYBOOK.md` (the single source of truth for standing rules — §3 diagram/doc + §4 shipping, so a rule added there is enforced without editing the skills) **and `POSITIONING.md` when the diff touches user-facing copy** (the voice/claims source of truth). That's *how it knows to read them* — it's told, because it can't auto-load them. It independently re-runs build/tests and grades the diff against the criteria **and** those standing rules → **PASS** or **FAIL + gaps**. The doer can't grade its own homework. ~3 rounds, then stop. **Runs on the cheaper model tier** (Sonnet-class — `model: "sonnet"`): cost discipline, rigor unchanged (every standing rule + FAIL→fix retry). See [model tiering](./build-young-app/CLAUDE.md) / playbook §9. |
 | **Ship** | Commit (author `Claude <noreply@anthropic.com>`) → push dev branch → open PR → **verify the PR's file diff is non-empty** → squash-merge → sync `main` and re-push the dev branch. |
 | **Ship gate / Pause** | **low/med** → auto squash-merge to the live site. **high / architectural / destructive / outward-facing / ambiguous** → leave the PR open, comment why, and **stop for human review**. |
 | **Machinery** | The SessionStart hook (state resurrection: resync + reinstall guards), the commit guards, the settings allowlist (and the deny-push-to-`main` rule), the **GitHub MCP** connector, and worktrees for isolation. |
