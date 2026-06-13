@@ -79,7 +79,7 @@ In `BATCHES` (`src/cohorts.js`), set real start dates, days/times, prices, and s
 - Don't sell/share student data and don't use it to train AI (both are stated in the policy).
 
 ### 7. Domain & brand
-Set `CONFIG.brandDomain` and `CONFIG.contactEmail`. Add a real `og-image.png` (1200×630) to `public/` for nice link previews (referenced in `index.html`).
+Set `CONFIG.brandDomain` and `CONFIG.contactEmail`. The `og-image.png` (1200×630) social/link-preview card in `public/` (referenced by `index.html`'s OG/Twitter meta) is **generated** from `scripts/og-image.html` — edit that and run `bash scripts/render-og-image.sh` to regenerate it. Keep its copy consistent with the OG meta + `POSITIONING.md`.
 
 ### 8. Search engines & AI agents (discoverability)
 This is wired up:
