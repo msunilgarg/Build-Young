@@ -22,6 +22,12 @@ const Charts = React.lazy(() => import("./Charts.jsx"));
 
 const FUNNEL_COLORS = [C.emerald, C.turq, C.gold, C.sky, C.green];
 
+// Render a 2-letter ISO country code as a readable name (CA → Canada, US → United States) so a
+// COUNTRY is never mistaken for a US STATE code (CA = California) shown in the "US visits by state"
+// line. Uses the platform's Intl region names; falls back to the raw code if unavailable.
+const REGION_DISPLAY = (() => { try { return new Intl.DisplayNames(["en"], { type: "region" }); } catch { return null; } })();
+const countryName = (code) => { if (!code) return "—"; try { return (REGION_DISPLAY && REGION_DISPLAY.of(code)) || code; } catch { return code; } };
+
 // Friendly names for the internal route keys used as `screen` in engagement events.
 const SCREEN_LABELS = { home: "Landing page", enroll: "Enroll flow", call: "Book a call", app: "Student dashboard", login: "Log in", setpw: "Set password", checkemail: "Check your email", founder: "Founder console" };
 const screenName = (s) => SCREEN_LABELS[s] || s || "—";
@@ -387,7 +393,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                     </div>
                     {s.byCountry.length > 0 ? (
                       <div style={{ fontSize: 12, color: C.ink2, marginTop: 3, lineHeight: 1.5 }}>
-                        {s.byCountry.slice(0, 6).map((c, i) => <span key={c.country}>{i > 0 ? " · " : ""}{c.country} {c.count.toLocaleString()}</span>)}
+                        {s.byCountry.slice(0, 6).map((c, i) => <span key={c.country}>{i > 0 ? " · " : ""}{countryName(c.country)} {c.count.toLocaleString()}</span>)}
                         {s.byCountry.length > 6 && <span style={{ color: C.muted }}> · +{s.byCountry.length - 6} more</span>}
                       </div>
                     ) : <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>No geography yet</div>}
@@ -470,7 +476,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                   <div style={{ ...muted, display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 8 }}>
                     <span style={{ fontWeight: 700 }}>Top countries:</span>
                     {paths.countries.slice(0, 6).map((c) => (
-                      <span key={c.country || "unknown"}>{c.country || "—"} {c.count.toLocaleString()}</span>
+                      <span key={c.country || "unknown"}>{countryName(c.country)} {c.count.toLocaleString()}</span>
                     ))}
                   </div>
                 )}
@@ -487,8 +493,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
                       {p.byCountry && p.byCountry.length > 0 && (
-                        <span style={{ fontSize: 11.5, color: C.muted }} title={p.byCountry.map((c) => `${c.country || "Unknown"} ${c.count}`).join(" · ")}>
-                          {p.byCountry.slice(0, 3).map((c) => c.country || "—").join(" · ")}
+                        <span style={{ fontSize: 11.5, color: C.muted }} title={p.byCountry.map((c) => `${countryName(c.country)} ${c.count}`).join(" · ")}>
+                          {p.byCountry.slice(0, 3).map((c) => countryName(c.country)).join(" · ")}
                         </span>
                       )}
                       <b style={{ fontSize: 13 }}>{p.count.toLocaleString()}</b>

@@ -101,30 +101,41 @@ export default function App() {
     })();
     return () => { live = false; };
   }, []);
-  // Traffic & engagement: record dwell time per screen (anonymous, aggregate). On each route
-  // change we log a `screen_view` for the screen just left; on tab-close/hide we flush the current
-  // screen + an `exit`. No-op in tests (track() is). See engagement() in src/funnel.js.
-  const screenRef = useRef(null);
+  // Traffic & engagement: record FOREGROUND-only dwell per screen (anonymous, aggregate). We
+  // accumulate active time and PAUSE the clock while the tab is hidden, so a backgrounded/locked
+  // tab never inflates "time on page". Each screen logs exactly ONE `screen_view` — at the first of
+  // {navigation, tab-hide, tab-close} (the `flushed` guard) — so a visit isn't re-counted on every
+  // hide. An `exit` is logged on each hide/close (the reliable end-of-session signal on mobile);
+  // engagement() dedupes exits to one per session (`sid`), the last screen the visit was on. No-op
+  // in tests (track() is). See engagement() in src/funnel.js.
+  const screenRef = useRef(null); // { screen, at, acc, flushed } — at=null while paused
   useEffect(() => {
     if (!loaded) return;
     const now = Date.now();
-    if (screenRef.current) track("screen_view", { screen: screenRef.current.screen, ms: now - screenRef.current.at, sid: sessionId() });
-    screenRef.current = { screen: route, at: now };
+    const prev = screenRef.current;
+    if (prev && !prev.flushed) {
+      const ms = (prev.acc || 0) + (prev.at ? now - prev.at : 0);
+      track("screen_view", { screen: prev.screen, ms, sid: sessionId() });
+    }
+    screenRef.current = { screen: route, at: now, acc: 0, flushed: false };
   }, [route, loaded]);
   useEffect(() => {
     if (!loaded) return;
-    const flush = () => {
-      if (!screenRef.current) return;
-      const { screen, at } = screenRef.current;
-      const sid = sessionId();
-      track("screen_view", { screen, ms: Date.now() - at, sid });
-      track("exit", { screen, sid });
-      screenRef.current = { screen, at: Date.now() }; // reset so a return visit doesn't double-count
+    const pause = () => { const s = screenRef.current; if (s && s.at != null) { s.acc = (s.acc || 0) + (Date.now() - s.at); s.at = null; } };
+    const resume = () => { const s = screenRef.current; if (s && s.at == null) s.at = Date.now(); };
+    const flushView = () => {
+      const s = screenRef.current; if (!s || s.flushed) return;
+      track("screen_view", { screen: s.screen, ms: s.acc || 0, sid: sessionId() });
+      s.flushed = true;
     };
-    const onVis = () => { if (typeof document !== "undefined" && document.visibilityState === "hidden") flush(); };
-    window.addEventListener("pagehide", flush);
+    const leave = () => { pause(); flushView(); const s = screenRef.current; if (s) track("exit", { screen: s.screen, sid: sessionId() }); };
+    const onVis = () => {
+      if (typeof document === "undefined") return;
+      if (document.visibilityState === "hidden") leave(); else resume();
+    };
+    window.addEventListener("pagehide", leave);
     document.addEventListener("visibilitychange", onVis);
-    return () => { window.removeEventListener("pagehide", flush); document.removeEventListener("visibilitychange", onVis); };
+    return () => { window.removeEventListener("pagehide", leave); document.removeEventListener("visibilitychange", onVis); };
   }, [loaded]);
   // Reflect the SPA route in the URL so Vercel Web Analytics records a pageview + time-on-page
   // per screen. Uses replaceState (NOT pushState) — no new browser-history entry, so the in-app

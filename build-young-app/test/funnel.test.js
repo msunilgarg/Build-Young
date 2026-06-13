@@ -157,9 +157,9 @@ describe("traffic & engagement aggregation", () => {
     ev("screen_view", { screen: "home", ms: 10000 }),
     ev("screen_view", { screen: "home", ms: 20000 }),
     ev("screen_view", { screen: "enroll", ms: 5000 }),
-    ev("exit", { screen: "home" }),
-    ev("exit", { screen: "home" }),
-    ev("exit", { screen: "enroll" }),
+    ev("exit", { screen: "home", sid: "s1" }),    // session s1 hides on home...
+    ev("exit", { screen: "enroll", sid: "s1" }),  // ...then leaves from enroll → s1 counts ONCE, as enroll (last)
+    ev("exit", { screen: "home", sid: "s2" }),     // session s2 leaves from home
     ev("hesitation", { reason: "cost" }),
     ev("hesitation", { reason: "cost" }),
     ev("hesitation", { reason: "schedule" }),
@@ -180,11 +180,11 @@ describe("traffic & engagement aggregation", () => {
     expect(home.avgMs).toBe(15000); // (10000 + 20000) / 2
     expect(eng.screens[0].screen).toBe("home"); // most-viewed first
   });
-  it("computes exit screens with count + share of all exits", () => {
-    expect(eng.exitTotal).toBe(3);
-    const home = eng.exits.find((s) => s.screen === "home");
-    expect(home.count).toBe(2);
-    expect(home.pct).toBeCloseTo(2 / 3, 5);
+  it("dedupes exits to ONE per session (sid) — the last screen the session was on", () => {
+    expect(eng.exitTotal).toBe(2); // two sessions (s1, s2), not the 3 raw exit events
+    expect(eng.exits.find((s) => s.screen === "enroll").count).toBe(1); // s1's LAST exit
+    expect(eng.exits.find((s) => s.screen === "home").count).toBe(1);   // s2
+    eng.exits.forEach((x) => expect(x.pct).toBeCloseTo(1 / 2, 5));
   });
   it("ranks hesitation reasons by count, most common first", () => {
     expect(eng.hesitations[0]).toEqual({ reason: "cost", count: 2 });

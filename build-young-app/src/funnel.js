@@ -210,15 +210,23 @@ export function engagement(events) {
     .map(([screen, v]) => ({ screen, views: v.views, avgMs: v.views ? Math.round(v.totalMs / v.views) : 0 }))
     .sort((a, b) => b.views - a.views);
 
-  // Exit screens: where people leave the site, from `exit`.
-  const exitCount = {};
-  let exitTotal = 0;
+  // Exit screens: where people leave the site, from `exit`. Deduped to ONE exit per session (`sid`) —
+  // the LAST screen that session was on (events are chronological, so last write wins) — so the count
+  // approximates sessions, not tab-hides (the client fires `exit` on every hide for reliability, and a
+  // session can hide/return several times). Legacy exits without a `sid` are counted individually.
+  const lastExitBySid = {};
+  const noSidExits = [];
   evs.forEach((e) => {
     if (e && e.event === "exit" && e.props && e.props.screen) {
-      exitCount[e.props.screen] = (exitCount[e.props.screen] || 0) + 1;
-      exitTotal += 1;
+      if (e.props.sid) lastExitBySid[e.props.sid] = e.props.screen;
+      else noSidExits.push(e.props.screen);
     }
   });
+  const exitCount = {};
+  let exitTotal = 0;
+  const tallyExit = (screen) => { exitCount[screen] = (exitCount[screen] || 0) + 1; exitTotal += 1; };
+  Object.values(lastExitBySid).forEach(tallyExit);
+  noSidExits.forEach(tallyExit);
   const exits = Object.entries(exitCount)
     .map(([screen, count]) => ({ screen, count, pct: exitTotal ? count / exitTotal : 0 }))
     .sort((a, b) => b.count - a.count);
