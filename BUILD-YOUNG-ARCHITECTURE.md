@@ -50,8 +50,8 @@ flowchart TB
     subgraph LOOP["♻ THE LOOP — one task at a time (until the backlog is empty or a stop condition)"]
         direction TB
         agent["MAIN AGENT · ONE agent, one context — driver + doer (two hats)<br/>picks the next task (next step = a signal, never a guess),<br/>then writes the smallest change · ↳ can fan out to parallel sub-agents"]
-        check["Self-check · build · tests · guards"]
-        verifier["VERIFIER · a SEPARATE ephemeral sub-agent (own context)<br/>grades the diff vs the acceptance criteria"]
+        check["Self-check — the agent gates its OWN work first<br/>build · tests · guards (fix until green)"]
+        verifier["VERIFIER · a SEPARATE ephemeral sub-agent (own context)<br/>INDEPENDENTLY re-runs build · tests, then grades the diff<br/>vs the acceptance criteria + the playbook's standing rules"]
         gate{"low / med risk?"}
         ship["SHIP · PR → verify → squash-merge → sync"]
         record["mark [x] in TASKS.md"]
