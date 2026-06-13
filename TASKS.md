@@ -36,9 +36,9 @@ Acceptance criteria:
 - **Foreground-only dwell:** time the tab spends `hidden` is NOT counted toward a screen's `ms`. On hide,
   add the active segment and pause; on becoming visible again, resume timing (start = now). A locked
   phone / backgrounded tab no longer inflates "avg time." (App.jsx dwell logic.)
-- **`exit` is once per session, not once per hide:** the "Where they leave" count should approximate the
-  number of sessions, not tab-hides — exits must not exceed visits. Dedupe by `sid` (one exit per
-  session, attributed to the last screen) OR an equivalent that makes exits ≤ sessions.
+- **`exit` is once per session, not once per hide (DECIDED — human chose exit-per-session):** the "Where
+  they leave" count approximates the number of sessions, not tab-hides — exits must not exceed visits.
+  Dedupe by `sid` (one exit per session, attributed to the last screen the visit was on).
 - **`screen_view` not re-logged on every hide** in a way that double-counts views — view counts should
   track navigations/real views, not tab-hide flushes (so landing views aren't inflated past visits
   without cause). Keep it aggregate, no PII (unchanged).
@@ -51,10 +51,9 @@ Acceptance criteria:
 Files: `build-young-app/src/App.jsx` (dwell/exit tracking), `build-young-app/src/funnel.js`
 (`engagement()`), `build-young-app/src/FounderDashboard.jsx` (the cards / CA labels),
 `build-young-app/test/funnel.test.js` (+ any engagement test).
-Stop-and-ask if: the **exit semantics** — ship as **once-per-session** (recommended: makes "where they
-leave" meaningful and exits ≤ sessions) OR keep per-hide but **relabel** the card to "tab-hides" instead
-of "exits." Confirm which before shipping. Also: changing a tracked-event's meaning is behavioral — note
-it so historical data is read with the change in mind.
+Note: exit semantics are decided (once-per-session) — no need to ask. Changing the `exit` event's meaning
+is behavioral, so historical data should be read with the change in mind; mention it in the PR. No other
+stop-and-ask — ship when the acceptance criteria are met and verified.
 
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
