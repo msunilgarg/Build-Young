@@ -85,7 +85,8 @@ build-young-app/
 │   └── send-email.js     # serverless email sender (Resend); POST-only, validates input, HTML-escapes body
 ├── public/
 │   ├── privacy.html, terms.html   # standalone legal pages (also rendered in-app as a modal)
-│   ├── robots.txt, sitemap.xml, llms.txt, favicon.svg, og-image.png
+│   ├── robots.txt, sitemap.xml, llms.txt, favicon.svg, og-image.png (1200×630 link-preview card —
+│   │                     #   GENERATED from scripts/og-image.html via scripts/render-og-image.sh; keep copy in sync with OG meta + POSITIONING)
 └── vite.config.js
 ```
 
