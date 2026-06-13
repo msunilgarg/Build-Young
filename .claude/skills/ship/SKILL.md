@@ -16,7 +16,9 @@ unverified path to `main`. Use it for any substantive change you're about to lan
    a build sanity is enough). Run the repo guards (no `\uXXXX` escapes, no internal/model id, no
    resurrected money-sim markers). Fix until green.
 3. **Independent verification — do NOT skip (the doer can't grade its own homework).** Spawn a **fresh
-   sub-agent** (general-purpose, own context). Give it ONLY: the change's intent / acceptance + `git
+   sub-agent** (general-purpose, own context) **on the cheaper verifier tier — the Agent tool's
+   `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — don't drop
+   below Sonnet for grading). Give it ONLY: the change's intent / acceptance + `git
    diff origin/main`. It must *independently* re-run build/tests, inspect the diff, and apply the
    **standing checks**:
    - every stated acceptance condition met, nothing obviously broken;

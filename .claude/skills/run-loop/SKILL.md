@@ -26,10 +26,13 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
 4. **Self-check:** `cd build-young-app && npm run build && npx vitest run`. Run the repo's guards
    (no `\uXXXX` escapes, no internal model id, no resurrected money-sim markers). Fix until green.
 5. **Independent verification (the doer/checker split — do not skip).** Spawn a **fresh sub-agent**
-   (general-purpose, its own context) and give it ONLY: the task's acceptance criteria + `git diff
+   (general-purpose, its own context) **on the cheaper verifier tier — pass the Agent tool's
+   `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — it still
+   runs every standing check below). Give it ONLY: the task's acceptance criteria + `git diff
    origin/main`. Instruct it to *independently* run `npm run build` + `npx vitest run`, inspect the
    diff, and reply **PASS** only if every acceptance criterion is met and nothing obvious is broken,
-   else **FAIL** with the specific gaps. The doer cannot grade its own homework.
+   else **FAIL** with the specific gaps. The doer cannot grade its own homework. (Don't drop below
+   Sonnet for grading — a too-weak checker rubber-stamps.)
    - **Standing check — EVERY task, independent of the acceptance criteria above:** if the diff
      adds, removes, moves, or renames a module / endpoint / route / skill / hook, or changes the
      loop or ship flow, it MUST also update `BUILD-YOUNG-ARCHITECTURE.md` (and `CLAUDE.md` where relevant) in the

@@ -206,6 +206,18 @@ a **driver** pursues them. The payoff isn't "more agents"; it's that each next s
 - **Every shipped change is independently verified — regardless of how it was triggered.** Don't let a
   "direct edit" become an unverified path: verification is a property of *shipping*, not of one entry
   point. Scale the check to the change (trivial vs substantive), but never skip it.
+- **Tier the model to the role — cheapen the *work*, never the *rigor*.** Spend the expensive frontier
+  model where extra capability changes the outcome — **planning, architecture/design, and high-risk or
+  ambiguous tasks** — and run the **bulk execution** on a cheaper, faster model: the independent
+  **verifier's** re-run-and-grade and **low-risk, mechanical doer** passes. *Why:* on a fixed plan/budget,
+  running everything on the top model burns quota for little marginal gain on the easy parts, while the
+  verifier's job (re-run build/tests, grade a diff against explicit acceptance criteria) sits well within a
+  mid-tier model's reach. You're tiering the *model*, not the *check* — a cheaper verifier still runs
+  **every standing check** and the FAIL→fix retry (the §2 sibling of "parallelize the work, not the
+  rigor"). The floor: don't drop the *verifier* below a solid code-grading tier — a too-weak checker that
+  rubber-stamps is worse than none — and keep the *planner/doer* premium whenever the task itself is
+  reasoning-hard. Name the tier by model **family/role** (the SDK's `sonnet`/`opus`/`haiku` alias), not a
+  dated marketing string that ages.
 - **Risk drives autonomy.** Low/med-risk changes ship on their own; high-risk / architectural / money- or
   auth-touching / ambiguous changes are implemented but **pause for human review** before merge.
 - **State lives in committed files so a fresh/ephemeral session resumes** — the backlog + progress, the
@@ -231,6 +243,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-13** — §9: tier the model to the role — cheap, faster model for the bulk (the independent verifier's re-run-and-grade + low-risk mechanical doer passes), premium frontier model for planning/architecture/high-risk. Cheapen the *work*, never the *rigor* (the verifier still runs every standing check); name tiers by model family, not a dated string.
 - **2026-06-12** — §3: a rendered diagram's *visual compactness* (no large empty regions, readable without zooming) is a verifier-checkable done-condition — the verifier VIEWS the regenerated PNG and FAILs whitespace defects; color key is text, never an in-diagram legend node (the classic whitespace trap). Don't defer a visual defect back to the human as a question.
 - **2026-06-12** — Added §9 "Loop engineering" (folded in the portable loop-engineering principles from the retired `LOOP.md`) — one playbook for all engineering practice; project-specific loop wiring lives in the project's architecture doc + CLAUDE.md.
 - **2026-06-11** — §3: diagrams/reference lists must be self-explanatory — a one-line purpose per node, kinds distinguished + legend, real relationships, and acceptance criteria so a living diagram is verified not babysat.
