@@ -27,26 +27,29 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
    (no `\uXXXX` escapes, no internal model id, no resurrected money-sim markers). Fix until green.
 5. **Independent verification (the doer/checker split — do not skip).** Spawn a **fresh sub-agent**
    (general-purpose, its own context) **on the cheaper verifier tier — pass the Agent tool's
-   `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — it still
-   runs every standing check below). Give it ONLY: the task's acceptance criteria + `git diff
-   origin/main`. Instruct it to *independently* run `npm run build` + `npx vitest run`, inspect the
-   diff, and reply **PASS** only if every acceptance criterion is met and nothing obvious is broken,
-   else **FAIL** with the specific gaps. The doer cannot grade its own homework. (Don't drop below
-   Sonnet for grading — a too-weak checker rubber-stamps.)
-   - **Standing check — EVERY task, independent of the acceptance criteria above:** if the diff
-     adds, removes, moves, or renames a module / endpoint / route / skill / hook, or changes the
-     loop or ship flow, it MUST also update `BUILD-YOUNG-ARCHITECTURE.md` (and `CLAUDE.md` where relevant) in the
-     SAME diff. **FAIL** if the structure changed but the architecture doc didn't. (A living diagram
-     drifts silently when its upkeep relies on memory — so the independent check owns it, not the spec.)
-     Likewise, if a `BUILD-YOUNG-ARCHITECTURE.md` **Mermaid block** changed, the regenerated exports
-     (`docs/architecture/*.png|pdf` via `scripts/render-architecture.sh`) must be in the SAME diff — **FAIL** if not —
-     and the verifier **Reads the regenerated PNG** and **FAILs on a diagram-quality defect**: (a) a
-     **whitespace** defect (a large empty region, or a node you must zoom to read; the color key is text,
-     never an in-diagram `Legend` node), or (b) **one component drawn as several** (two boxes for what is
-     really one instance — e.g. one agent in two hats should be ONE node).
-     And **diagram ↔ policy consistency (bidirectional):** if the diff makes a diagram/doc *assert* a
-     behavior or rule, confirm the governing policy (`CLAUDE.md` protocols / the playbook) states the same —
-     and if it changes a policy, confirm the diagrams that depict it were updated. **FAIL** on a mismatch.
+   `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — don't drop
+   below Sonnet for grading, a too-weak checker rubber-stamps). Give it: the task's acceptance criteria +
+   `git diff origin/main`, **and tell it to first READ `ENGINEERING-PLAYBOOK.md`** (its standing rules —
+   esp. **§3** diagram/doc rules and **§4** shipping rules) **and, when `BUILD-YOUNG-ARCHITECTURE.md`
+   changed, that doc's *"Acceptance criteria for this doc"* section.** The **playbook is the single source
+   of truth** — the verifier grades the diff against **every rule it reads there**, so a rule added to the
+   playbook is enforced *without editing this skill* (that's the point: don't hand-copy rules into this
+   checklist, where they drift out of sync with §3). Then have it *independently* run `npm run build` +
+   `npx vitest run`, inspect the diff, and reply **PASS** only if every acceptance criterion AND every
+   standing rule is met and nothing obvious is broken, else **FAIL** with the specific gaps. The doer
+   cannot grade its own homework.
+   - **Operational triggers the verifier applies (these turn the playbook's standing rules into "on THIS
+     diff, check Y" — the rule *content* lives in the playbook, not here):**
+     - **Architecture-doc currency** — if the diff adds/removes/moves/renames a module / endpoint / route /
+       skill / hook, or changes the loop/ship flow, `BUILD-YOUNG-ARCHITECTURE.md` (+ `CLAUDE.md` where
+       relevant) MUST be updated in the SAME diff — **FAIL** if the structure changed but the doc didn't.
+     - **Exports current** — if a `BUILD-YOUNG-ARCHITECTURE.md` **Mermaid block** changed, the regenerated
+       `docs/architecture/*.png|pdf` (`scripts/render-architecture.sh`) must be in the SAME diff, and the
+       verifier **Reads the regenerated PNG** and **FAILs on any §3 diagram-quality violation** (e.g. a
+       whitespace / dead region, one component drawn as several, an unlabeled node) — §3 is authoritative.
+     - **Diagram ↔ policy consistency (bidirectional)** — a diagram/doc must not *assert* a behavior the
+       governing policy (`CLAUDE.md` / the playbook) doesn't state, and a policy change must update the
+       diagrams that depict it. **FAIL** on a mismatch.
    - **FAIL** → address the listed gaps and re-verify. After ~3 failed rounds on the same task,
      **stop** and surface the blocker (don't thrash).
    - **PASS** → continue.
