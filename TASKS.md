@@ -25,36 +25,20 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 **stops for you** (architectural / behavioral / money-auth / ambiguous).
 
 ---
----
-
-## [ ] T10 — Make the loop model-tiered (cheap execution, premium reasoning)  ·  risk: high
-Goal: the loop and ship flows spend the expensive frontier model only where it changes the outcome —
-planning, architecture/design, and high-risk tasks — and run routine execution (the independent
-verifier's re-run + low-risk doer passes) on a cheaper, faster model, so a fixed plan/budget isn't
-burned on the easy parts.
-Acceptance criteria:
-- A documented **model-tiering policy** lives in `ENGINEERING-PLAYBOOK.md` (portable: principle + why —
-  match model to role; cheap for bulk execution/verification, premium for planning + high-risk; don't
-  trade away the *rigor*, only the cost) and the project specifics in `build-young-app/CLAUDE.md`.
-- `.claude/skills/run-loop/SKILL.md` and `.claude/skills/ship/SKILL.md` instruct: spawn the independent
-  **verifier sub-agent on a cheaper model** (e.g. the Agent tool's `model:` set to a Sonnet/Haiku-class
-  id) and reserve the premium model for planning and any `risk: high` task — WITHOUT weakening the
-  verifier's standing checks (it still re-runs build/tests, grades the diff, views diagrams, ~3 rounds).
-- The tier is named by **model family/role, not a hardcoded marketing name that will age** — reference
-  the `claude-api` skill for current valid model ids so the doc doesn't pin a stale string.
-- No change to the guardrails: high-risk still pauses, never push main directly, no internal/model
-  identifiers in committed artifacts, verifier never skipped.
-- Build + tests stay green; docs/skills-only change (no app source) unless the Action needs a model arg.
-Files: `ENGINEERING-PLAYBOOK.md`, `build-young-app/CLAUDE.md`, `.claude/skills/run-loop/SKILL.md`,
-`.claude/skills/ship/SKILL.md`, optionally `.github/workflows/run-loop.yml` (its `claude_args` model).
-Stop-and-ask if: choosing the *specific* cheaper model id for verifiers (which Sonnet/Haiku tier) — it's
-a quality/cost judgment; propose a default and confirm. Also pause before merge (high risk): this changes
-how the autonomous system spends and verifies, so a human signs off on the policy.
-
----
-
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T10 — Make the loop model-tiered (cheap execution, premium reasoning)  ·  risk: high
+Done (human-approved the Sonnet tier + merge — high-risk pause honored): the loop/ship flows now tier the
+model to the role. The independent **verifier** sub-agent runs on a **Sonnet-class** model
+(`model: "sonnet"` via the Agent tool), and the premium frontier model is reserved for planning,
+architecture/design, and `risk: high` tasks. Cheapen the *work*, not the *rigor* — the cheaper verifier
+still re-runs build/tests, grades the diff, and runs every standing check (floor: never below Sonnet).
+Policy: `ENGINEERING-PLAYBOOK.md` §9 (portable) + `build-young-app/CLAUDE.md` (project); both `/run-loop`
+and `/ship` spawn the verifier on the cheaper tier; `BUILD-YOUNG-ARCHITECTURE.md` component table reflects
+the tiers; `run-loop.yml` notes the cloud Action is a single all-in-one agent (no fan-out) so it stays
+premium. Tiers named by family alias, not a dated string. Docs/skills/workflow only — build + 237 tests
+green; **independently verified by a Sonnet-tier sub-agent (dogfooding the change).**
 
 ## [x] T9 — Make every crawlable surface 100% accurate + fix the search-result favicon  ·  risk: low
 Done: audited all crawlable surfaces — **no stale money/finance positioning anywhere** (the old SERP
