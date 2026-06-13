@@ -18,12 +18,15 @@ unverified path to `main`. Use it for any substantive change you're about to lan
 3. **Independent verification — do NOT skip (the doer can't grade its own homework).** Spawn a **fresh
    sub-agent** (general-purpose, own context) **on the cheaper verifier tier — the Agent tool's
    `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — don't drop
-   below Sonnet for grading). Give it: the change's intent / acceptance + `git diff origin/main`, **and
+   below Sonnet for grading). **A fresh sub-agent inherits NONE of your auto-loaded context — no
+   `CLAUDE.md`, no `@imports` — so it only grades against what this prompt hands it; that's how it "knows"
+   to read anything.** Give it: the change's intent / acceptance + `git diff origin/main`, **and
    tell it to first READ `ENGINEERING-PLAYBOOK.md`** (its standing rules — esp. **§3** diagram/doc rules
-   and **§4** shipping rules) **and, when `BUILD-YOUNG-ARCHITECTURE.md` changed, that doc's *"Acceptance
-   criteria for this doc"* section.** The **playbook is the single source of truth** — grade the diff
-   against **every rule it reads there**, so a rule added to the playbook is enforced *without editing this
-   skill* (don't hand-copy rules here, where they drift out of sync with §3). It must *independently*
+   and **§4** shipping rules), **`POSITIONING.md` when the diff touches user-facing copy** (the voice/claims
+   source of truth), **and, when `BUILD-YOUNG-ARCHITECTURE.md` changed, that doc's *"Acceptance
+   criteria for this doc"* section.** The **playbook is the single source of truth** for engineering rules
+   — grade the diff against **every rule it reads there**, so a rule added to the playbook is enforced
+   *without editing this skill* (don't hand-copy rules here, where they drift out of sync with §3). It must *independently*
    re-run build/tests, inspect the diff, and apply the **operational triggers** (these turn the playbook's
    standing rules into "on THIS diff, check Y" — the rule *content* lives in the playbook, not here):
    - every stated acceptance condition met, nothing obviously broken;

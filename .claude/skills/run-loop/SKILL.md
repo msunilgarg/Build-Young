@@ -28,13 +28,16 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
 5. **Independent verification (the doer/checker split — do not skip).** Spawn a **fresh sub-agent**
    (general-purpose, its own context) **on the cheaper verifier tier — pass the Agent tool's
    `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — don't drop
-   below Sonnet for grading, a too-weak checker rubber-stamps). Give it: the task's acceptance criteria +
+   below Sonnet for grading, a too-weak checker rubber-stamps). **A fresh sub-agent inherits NONE of your
+   auto-loaded context — no `CLAUDE.md`, no `@imports` — so it only grades against what this prompt hands
+   it. That's how it "knows" to read anything: you tell it.** Give it: the task's acceptance criteria +
    `git diff origin/main`, **and tell it to first READ `ENGINEERING-PLAYBOOK.md`** (its standing rules —
-   esp. **§3** diagram/doc rules and **§4** shipping rules) **and, when `BUILD-YOUNG-ARCHITECTURE.md`
+   esp. **§3** diagram/doc rules and **§4** shipping rules), **`POSITIONING.md` when the diff touches
+   user-facing copy** (the voice/claims source of truth), **and, when `BUILD-YOUNG-ARCHITECTURE.md`
    changed, that doc's *"Acceptance criteria for this doc"* section.** The **playbook is the single source
-   of truth** — the verifier grades the diff against **every rule it reads there**, so a rule added to the
-   playbook is enforced *without editing this skill* (that's the point: don't hand-copy rules into this
-   checklist, where they drift out of sync with §3). Then have it *independently* run `npm run build` +
+   of truth** for engineering rules — the verifier grades the diff against **every rule it reads there**,
+   so a rule added to the playbook is enforced *without editing this skill* (that's the point: don't
+   hand-copy rules into this checklist, where they drift out of sync with §3). Then have it *independently* run `npm run build` +
    `npx vitest run`, inspect the diff, and reply **PASS** only if every acceptance criterion AND every
    standing rule is met and nothing obvious is broken, else **FAIL** with the specific gaps. The doer
    cannot grade its own homework.

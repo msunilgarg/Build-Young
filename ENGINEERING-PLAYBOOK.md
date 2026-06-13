@@ -221,6 +221,14 @@ a **driver** pursues them. The payoff isn't "more agents"; it's that each next s
   against the acceptance criteria **and this playbook's standing rules — it READS the playbook, which is
   the single source of truth, so a rule added here is enforced without editing the loop/ship skills** —
   then returns PASS or FAIL+gaps. (Fan this out in parallel per §2.)
+- **A fresh-context verifier inherits NONE of the doer's auto-loaded context — so hand it everything it
+  must grade against, explicitly.** This is the catch that makes the independence real *and* fragile: the
+  doer's project guide and its `@imports` are auto-loaded for the doer, but the spawned verifier starts
+  blank and only checks against what its spawn prompt names. So *that's how it "knows" to read a doc — you
+  tell it.* Point it at: the **engineering playbook always** (standing rules), the **copy/voice source of
+  truth when the diff touches user-facing copy**, and the **architecture-doc acceptance criteria when a
+  diagram/structure changed**. Miss one and the verifier grades in a vacuum — green on a diff that
+  violates a rule it was never shown. (Don't assume "it'll have read CLAUDE.md" — it won't.)
 - **Every shipped change is independently verified — regardless of how it was triggered.** Don't let a
   "direct edit" become an unverified path: verification is a property of *shipping*, not of one entry
   point. Scale the check to the change (trivial vs substantive), but never skip it.
@@ -261,6 +269,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-13** — §9: a fresh-context verifier inherits none of the doer's auto-loaded context — hand it everything to grade against explicitly (playbook always; copy/voice source of truth on copy changes; arch-doc acceptance criteria on diagram changes). That's how it "knows" to read a doc — the spawn prompt tells it; it can't auto-load CLAUDE.md/@imports.
 - **2026-06-13** — §3: give the rendered diagram back after a change — surface the regenerated PNG to the human as part of reporting (don't make them re-ask "show me the diagram"); the diagram is the deliverable.
 - **2026-06-13** — §3/§9: the verifier **reads this playbook and grades against it** — the playbook is the single source of truth for standing rules, so a rule added here is enforced without hand-copying it into the loop/ship skills' checklists (that duplication is what drifts; the skills now carry only the *operational trigger*, the rule content lives here). Supersedes the prior "wire each rule into the checklist" framing.
 - **2026-06-13** — §3: a diagram-clarity rule only holds once the verifier *checks* it — folded "one component = one node" (don't split one instance across boxes) into the standing visual check alongside compactness, after a stated-but-unchecked rule let driver+doer ship as two boxes. When you write a diagram rule, wire it into the verifier's PNG check; don't just state it.
