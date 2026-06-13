@@ -25,6 +25,38 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 **stops for you** (architectural / behavioral / money-auth / ambiguous).
 
 ---
+
+## [ ] T11 — Fix inflated traffic & engagement metrics (foreground-only dwell + exit per session)  ·  risk: med
+Goal: the founder dashboard's Traffic & engagement numbers reflect reality. Today they're inflated
+because `flush()` (App.jsx) runs on every `visibilitychange → hidden` and measures wall-clock time:
+average "time on page" counts backgrounded/locked idle time (e.g. ~20 min on the landing page), and an
+`exit` (plus a `screen_view`) fires on every tab-hide — so exits (78) exceed both landing views (77) and
+total visits (46), and "where they leave" lumps every hide onto one screen.
+Acceptance criteria:
+- **Foreground-only dwell:** time the tab spends `hidden` is NOT counted toward a screen's `ms`. On hide,
+  add the active segment and pause; on becoming visible again, resume timing (start = now). A locked
+  phone / backgrounded tab no longer inflates "avg time." (App.jsx dwell logic.)
+- **`exit` is once per session, not once per hide:** the "Where they leave" count should approximate the
+  number of sessions, not tab-hides — exits must not exceed visits. Dedupe by `sid` (one exit per
+  session, attributed to the last screen) OR an equivalent that makes exits ≤ sessions.
+- **`screen_view` not re-logged on every hide** in a way that double-counts views — view counts should
+  track navigations/real views, not tab-hide flushes (so landing views aren't inflated past visits
+  without cause). Keep it aggregate, no PII (unchanged).
+- **Disambiguate "CA":** the founder UI must not show the same token meaning two things side by side —
+  Canada (country, "Where visitors come from") vs California (US state, "US visits by state"). Label so a
+  reader can't confuse them (e.g. country names or "CA (Canada)" vs state codes under a clear "US states"
+  heading).
+- `engagement()` in `src/funnel.js` updated to match, with its tests; existing funnel tests stay green;
+  `npm run build` + `npx vitest run` green.
+Files: `build-young-app/src/App.jsx` (dwell/exit tracking), `build-young-app/src/funnel.js`
+(`engagement()`), `build-young-app/src/FounderDashboard.jsx` (the cards / CA labels),
+`build-young-app/test/funnel.test.js` (+ any engagement test).
+Stop-and-ask if: the **exit semantics** — ship as **once-per-session** (recommended: makes "where they
+leave" meaningful and exits ≤ sessions) OR keep per-hide but **relabel** the card to "tab-hides" instead
+of "exits." Confirm which before shipping. Also: changing a tracked-event's meaning is behavioral — note
+it so historical data is read with the change in mind.
+
+---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
