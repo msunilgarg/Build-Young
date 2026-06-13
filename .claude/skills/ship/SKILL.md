@@ -25,10 +25,11 @@ unverified path to `main`. Use it for any substantive change you're about to lan
    - **architecture-doc currency** — if the diff adds/removes/moves/renames a module/endpoint/route/
      skill/hook or changes the loop/ship flow, `BUILD-YOUNG-ARCHITECTURE.md` (+ `CLAUDE.md`) is updated
      in the SAME diff, and if a Mermaid block changed the exports were regenerated;
-   - **diagram is visually compact** — if a Mermaid block changed, the verifier **Reads the regenerated
-     PNG** (`docs/architecture/*.png`) and FAILs on a large empty region or a node you must zoom to read
-     (no in-diagram `Legend` node — the color key is text); a whitespace defect is a defect, not a
-     human-only nicety;
+   - **diagram quality (visual)** — if a Mermaid block changed, the verifier **Reads the regenerated
+     PNG** (`docs/architecture/*.png`) and FAILs on (a) a large empty region or a node you must zoom to
+     read (no in-diagram `Legend` node — the color key is text), or (b) **one component drawn as several**
+     (two boxes for one instance — one agent in two hats is ONE node); a diagram-quality defect is a
+     defect, not a human-only nicety;
    - **diagram ↔ policy consistency (bidirectional)** — a diagram/doc must not *assert* a behavior the
      governing policy (`CLAUDE.md`/the playbook) doesn't state, and a policy change must update the
      diagrams that depict it.
