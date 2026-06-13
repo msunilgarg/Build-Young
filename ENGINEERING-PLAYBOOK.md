@@ -113,16 +113,23 @@ parallel pain is un-agreed interfaces, not the code itself.
   one unit (and don't draw one component as several); and for a living diagram, give it acceptance
   criteria + a regen step so it can be *verified*, not babysat. The test: a newcomer reads it without
   asking "what's this box?" or "are these two the same thing?"
-- **A rendered diagram is a visual artifact — grade it visually, in the same change. "Compact, no large
-  empty regions, readable without zooming" is a verifier-checkable done-condition, not a human-only
-  nicety.** A whitespace defect (a big empty quadrant, a node you must zoom to read) is a *defect* — so
-  fix it as part of the change; **don't defer it back to the human as a "should I…?" question.** (This
-  bit us repeatedly: I kept shipping a diagram with a ton of whitespace and waiting to be told.) Two
-  mechanics make it stick: (1) **the color key is text, not an in-diagram `Legend` node** — a
-  disconnected legend box is the classic whitespace trap (auto-layout floats it to a corner and stretches
-  the canvas); (2) **the verifier VIEWS the regenerated image** (it can Read a PNG) and FAILs on a dead
-  region or unreadable node, just as it would on a wrong label — visual quality is checked where every
-  other change is gated (§4), not left to whoever happens to glance at it.
+- **A rendered diagram is a visual artifact — grade it visually, in the same change, against the rules
+  above.** The verifier **VIEWS the regenerated image** (it can Read a PNG) and FAILs the diagram-quality
+  done-conditions, just as it would a wrong label — visual quality is checked where every other change is
+  gated (§4), not left to whoever happens to glance at it. The checkable conditions:
+  - **Compact — no large empty regions, readable without zooming.** A whitespace defect (a big empty
+    quadrant, a node you must zoom to read) is a *defect*. Mechanic: **the color key is text, not an
+    in-diagram `Legend` node** — a disconnected legend box is the classic whitespace trap (auto-layout
+    floats it to a corner and stretches the canvas).
+  - **One component = one node.** If two boxes are really the *same* instance (e.g. one agent wearing two
+    hats), draw ONE box — two boxes read as two things. This is the visual half of the "don't draw one
+    component as several" rule above, made checkable.
+  Both get **fixed as part of the change — never deferred back to the human as a "should I…?" question.**
+  *Meta-lesson (why this bullet exists): a stated rule isn't enough — a diagram drew driver+doer as two
+  boxes and shipped a "ton of whitespace" repeatedly, even though §3 already forbade both, because the
+  rules lived as advice and weren't in the **verifier's standing checklist**. The lesson isn't "add the
+  rule" (it was there); it's "**a diagram-clarity rule only holds once the verifier checks it**" — so when
+  you write a diagram rule, wire it into the standing visual check, don't just state it.*
 
 ## 4. Workflow & shipping
 
@@ -243,6 +250,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-13** — §3: a diagram-clarity rule only holds once the verifier *checks* it — folded "one component = one node" (don't split one instance across boxes) into the standing visual check alongside compactness, after a stated-but-unchecked rule let driver+doer ship as two boxes. When you write a diagram rule, wire it into the verifier's PNG check; don't just state it.
 - **2026-06-13** — §9: tier the model to the role — cheap, faster model for the bulk (the independent verifier's re-run-and-grade + low-risk mechanical doer passes), premium frontier model for planning/architecture/high-risk. Cheapen the *work*, never the *rigor* (the verifier still runs every standing check); name tiers by model family, not a dated string.
 - **2026-06-12** — §3: a rendered diagram's *visual compactness* (no large empty regions, readable without zooming) is a verifier-checkable done-condition — the verifier VIEWS the regenerated PNG and FAILs whitespace defects; color key is text, never an in-diagram legend node (the classic whitespace trap). Don't defer a visual defect back to the human as a question.
 - **2026-06-12** — Added §9 "Loop engineering" (folded in the portable loop-engineering principles from the retired `LOOP.md`) — one playbook for all engineering practice; project-specific loop wiring lives in the project's architecture doc + CLAUDE.md.

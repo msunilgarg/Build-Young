@@ -40,8 +40,10 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
      drifts silently when its upkeep relies on memory — so the independent check owns it, not the spec.)
      Likewise, if a `BUILD-YOUNG-ARCHITECTURE.md` **Mermaid block** changed, the regenerated exports
      (`docs/architecture/*.png|pdf` via `scripts/render-architecture.sh`) must be in the SAME diff — **FAIL** if not —
-     and the verifier **Reads the regenerated PNG** and **FAILs on a visual whitespace defect** (a large
-     empty region, or a node you must zoom to read; the color key is text, never an in-diagram `Legend` node).
+     and the verifier **Reads the regenerated PNG** and **FAILs on a diagram-quality defect**: (a) a
+     **whitespace** defect (a large empty region, or a node you must zoom to read; the color key is text,
+     never an in-diagram `Legend` node), or (b) **one component drawn as several** (two boxes for what is
+     really one instance — e.g. one agent in two hats should be ONE node).
      And **diagram ↔ policy consistency (bidirectional):** if the diff makes a diagram/doc *assert* a
      behavior or rule, confirm the governing policy (`CLAUDE.md` protocols / the playbook) states the same —
      and if it changes a policy, confirm the diagrams that depict it were updated. **FAIL** on a mismatch.
