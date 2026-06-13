@@ -41,7 +41,6 @@ breakdowns so a country code can't be confused with the California state code in
 `funnel.test.js` exit test uses sids + asserts dedup. Behavioral (the `exit` event's meaning changed —
 read historical data accordingly); aggregate, no PII. Build + 237 tests green; independently verified on
 the Sonnet tier.
-## Done
 
 ## [x] T10 — Make the loop model-tiered (cheap execution, premium reasoning)  ·  risk: high
 Done (human-approved the Sonnet tier + merge — high-risk pause honored): the loop/ship flows now tier the
