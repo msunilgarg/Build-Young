@@ -42,27 +42,23 @@ flowchart TB
     tasks[("② TASKS.md · backlog")]
     docs["③ Governing docs (context)<br/>CLAUDE.md — auto-loaded, @imports ENGINEERING-PLAYBOOK.md<br/>(playbook §9 = loop engineering) · POSITIONING.md — read on demand"]
 
-    onramps --> driver
-    tasks ==> driver
+    onramps --> agent
+    tasks ==> agent
     tasks -. "acceptance criteria" .-> verifier
-    docs -. context .-> driver
+    docs -. context .-> agent
 
     subgraph LOOP["♻ THE LOOP — one task at a time (until the backlog is empty or a stop condition)"]
         direction TB
-        subgraph mainagent["MAIN AGENT · one context (driver + doer = the SAME agent)"]
-            direction LR
-            driver["DRIVER · picks the next task<br/>(next step = a signal, never a guess)"]
-            doer["DOER · writes the smallest change<br/>↳ can fan out to parallel sub-agents"]
-        end
+        agent["MAIN AGENT · ONE agent, one context — driver + doer (two hats)<br/>picks the next task (next step = a signal, never a guess),<br/>then writes the smallest change · ↳ can fan out to parallel sub-agents"]
         check["Self-check · build · tests · guards"]
         verifier["VERIFIER · a SEPARATE ephemeral sub-agent (own context)<br/>grades the diff vs the acceptance criteria"]
         gate{"low / med risk?"}
         ship["SHIP · PR → verify → squash-merge → sync"]
         record["mark [x] in TASKS.md"]
-        driver --> doer --> check --> verifier --> gate
-        verifier -. "FAIL → fix the gaps" .-> doer
+        agent --> check --> verifier --> gate
+        verifier -. "FAIL → fix the gaps" .-> agent
         gate -- "yes" --> ship --> record
-        record == "↻ next task" ==> driver
+        record == "↻ next task" ==> agent
     end
 
     gate -- "no · high-risk / ambiguous" --> pause["⏸ PAUSE for human · open PR, don't merge"]
@@ -77,13 +73,12 @@ flowchart TB
     classDef state fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#5f4300;
     classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
     classDef human fill:#fce4ec,stroke:#d81b60,stroke-width:2px,color:#880e4f;
-    class driver,doer agent;
+    class agent agent;
     class verifier subagent;
     class issue,machinery tool;
     class tasks,docs state;
     class you human;
     class live ext;
-    style mainagent fill:#f6f1fb,stroke:#5e35b1,stroke-width:1px,color:#311b92;
 ```
 
 | Node | What it is / its responsibility |
@@ -283,8 +278,8 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
 - **Both layers present:** the agentic loop AND the app, each with a Mermaid diagram + a component table.
 - **No invented nodes:** every node maps to a real artifact in the repo (module / endpoint / skill /
   hook / external service); names match the code.
-- **The loop reads as a loop:** the loop diagram has the explicit return edge closing `record → driver`
-  (plus the verifier→doer FAIL retry) — not a top-to-bottom pipeline.
+- **The loop reads as a loop:** the loop diagram has the explicit return edge closing `record → agent`
+  (plus the verifier→agent FAIL retry) — not a top-to-bottom pipeline.
 - **Visual taxonomy:** agents, ephemeral sub-agents, tools/automation, committed state, external
   services, and humans are styled distinctly (the `classDef`s). The color meaning is stated once as a
   **text key** in the intro — *not* as an in-diagram `Legend` subgraph (a disconnected legend node is a
