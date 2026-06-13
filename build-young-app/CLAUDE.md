@@ -19,6 +19,15 @@ repo, e.g. to CI / the cloud loop):** @../ENGINEERING-PLAYBOOK.md
 > PR → squash-merge → sync). Verification is part of shipping, not optional: a *direct edit* gets the same
 > verifier as a `/run-loop` task, so nothing merges unverified. (Playbook §9; the skill is `.claude/skills/ship`.)
 
+> **Model tiering (cost discipline — cheapen the work, not the rigor).** Spawn the **independent verifier**
+> sub-agent (in `/run-loop` and `/ship`) on a **Sonnet-class** model — the Agent tool's `model: "sonnet"` —
+> and reserve the session's premium model (Opus/Fable) for **planning, architecture/design, and any
+> `risk: high` task**. A Sonnet-class verifier still re-runs build/tests, grades the diff, **and runs every
+> standing check** — it's just materially cheaper for the per-task volume. **Floor: don't drop the verifier
+> below Sonnet** (a too-weak checker rubber-stamps; reserve Haiku for trivial typo-level checks only). Name
+> models by **family alias**, never a dated string (mirrors `scenarioModel`'s family-named Haiku default for
+> the in-app scenario agent). Portable rationale: `ENGINEERING-PLAYBOOK.md` §9.
+
 ## What this is
 **Build Young** is a live, online entrepreneurship program for high schoolers: over 12 weeks
 they build a real product with AI, take it live, grow it, and go to market for their first

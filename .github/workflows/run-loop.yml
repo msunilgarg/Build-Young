@@ -52,6 +52,10 @@ jobs:
         with:
           node-version: 20
 
+      # Model tiering (playbook §9) applies to the LOCAL loop, which spawns a separate cheaper-tier
+      # verifier sub-agent. This cloud Action is a SINGLE all-in-one agent (Agent/Task is not in
+      # --allowedTools, so it can't fan out a sub-agent) that plans + implements + does its own
+      # fresh-eyes verification — so it runs at the default (premium) tier rather than splitting roles.
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
