@@ -75,7 +75,8 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
 ## Reporting
 Be terse between tasks — the merged PRs are the record. Don't narrate every round. Reply only to
 report the final summary, a stop condition, or a question. Refresh `TASKS.md` as you go so the file
-always reflects live state.
+always reflects live state. **If a shipped task changed a diagram** (a `docs/architecture/*.png`), **give
+it back** — surface the regenerated PNG to the human (`SendUserFile`) when you report, don't make them ask.
 
 ## Don't
 - Don't invent backlog items or "lessons"; pursue only what's in `TASKS.md`.

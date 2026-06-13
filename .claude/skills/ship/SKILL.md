@@ -46,6 +46,9 @@ unverified path to `main`. Use it for any substantive change you're about to lan
    - **low / med risk** → squash-merge, sync `main`, re-push the dev branch so it matches.
    - **high / architectural / destructive / outward-facing / ambiguous** → leave the PR open, comment
      why it paused, and **STOP for human review** (don't merge).
+5. **If the change updated a diagram, give it back.** When the diff touched a `docs/architecture/*.png`
+   (a Mermaid block changed), **surface the regenerated PNG to the human** (`SendUserFile`) in the same
+   turn you report the change — the diagram is the deliverable; don't make them ask "show me the diagram."
 
 ## Don't
 - Don't merge without the independent verifier passing (that's the whole point).
