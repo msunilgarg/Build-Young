@@ -54,6 +54,16 @@ decision).
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
+## [x] T12 — Audit & tighten the current pages for less scrolling (landing first)  ·  risk: med
+Done (landing-page increment — founder-approved the screenshots, then merged): a spacing/padding-only pass
+on `Landing.jsx` applying the House-style "optimize for less scrolling" rule — tightened the hero stack
++ every section's padding/inter-block gaps so the **primary CTA ("Pick a batch & enroll") now sits in the
+first mobile viewport** (390px), where before it barely peeked past the cut-off hero preview. No copy,
+sections, CTAs, behavior, or a11y changed (verified line-by-line + before/after mobile screenshots on the
+Sonnet tier); recharts lazy-split + JS budget preserved; build + 237 tests green. Outward-facing visual,
+so it paused for the founder's sign-off before merge (per the Stop-and-ask). **Follow-on screens remain
+(not auto-created): `Enroll.jsx`, `BookCall.jsx`, `Platform.jsx` — promote to a task when ready.**
+
 ## [x] T11 — Fix inflated traffic & engagement metrics (foreground-only dwell + exit per session)  ·  risk: med
 Done: the founder dashboard's Traffic & engagement numbers were inflated because `flush()` ran on every
 `visibilitychange → hidden` and measured wall-clock time (so idle/backgrounded time counted as dwell —
