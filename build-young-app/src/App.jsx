@@ -48,6 +48,8 @@ import { callBooked } from "./lib.js";
 import { Enroll } from "./Enroll.jsx";
 import { BookCall } from "./BookCall.jsx";
 import { About } from "./About.jsx";
+import { Curriculum } from "./Curriculum.jsx";
+import { Faq } from "./Faq.jsx";
 
 // Whether a "Talk to Sunil" call was booked earlier this session — tags the call→enroll branch.
 
@@ -325,6 +327,8 @@ export default function App() {
   };
   const startCall = () => nav("call");
   const startStory = () => nav("story"); // /about — the founder essay + "more than money" narrative
+  const startCurriculum = () => nav("curriculum"); // /curriculum — the 3-act journey + where-the-work detail
+  const startFaq = () => nav("faq"); // /faq — the full Q&A + ask-a-question form
   const finishEnroll = (student) => guard(() => {
     // Funnel: payment completed (demo path — the Stripe path fires `enrolled` on the ?enrolled= return).
     track("enrolled", { ...cohortMetaFrom(batches, student.batch), fromCall: callBooked });
@@ -365,10 +369,12 @@ export default function App() {
   // a screen is one appended entry — no more editing the router in several scattered spots.
   // (`verify` keeps the /verify/<id> URL, whose id lives in the path, so it has no static `path`.)
   const ROUTES = [
-    { key: "home", path: "/", title: "Build Young — hands-on AI for high schoolers: build a real product", desc: "Build Young is a live, hands-on AI program for high schoolers: build a real product with AI, take it live, grow it, and get your first customers. The edge isn't a degree — it's what you can build. Raising builders, not consumers.", el: <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onStory={startStory} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} /> },
+    { key: "home", path: "/", title: "Build Young — hands-on AI for high schoolers: build a real product", desc: "Build Young is a live, hands-on AI program for high schoolers: build a real product with AI, take it live, grow it, and get your first customers. The edge isn't a degree — it's what you can build. Raising builders, not consumers.", el: <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onStory={startStory} onCurriculum={startCurriculum} onFaq={startFaq} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} /> },
     { key: "enroll", path: "/enroll", title: "Enroll — Build Young", desc: "Reserve your seat in a Build Young cohort — 12 weeks, live and online, where teens build a real product with AI and learn to grow it.", el: <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} /> },
     { key: "call", path: "/book-call", title: "Talk to us — Build Young", desc: "Book a free 15-minute call to see whether Build Young is the right fit for your teen.", el: <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} /> },
     { key: "story", path: "/about", title: "Our story — Build Young", desc: "Why Build Young exists: a founder's note on raising builders not consumers, why AI makes starting young the edge, and what the 12-week program is really about.", el: <About onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} onCall={startCall} /> },
+    { key: "curriculum", path: "/curriculum", title: "How it works — Build Young", desc: "The Build Young 12-week journey in three acts: build & launch a real product with AI (Weeks 1–7), learn how to grow it (Weeks 8–10), and present it at a live capstone (Weeks 11–12) — plus the student dashboard where the work happens.", el: <Curriculum onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} onCall={startCall} /> },
+    { key: "faq", path: "/faq", title: "FAQ — Build Young", desc: "Questions parents ask about Build Young: who it's for, whether coding is needed, the schedule, what a class looks like, cost and refunds, and the first-year builder prize.", el: <Faq onBack={goBack} onHome={goHome} onCall={startCall} /> },
     { key: "app", path: "/dashboard", el: state ? <Platform state={state} setState={setState} onExit={exitApp} onFounder={isFounder ? goFounder : null} onHome={goHome} /> : null },
     { key: "login", path: "/login", el: <Login onLogin={doLogin} onReset={AUTH.requestReset} onHome={goHome} onEnroll={() => startEnroll()} /> },
     { key: "setpw", path: "/set-password", el: <SetPassword token={setpwToken} onSetPassword={doSetPassword} onHome={goHome} /> },
