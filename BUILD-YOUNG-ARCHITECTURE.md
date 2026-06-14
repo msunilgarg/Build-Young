@@ -189,6 +189,7 @@ flowchart TB
         appjsx["App.jsx<br/>ROUTER ONLY (~375 lines): data-driven ROUTES registry,<br/>history/scroll, persistence, hydration, legal modal"]
         subgraph screens["Screens (one feature = one file)"]
             landing["Landing.jsx"]
+            about["About.jsx<br/>our story / founder essay"]
             enroll["Enroll.jsx"]
             book["BookCall.jsx"]
             platform["Platform.jsx<br/>student dashboard"]
@@ -229,6 +230,7 @@ flowchart TB
     browser --> appjsx
     appjsx --> screens
     screens --> foundation
+    landing -->|"Read our story"| about
     landing -->|"track() events"| funnelapi
     enroll -->|"Payment Link"| stripe
     enroll & platform -->|"hydrate catalog"| cohortsapi
@@ -256,7 +258,7 @@ flowchart TB
 | Node | Responsibility |
 |---|---|
 | **App.jsx** | The router only — a **data-driven `ROUTES` registry** (`{key, path, title, desc, el}`) drives both the render and the URL/`<title>`, so adding a screen is one appended entry. Owns the route/history stack, scroll restore, the single-flight `navLock`, persistence/hydration, and the legal modal. New features go in their own file, never back here. |
-| **Screens** | One feature per file: `Landing` (marketing), `Enroll` (3-step), `BookCall` (intro call), `Platform` (student dashboard + course hub), `FounderDashboard` (hidden `?founder` analytics/admin console), `auth` (login/set-password), `Certificate` (cert + public `/verify`), `WhyStrip` (social-proof strips), `Legal` (privacy/terms modal), `Charts` (lazy-loaded recharts). |
+| **Screens** | One feature per file: `Landing` (marketing), `About` (the "our story" page at `/about` — the founder essay + "more than money" narrative, split off the landing page to cut scroll), `Enroll` (3-step), `BookCall` (intro call), `Platform` (student dashboard + course hub), `FounderDashboard` (hidden `?founder` analytics/admin console), `auth` (login/set-password), `Certificate` (cert + public `/verify`), `WhyStrip` (social-proof strips), `Legal` (privacy/terms modal), `Charts` (lazy-loaded recharts). |
 | **Foundation** | Shared, dependency-light single-sources-of-truth — imported by everything, so changes are **additive-only** during parallel work: `funnel.js` (stage/conversion/revenue math + traffic geography — country & US-state), `cohorts.js` (`SEASONS`/`BATCHES`), `course*.js`/`engine.js` (curriculum + week progression), `theme/ui/lib/site/cert/scenarios/marketMedia`. |
 | **api/funnel.js** | One method-routed endpoint (Hobby 12-function cap): **POST** public event ingest, **GET** founder funnel read, **PUT** saves cohorts/allowlist/settings, **DELETE** resets a test account. Non-POST requires a founder session. |
 | **api/cohorts.js** | Public read of the live catalog (`batches`, `checkins`, `settings`) so clients hydrate cohorts + site settings without a redeploy. |

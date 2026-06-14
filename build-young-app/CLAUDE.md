@@ -63,6 +63,7 @@ build-young-app/
 │   │                     #   adding a screen = ONE appended entry. Keep it thin; features go in their own file.
 │   │   ── SCREENS (one feature = one file; safe for one agent each) ──
 │   ├── Landing.jsx       # marketing page (hero, teaser, testimonials, FAQ, careers/schedule modals)
+│   ├── About.jsx         # "our story" page (/about): founder essay + "more than money" narrative (split off Landing to cut scroll)
 │   ├── Enroll.jsx        # 3-step enrollment
 │   ├── BookCall.jsx      # free intro-call booking
 │   ├── Platform.jsx      # student dashboard (overview + per-week course hub + withdrawal + cert card)
@@ -159,8 +160,12 @@ Top-to-bottom, the major pieces:
   Enroll (step 1) and BookCall pages to fill whitespace at the decision point. Each stat has a
   `url` that links to its PRIMARY source (opens new tab). The standalone pitch-deck version is
   `built-young-why-this-matters.md` in the outputs folder (kept in parallel, not in this repo).
-- **`Landing`** — the marketing page (nav, hero, how-it-works, 3-act curriculum, philosophy,
-  founder, batches/pricing, footer).
+- **`Landing`** — the marketing page (nav, hero, how-it-works, 3-act curriculum, a short
+  "more than money" teaser linking to `/about`, batches/pricing, footer).
+- **`About`** — the `/about` "our story" page: the full founder essay ("Why this exists") + the
+  "More than money" narrative + compound-growth graphic, moved off the landing page so the funnel
+  entry scrolls less (T13). Linked from the landing teaser; ends with an enroll/talk CTA. Content
+  is verbatim (no trim) — POSITIONING.md voice + the canonical mission paragraph unchanged.
 - **`Enroll`** — 3-step enrollment (checkout-style step 1, payment, confirmation).
 - **`BookCall`** — free 15-min call booking (two-column: scheduler + "what you'll get from me").
 - **`Platform`** + panels (`CoursePanel`, `WeekPanel`) — the post-enrollment dashboard (Overview /
