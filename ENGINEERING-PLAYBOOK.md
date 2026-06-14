@@ -104,6 +104,17 @@ parallel pain is un-agreed interfaces, not the code itself.
 - **Keep it lean; scope the detail.** Long always-loaded docs cost context and dilute adherence. Put
   broad rules in the root doc; push file-specific lore into path-scoped rules (`.claude/rules/*.md`)
   that load only when relevant.
+- **One concern per doc — merge *fragments*, keep *concerns* separate.** Before merging two docs, ask
+  "are these the same concern split across files, or two different concerns?" **Same concern fragmented →
+  merge** (e.g. two engineering playbooks into one — less to keep in sync, one source of truth). **Different
+  concerns → keep separate**, even if they describe the same product: messaging/voice, structure/wiring,
+  and engineering *process* change for different reasons, at different cadences, and get read on different
+  triggers — fusing them bloats the always-/on-demand-loaded context and couples unrelated edits. *Why it
+  matters:* the verifier (and the agent) reads a doc *when its concern is in play* (copy → the voice doc;
+  a diagram/module change → the structure doc); a merged doc forces reading everything for any change and
+  blurs where a new rule belongs. The hub doc (`CLAUDE.md`) links them, so separation costs no
+  discoverability. Test: if a one-line edit to concern A would force re-reading all of concern B, they
+  shouldn't be one doc.
 - **Write rules as principle + why,** so an agent can adapt them to a novel case instead of
   pattern-matching and getting it wrong.
 - **A diagram or reference list must be self-explanatory — every node carries a one-line purpose.** A
@@ -273,6 +284,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-14** — §3: "one concern per doc" — merge docs that are the *same concern* fragmented (e.g. the two engineering playbooks), keep *different concerns* separate (messaging vs structure vs process) even for the same product; they change for different reasons and get read on different triggers, so fusing them bloats context and couples unrelated edits.
 - **2026-06-14** — §9: the verifier must also read the **project guide** (its House style + project-specific rules) on app/UI changes, not just the portable playbook — project-specific rules (e.g. "optimize for less scrolling", "no flag/emoji glyphs") live there, so without it the verifier can't enforce them. A rule must live where the verifier is told to read it (portable → playbook, project → project guide); the architecture/structure doc is for wiring, not design/copy rules.
 - **2026-06-13** — §9: a fresh-context verifier inherits none of the doer's auto-loaded context — hand it everything to grade against explicitly (playbook always; copy/voice source of truth on copy changes; arch-doc acceptance criteria on diagram changes). That's how it "knows" to read a doc — the spawn prompt tells it; it can't auto-load CLAUDE.md/@imports.
 - **2026-06-13** — §3: give the rendered diagram back after a change — surface the regenerated PNG to the human as part of reporting (don't make them re-ask "show me the diagram"); the diagram is the deliverable.
