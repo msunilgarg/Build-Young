@@ -25,6 +25,32 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 **stops for you** (architectural / behavioral / money-auth / ambiguous).
 
 ---
+
+## [ ] T12 — Audit & tighten the current pages for less scrolling (landing first)  ·  risk: med
+Goal: make the live pages obey the new House-style rule "optimize for less scrolling — always" — get key
+value + the primary action reachable with the least vertical travel, especially on mobile. **Ship
+incrementally, one screen per PR, landing page FIRST** (it's the funnel entry — the Visited →
+Enroll-started leak is exactly this stage).
+Acceptance criteria (per screen):
+- Audit the screen's vertical layout and **reduce height without removing content/meaning**: tighten
+  oversized section padding and vertical gaps, collapse near-empty/stacked sections, trim hero
+  whitespace, and lift the primary CTA up so it's reachable within the first viewport or a short scroll
+  (check a ~375–390px-wide mobile viewport, not just desktop).
+- **No copy/positioning changes** — this is layout/spacing/density only; POSITIONING.md voice + claims
+  unchanged, no sections or information deleted (consolidate, don't cut).
+- Preserve existing behavior + a11y: `act()` on clickables, focus styles, contrast, the `navLock`, and
+  the calm/credible house style (denser ≠ cramped). Keep the recharts lazy-split + JS budget.
+- Note the before/after in the PR — approx. page-height reduction or "primary CTA now above the fold on
+  mobile" — so the win is visible.
+- `npm run build` + `npx vitest run` green (update any layout-dependent test).
+Files (landing first): `build-young-app/src/Landing.jsx` (+ shared spacing in `src/theme.js` `FONTS`
+media queries if needed). Follow-on screens (own tasks/PRs): `Enroll.jsx`, `BookCall.jsx`, `Platform.jsx`.
+Stop-and-ask if: it's **outward-facing + visual** — implement, open a PR, and **pause for the founder's
+screenshot review** before merge (visual quality needs a human eye; don't auto-merge a live-site layout
+change). Also stop if tightening would require cutting real content or a copy change (that's a separate
+decision).
+
+---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
