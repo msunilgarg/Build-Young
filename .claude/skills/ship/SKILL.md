@@ -14,7 +14,9 @@ unverified path to `main`. Use it for any substantive change you're about to lan
    `origin/main`. Keep the change in its own lane (only the files it needs).
 2. **Self-check.** `cd build-young-app && npm run build && npx vitest run` (for docs/skill-only changes,
    a build sanity is enough). Run the repo guards (no `\uXXXX` escapes, no internal/model id, no
-   resurrected money-sim markers). Fix until green.
+   resurrected money-sim markers). If the change touched `BUILD-YOUNG-ARCHITECTURE.md` or
+   `docs/architecture/`, run `bash scripts/check-architecture-current.sh` (the commit guard + CI enforce
+   it too). Fix until green.
 3. **Independent verification — do NOT skip (the doer can't grade its own homework).** Spawn a **fresh
    sub-agent** (general-purpose, own context) **on the cheaper verifier tier — the Agent tool's
    `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — don't drop

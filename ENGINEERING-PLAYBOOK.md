@@ -165,7 +165,14 @@ parallel pain is un-agreed interfaces, not the code itself.
   (never clobbering uncommitted work) removes a whole class of "why is this on an old branch" friction.
 - **Enforce, don't just document.** Conventions a human/agent must *remember* will be forgotten;
   conventions a **hook blocks** can't be. Use commit-time guards for the things that must never ship
-  (secrets, internal identifiers, banned patterns) rather than relying on vigilance.
+  (secrets, internal identifiers, banned patterns) rather than relying on vigilance. **This applies to
+  *generated artifacts staying in sync with their source*, not just banned content** — e.g. a living
+  diagram going stale: the renderer records a hash of the source, and a check (in the commit guard **and**
+  CI) blocks a commit/merge where the source changed but the export wasn't regenerated. If the human keeps
+  having to ask "is this regenerated / up to date?", that's the signal to replace the reminder with a
+  mechanical check (the LLM verifier *noticing* is a good layer, but a deterministic guard is what earns
+  trust). *Catch: a hash sync only proves export ⇄ source agree; whether the diagram matches the actual
+  code/structure is still a judgment call the verifier owns — don't claim the guard covers that.*
 - **Reduce friction deliberately.** Allowlist the routine, safe commands (read-only git, test/build) so
   you're not approving them all day; reserve prompts for the genuinely dangerous.
 
@@ -284,6 +291,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-14** — §4: enforce *generated-artifact currency* mechanically, not by vigilance — the renderer hashes the diagram source and a check in the commit guard + CI blocks a commit/merge where the source changed without regenerating the exports. When the human keeps asking "is this up to date?", replace the reminder with a deterministic guard. (Hash sync proves export⇄source; diagram-vs-code currency is still the verifier's judgment.)
 - **2026-06-14** — §3: "one concern per doc" — merge docs that are the *same concern* fragmented (e.g. the two engineering playbooks), keep *different concerns* separate (messaging vs structure vs process) even for the same product; they change for different reasons and get read on different triggers, so fusing them bloats context and couples unrelated edits.
 - **2026-06-14** — §9: the verifier must also read the **project guide** (its House style + project-specific rules) on app/UI changes, not just the portable playbook — project-specific rules (e.g. "optimize for less scrolling", "no flag/emoji glyphs") live there, so without it the verifier can't enforce them. A rule must live where the verifier is told to read it (portable → playbook, project → project guide); the architecture/structure doc is for wiring, not design/copy rules.
 - **2026-06-13** — §9: a fresh-context verifier inherits none of the doer's auto-loaded context — hand it everything to grade against explicitly (playbook always; copy/voice source of truth on copy changes; arch-doc acceptance criteria on diagram changes). That's how it "knows" to read a doc — the spawn prompt tells it; it can't auto-load CLAUDE.md/@imports.

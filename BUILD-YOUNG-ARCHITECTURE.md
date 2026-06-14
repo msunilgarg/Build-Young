@@ -64,7 +64,7 @@ flowchart TB
 
     gate -- "no · high-risk / ambiguous" --> pause["⏸ PAUSE for human · open PR, don't merge"]
     ship --> live["🌐 Live site (Vercel)"]
-    machinery["🛡 Always-on machinery · SessionStart resync · commit guards ·<br/>settings allowlist · GitHub MCP · worktrees"]
+    machinery["🛡 Always-on machinery · SessionStart resync · commit guards (incl. diagram-currency) ·<br/>settings allowlist · GitHub MCP · CI checks · worktrees"]
     machinery -. guards every step .-> LOOP
 
     %% ── visual taxonomy (color key is text, in the doc intro): agent · sub-agent · tool · state · external · human ──
@@ -92,7 +92,7 @@ flowchart TB
 | **Verifier** | A **fresh, ephemeral sub-agent** in its own context. It **inherits none of the driver/doer's auto-loaded context** (no `CLAUDE.md`, no `@imports`) — so the spawn prompt must hand it everything: the task's acceptance criteria (`TASKS.md`) + the diff, **and an explicit instruction to read** `ENGINEERING-PLAYBOOK.md` (portable standing rules — §3 diagram/doc + §4 shipping), **`build-young-app/CLAUDE.md` when the diff touches the app/UI** (the project guide's **House style** — e.g. optimize for less scrolling, no flag/emoji glyphs, statistics integrity — plus the module map + quality bars), **and `POSITIONING.md` when the diff touches user-facing copy** (the voice/claims source of truth). A rule is enforced without editing the skills as long as it lives in the doc the verifier is told to read (portable → playbook, project-specific → CLAUDE.md). That's *how it knows to read them* — it's told, because it can't auto-load them. It independently re-runs build/tests and grades the diff against the criteria **and** those standing rules → **PASS** or **FAIL + gaps**. The doer can't grade its own homework. ~3 rounds, then stop. **Runs on the cheaper model tier** (Sonnet-class — `model: "sonnet"`): cost discipline, rigor unchanged (every standing rule + FAIL→fix retry). See [model tiering](./build-young-app/CLAUDE.md) / playbook §9. |
 | **Ship** | Commit (author `Claude <noreply@anthropic.com>`) → push dev branch → open PR → **verify the PR's file diff is non-empty** → squash-merge → sync `main` and re-push the dev branch. |
 | **Ship gate / Pause** | **low/med** → auto squash-merge to the live site. **high / architectural / destructive / outward-facing / ambiguous** → leave the PR open, comment why, and **stop for human review**. |
-| **Machinery** | The SessionStart hook (state resurrection: resync + reinstall guards), the commit guards, the settings allowlist (and the deny-push-to-`main` rule), the **GitHub MCP** connector, and worktrees for isolation. |
+| **Machinery** | The SessionStart hook (state resurrection: resync + reinstall guards), the commit guards (incl. the **diagram-currency** check — `scripts/check-architecture-current.sh`), **CI checks** (e.g. `architecture-current` blocks a merge with a stale diagram), the settings allowlist (and the deny-push-to-`main` rule), the **GitHub MCP** connector, and worktrees for isolation. |
 
 **Stop conditions** (the loop bounces back to you instead of merging): `risk: high`, a destructive/
 irreversible/outward-facing action, an ambiguous/underspecified task, or a verifier that keeps
@@ -293,8 +293,11 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
   or `LR` where `TB` packs tighter) — don't ship it and don't defer it to a human to flag. This is a
   *done-condition*, not a nicety.
 - **The verifier shows its inputs:** the diff (from the doer) AND the acceptance-criteria source (`TASKS.md`).
-- **Exports current:** `docs/architecture/*.png|pdf` were regenerated from these Mermaid blocks in the
-  SAME change (`scripts/render-architecture.sh`) and render with no Mermaid syntax error.
+- **Exports current (mechanically enforced):** `docs/architecture/*.png|pdf` were regenerated from these
+  Mermaid blocks in the SAME change (`scripts/render-architecture.sh`) and render with no Mermaid syntax
+  error. This isn't left to memory: the renderer records a hash of the Mermaid source, and
+  `scripts/check-architecture-current.sh` (run by the **commit guard** and the **`architecture-current`
+  CI check**) **blocks** a commit/merge where the source changed but the exports weren't regenerated.
 - **Cross-linked:** links to `CLAUDE.md` / `ENGINEERING-PLAYBOOK.md` for depth.
 
 Almost everything above is checkable — by a grep, a re-render, or the verifier **viewing the PNG** —

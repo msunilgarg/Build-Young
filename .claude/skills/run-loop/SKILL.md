@@ -24,7 +24,9 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
    file you may delegate to a worktree-isolated sub-agent; otherwise edit directly. Stay in the
    task's lane (don't touch unrelated files).
 4. **Self-check:** `cd build-young-app && npm run build && npx vitest run`. Run the repo's guards
-   (no `\uXXXX` escapes, no internal model id, no resurrected money-sim markers). Fix until green.
+   (no `\uXXXX` escapes, no internal model id, no resurrected money-sim markers). If the change touched
+   `BUILD-YOUNG-ARCHITECTURE.md` or `docs/architecture/`, run `bash scripts/check-architecture-current.sh`
+   (diagram exports in sync — the commit guard + CI enforce this too). Fix until green.
 5. **Independent verification (the doer/checker split — do not skip).** Spawn a **fresh sub-agent**
    (general-purpose, its own context) **on the cheaper verifier tier — pass the Agent tool's
    `model: "sonnet"`** (cost discipline per CLAUDE.md / playbook §9; the rigor is unchanged — don't drop
