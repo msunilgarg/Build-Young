@@ -404,6 +404,16 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   Week 12. `WEEK_TITLES` (`marketMedia.js`) stays in sync with `WEEKS`. 12 weeks; 180 tests pass.
 - Microsoft is framed as **ex-Microsoft** in short credential tags.
 - Keep the design calm and credible (no gimmicky floating widgets). Centered section headers.
+- **Optimize for less scrolling — always.** Every screen (marketing + app) should get the visitor to the
+  point with the *least* vertical travel: key value and the next action (enroll / talk to us / the primary
+  CTA) reachable fast, ideally within the first viewport or a short scroll. *Why:* scrolling is friction
+  and the funnel leaks at exactly the "before they act" stage (see the Visited → Enroll-started drop-off) —
+  every extra screen-height is a chance to lose someone, especially on mobile. So when you add or edit UI,
+  **default to compact:** tighten section padding and vertical gaps, avoid stacked near-empty sections and
+  oversized hero whitespace, consolidate adjacent cards/steps, lift the CTA up, and prefer a denser-but-
+  still-calm layout over a tall airy one. Treat "could this be shorter / fit in less height?" as a standing
+  question on any layout change — don't let pages grow taller without a reason. (This is the on-page sibling
+  of the diagram "compact, no large empty regions" rule.)
 - **Typography:** display/headings/wordmark use **Space Grotesk** (`.disp` class); body uses
   **Inter** (`.flp`). Both load from Google Fonts — a `<link>` in `index.html` (and the
   standalone head) plus an `@import` at the top of the `FONTS` string; system-font fallbacks
