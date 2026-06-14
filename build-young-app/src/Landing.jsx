@@ -388,7 +388,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
             <div style={{ flex: 1, minWidth: 240 }}>
               <div className="disp" style={{ fontSize: 17, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 15, lineHeight: 1.55, margin: "6px 0 0" }}>
-                We couldn't find a class that taught our own kids to build something real with AI and put it in front of people — so we made it. The whole story behind Build Young, and why starting young is the edge.
+                Like a lot of parents, we think about what the world will look like when our kids graduate — and how fast it's changing under them.
               </p>
             </div>
             <span {...act(() => onStory && onStory())} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.emerald, fontWeight: 700, fontSize: 15, cursor: "pointer", whiteSpace: "nowrap" }}>
