@@ -41,3 +41,12 @@ for f in "$TMP"/block*.mmd; do
   i=$((i+1))
 done
 echo "Done. Wrote PNG + PDF to $OUT/"
+
+# Record a hash of the Mermaid source blocks so the currency check (scripts/check-architecture-current.sh)
+# can mechanically detect "edited the diagram but didn't re-render". Uses the SAME extraction as above.
+python3 - "$SRC" "$OUT/.source-hash" <<'PY'
+import re, sys, hashlib
+blocks = re.findall(r"```mermaid\n(.*?)```", open(sys.argv[1]).read(), re.S)
+open(sys.argv[2], "w").write(hashlib.sha256("\x00".join(blocks).encode()).hexdigest() + "\n")
+PY
+echo "Wrote source hash to $OUT/.source-hash"

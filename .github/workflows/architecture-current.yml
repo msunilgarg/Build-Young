@@ -1,0 +1,28 @@
+name: Architecture diagram current
+
+# Mechanically guarantees the rendered architecture exports are never stale: if a PR (or push) edits a
+# ```mermaid block in BUILD-YOUNG-ARCHITECTURE.md without regenerating docs/architecture/, this fails and
+# blocks the merge. Deterministic — it only hashes the Mermaid source vs docs/architecture/.source-hash
+# (written by scripts/render-architecture.sh), so no Chromium/render is needed and there's no cross-machine
+# flakiness. This is the "enforce, don't document" backstop for diagram currency — the agent can't forget.
+
+on:
+  pull_request:
+    paths:
+      - "BUILD-YOUNG-ARCHITECTURE.md"
+      - "docs/architecture/**"
+      - "scripts/render-architecture.sh"
+      - "scripts/check-architecture-current.sh"
+  push:
+    branches: [main]
+    paths:
+      - "BUILD-YOUNG-ARCHITECTURE.md"
+      - "docs/architecture/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the diagram exports are in sync with the Mermaid source
+        run: bash scripts/check-architecture-current.sh

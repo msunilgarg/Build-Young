@@ -15,6 +15,17 @@ if printf '%s' "$diff" | grep -qiP '^\+.*claude-[a-z]+-[0-9]+(-[0-9]+)?\[[0-9]+m
   exit 1
 fi
 
+# HARD BLOCK: a stale architecture diagram. If this commit touches the architecture doc or its exports,
+# the rendered exports must match the current Mermaid source (enforced by a hash, so you can't "edit the
+# diagram and forget to re-render"). Mechanical, not vigilance. See scripts/check-architecture-current.sh.
+if git diff --cached --name-only 2>/dev/null | grep -qE '^(BUILD-YOUNG-ARCHITECTURE\.md|docs/architecture/)'; then
+  if [ -x scripts/check-architecture-current.sh ] && ! scripts/check-architecture-current.sh >/dev/null 2>&1; then
+    echo "COMMIT BLOCKED: the architecture diagram is out of sync with BUILD-YOUNG-ARCHITECTURE.md." >&2
+    echo "  Run:  bash scripts/render-architecture.sh   then stage docs/architecture/ and re-commit." >&2
+    exit 1
+  fi
+fi
+
 warn=""
 printf '%s' "$diff" | grep -qP '^\+.*\\u[0-9a-fA-F]{4}' && warn="${warn}
   - a literal \\uXXXX escape — write the real character (—, ·, …) instead"

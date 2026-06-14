@@ -30,7 +30,7 @@ implement → verify (independently) → ship — pausing only on the conditions
 
 ```mermaid
 ---
-title: Build Young — Agent Harness (one loop; built to fan out to parallel sub-agents)
+title: Build Young — Agent Harness DRIFT TEST (one loop; built to fan out to parallel sub-agents)
 ---
 flowchart TB
     %% ① start a run — pick ONE on-ramp (detail in the table below)
@@ -64,7 +64,7 @@ flowchart TB
 
     gate -- "no · high-risk / ambiguous" --> pause["⏸ PAUSE for human · open PR, don't merge"]
     ship --> live["🌐 Live site (Vercel)"]
-    machinery["🛡 Always-on machinery · SessionStart resync · commit guards ·<br/>settings allowlist · GitHub MCP · worktrees"]
+    machinery["🛡 Always-on machinery · SessionStart resync · commit guards (incl. diagram-currency) ·<br/>settings allowlist · GitHub MCP · CI checks · worktrees"]
     machinery -. guards every step .-> LOOP
 
     %% ── visual taxonomy (color key is text, in the doc intro): agent · sub-agent · tool · state · external · human ──
@@ -293,8 +293,11 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
   or `LR` where `TB` packs tighter) — don't ship it and don't defer it to a human to flag. This is a
   *done-condition*, not a nicety.
 - **The verifier shows its inputs:** the diff (from the doer) AND the acceptance-criteria source (`TASKS.md`).
-- **Exports current:** `docs/architecture/*.png|pdf` were regenerated from these Mermaid blocks in the
-  SAME change (`scripts/render-architecture.sh`) and render with no Mermaid syntax error.
+- **Exports current (mechanically enforced):** `docs/architecture/*.png|pdf` were regenerated from these
+  Mermaid blocks in the SAME change (`scripts/render-architecture.sh`) and render with no Mermaid syntax
+  error. This isn't left to memory: the renderer records a hash of the Mermaid source, and
+  `scripts/check-architecture-current.sh` (run by the **commit guard** and the **`architecture-current`
+  CI check**) **blocks** a commit/merge where the source changed but the exports weren't regenerated.
 - **Cross-linked:** links to `CLAUDE.md` / `ENGINEERING-PLAYBOOK.md` for depth.
 
 Almost everything above is checkable — by a grep, a re-render, or the verifier **viewing the PNG** —
