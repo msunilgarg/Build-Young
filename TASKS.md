@@ -26,29 +26,40 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T12 — Audit & tighten the current pages for less scrolling (landing first)  ·  risk: med
-Goal: make the live pages obey the new House-style rule "optimize for less scrolling — always" — get key
-value + the primary action reachable with the least vertical travel, especially on mobile. **Ship
-incrementally, one screen per PR, landing page FIRST** (it's the funnel entry — the Visited →
-Enroll-started leak is exactly this stage).
+## [ ] T13 — Halve every page's scroll height (≥50%) and keep it there — without trimming content  ·  risk: high
+Goal: cut each live page's rendered vertical scroll height by **≥50% versus today's baseline** — on a
+390px mobile viewport *and* on desktop — and **lock it in with an automated guard** so it can never
+silently re-inflate. **Existing content must NOT be trimmed:** every word, section, claim, CTA, and chart
+stays present and reachable in the DOM. The reduction comes from **structure / progressive disclosure**,
+not deletion — spacing alone is exhausted (the T12 padding pass bought only ~2–3%; see Done). Ship
+incrementally, **one screen per PR, landing FIRST** (funnel entry).
+Baselines (measured 2026-06-14, built app, `document.documentElement.scrollHeight`):
+- **Landing** — 390px: **11,157px → target ≤ 5,579** · 768px: 7,048 → ≤ 3,524 · 1280px: 6,743 → ≤ 3,372.
+- (Re-measure each follow-on screen the same way and record its baseline + 50% ceiling in its PR.)
 Acceptance criteria (per screen):
-- Audit the screen's vertical layout and **reduce height without removing content/meaning**: tighten
-  oversized section padding and vertical gaps, collapse near-empty/stacked sections, trim hero
-  whitespace, and lift the primary CTA up so it's reachable within the first viewport or a short scroll
-  (check a ~375–390px-wide mobile viewport, not just desktop).
-- **No copy/positioning changes** — this is layout/spacing/density only; POSITIONING.md voice + claims
-  unchanged, no sections or information deleted (consolidate, don't cut).
-- Preserve existing behavior + a11y: `act()` on clickables, focus styles, contrast, the `navLock`, and
-  the calm/credible house style (denser ≠ cramped). Keep the recharts lazy-split + JS budget.
-- Note the before/after in the PR — approx. page-height reduction or "primary CTA now above the fold on
-  mobile" — so the win is visible.
-- `npm run build` + `npx vitest run` green (update any layout-dependent test).
-Files (landing first): `build-young-app/src/Landing.jsx` (+ shared spacing in `src/theme.js` `FONTS`
-media queries if needed). Follow-on screens (own tasks/PRs): `Enroll.jsx`, `BookCall.jsx`, `Platform.jsx`.
-Stop-and-ask if: it's **outward-facing + visual** — implement, open a PR, and **pause for the founder's
-screenshot review** before merge (visual quality needs a human eye; don't auto-merge a live-site layout
-change). Also stop if tightening would require cutting real content or a copy change (that's a separate
-decision).
+- Rendered `document.documentElement.scrollHeight` at **390px wide ≤ 50% of that screen's recorded
+  baseline** (and ≤50% at 1280px). Measure on the **built app via a headless browser** (jsdom has no
+  layout engine, so it can't measure this) — not an eyeball estimate.
+- **Zero content removed.** Every existing paragraph/section/claim/CTA/chart is still in the DOM and
+  reachable — e.g. behind an accordion, a "Read more" expander, tabs, a carousel, or a denser
+  multi-column grid on wider viewports (collapsed or re-laid-out, **never cut**). POSITIONING.md voice +
+  claims verbatim; no copy changes.
+- **"Maintain it all the time" — permanent guard:** add an automated page-height check that asserts each
+  shipped screen stays **≤ its 50% ceiling**, wired into the standing guards/CI so **every future PR runs
+  it** and a regression that re-inflates the page **fails the build**. Record the ceilings in the test so
+  they are the durable contract (this is the half of the task that makes the win stick).
+- Preserve behavior + a11y: every collapsible is keyboard-operable with correct `aria-expanded`/labels,
+  focus styles + contrast intact, `navLock` + scroll-restore unchanged, recharts lazy-split + JS budget
+  preserved; `act()`-tested clickables still pass.
+- Note before/after height (**px and %**) in the PR so the win is visible.
+- `npm run build` + `npx vitest run` + the new height guard all green.
+Files (landing first): `build-young-app/src/Landing.jsx` (+ a small reusable collapsible/section helper if
+shared; the height-guard test + its headless harness/config). Follow-on screens (own PRs): `Enroll.jsx`,
+`BookCall.jsx`, `Platform.jsx`.
+Stop-and-ask if: it's outward-facing **and now a real UX/structural change** (progressive disclosure
+changes what users see first) — implement, open a PR, and **pause for the founder's screenshot review**
+before merge. Also stop if hitting 50% would force cutting real content or a copy change — the no-trim
+rule is hard, so that bounces back as a separate human decision.
 
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
