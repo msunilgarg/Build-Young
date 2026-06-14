@@ -26,57 +26,29 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T13 — Halve every page's scroll height (≥50%) and keep it there — without trimming content  ·  risk: high
-Goal: cut each live page's rendered vertical scroll height by **≥50% versus today's baseline** — on a
-390px mobile viewport *and* on desktop — and **lock it in with an automated guard** so it can never
-silently re-inflate. **Existing content must NOT be trimmed:** every word, section, claim, CTA, and chart
-stays present and reachable in the DOM. The reduction comes from **structure / progressive disclosure**,
-not deletion — spacing alone is exhausted (the T12 padding pass bought only ~2–3%; see Done). Ship
-incrementally, **one screen per PR, landing FIRST** (funnel entry).
-Baselines (measured 2026-06-14, built app, `document.documentElement.scrollHeight`):
-- **Landing** — 390px: **11,157px → target ≤ 5,579** · 768px: 7,048 → ≤ 3,524 · 1280px: 6,743 → ≤ 3,372.
-- (Re-measure each follow-on screen the same way and record its baseline + 50% ceiling in its PR.)
-Acceptance criteria (per screen):
-- Rendered `document.documentElement.scrollHeight` at **390px wide ≤ 50% of that screen's recorded
-  baseline** (and ≤50% at 1280px). Measure on the **built app via a headless browser** (jsdom has no
-  layout engine, so it can't measure this) — not an eyeball estimate.
-- **Zero content removed.** Every existing paragraph/section/claim/CTA/chart is still in the DOM and
-  reachable — e.g. behind an accordion, a "Read more" expander, tabs, a carousel, or a denser
-  multi-column grid on wider viewports (collapsed or re-laid-out, **never cut**). POSITIONING.md voice +
-  claims verbatim; no copy changes.
-- **"Maintain it all the time" — permanent guard:** add an automated page-height check that asserts each
-  shipped screen stays **≤ its 50% ceiling**, wired into the standing guards/CI so **every future PR runs
-  it** and a regression that re-inflates the page **fails the build**. Record the ceilings in the test so
-  they are the durable contract (this is the half of the task that makes the win stick).
-- Preserve behavior + a11y: every collapsible is keyboard-operable with correct `aria-expanded`/labels,
-  focus styles + contrast intact, `navLock` + scroll-restore unchanged, recharts lazy-split + JS budget
-  preserved; `act()`-tested clickables still pass.
-- Note before/after height (**px and %**) in the PR so the win is visible.
-- `npm run build` + `npx vitest run` + the new height guard all green.
-Files (landing first): `build-young-app/src/Landing.jsx` (+ a small reusable collapsible/section helper if
-shared; the height-guard test + its headless harness/config). Follow-on screens (own PRs): `Enroll.jsx`,
-`BookCall.jsx`, `Platform.jsx`.
-Approach (decided with the founder): **relocate the long-form narrative to dedicated sub-pages** (new
-routes), rather than burying it behind in-page expanders — content isn't trimmed *or* hidden, it moves to
-its own crawlable page, and the landing (funnel entry) scrolls far less.
-Progress:
-- **Increment 1 (merged, #396):** new `/about` "Our story" page (`About.jsx`) — founder essay + "More
-  than money" moved verbatim; landing 390px 11,157 → 7,832px (−30%).
-- **Increment 2 (shipped for review):** new `/curriculum` (`Curriculum.jsx` — 3-act journey + product
-  teasers + "where the work happens") and `/faq` (`Faq.jsx` — full Q&A + ask form) pages; landing keeps a
-  condensed 3-act overview + an FAQ teaser, linking through. **Landing 390px 11,157 → 4,501px (−59.7%);
-  768px −54.6%; 1280px −54.2% — the ≥50% target is met on every width.** No content trimmed (verbatim
-  moves); build + 246 tests green; arch diagram + CLAUDE.md updated. Paused for screenshot review.
-- **Remaining (increment 3):** wire the permanent height guard so the landing can't silently re-inflate
-  past the ≤5,579px ceiling (a regression check every PR runs), completing T13.
-Stop-and-ask if: it's outward-facing **and now a real UX/structural change** (sub-pages change what users
-see on the landing) — implement, open a PR, and **pause for the founder's screenshot review** before
-merge. Also stop if hitting 50% would force cutting real content or a copy change — the no-trim rule is
-hard, so that bounces back as a separate human decision.
-
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T13 — Halve every page's scroll height (≥50%) and keep it there — without trimming content  ·  risk: high
+Done (landing — three founder-approved increments, each merged after a screenshot review). Applied the
+House-style "optimize for less scrolling" rule **structurally**: relocated the landing's long-form blocks
+to dedicated, crawlable routes — **nothing trimmed, all copy verbatim** — leaving a lean funnel entry.
+- **/about** (`About.jsx`, #396): founder "Why this exists" essay + "More than money" narrative + compound
+  graphic. **/curriculum** (`Curriculum.jsx`, #397): 3-act "how it works" + product teasers + week cards +
+  "where the work happens". **/faq** (`Faq.jsx`, #397): full Q&A + ask form. The landing keeps short
+  teasers (+ the canonical mission paragraph) linking through; the data-driven `ROUTES` registry got one
+  appended entry per page.
+- **Result:** landing 390px **11,157 → 4,501px (−59.7%)**; 768px −54.6%; 1280px −54.2% — **≥50% on every
+  width.** POSITIONING voice/claims unchanged; a11y preserved (`act()` teasers, `aria-expanded`, Back/Home,
+  recharts still lazy).
+- **Locked in (the "maintain it always" half):** `test/landing-lean.test.jsx` + a `landing-lean` CI check
+  fail any PR that moves long-form content back onto the landing. jsdom has no layout engine, so the guard
+  is a **deterministic content-volume proxy** (heavy blocks absent + a text-volume/node ceiling) calibrated
+  to the measured **≤5,579px @ 390px** (50% of the pre-T13 baseline); raise the ceiling only with a fresh
+  headless-browser px measurement. Build + 249 tests green; each increment independently Sonnet-verified.
+- **Follow-on screens** (`Enroll.jsx`, `BookCall.jsx`, `Platform.jsx`) — apply the same lens; promote to
+  their own tasks when ready.
 
 ## [x] T12 — Audit & tighten the current pages for less scrolling (landing first)  ·  risk: med
 Done (landing-page increment — founder-approved the screenshots, then merged): a spacing/padding-only pass

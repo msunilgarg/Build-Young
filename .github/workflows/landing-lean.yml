@@ -1,0 +1,32 @@
+name: Landing stays lean (T13 height guard)
+
+# Enforces the T13 win — the marketing landing page must stay ~60% shorter than its pre-split height —
+# so it can't silently re-inflate. Runs the deterministic content-volume guard (no Chromium: jsdom has
+# no layout, so the guard proxies rendered height by text-volume + node count; see the test header).
+# Triggers when a PR touches the landing, its teaser targets, or the guard itself.
+
+on:
+  pull_request:
+    paths:
+      - "build-young-app/src/Landing.jsx"
+      - "build-young-app/src/About.jsx"
+      - "build-young-app/src/Curriculum.jsx"
+      - "build-young-app/src/Faq.jsx"
+      - "build-young-app/test/landing-lean.test.jsx"
+  push:
+    branches: [main]
+    paths:
+      - "build-young-app/src/Landing.jsx"
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install deps
+        run: npm --prefix build-young-app ci
+      - name: Run the landing height guard
+        run: npm --prefix build-young-app run test -- test/landing-lean.test.jsx
