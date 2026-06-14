@@ -29,7 +29,7 @@ const REGION_DISPLAY = (() => { try { return new Intl.DisplayNames(["en"], { typ
 const countryName = (code) => { if (!code) return "—"; try { return (REGION_DISPLAY && REGION_DISPLAY.of(code)) || code; } catch { return code; } };
 
 // Friendly names for the internal route keys used as `screen` in engagement events.
-const SCREEN_LABELS = { home: "Landing page", enroll: "Enroll flow", call: "Book a call", app: "Student dashboard", login: "Log in", setpw: "Set password", checkemail: "Check your email", founder: "Founder console" };
+const SCREEN_LABELS = { home: "Landing page", story: "Our story (/about)", curriculum: "How it works (/curriculum)", faq: "FAQ (/faq)", enroll: "Enroll flow", call: "Book a call", app: "Student dashboard", login: "Log in", setpw: "Set password", checkemail: "Check your email", founder: "Founder console", verify: "Certificate verify" };
 const screenName = (s) => SCREEN_LABELS[s] || s || "—";
 // Human dwell time from milliseconds: "0s" / "45s" / "2m 5s" / "1h 3m".
 function fmtDwell(ms) {
