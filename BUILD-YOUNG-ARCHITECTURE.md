@@ -30,7 +30,7 @@ implement → verify (independently) → ship — pausing only on the conditions
 
 ```mermaid
 ---
-title: Build Young — Agent Harness DRIFT TEST (one loop; built to fan out to parallel sub-agents)
+title: Build Young — Agent Harness (one loop; built to fan out to parallel sub-agents)
 ---
 flowchart TB
     %% ① start a run — pick ONE on-ramp (detail in the table below)
@@ -92,7 +92,7 @@ flowchart TB
 | **Verifier** | A **fresh, ephemeral sub-agent** in its own context. It **inherits none of the driver/doer's auto-loaded context** (no `CLAUDE.md`, no `@imports`) — so the spawn prompt must hand it everything: the task's acceptance criteria (`TASKS.md`) + the diff, **and an explicit instruction to read** `ENGINEERING-PLAYBOOK.md` (portable standing rules — §3 diagram/doc + §4 shipping), **`build-young-app/CLAUDE.md` when the diff touches the app/UI** (the project guide's **House style** — e.g. optimize for less scrolling, no flag/emoji glyphs, statistics integrity — plus the module map + quality bars), **and `POSITIONING.md` when the diff touches user-facing copy** (the voice/claims source of truth). A rule is enforced without editing the skills as long as it lives in the doc the verifier is told to read (portable → playbook, project-specific → CLAUDE.md). That's *how it knows to read them* — it's told, because it can't auto-load them. It independently re-runs build/tests and grades the diff against the criteria **and** those standing rules → **PASS** or **FAIL + gaps**. The doer can't grade its own homework. ~3 rounds, then stop. **Runs on the cheaper model tier** (Sonnet-class — `model: "sonnet"`): cost discipline, rigor unchanged (every standing rule + FAIL→fix retry). See [model tiering](./build-young-app/CLAUDE.md) / playbook §9. |
 | **Ship** | Commit (author `Claude <noreply@anthropic.com>`) → push dev branch → open PR → **verify the PR's file diff is non-empty** → squash-merge → sync `main` and re-push the dev branch. |
 | **Ship gate / Pause** | **low/med** → auto squash-merge to the live site. **high / architectural / destructive / outward-facing / ambiguous** → leave the PR open, comment why, and **stop for human review**. |
-| **Machinery** | The SessionStart hook (state resurrection: resync + reinstall guards), the commit guards, the settings allowlist (and the deny-push-to-`main` rule), the **GitHub MCP** connector, and worktrees for isolation. |
+| **Machinery** | The SessionStart hook (state resurrection: resync + reinstall guards), the commit guards (incl. the **diagram-currency** check — `scripts/check-architecture-current.sh`), **CI checks** (e.g. `architecture-current` blocks a merge with a stale diagram), the settings allowlist (and the deny-push-to-`main` rule), the **GitHub MCP** connector, and worktrees for isolation. |
 
 **Stop conditions** (the loop bounces back to you instead of merging): `risk: high`, a destructive/
 irreversible/outward-facing action, an ambiguous/underspecified task, or a verifier that keeps
