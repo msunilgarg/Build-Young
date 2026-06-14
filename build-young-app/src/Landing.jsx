@@ -194,7 +194,7 @@ const HeroPreview = () => {
 
   const body = sc.id === "build" ? buildScene : sc.id === "grow" ? growScene : capstoneScene;
   return (
-    <div className="rise" style={{ maxWidth: 760, margin: "44px auto 0" }}>
+    <div className="rise" style={{ maxWidth: 760, margin: "24px auto 0" }}>
       <svg viewBox="0 0 920 430" style={{ width: "100%", height: "auto", filter: "drop-shadow(0 24px 50px rgba(0,103,184,.16))" }} role="img" aria-label={`Build Young dashboard preview — ${sc.aria}`}>
         <rect x="2" y="2" width="916" height="426" rx="12" fill="#ffffff" stroke={C2.line} />
         <defs>
@@ -384,8 +384,8 @@ function FaqSection({ onCall }) {
   const askLabel = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
   const askInput = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
   return (
-    <section style={{ maxWidth: 760, margin: "0 auto", padding: "8px 6vw 54px" }}>
-      <div style={{ textAlign: "center", marginBottom: 22 }}>
+    <section style={{ maxWidth: 760, margin: "0 auto", padding: "8px 6vw 40px" }}>
+      <div style={{ textAlign: "center", marginBottom: 16 }}>
         <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Questions parents ask</h2>
       </div>
       <div style={{ display: "grid", gap: 10 }}>
@@ -450,27 +450,27 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
       {CONFIG.showcaseEnabled && <Testimonials items={testimonials} />}
 
       {/* hero */}
-      <header style={{ position: "relative", overflow: "hidden", padding: "40px 6vw 64px" }}>
+      <header style={{ position: "relative", overflow: "hidden", padding: "28px 6vw 40px" }}>
         <HeroBackdrop />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", textAlign: "center" }}>
-        <div className="rise" style={{ marginBottom: 18 }}><Pill bg={C.ink}>12 weeks · high school · live cohorts</Pill></div>
+        <div className="rise" style={{ marginBottom: 12 }}><Pill bg={C.ink}>12 weeks · high school · live cohorts</Pill></div>
         <h1 className="disp rise" style={{ fontSize: "clamp(38px,6.5vw,74px)", lineHeight: 1.02, fontWeight: 700, letterSpacing: "-.02em", margin: 0 }}>
           Raising <span className="grad">builders,</span><br />not consumers.
         </h1>
-        <p className="disp rise" style={{ marginTop: 16, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build a real product, then learn to grow it into a real business.</p>
-        <p className="rise" style={{ maxWidth: 620, margin: "26px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
+        <p className="disp rise" style={{ marginTop: 12, fontSize: 18, fontWeight: 700, color: C.gold, letterSpacing: ".01em" }}>Build Young — build a real product, then learn to grow it into a real business.</p>
+        <p className="rise" style={{ maxWidth: 620, margin: "16px auto 0", fontSize: 19, color: C.ink2, lineHeight: 1.5 }}>
           Build Young is a <b>live, instructor-led course</b> where teens build a product they believe people would pay for — a small app, tool, or service, made with AI — and <b>learn to grow it into a real business</b>, thinking like <b>founders</b> the whole way.
         </p>
         <HeroPreview />
-        <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 32, flexWrap: "wrap" }}>
+        <div className="rise" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 22, flexWrap: "wrap" }}>
           {onDashboard
             ? <button className="btn" onClick={onDashboard} style={{ background: C.emerald, color: "#fff", padding: "15px 30px", borderRadius: 4, fontSize: 16 }}>Go to {dashLabel ? dashLabel.toLowerCase() : "my dashboard"} <ArrowRight size={16} style={{ verticalAlign: "-2px" }} /></button>
             : <button className="btn" onClick={onEnroll} style={{ background: C.emerald, color: "#fff", padding: "15px 30px", borderRadius: 4, fontSize: 16 }}>Pick a batch & enroll <ArrowRight size={16} style={{ verticalAlign: "-2px" }} /></button>}
           <button className="btn" onClick={onCall} style={{ background: "transparent", color: C.ink, padding: "15px 28px", borderRadius: 4, fontSize: 16, border: `1.5px solid ${C.ink}` }}>Talk to us</button>
           <a href="#curriculum" style={{ textDecoration: "none", alignSelf: "center" }}><span style={{ color: C.ink2, fontSize: 15, fontWeight: 600, borderBottom: `1.5px solid ${C.line}`, paddingBottom: 2 }}>See the 12 weeks</span></a>
         </div>
-        <p className="rise" style={{ fontSize: 13.5, color: C.muted, marginTop: 14 }}>Free 15-minute call — no pitch, no pressure.</p>
-        <div className="rise" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 26 }}>
+        <p className="rise" style={{ fontSize: 13.5, color: C.muted, marginTop: 10 }}>Free 15-minute call — no pitch, no pressure.</p>
+        <div className="rise" style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
           {[
             { icon: Video, t: "Live & instructor-led on Zoom" },
             { icon: Sparkles, t: "Build with Claude Code" },
@@ -483,13 +483,13 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
             </div>
           ))}
         </div>
-        <p className="rise" style={{ fontSize: 12, color: C.muted, marginTop: 12 }}>Hands-on entrepreneurship — teens build a real product with AI.</p>
+        <p className="rise" style={{ fontSize: 12, color: C.muted, marginTop: 8 }}>Hands-on entrepreneurship — teens build a real product with AI.</p>
         </div>
       </header>
 
       {/* how it works — the journey in three acts (merged: one section, each act shows a product teaser) */}
-      <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 6vw 24px" }}>
-        <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
+      <section id="curriculum" style={{ maxWidth: 1100, margin: "0 auto", padding: "22px 6vw 18px" }}>
+        <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 16px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>How it works — the journey in <span className="grad">three acts</span></h2>
           <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs as one live, hands-on build — your student makes the real calls each week and lives with what happens. <b>No slideware, no lectures, no busywork.</b> Twelve weeks, three acts: <b>build &amp; launch</b> (Weeks 1–7), <b>learn how to grow it</b> (Weeks 8–10), and <b>present what you built</b> at the capstone (Weeks 11–12).</p>
         </div>
@@ -542,12 +542,12 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
           </div>
           );
         })}
-        <p style={{ color: C.muted, marginTop: 24, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>real business</b> from zero — product, customers, and all — then finishing with a <b>capstone</b> where you present what you built.</p>
+        <p style={{ color: C.muted, marginTop: 18, fontSize: 14, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", lineHeight: 1.55 }}>Twelve weeks, twice a week — same standing time — building a <b>real business</b> from zero — product, customers, and all — then finishing with a <b>capstone</b> where you present what you built.</p>
       </section>
 
       {/* where the work happens — make the dashboard exercises concrete (de-nebulize the "how") */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 6vw 30px" }}>
-        <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 22px" }}>
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "6px 6vw 22px" }}>
+        <div style={{ textAlign: "center", maxWidth: 760, margin: "0 auto 16px" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Where the <span className="grad">work</span> happens</h2>
           <p style={{ color: C.muted, fontSize: 16, marginTop: 8, lineHeight: 1.5 }}>It all runs inside your own student dashboard — not videos to watch, but guided exercises to do. Each week unlocks the next, your work saves as you go, and we review it with you live in class.</p>
         </div>
@@ -568,7 +568,7 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
       </section>
 
       {/* philosophy + founder */}
-      <section style={{ position: "relative", overflow: "hidden", background: C.paper2, borderTop: `1px solid ${C.line}`, borderBottom: `1px solid ${C.line}`, marginTop: 14 }}>
+      <section style={{ position: "relative", overflow: "hidden", background: C.paper2, borderTop: `1px solid ${C.line}`, borderBottom: `1px solid ${C.line}`, marginTop: 10 }}>
         {/* decorative motif */}
         <svg aria-hidden="true" viewBox="0 0 520 360" style={{ position: "absolute", top: 0, right: 0, height: "100%", maxWidth: "48%", opacity: 0.5, zIndex: 0 }} preserveAspectRatio="xMaxYMin meet">
           <defs>
@@ -589,13 +589,13 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
           {/* rising sparkline */}
           <polyline points="300,250 340,236 380,244 420,212 460,196 500,160" fill="none" stroke="#0067b8" strokeWidth="3" strokeOpacity="0.35" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 1000, margin: "0 auto", padding: "40px 6vw 44px" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 1000, margin: "0 auto", padding: "30px 6vw 34px" }}>
           <div style={{ textAlign: "center" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#efe7f5", color: C.gold, fontSize: 12, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", padding: "6px 12px", borderRadius: 4, marginBottom: 14 }}><Sparkles size={13} /> The bigger picture</div>
             <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>More than <span className="grad-warm">money</span></h2>
             <div style={{ width: 64, height: 4, borderRadius: 2, margin: "12px auto 0", background: `linear-gradient(90deg, ${C.green}, ${C.turq}, ${C.pink})` }} />
           </div>
-          <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 24, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
+          <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 18, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
             <b className="disp">Raising builders, not consumers.</b> AI just collapsed the barrier to building — what once took a team and a budget, a motivated teenager can now do alone. So the edge isn't a credential; it's <b>taste</b> — knowing what's worth making — and starting early. We teach it by letting them live it: they build, they ship, then they learn to grow what they've made.
           </p>
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
@@ -614,7 +614,7 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
               </Card>
             ))}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 28, alignItems: "center", marginTop: 30 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 28, alignItems: "center", marginTop: 22 }}>
             <Card style={{ padding: "22px 24px" }}>
               <div className="disp" style={{ fontWeight: 800, fontSize: 18 }}>Why starting young wins</div>
               <div style={{ color: C.muted, fontSize: 13.5, marginTop: 2, marginBottom: 8 }}>Same monthly savings — more time to compound. Illustrative.</div>
@@ -626,7 +626,7 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
           </div>
 
           {/* founder */}
-          <Card style={{ padding: 28, marginTop: 34, display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
+          <Card style={{ padding: 28, marginTop: 24, display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
             <img src={SUNIL_PHOTO} alt="Sunil Garg" style={{ width: 72, height: 72, borderRadius: 4, objectFit: "cover", flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 260 }}>
               <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Why this exists</div>
@@ -673,7 +673,7 @@ export function Landing({ onEnroll, onCall, onLegal, onLogin, onDashboard, dashL
       </section>
 
       {/* batches / pricing */}
-      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 6vw 54px" }}>
+      <section style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 6vw 38px" }}>
         <div style={{ textAlign: "center", maxWidth: 720, margin: "0 auto" }}>
           <h2 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Upcoming batches</h2>
           <p style={{ color: C.ink2, fontSize: 15, marginTop: 8, lineHeight: 1.55 }}>The <b>Builders</b> program is for <b>high schoolers</b>, meeting <b>twice a week</b> (~3 hrs) — choose <b>Mondays & Wednesdays</b> or <b>Tuesdays & Thursdays</b> — <b>100% live online over Zoom</b>. Pick the season and days that fit.</p>
