@@ -64,6 +64,8 @@ build-young-app/
 │   │   ── SCREENS (one feature = one file; safe for one agent each) ──
 │   ├── Landing.jsx       # marketing page (hero, teaser, testimonials, FAQ, careers/schedule modals)
 │   ├── About.jsx         # "our story" page (/about): founder essay + "more than money" narrative (split off Landing to cut scroll)
+│   ├── Curriculum.jsx    # "how it works" page (/curriculum): 3-act journey + product teasers + "where the work happens" (split off Landing)
+│   ├── Faq.jsx           # FAQ page (/faq): full Q&A + ask-a-question form (split off Landing); FAQ_ITEMS lives here (keep in sync w/ index.html JSON-LD)
 │   ├── Enroll.jsx        # 3-step enrollment
 │   ├── BookCall.jsx      # free intro-call booking
 │   ├── Platform.jsx      # student dashboard (overview + per-week course hub + withdrawal + cert card)
@@ -160,12 +162,21 @@ Top-to-bottom, the major pieces:
   Enroll (step 1) and BookCall pages to fill whitespace at the decision point. Each stat has a
   `url` that links to its PRIMARY source (opens new tab). The standalone pitch-deck version is
   `built-young-why-this-matters.md` in the outputs folder (kept in parallel, not in this repo).
-- **`Landing`** — the marketing page (nav, hero, how-it-works, 3-act curriculum, a short
-  "more than money" teaser linking to `/about`, batches/pricing, footer).
+- **`Landing`** — the lean marketing page / funnel entry (nav, hero, a condensed 3-act overview, a
+  short "more than money" teaser, batches/pricing, an FAQ teaser, footer). The long-form blocks now
+  live on their own routes (`/about`, `/curriculum`, `/faq`) linked via teasers, so the landing scrolls
+  ~60% less than before (T13). Keep it short — don't grow long-form content back onto it.
 - **`About`** — the `/about` "our story" page: the full founder essay ("Why this exists") + the
   "More than money" narrative + compound-growth graphic, moved off the landing page so the funnel
   entry scrolls less (T13). Linked from the landing teaser; ends with an enroll/talk CTA. Content
   is verbatim (no trim) — POSITIONING.md voice + the canonical mission paragraph unchanged.
+- **`Curriculum`** — the `/curriculum` "how it works" page: the 3-act journey (with `ProductTeaser`
+  mocks + expandable week-by-week cards from `WEEKS`/`ACTS`) + "Where the work happens", moved off
+  the landing. Linked from the landing's condensed 3-act overview ("See the full 12 weeks") + the
+  hero's "See the 12 weeks". Ends with an enroll/talk CTA. Content verbatim.
+- **`Faq`** — the `/faq` page: the full Q&A (`FAQ_ITEMS`, now the single source of truth here — keep
+  in sync with the FAQPage JSON-LD in `index.html`) + the "ask a question" form, moved off the
+  landing. Linked from the landing's FAQ teaser.
 - **`Enroll`** — 3-step enrollment (checkout-style step 1, payment, confirmation).
 - **`BookCall`** — free 15-min call booking (two-column: scheduler + "what you'll get from me").
 - **`Platform`** + panels (`CoursePanel`, `WeekPanel`) — the post-enrollment dashboard (Overview /

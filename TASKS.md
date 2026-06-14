@@ -60,12 +60,15 @@ Approach (decided with the founder): **relocate the long-form narrative to dedic
 routes), rather than burying it behind in-page expanders — content isn't trimmed *or* hidden, it moves to
 its own crawlable page, and the landing (funnel entry) scrolls far less.
 Progress:
-- **Increment 1 (shipped for review):** new `/about` "Our story" page (`About.jsx`) holding the founder
-  essay + "More than money" narrative (moved verbatim); landing keeps a short teaser + "Read our story"
-  link. Landing 390px **11,157px → 7,832px (−30%)**; 768px −25%; 1280px −23%. Build + 240 tests green;
-  arch diagram + CLAUDE.md updated. Paused for the founder's screenshot review (risk: high).
-- **Remaining to hit ≥50% + land the guard:** a `/faq` page (and/or a curriculum page), then wire the
-  permanent headless-browser height guard at the 50% ceiling once the moves cross it.
+- **Increment 1 (merged, #396):** new `/about` "Our story" page (`About.jsx`) — founder essay + "More
+  than money" moved verbatim; landing 390px 11,157 → 7,832px (−30%).
+- **Increment 2 (shipped for review):** new `/curriculum` (`Curriculum.jsx` — 3-act journey + product
+  teasers + "where the work happens") and `/faq` (`Faq.jsx` — full Q&A + ask form) pages; landing keeps a
+  condensed 3-act overview + an FAQ teaser, linking through. **Landing 390px 11,157 → 4,501px (−59.7%);
+  768px −54.6%; 1280px −54.2% — the ≥50% target is met on every width.** No content trimmed (verbatim
+  moves); build + 246 tests green; arch diagram + CLAUDE.md updated. Paused for screenshot review.
+- **Remaining (increment 3):** wire the permanent height guard so the landing can't silently re-inflate
+  past the ≤5,579px ceiling (a regression check every PR runs), completing T13.
 Stop-and-ask if: it's outward-facing **and now a real UX/structural change** (sub-pages change what users
 see on the landing) — implement, open a PR, and **pause for the founder's screenshot review** before
 merge. Also stop if hitting 50% would force cutting real content or a copy change — the no-trim rule is
