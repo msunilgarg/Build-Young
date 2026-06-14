@@ -430,6 +430,15 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   still-calm layout over a tall airy one. Treat "could this be shorter / fit in less height?" as a standing
   question on any layout change — don't let pages grow taller without a reason. (This is the on-page sibling
   of the diagram "compact, no large empty regions" rule.)
+  - **Landing page — keep it lean (enforced).** The marketing landing (`Landing.jsx`, the funnel entry) was
+    cut ~60% (T13) by moving long-form blocks to their own routes — the founder essay/"more than money" →
+    `/about` (`About.jsx`), the 3-act "how it works" + "where the work happens" → `/curriculum`
+    (`Curriculum.jsx`), the full FAQ → `/faq` (`Faq.jsx`) — each linked from a short teaser. **Don't grow
+    long-form content back onto the landing**; if a new block is substantial, put it on a sub-page and
+    teaser-link it. A guard enforces this: **`test/landing-lean.test.jsx`** fails (and the `landing-lean` CI
+    check blocks the merge) if the landing re-inflates past its content-volume ceiling. (jsdom has no layout
+    engine, so the guard proxies rendered height via text-volume + node count, calibrated to the measured
+    ≤5,579px @ 390px = 50% of the pre-T13 baseline; re-measure with a headless browser if you raise it.)
 - **Typography:** display/headings/wordmark use **Space Grotesk** (`.disp` class); body uses
   **Inter** (`.flp`). Both load from Google Fonts — a `<link>` in `index.html` (and the
   standalone head) plus an `@import` at the top of the `FONTS` string; system-font fallbacks
