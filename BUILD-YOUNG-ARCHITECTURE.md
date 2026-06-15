@@ -210,6 +210,14 @@ The decisions worth defending — each is a deliberate trade-off, not an acciden
   ephemeral sub-agent that inherits none of the doer's context, re-runs build/tests, and checks the diff
   against the rules it's explicitly told to read. *Why:* the doer can't grade its own homework; a
   fresh context is what makes the check honest.
+- **Isolated subagents over "agent teams."** We coordinate with **isolated, report-back subagents** (the
+  verifier, fan-out workers) + a **serialized one-at-a-time merge** — *not* Claude Code's (experimental,
+  off-by-default) **Agent Teams**, where peers message each other and self-coordinate over a shared task
+  list. *Why:* parallel agents' failure mode is **silent conflicts**, so isolation + contract-first +
+  a serialized merge buys determinism (and lower token cost) where a chattier team buys collaboration we
+  don't need; the orchestrator holds coordination, not inter-agent chat. (Agent Teams *is* available on
+  our CLI — ≥ 2.1.32 — we've deliberately left it off; it's the lever to pull only if a task genuinely
+  needs agents to negotiate, not just divide-and-merge.)
 - **Model tiering — cheapen the work, not the rigor.** The premium model plans/decides and handles
   high-risk tasks; a cheaper **Sonnet** verifier + mechanical passes do the bulk. *Why:* the verifier's
   job (re-run, grade against explicit criteria) sits well within a mid-tier model, so we don't burn the
