@@ -249,6 +249,24 @@ The decisions worth defending — each is a deliberate trade-off, not an acciden
   a console (no redeploy); secrets stay env-only. *Why:* the operator owns go-live config; the host keeps
   the secrets.
 
+### C. Coordination patterns — the standard multi-agent catalog, mapped
+The harness is a deliberate **composition of named multi-agent coordination patterns** (the loop diagram's
+🧩 legend shows the same iconography — ○ agent · ◇ decision · ▮ synthesize). We compose four and
+consciously skip two:
+- **Loop Until Done** → **the loop itself** — one task at a time until the backlog is empty or a
+  stop-condition, with the inner **FAIL → fix → re-verify** retry.
+- **Adversarial Verification** → **the doer ⇄ verifier split** — a separate, fresh-context sub-agent grades
+  the doer's diff (PASS / FAIL+gaps). This is the quality spine, not an afterthought.
+- **Fanout-And-Synthesize** → **fan-out** — independent tasks run as parallel sub-agents (disjoint files,
+  frozen foundation); the "synthesize" step is the **one-at-a-time rebase + squash-merge** integration.
+- **Classify-And-Act** → **the risk gate** — classify the task by `risk:` and route (low/med → auto-merge;
+  high/outward-facing → pause for a human).
+- **Generate-And-Filter** & **Tournament** → **deliberately not used (yet).** We run *one* doer per task;
+  quality comes from the verifier + the always-on guards, not from generating N candidates and judging
+  them down. The hook is clear: for a high-variance/hard task, have the doer emit N candidate diffs and
+  **filter** (rubric + dedupe) or **pairwise-judge** to a winner before verifying. Scoped, not needed —
+  the verifier-centric design covers quality without the extra cost/latency.
+
 ---
 
 ## Acceptance criteria for this doc (so changes can be *verified*, not just eyeballed)

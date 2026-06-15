@@ -191,4 +191,45 @@
   <text class="nl" x="1402" y="652" text-anchor="middle">auto-deploys on squash-merge to main</text>
   <path class="edge" d="M810,616 C 1010,648 1130,644 1240,640" marker-end="url(#arr)"/>
   <text class="elabel" x="1040" y="664" text-anchor="middle">low/med → squash-merge → deploy</text>
+
+  <!-- 🧩 alignment to the standard multi-agent coordination patterns — same iconography
+       (○ = agent · ◇ = decision · ▭ = task · ▮ = synthesize), mapped to our components -->
+  <rect class="note" x="864" y="688" width="700" height="158" rx="10"/>
+  <text class="ct" x="884" y="710">🧩 Coordination patterns — same catalog, mapped to our components (○ agent · ◇ decision · ▮ synthesize)</text>
+  <g fill="none" stroke="#888" stroke-width="1.2">
+    <!-- Classify-And-Act = risk gate -->
+    <rect x="892" y="730" width="20" height="14" rx="2" fill="#fff" stroke="#333"/>
+    <line x1="912" y1="737" x2="924" y2="737"/>
+    <polygon points="936,729 948,737 936,745 924,737" fill="#f5f3fb" stroke="#9b87c4"/>
+    <line x1="948" y1="737" x2="960" y2="737"/>
+    <circle cx="968" cy="737" r="7" fill="#ede7f6" stroke="#5e35b1"/>
+    <!-- Fanout-And-Synthesize = fan-out -> merge -->
+    <circle cx="1066" cy="737" r="6" fill="#ede7f6" stroke="#5e35b1"/>
+    <line x1="1072" y1="737" x2="1086" y2="726"/><line x1="1072" y1="737" x2="1086" y2="737"/><line x1="1072" y1="737" x2="1086" y2="748"/>
+    <circle cx="1090" cy="726" r="4" fill="#ede7f6" stroke="#5e35b1"/><circle cx="1090" cy="737" r="4" fill="#ede7f6" stroke="#5e35b1"/><circle cx="1090" cy="748" r="4" fill="#ede7f6" stroke="#5e35b1"/>
+    <rect x="1104" y="727" width="4" height="20" rx="1" fill="#4db6ac" stroke="none"/>
+    <line x1="1108" y1="737" x2="1120" y2="737"/>
+    <circle cx="1126" cy="737" r="6" fill="#ede7f6" stroke="#5e35b1"/>
+    <!-- Adversarial Verification = doer <-> verifier -->
+    <circle cx="1238" cy="737" r="9" fill="#ede7f6" stroke="#5e35b1" stroke-width="2"/>
+    <line x1="1280" y1="729" x2="1250" y2="735" marker-end="url(#arr)"/>
+    <line x1="1280" y1="745" x2="1250" y2="739" marker-end="url(#arr)"/>
+    <circle cx="1286" cy="728" r="5" fill="#ede7f6" stroke="#5e35b1" stroke-dasharray="3 2"/>
+    <circle cx="1286" cy="746" r="5" fill="#ede7f6" stroke="#5e35b1" stroke-dasharray="3 2"/>
+    <!-- Loop Until Done = the loop -->
+    <circle cx="1410" cy="737" r="7" fill="#ede7f6" stroke="#5e35b1"/>
+    <line x1="1417" y1="737" x2="1430" y2="737"/>
+    <polygon points="1442,729 1454,737 1442,745 1430,737" fill="#f5f3fb" stroke="#9b87c4"/>
+    <path d="M1442,745 C 1442,762 1410,762 1410,744" stroke="#5e35b1" stroke-dasharray="4 3" marker-end="url(#arrd)"/>
+  </g>
+  <text class="cb" x="966" y="762" text-anchor="middle"><tspan class="cbk">Classify-And-Act</tspan></text>
+  <text class="sm" x="966" y="775" text-anchor="middle">↳ our risk gate</text>
+  <text class="cb" x="1096" y="762" text-anchor="middle"><tspan class="cbk">Fanout-And-Synthesize</tspan></text>
+  <text class="sm" x="1096" y="775" text-anchor="middle">↳ fan-out → merge</text>
+  <text class="cb" x="1268" y="762" text-anchor="middle"><tspan class="cbk">Adversarial Verification</tspan></text>
+  <text class="sm" x="1268" y="775" text-anchor="middle">↳ doer ⇄ verifier</text>
+  <text class="cb" x="1432" y="762" text-anchor="middle"><tspan class="cbk">Loop Until Done</tspan></text>
+  <text class="sm" x="1432" y="775" text-anchor="middle">↳ the loop</text>
+  <text class="cb" x="884" y="800">Not used (yet): <tspan class="cbk">Generate-And-Filter</tspan> · <tspan class="cbk">Tournament</tspan> — one doer per task; quality comes from the verifier + guards, not candidate</text>
+  <text class="cb" x="884" y="816">diversity. Add them (N candidates → filter / pairwise judge) only when a task needs higher-variance solutions.</text>
 </svg>
