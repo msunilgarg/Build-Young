@@ -46,16 +46,15 @@ flowchart TB
     subgraph docs["② The rules"]
         direction TB
         subgraph dglobal["🌐 Global · any repo"]
-            playbook["ENGINEERING-PLAYBOOK.md<br/>how we build"]
+            playbook["ENGINEERING-PLAYBOOK.md — how we build<br/>• modularity & parallel work<br/>• ship: verify → PR → merge<br/>• diagram & loop rules"]
         end
         subgraph dproject["📦 This project"]
-            claude["CLAUDE.md<br/>project rules + code map"]
-            positioning["POSITIONING.md<br/>copy & voice"]
+            claude["CLAUDE.md — project rules<br/>• house style + module map<br/>• quality bars: a11y · perf · security<br/>• navigation / perf invariants"]
+            positioning["POSITIONING.md — copy & voice<br/>• tagline & mission<br/>• claims we make / avoid<br/>• canonical phrasings"]
         end
         playbook -. imports .-> claude
     end
 
-    inputs --> agent
     tasks ==> agent
     tasks -. "what 'done' means" .-> verifier
     dproject -. "loaded automatically" .-> agent
@@ -270,7 +269,8 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
   docs into **🌐 GLOBAL / portable** (`ENGINEERING-PLAYBOOK.md`) and **📦 PROJECT-SPECIFIC** (`CLAUDE.md`,
   `POSITIONING.md`), and draws the **`@imported by`** edge (CLAUDE.md @imports the playbook). A reader must
   see *which rules travel to any repo vs which are this project's* at a glance — not one undifferentiated
-  "docs" blob.
+  "docs" blob. **Each rule-doc node lists 2–4 terse key bullets of what it governs** (its scope), so the
+  reader sees what each doc is *for* without opening it.
 - **Context-loading is explicit — every agent shows where its rules come from.** The diagram draws: the
   rules **"loaded automatically"** into the **doer**, **"re-read to grade"** into the **verifier**, and
   **"same rules apply"** into the **fan-out** sub-agent. **No agent box is contextless** — a spawned agent
@@ -282,7 +282,11 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
   not a sentence or parenthetical pile-up. Detail goes in the component **table**, never crammed onto a
   label. **In the rendered PNG, labels must not overlap or collide** — if they do, shorten them or cut
   edges. A label you can't read at normal zoom is a defect (this is what turned an earlier version into a
-  wall of colliding text).
+  wall of colliding text). (Exception: a **reference node** — e.g. each rule-doc box — may carry a few
+  terse bullets naming its scope; that's node *content*, not a verbose edge/connector label.)
+- **No hanging or doubled edges.** Every edge connects two real nodes with a clear arrowhead; no line
+  trails into empty space, and don't run **two edges between the same pair** (e.g. both `inputs→agent`
+  and `tasks→agent`) — they cross and read as a "hanging" line. One edge per relationship.
 - **The loop reads as a loop:** the loop diagram has the explicit return edge closing `record → agent`
   (plus the verifier→agent FAIL retry) — not a top-to-bottom pipeline.
 - **Visual taxonomy:** agents, ephemeral sub-agents, tools/automation, committed state, external
