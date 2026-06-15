@@ -30,8 +30,9 @@ for i, b in enumerate(blocks, 1):
 print(len(blocks))
 PY
 
-# Diagrams in their order in BUILD-YOUNG-ARCHITECTURE.md: ① the loop, ② parallel fan-out, ③ the app.
-names=("loop" "parallel" "app")
+# Diagrams in their order in BUILD-YOUNG-ARCHITECTURE.md: ① the loop (parallel fan-out lives INSIDE it,
+# not as a separate diagram — see the doc's acceptance criteria), ② the app.
+names=("loop" "app")
 i=1
 for f in "$TMP"/block*.mmd; do
   name="${names[$((i-1))]:-diagram$i}"

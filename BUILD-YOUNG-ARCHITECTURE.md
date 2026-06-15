@@ -17,7 +17,7 @@ Two systems live in this repo, and this document maps both:
 > text key rather than an in-diagram legend so the diagrams stay compact — no floating legend box.)
 >
 > **Rendered exports (zoomable):** [`docs/architecture/loop.pdf`](docs/architecture/loop.pdf) ·
-> [`parallel.pdf`](docs/architecture/parallel.pdf) · [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside). They're for places that don't render
+> [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside). They're for places that don't render
 > Mermaid (chat, decks, the app). **When you edit a Mermaid block here, regenerate them in the SAME
 > change:** `bash scripts/render-architecture.sh`.
 
@@ -66,6 +66,8 @@ flowchart TB
     ship --> live["🌐 Live site (Vercel)"]
     machinery["🛡 Always-on machinery · SessionStart resync · commit guards (incl. diagram-currency) ·<br/>settings allowlist · GitHub MCP · CI checks · worktrees"]
     machinery -. guards every step .-> LOOP
+    fanout["⇉ FAN-OUT (optional) — when ≥2 tasks are independent, the doer spawns PARALLEL<br/>sub-agents, each in its OWN git worktree + branch running THIS same loop (doer→verifier),<br/>converging on a one-at-a-time squash-merge · contract pinned up front, foundation frozen"]
+    agent -. "independent tasks → parallelize (else sequential)" .-> fanout
 
     %% ── visual taxonomy (color key is text, in the doc intro): agent · sub-agent · tool · state · external · human ──
     classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
@@ -75,7 +77,7 @@ flowchart TB
     classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
     classDef human fill:#fce4ec,stroke:#d81b60,stroke-width:2px,color:#880e4f;
     class agent agent;
-    class verifier subagent;
+    class verifier,fanout subagent;
     class issue,machinery tool;
     class tasks,docs state;
     class you human;
@@ -106,57 +108,12 @@ There is also a **second automation** that predates the loop: [`.github/workflow
 
 ## 1a. Parallel fan-out — the same harness, optimized for sub-agents
 
-The loop above runs **sequentially** (one task at a time). But the architecture is **built to fan out**:
-when several tasks are independent, the orchestrator runs them as **parallel sub-agents**, each in its
-own git worktree, converging on a one-at-a-time merge.
-
-```mermaid
----
-title: Parallel fan-out — each sub-agent runs its OWN doer↔verifier loop
----
-flowchart TB
-    orch["ORCHESTRATOR (the driver) · splits work into disjoint slices ·<br/>pins the contract · freezes the foundation (additive-only)"]
-    orch --> da
-    orch --> db
-    orch --> dc
-
-    subgraph A["sub-agent A · worktree · branch claude/feat-a · files {X}"]
-        direction TB
-        da["DOER · writes the change"]
-        va["self-check + VERIFIER<br/>(its own ephemeral sub-agent)"]
-        da --> va
-        va -. "FAIL → fix the gaps (↺ retry)" .-> da
-    end
-    subgraph B["sub-agent B · worktree · branch claude/feat-b · files {Y}"]
-        direction TB
-        db["DOER · writes the change"]
-        vb["self-check + VERIFIER<br/>(its own ephemeral sub-agent)"]
-        db --> vb
-        vb -. "FAIL → fix the gaps (↺ retry)" .-> db
-    end
-    subgraph C["sub-agent C · worktree · branch claude/feat-c · files {Z}"]
-        direction TB
-        dc["DOER · writes the change"]
-        vc["self-check + VERIFIER<br/>(its own ephemeral sub-agent)"]
-        dc --> vc
-        vc -. "FAIL → fix the gaps (↺ retry)" .-> dc
-    end
-
-    va == "PASS → PR" ==> merge
-    vb == "PASS → PR" ==> merge
-    vc == "PASS → PR" ==> merge
-    merge["INTEGRATION · each rebases on main ·<br/>PRs squash-merge ONE at a time"]
-    merge --> main["🌐 main / live site"]
-
-    classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
-    classDef subagent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,stroke-dasharray:6 3,color:#311b92;
-    classDef tool fill:#e0f2f1,stroke:#00897b,stroke-width:2px,color:#004d40;
-    classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
-    class orch,da,db,dc agent;
-    class va,vb,vc subagent;
-    class merge tool;
-    class main ext;
-```
+Parallelism is **not a second system** — it's the same loop, fanned out, so it lives **inside the loop
+diagram above** (the **FAN-OUT** node) rather than as a separate diagram (one diagram = one artifact to
+keep in sync). The loop runs **sequentially** by default (one task at a time); when several tasks are
+independent, the orchestrator (the driver) spawns **parallel sub-agents**, each in its own git worktree
+on its own branch, **each running THIS same doer → self-check → verifier loop**, converging on a
+one-at-a-time merge.
 
 **Each branch is the full loop, not a one-shot** — every sub-agent runs the same **doer → self-check →
 verifier** cycle (with the **FAIL → fix → re-verify** retry from the main loop), just on its own slice.
@@ -283,6 +240,11 @@ The "done" conditions for any change to `BUILD-YOUNG-ARCHITECTURE.md` — most a
 loop's verifier or a grep), which is what keeps diagram edits from turning into back-and-forth:
 
 - **Both layers present:** the agentic loop AND the app, each with a Mermaid diagram + a component table.
+- **Exactly TWO Mermaid diagrams — the loop and the app; NEVER a separate parallel diagram.** Parallel
+  fan-out is the *same* loop fanned out, so it is represented **inside the loop diagram** (the FAN-OUT
+  node) + described in the §1a prose — not as a third diagram. One diagram = one artifact to keep in
+  sync; a second one drifts. If you're tempted to add a parallelism diagram, add/extend the fan-out node
+  instead. (The renderer expects two blocks, in order: loop, app.)
 - **No invented nodes:** every node maps to a real artifact in the repo (module / endpoint / skill /
   hook / external service); names match the code.
 - **The loop reads as a loop:** the loop diagram has the explicit return edge closing `record → agent`

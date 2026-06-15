@@ -150,6 +150,15 @@ parallel pain is un-agreed interfaces, not the code itself.
   reporting the change (alongside the merged PR), the same turn. They shouldn't have to say "show me the
   diagram" after every edit. *(Why: a diagram lives to be looked at; a text-only "done" hides the one
   artifact the change was about, and the human ends up re-requesting it every time.)*
+- **Prefer fewer diagrams — fold a closely-related concept into an existing diagram, don't spawn a
+  second one.** Two diagrams of the *same* system (e.g. "the loop" and "the loop, parallelized") are two
+  artifacts that drift apart and double the living-doc upkeep. If a concept is a *variation* of one
+  already drawn, represent it **inside** that diagram — a single annotation node — rather than as a
+  separate diagram, unless it genuinely can't be shown without clutter. Make "could this be one diagram
+  instead of two?" a standing question, and encode the cap as an acceptance criterion (e.g. "exactly N
+  diagrams; concept X lives inside diagram Y") so the verifier blocks a re-split. *(Why: every extra
+  diagram is another thing that must be kept current; one slightly-richer diagram beats two that
+  disagree.)*
 
 ## 4. Workflow & shipping
 
@@ -291,6 +300,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-15** — §3: prefer fewer diagrams — fold a closely-related concept (e.g. parallel fan-out) *into* an existing diagram as a single annotation node rather than spawning a second diagram of the same system; two diagrams of one system drift apart and double the upkeep. Encode the cap as an acceptance criterion so the verifier blocks a re-split. (Applied: merged the standalone "parallel fan-out" diagram into the loop diagram's FAN-OUT node.)
 - **2026-06-14** — §4: enforce *generated-artifact currency* mechanically, not by vigilance — the renderer hashes the diagram source and a check in the commit guard + CI blocks a commit/merge where the source changed without regenerating the exports. When the human keeps asking "is this up to date?", replace the reminder with a deterministic guard. (Hash sync proves export⇄source; diagram-vs-code currency is still the verifier's judgment.)
 - **2026-06-14** — §3: "one concern per doc" — merge docs that are the *same concern* fragmented (e.g. the two engineering playbooks), keep *different concerns* separate (messaging vs structure vs process) even for the same product; they change for different reasons and get read on different triggers, so fusing them bloats context and couples unrelated edits.
 - **2026-06-14** — §9: the verifier must also read the **project guide** (its House style + project-specific rules) on app/UI changes, not just the portable playbook — project-specific rules (e.g. "optimize for less scrolling", "no flag/emoji glyphs") live there, so without it the verifier can't enforce them. A rule must live where the verifier is told to read it (portable → playbook, project → project guide); the architecture/structure doc is for wiring, not design/copy rules.
