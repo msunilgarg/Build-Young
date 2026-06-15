@@ -148,7 +148,7 @@
   <text class="cb" x="888" y="223"><tspan class="cbk">Shipping</tspan> — small verifiable increments · never push to main · build + test + guards before every commit · enforce via hooks/CI</text>
   <text class="cb" x="888" y="239"><tspan class="cbk">Loop engineering (§9)</tspan> — goal + acceptance criteria · doer ⇄ verifier split (fresh context) · model tiering (premium doer · Sonnet verifier)</text>
   <text class="cb" x="906" y="254">· risk drives autonomy (low/med auto-merge; high pauses) · all state in committed files so an ephemeral container resumes</text>
-  <text class="cb" x="888" y="270"><tspan class="cbk">Diagrams (§3)</tspan> — self-explanatory · compact · short labels · regenerate exports + a deterministic currency guard (this very diagram)</text>
+  <text class="cb" x="888" y="270"><tspan class="cbk">Living architecture (§3)</tspan> — the architecture is a committed, auto-regenerated doc with a currency guard (CI blocks a stale one) — this very diagram</text>
   <text class="chp" x="884" y="295">📦 CLAUDE.md — THIS repo's law (project-specific)</text>
   <text class="cb" x="888" y="311">house style (optimize-for-less-scrolling · no flag/emoji glyphs in data · statistics integrity) · the module/endpoint map · quality bars</text>
   <text class="cb" x="888" y="326">(WCAG-AA · ~120 KB JS budget · navLock · act() on clickables) · @imports the playbook so the doer auto-loads both</text>
