@@ -7,19 +7,20 @@ Two systems live in this repo, and this document maps both:
 2. **The application** — the React marketing site + enrollment + course dashboard, its serverless
    API, and the external services it talks to. See also [`build-young-app/CLAUDE.md`](./build-young-app/CLAUDE.md).
 
-> The diagrams below are **Mermaid** — they render as real diagrams on GitHub (open this file there),
-> and they're plain text so an agent can edit them in the same PR that changes the architecture.
-> **Living-document rule:** any PR that adds/removes/moves a module, endpoint, skill, hook, or
-> external service — or changes how the loop/ship flow works — **updates this file in the same PR.**
+> Two diagrams, two sources (both render on GitHub): the **loop** is a **hand-authored SVG**
+> (`docs/architecture/loop.svg`) — chosen for full layout control (numbered flow, callout pinned
+> top-right); the **app** is a **Mermaid** block (plain text, auto-rendered). **Living-document rule:**
+> any PR that adds/removes/moves a module, endpoint, skill, hook, or external service — or changes how
+> the loop/ship flow works — **updates this file (and the relevant diagram source) in the same PR.**
 >
 > **Node colors:** purple = an **AI agent** (dashed = an *ephemeral spawned sub-agent*), teal = **tool /
 > automation**, amber = **committed state**, blue = **external service**, pink = **human**. (Kept as a
 > text key rather than an in-diagram legend so the diagrams stay compact — no floating legend box.)
 >
 > **Rendered exports (zoomable):** [`docs/architecture/loop.pdf`](docs/architecture/loop.pdf) ·
-> [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside). They're for places that don't render
-> Mermaid (chat, decks, the app). **When you edit a Mermaid block here, regenerate them in the SAME
-> change:** `bash scripts/render-architecture.sh`.
+> [`app.pdf`](docs/architecture/app.pdf) (PNG previews alongside) — for places that don't render the
+> source (chat, decks, the app); the PDF is what we hand to people. **When you edit `loop.svg` OR the
+> app Mermaid block, regenerate in the SAME change:** `bash scripts/render-architecture.sh`.
 
 ---
 
@@ -28,81 +29,12 @@ Two systems live in this repo, and this document maps both:
 How work gets done here: you write a **goal** (a task), and the loop drives it to the live site —
 implement → verify (independently) → ship — pausing only on the conditions noted below.
 
-```mermaid
----
-title: Build Young — Agent Harness (one loop; built to fan out to parallel sub-agents)
----
-flowchart TB
-    %% Labels are short + plain-English (the function); the detail lives in the table below.
-    %% ① start a run — one on-ramp + the task backlog
-    subgraph inputs["① Start a run"]
-        direction LR
-        you["You — run it locally"]
-        issue["GitHub issue — run it in CI"]
-        tasks[("TASKS.md — the task backlog")]
-    end
+![Build Young — Agent Harness: the loop, repeated per task. Follow ▶ START → 1 Main agent → 2 Self-check → 3 Verifier → 4 risk gate → 5 Ship → 6 Mark done → back to 1. Side panels feed it (① inputs · ② rules, split global vs project) or wrap/extend it (⑤ guards · ④ fan-out); the top-right callout lists what each rule-doc covers; the live site is Vercel.](docs/architecture/loop.svg)
 
-    %% ② the rules — global (any repo) vs this project's
-    subgraph docs["② The rules"]
-        direction TB
-        subgraph dglobal["🌐 Global · any repo"]
-            playbook["ENGINEERING-PLAYBOOK.md — how we build<br/>• modularity & parallel work<br/>• ship: verify → PR → merge<br/>• diagram & loop rules"]
-        end
-        subgraph dproject["📦 This project"]
-            claude["CLAUDE.md — project rules<br/>• house style + module map<br/>• quality bars: a11y · perf · security<br/>• navigation / perf invariants"]
-            positioning["POSITIONING.md — copy & voice<br/>• tagline & mission<br/>• claims we make / avoid<br/>• canonical phrasings"]
-        end
-        playbook -. imports .-> claude
-    end
-
-    tasks ==> agent
-    tasks -. "what 'done' means" .-> verifier
-    dproject -. "loaded automatically" .-> agent
-    docs -. "re-read to grade" .-> verifier
-
-    %% ③ the loop
-    subgraph LOOP["♻ The loop — one task at a time"]
-        direction TB
-        agent["Main agent<br/>pick a task, write the change"]
-        check["Self-check<br/>build · tests · guards"]
-        verifier["Verifier — a separate agent<br/>re-checks the work independently"]
-        gate{"Low / med risk?"}
-        ship["Ship<br/>PR · merge · sync"]
-        record["Mark the task done"]
-        agent --> check --> verifier --> gate
-        verifier -. "fail → fix" .-> agent
-        gate -- yes --> ship --> record
-        record == "next task" ==> agent
-    end
-    gate -- "no — high-risk" --> pause["Pause for human review<br/>(open PR, don't merge)"]
-    ship --> live["🌐 Live site"]
-
-    %% ④ fan-out — the same loop, in parallel
-    subgraph FANOUT["④ Fan-out (optional)"]
-        direction TB
-        sub["Parallel sub-agent<br/>same loop, own branch → merge one at a time"]
-    end
-    agent -. "if tasks are independent" .-> sub
-    docs -. "same rules apply" .-> sub
-
-    %% ⑤ always-on
-    machinery["🛡 Always-on guards<br/>resync · commit guards · CI · worktrees"]
-    machinery -. "guard every step" .-> LOOP
-
-    %% ── visual taxonomy (color key is text, in the doc intro): agent · sub-agent · tool · state · external · human ──
-    classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
-    classDef subagent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,stroke-dasharray:6 3,color:#311b92;
-    classDef tool fill:#e0f2f1,stroke:#00897b,stroke-width:2px,color:#004d40;
-    classDef state fill:#fff8e1,stroke:#f9a825,stroke-width:2px,color:#5f4300;
-    classDef ext fill:#e3f2fd,stroke:#1e88e5,stroke-width:2px,color:#0d47a1;
-    classDef human fill:#fce4ec,stroke:#d81b60,stroke-width:2px,color:#880e4f;
-    class agent agent;
-    class verifier,sub subagent;
-    class issue,machinery tool;
-    class tasks,playbook,claude,positioning state;
-    class you human;
-    class live ext;
-```
+> **This diagram is a hand-authored SVG** (`docs/architecture/loop.svg`) — chosen over Mermaid for full
+> layout control (numbered flow, the callout pinned top-right). **Edit the SVG by hand, then run
+> `bash scripts/render-architecture.sh`** to regenerate `loop.png`/`loop.pdf` (the currency guard hashes
+> the SVG, so a stale export fails the check). The **app** diagram below stays Mermaid.
 
 | Node | What it is / its responsibility |
 |---|---|
@@ -259,12 +191,11 @@ quality bars, navigation/perf invariants) and [`ENGINEERING-PLAYBOOK.md`](./ENGI
 The "done" conditions for any change to `BUILD-YOUNG-ARCHITECTURE.md` — most are objectively checkable (by the
 loop's verifier or a grep), which is what keeps diagram edits from turning into back-and-forth:
 
-- **Both layers present:** the agentic loop AND the app, each with a Mermaid diagram + a component table.
-- **Exactly TWO Mermaid diagrams — the loop and the app; NEVER a separate parallel diagram.** Parallel
-  fan-out is the *same* loop fanned out, so it is represented **inside the loop diagram** (the FAN-OUT
-  node) + described in the §1a prose — not as a third diagram. One diagram = one artifact to keep in
-  sync; a second one drifts. If you're tempted to add a parallelism diagram, add/extend the fan-out node
-  instead. (The renderer expects two blocks, in order: loop, app.)
+- **Both layers present:** the agentic loop AND the app, each with a diagram + a component table.
+- **Exactly TWO diagrams — the loop (hand-authored SVG, `docs/architecture/loop.svg`) and the app (one
+  `mermaid` block); NEVER a separate parallel diagram.** Parallel fan-out is the *same* loop fanned out,
+  so it lives **inside the loop SVG** (the ④ Fan-out box) + the §1a prose — not a third diagram. One
+  diagram = one artifact to keep in sync. (The renderer expects exactly one `mermaid` block — the app.)
 - **Rule docs shown in two tiers — global vs project-specific.** The loop diagram groups the governing
   docs into **🌐 GLOBAL / portable** (`ENGINEERING-PLAYBOOK.md`) and **📦 PROJECT-SPECIFIC** (`CLAUDE.md`,
   `POSITIONING.md`), and draws the **`@imported by`** edge (CLAUDE.md @imports the playbook). A reader must
@@ -301,11 +232,11 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
   or `LR` where `TB` packs tighter) — don't ship it and don't defer it to a human to flag. This is a
   *done-condition*, not a nicety.
 - **The verifier shows its inputs:** the diff (from the doer) AND the acceptance-criteria source (`TASKS.md`).
-- **Exports current (mechanically enforced):** `docs/architecture/*.png|pdf` were regenerated from these
-  Mermaid blocks in the SAME change (`scripts/render-architecture.sh`) and render with no Mermaid syntax
-  error. This isn't left to memory: the renderer records a hash of the Mermaid source, and
+- **Exports current (mechanically enforced):** `docs/architecture/*.png|pdf` were regenerated from BOTH
+  sources — `loop.svg` and the app `mermaid` block — in the SAME change (`scripts/render-architecture.sh`)
+  and render with no error. This isn't left to memory: the renderer records a hash of **both** sources, and
   `scripts/check-architecture-current.sh` (run by the **commit guard** and the **`architecture-current`
-  CI check**) **blocks** a commit/merge where the source changed but the exports weren't regenerated.
+  CI check**) **blocks** a commit/merge where a source changed but the exports weren't regenerated.
 - **Cross-linked:** links to `CLAUDE.md` / `ENGINEERING-PLAYBOOK.md` for depth.
 
 Almost everything above is checkable — by a grep, a re-render, or the verifier **viewing the PNG** —
