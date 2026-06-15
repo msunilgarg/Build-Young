@@ -1,0 +1,156 @@
+<svg width="1480" height="800" viewBox="0 0 1480 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text{font-family:'Inter','Segoe UI',Helvetica,Arial,sans-serif;}
+      .title{font-size:18px;font-weight:800;fill:#222;}
+      .sub{font-size:12.5px;fill:#666;}
+      .grp{fill:#fcfce8;stroke:#e6d873;stroke-width:1.5;}
+      .grpt{font-size:12.5px;font-weight:700;fill:#8a6d00;}
+      .tier{fill:#fffdf2;stroke:#f0c75a;stroke-width:1.2;}
+      .tiert{font-size:11px;font-weight:700;fill:#6a4b00;}
+      .state{fill:#fff8e1;stroke:#f9a825;stroke-width:2;}
+      .human{fill:#fce4ec;stroke:#d81b60;stroke-width:2;}
+      .tool{fill:#e0f2f1;stroke:#00897b;stroke-width:2;}
+      .ext{fill:#e3f2fd;stroke:#1e88e5;stroke-width:2;}
+      .agent{fill:#ede7f6;stroke:#5e35b1;stroke-width:3;}
+      .subagent{fill:#ede7f6;stroke:#5e35b1;stroke-width:2.5;stroke-dasharray:6 3;}
+      .plain{fill:#f5f3fb;stroke:#9b87c4;stroke-width:1.8;}
+      .start{fill:#fff3e0;stroke:#fb8c00;stroke-width:2.5;}
+      .note{fill:#ffffff;stroke:#9e9e9e;stroke-width:1.5;}
+      .loopbg{fill:#faf7ff;stroke:#cdb8f0;stroke-width:1.8;}
+      .loopt{font-size:13px;font-weight:800;fill:#5e35b1;}
+      .nlb{font-size:11.5px;font-weight:700;fill:#222;}
+      .nl{font-size:11px;fill:#333;}
+      .small{font-size:10px;fill:#555;}
+      .bullet{font-size:11px;fill:#333;}
+      .elabel{font-size:10.5px;fill:#333;paint-order:stroke;stroke:#fff;stroke-width:3.2px;stroke-linejoin:round;}
+      .elabelr{font-size:10.5px;fill:#b00020;paint-order:stroke;stroke:#fff;stroke-width:3.2px;stroke-linejoin:round;}
+      .edge{fill:none;stroke:#666;stroke-width:1.6;}
+      .edge-d{fill:none;stroke:#7e57c2;stroke-width:1.5;stroke-dasharray:5 4;}
+      .edge-t{fill:none;stroke:#333;stroke-width:3;}
+    </style>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#666"/></marker>
+    <marker id="arrd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7e57c2"/></marker>
+    <marker id="arrt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker>
+  </defs>
+
+  <rect width="1480" height="800" fill="#ffffff"/>
+  <text class="title" x="740" y="30" text-anchor="middle">Build Young — Agent Harness</text>
+  <text class="sub" x="740" y="50" text-anchor="middle">One loop, repeated per task — follow ▶ → 1 → 2 → 3 → 4 → 5 → 6 → back to 1. Side panels feed it (inputs · rules), wrap it (guards), or extend it (fan-out).</text>
+
+  <!-- ▶ START -->
+  <rect class="start" x="40" y="74" width="250" height="44" rx="22"/>
+  <text class="nlb" x="165" y="101" text-anchor="middle" fill="#e65100">▶ START HERE — kick off a run</text>
+  <path class="edge" d="M165,118 L165,136" marker-end="url(#arr)"/>
+
+  <!-- ① inputs -->
+  <rect class="grp" x="40" y="138" width="412" height="152" rx="10"/>
+  <text class="grpt" x="58" y="160">① Start a run</text>
+  <rect class="human" x="58" y="172" width="184" height="44" rx="6"/>
+  <text class="nl" x="150" y="199" text-anchor="middle">You — run it locally</text>
+  <rect class="tool" x="254" y="172" width="178" height="44" rx="6"/>
+  <text class="nl" x="343" y="193" text-anchor="middle">GitHub issue —</text>
+  <text class="nl" x="343" y="208" text-anchor="middle">run it in CI</text>
+  <rect class="state" x="58" y="232" width="220" height="44" rx="10"/>
+  <text class="nl" x="168" y="259" text-anchor="middle">TASKS.md — task backlog</text>
+
+  <!-- ② rules -->
+  <rect class="grp" x="40" y="312" width="412" height="252" rx="10"/>
+  <text class="grpt" x="58" y="334">② The rules — loaded as context</text>
+  <rect class="tier" x="58" y="344" width="376" height="80" rx="8"/>
+  <text class="tiert" x="74" y="364">🌐 Global · any repo</text>
+  <rect class="state" x="74" y="374" width="344" height="42" rx="6"/>
+  <text class="nl" x="246" y="400" text-anchor="middle">ENGINEERING-PLAYBOOK.md</text>
+  <rect class="tier" x="58" y="436" width="376" height="118" rx="8"/>
+  <text class="tiert" x="74" y="456">📦 This project</text>
+  <rect class="state" x="74" y="466" width="170" height="42" rx="6"/>
+  <text class="nl" x="159" y="492" text-anchor="middle">CLAUDE.md</text>
+  <rect class="state" x="256" y="466" width="162" height="42" rx="6"/>
+  <text class="nl" x="337" y="492" text-anchor="middle">POSITIONING.md</text>
+  <path class="edge-d" d="M230,416 C 200,430 175,452 165,464" marker-end="url(#arrd)"/>
+  <text class="elabel" x="225" y="446">imports</text>
+
+  <!-- ④ fan-out -->
+  <rect class="grp" x="40" y="586" width="412" height="94" rx="10"/>
+  <text class="grpt" x="58" y="608">④ Fan-out (optional)</text>
+  <rect class="subagent" x="58" y="616" width="376" height="54" rx="8"/>
+  <text class="nl" x="246" y="638" text-anchor="middle">Parallel sub-agent · own worktree + branch</text>
+  <text class="nl" x="246" y="654" text-anchor="middle">= the same loop → merge one at a time</text>
+
+  <!-- ③ THE LOOP -->
+  <rect class="loopbg" x="556" y="120" width="312" height="582" rx="12"/>
+  <text class="loopt" x="712" y="144" text-anchor="middle">③ The loop — repeat for each task</text>
+  <rect class="agent" x="598" y="158" width="228" height="58" rx="8"/>
+  <text class="nlb" x="712" y="182" text-anchor="middle">1 · Main agent</text>
+  <text class="nl" x="712" y="200" text-anchor="middle">pick a task, write the change</text>
+  <rect class="plain" x="598" y="250" width="228" height="50" rx="8"/>
+  <text class="nlb" x="712" y="272" text-anchor="middle">2 · Self-check</text>
+  <text class="nl" x="712" y="289" text-anchor="middle">build · tests · guards</text>
+  <rect class="subagent" x="598" y="336" width="228" height="58" rx="8"/>
+  <text class="nlb" x="712" y="360" text-anchor="middle">3 · Verifier — separate agent</text>
+  <text class="nl" x="712" y="378" text-anchor="middle">re-checks the work independently</text>
+  <polygon class="plain" points="712,430 814,472 712,514 610,472"/>
+  <text class="nlb" x="712" y="468" text-anchor="middle">4 · Low /</text>
+  <text class="nlb" x="712" y="484" text-anchor="middle">med risk?</text>
+  <rect class="plain" x="598" y="548" width="228" height="50" rx="8"/>
+  <text class="nlb" x="712" y="570" text-anchor="middle">5 · Ship</text>
+  <text class="nl" x="712" y="587" text-anchor="middle">PR · merge · sync</text>
+  <rect class="plain" x="598" y="636" width="228" height="46" rx="8"/>
+  <text class="nlb" x="712" y="663" text-anchor="middle">6 · Mark the task done</text>
+
+  <!-- loop spine -->
+  <path class="edge" d="M712,216 L712,250" marker-end="url(#arr)"/>
+  <path class="edge" d="M712,300 L712,336" marker-end="url(#arr)"/>
+  <path class="edge" d="M712,394 L712,430" marker-end="url(#arr)"/>
+  <path class="edge" d="M712,514 L712,548" marker-end="url(#arr)"/>
+  <text class="elabel" x="726" y="534">yes</text>
+  <path class="edge" d="M712,598 L712,636" marker-end="url(#arr)"/>
+  <!-- fail -> fix (left, internal) -->
+  <path class="edge-d" d="M598,366 C 566,348 566,212 598,198" marker-end="url(#arrd)"/>
+  <text class="elabelr" x="556" y="290" text-anchor="middle">fail → fix</text>
+  <!-- next task -> 1 (right, internal) -->
+  <path class="edge-t" d="M826,660 C 902,648 902,196 826,186" marker-end="url(#arrt)"/>
+  <text class="elabel" x="905" y="420" text-anchor="middle" transform="rotate(90 905 420)">next task → 1</text>
+
+  <!-- inputs/rules feed the loop -->
+  <path class="edge" d="M278,250 C 430,240 470,188 596,184" marker-end="url(#arr)"/>
+  <text class="elabel" x="452" y="206" text-anchor="middle">picks a task</text>
+  <path class="edge-d" d="M452,470 C 510,440 540,210 596,194" marker-end="url(#arrd)"/>
+  <text class="elabel" x="512" y="318" text-anchor="middle">loaded automatically</text>
+  <path class="edge-d" d="M452,508 C 512,508 545,372 596,366" marker-end="url(#arrd)"/>
+  <text class="elabel" x="512" y="452" text-anchor="middle">re-read to grade</text>
+  <!-- same rules apply -> fan-out (short, both on left) -->
+  <path class="edge-d" d="M246,564 L246,616" marker-end="url(#arrd)"/>
+  <text class="elabel" x="312" y="592" text-anchor="middle">same rules apply</text>
+  <!-- if independent: agent -> fan-out -->
+  <path class="edge-d" d="M598,206 C 470,250 360,470 360,616" marker-end="url(#arrd)"/>
+  <text class="elabel" x="372" y="430" text-anchor="middle" transform="rotate(90 372 430)">if tasks are independent</text>
+
+  <!-- right column: scope callout (top-right) -->
+  <rect class="note" x="980" y="72" width="470" height="200" rx="10"/>
+  <text x="1000" y="98" font-size="12.5" font-weight="700" fill="#333">📋 What each rule-doc covers</text>
+  <text class="bullet" x="1000" y="124">• ENGINEERING-PLAYBOOK — modularity · parallel-agent</text>
+  <text class="bullet" x="1014" y="140">protocol · shipping (verify→PR→merge) · diagram &amp; loop rules</text>
+  <text class="bullet" x="1000" y="166">• CLAUDE.md — house style · module map · quality bars</text>
+  <text class="bullet" x="1014" y="182">(a11y / perf / security) · navigation &amp; perf invariants</text>
+  <text class="bullet" x="1000" y="208">• POSITIONING.md — tagline “raising builders, not consumers” ·</text>
+  <text class="bullet" x="1014" y="224">claims we avoid (no income/return promises; build with AI,</text>
+  <text class="bullet" x="1014" y="240">not coding) · canonical phrasings</text>
+
+  <!-- pause + live -->
+  <rect class="plain" x="980" y="316" width="280" height="62" rx="8"/>
+  <text class="nlb" x="1120" y="340" text-anchor="middle">⏸ Pause for human review</text>
+  <text class="nl" x="1120" y="358" text-anchor="middle">(open PR — don't merge)</text>
+  <rect class="ext" x="980" y="436" width="240" height="48" rx="8"/>
+  <text class="nlb" x="1100" y="465" text-anchor="middle">🌐 Live site — Vercel</text>
+
+  <!-- gate -> pause ; ship -> live -->
+  <path class="edge" d="M814,472 C 900,470 900,350 980,348" marker-end="url(#arr)"/>
+  <text class="elabelr" x="905" y="455" text-anchor="middle">no — high-risk</text>
+  <path class="edge" d="M826,573 C 905,575 920,462 980,460" marker-end="url(#arr)"/>
+  <text class="elabel" x="912" y="556" text-anchor="middle">ship it</text>
+
+  <!-- ⑤ always-on machinery banner -->
+  <rect class="tool" x="40" y="712" width="1410" height="46" rx="8"/>
+  <text x="60" y="740" font-size="12" font-weight="700" fill="#004d40">🛡 Always-on guards (every step) — SessionStart resync · commit guards (diagram-currency) · CI checks (architecture-current · landing-lean) · settings allowlist · GitHub MCP · git worktrees</text>
+</svg>
