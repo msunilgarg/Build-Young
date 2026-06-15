@@ -33,63 +33,62 @@ implement → verify (independently) → ship — pausing only on the conditions
 title: Build Young — Agent Harness (one loop; built to fan out to parallel sub-agents)
 ---
 flowchart TB
-    %% ① start a run — pick ONE on-ramp — + the backlog (state) they feed
-    subgraph inputs["① Start a run — ONE on-ramp (this OR that, never both)"]
+    %% Labels are short + plain-English (the function); the detail lives in the table below.
+    %% ① start a run — one on-ramp + the task backlog
+    subgraph inputs["① Start a run"]
         direction LR
-        you["You · /run-loop locally<br/>(drains the TASKS.md backlog)"]
-        issue["GitHub Issue + 'loop-task' → Action<br/>(the issue IS the task; no TASKS.md)"]
-        tasks[("TASKS.md · backlog + done log")]
+        you["You — run it locally"]
+        issue["GitHub issue — run it in CI"]
+        tasks[("TASKS.md — the task backlog")]
     end
 
-    %% ② governing rule docs — split GLOBAL (portable) vs PROJECT-SPECIFIC
-    subgraph docs["② Governing rule docs"]
+    %% ② the rules — global (any repo) vs this project's
+    subgraph docs["② The rules"]
         direction TB
-        subgraph dglobal["🌐 GLOBAL · portable"]
-            playbook["ENGINEERING-PLAYBOOK.md<br/>standing rules: loop · diagrams · shipping"]
+        subgraph dglobal["🌐 Global · any repo"]
+            playbook["ENGINEERING-PLAYBOOK.md<br/>how we build"]
         end
-        subgraph dproject["📦 PROJECT-SPECIFIC"]
-            claude["CLAUDE.md<br/>house style + module map"]
+        subgraph dproject["📦 This project"]
+            claude["CLAUDE.md<br/>project rules + code map"]
             positioning["POSITIONING.md<br/>copy & voice"]
         end
-        playbook -. "@imported by" .-> claude
+        playbook -. imports .-> claude
     end
 
-    %% inputs → the loop (and the SAME context to each fan-out sub-agent)
     inputs --> agent
     tasks ==> agent
-    tasks -. "acceptance criteria" .-> verifier
-    dproject -. "AUTO-LOADED for the doer<br/>(project rules; the playbook rides in via @import)" .-> agent
-    dglobal -. "spawned to READ · ALWAYS<br/>(fresh verifier inherits nothing)" .-> verifier
-    dproject -. "spawned to READ · CLAUDE if app/UI · POSITIONING if copy" .-> verifier
+    tasks -. "what 'done' means" .-> verifier
+    dproject -. "loaded automatically" .-> agent
+    docs -. "re-read to grade" .-> verifier
 
     %% ③ the loop
-    subgraph LOOP["♻ THE LOOP — one task at a time (until backlog empty / a stop condition)"]
+    subgraph LOOP["♻ The loop — one task at a time"]
         direction TB
-        agent["MAIN AGENT · driver + doer (one context, two hats)<br/>picks next task (next step = a signal, never a guess)<br/>· writes the smallest change"]
-        check["self-check · build · tests · guards (fix until green)"]
-        verifier["VERIFIER · SEPARATE ephemeral sub-agent · FRESH context (inherits none)<br/>re-runs build · tests · grades the diff vs criteria + the rules it READs"]
-        gate{"low / med risk?"}
-        ship["SHIP · PR → squash-merge → sync"]
-        record["mark [x] in TASKS.md"]
+        agent["Main agent<br/>pick a task, write the change"]
+        check["Self-check<br/>build · tests · guards"]
+        verifier["Verifier — a separate agent<br/>re-checks the work independently"]
+        gate{"Low / med risk?"}
+        ship["Ship<br/>PR · merge · sync"]
+        record["Mark the task done"]
         agent --> check --> verifier --> gate
-        verifier -. "FAIL → fix the gaps" .-> agent
-        gate -- "yes" --> ship --> record
-        record == "↻ next task" ==> agent
+        verifier -. "fail → fix" .-> agent
+        gate -- yes --> ship --> record
+        record == "next task" ==> agent
     end
-    gate -- "no · high-risk / ambiguous" --> pause["⏸ PAUSE for human · open PR, don't merge"]
-    ship --> live["🌐 Live site (Vercel)"]
+    gate -- "no — high-risk" --> pause["Pause for human review<br/>(open PR, don't merge)"]
+    ship --> live["🌐 Live site"]
 
-    %% ④ fan-out — each sub-agent is a full copy of THE LOOP, with the SAME context-load
-    subgraph FANOUT["④ ⇉ FAN-OUT (optional) · independent tasks in parallel · contract pinned · foundation frozen"]
+    %% ④ fan-out — the same loop, in parallel
+    subgraph FANOUT["④ Fan-out (optional)"]
         direction TB
-        sub["each PARALLEL sub-agent · own worktree + branch<br/>= THIS SAME loop → one-at-a-time squash-merge"]
+        sub["Parallel sub-agent<br/>same loop, own branch → merge one at a time"]
     end
-    agent -. "≥2 independent tasks (else sequential)" .-> sub
-    docs -. "same context-load per sub-agent<br/>(doer auto-loads · verifier READs)" .-> sub
+    agent -. "if tasks are independent" .-> sub
+    docs -. "same rules apply" .-> sub
 
-    %% ⑤ always-on machinery
-    machinery["🛡 Always-on machinery · SessionStart resync · commit guards (diagram-currency) · CI checks ·<br/>settings allowlist · GitHub MCP · worktrees"]
-    machinery -. "guards every step" .-> LOOP
+    %% ⑤ always-on
+    machinery["🛡 Always-on guards<br/>resync · commit guards · CI · worktrees"]
+    machinery -. "guard every step" .-> LOOP
 
     %% ── visual taxonomy (color key is text, in the doc intro): agent · sub-agent · tool · state · external · human ──
     classDef agent fill:#ede7f6,stroke:#5e35b1,stroke-width:3px,color:#311b92;
@@ -272,12 +271,18 @@ loop's verifier or a grep), which is what keeps diagram edits from turning into 
   `POSITIONING.md`), and draws the **`@imported by`** edge (CLAUDE.md @imports the playbook). A reader must
   see *which rules travel to any repo vs which are this project's* at a glance — not one undifferentiated
   "docs" blob.
-- **Context-loading is explicit (who loads what, and when).** The diagram shows: an **AUTO-LOADED** edge
-  into the **doer** (project rules + the playbook via @import), and **spawned-READ** edges into the
-  **fresh-context verifier** — 🌐 global **always**, 📦 project **conditionally** (CLAUDE on app/UI,
-  POSITIONING on copy). **The FAN-OUT box is NOT contextless:** it carries an edge showing each parallel
-  sub-agent loads the **same** context (doer auto-loads · verifier READs). A spawned agent with no
-  context edge is a defect — fix it, don't ship it.
+- **Context-loading is explicit — every agent shows where its rules come from.** The diagram draws: the
+  rules **"loaded automatically"** into the **doer**, **"re-read to grade"** into the **verifier**, and
+  **"same rules apply"** into the **fan-out** sub-agent. **No agent box is contextless** — a spawned agent
+  with no rules edge is a defect, fix it. (The *nuance* — doer auto-loads project + playbook via @import;
+  the fresh verifier re-reads the playbook always and CLAUDE/POSITIONING only when the diff touches
+  app/copy — lives in the **table**, NOT on the edges; keep the edge labels to a few words.)
+- **Labels are short, plain English, and name the function.** Every node/edge label is a few plain words
+  for what the thing *does* (e.g. "pick a task, write the change", "loaded automatically", "fail → fix"),
+  not a sentence or parenthetical pile-up. Detail goes in the component **table**, never crammed onto a
+  label. **In the rendered PNG, labels must not overlap or collide** — if they do, shorten them or cut
+  edges. A label you can't read at normal zoom is a defect (this is what turned an earlier version into a
+  wall of colliding text).
 - **The loop reads as a loop:** the loop diagram has the explicit return edge closing `record → agent`
   (plus the verifier→agent FAIL retry) — not a top-to-bottom pipeline.
 - **Visual taxonomy:** agents, ephemeral sub-agents, tools/automation, committed state, external

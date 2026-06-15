@@ -124,6 +124,15 @@ parallel pain is un-agreed interfaces, not the code itself.
   one unit (and don't draw one component as several); and for a living diagram, give it acceptance
   criteria + a regen step so it can be *verified*, not babysat. The test: a newcomer reads it without
   asking "what's this box?" or "are these two the same thing?"
+- **Labels are short, plain-English, and name the *function* — push detail to prose/the table, not the
+  label.** A node or edge label is a few plain words for what the thing *does* ("pick a task, write the
+  change", "loaded automatically", "fail → fix") — not a sentence, a parenthetical, or jargon. The
+  "who/when/why" nuance belongs in the component table or surrounding prose, where there's room; a diagram
+  is a *map*, not the manual. *Why this is its own rule:* auto-layout engines route a long edge label as a
+  free-floating block, so several verbose labels **collide into an unreadable wall of text** (we shipped
+  exactly that — three multi-line "spawned to READ · …" edge labels overlapping). So make the verifier's
+  PNG check include **"every label is a few words AND no two labels overlap"** — a label you can't read at
+  normal zoom is a defect, same as a whitespace dead-region.
 - **A rendered diagram is a visual artifact — grade it visually, in the same change, against the rules
   above.** The verifier **VIEWS the regenerated image** (it can Read a PNG) and FAILs the diagram-quality
   done-conditions, just as it would a wrong label — visual quality is checked where every other change is
@@ -303,6 +312,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-15** — §3: diagram labels must be short, plain-English, and name the *function*; push who/when/why detail to the table/prose, not the label. Verbose multi-line edge labels get routed as free-floating blocks by auto-layout and collide into an unreadable wall — so the verifier's PNG check now also fails overlapping/sentence-length labels.
 - **2026-06-15** — §3: when handing a diagram back to the human, deliver the **PDF** (zoomable vector), not just the PNG — it stays crisp when zoomed/printed; the PNG remains for the verifier's inline view.
 - **2026-06-15** — §3: prefer fewer diagrams — fold a closely-related concept (e.g. parallel fan-out) *into* an existing diagram as a single annotation node rather than spawning a second diagram of the same system; two diagrams of one system drift apart and double the upkeep. Encode the cap as an acceptance criterion so the verifier blocks a re-split. (Applied: merged the standalone "parallel fan-out" diagram into the loop diagram's FAN-OUT node.)
 - **2026-06-14** — §4: enforce *generated-artifact currency* mechanically, not by vigilance — the renderer hashes the diagram source and a check in the commit guard + CI blocks a commit/merge where the source changed without regenerating the exports. When the human keeps asking "is this up to date?", replace the reminder with a deterministic guard. (Hash sync proves export⇄source; diagram-vs-code currency is still the verifier's judgment.)
