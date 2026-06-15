@@ -145,11 +145,14 @@ parallel pain is un-agreed interfaces, not the code itself.
   that creates a second copy that drifts out of sync with §3 (which is exactly how the violation shipped).
   The skill's job is the *operational trigger* ("on a Mermaid change, VIEW the PNG"); the rule *content*
   lives here.*
-- **Give the rendered diagram back after you change it — don't make the human ask.** When a change
-  updates a diagram, the regenerated image *is* the deliverable — surface it to the human as part of
-  reporting the change (alongside the merged PR), the same turn. They shouldn't have to say "show me the
-  diagram" after every edit. *(Why: a diagram lives to be looked at; a text-only "done" hides the one
-  artifact the change was about, and the human ends up re-requesting it every time.)*
+- **Give the rendered diagram back after you change it — don't make the human ask — and hand them the
+  PDF.** When a change updates a diagram, the regenerated export *is* the deliverable — surface it to the
+  human as part of reporting the change (alongside the merged PR), the same turn; they shouldn't have to
+  say "show me the diagram." **Default to delivering the PDF (zoomable vector), not (just) the PNG** — it
+  stays crisp at any size and prints clean. (The PNG still exists for the verifier's *inline* view — it
+  can Read a PNG — but the human gets the PDF.) *(Why: a diagram lives to be looked at; a text-only
+  "done" hides the one artifact the change was about, and a fixed-resolution PNG is the worse copy to
+  hand someone who'll zoom or print it.)*
 - **Prefer fewer diagrams — fold a closely-related concept into an existing diagram, don't spawn a
   second one.** Two diagrams of the *same* system (e.g. "the loop" and "the loop, parallelized") are two
   artifacts that drift apart and double the living-doc upkeep. If a concept is a *variation* of one
@@ -300,6 +303,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-15** — §3: when handing a diagram back to the human, deliver the **PDF** (zoomable vector), not just the PNG — it stays crisp when zoomed/printed; the PNG remains for the verifier's inline view.
 - **2026-06-15** — §3: prefer fewer diagrams — fold a closely-related concept (e.g. parallel fan-out) *into* an existing diagram as a single annotation node rather than spawning a second diagram of the same system; two diagrams of one system drift apart and double the upkeep. Encode the cap as an acceptance criterion so the verifier blocks a re-split. (Applied: merged the standalone "parallel fan-out" diagram into the loop diagram's FAN-OUT node.)
 - **2026-06-14** — §4: enforce *generated-artifact currency* mechanically, not by vigilance — the renderer hashes the diagram source and a check in the commit guard + CI blocks a commit/merge where the source changed without regenerating the exports. When the human keeps asking "is this up to date?", replace the reminder with a deterministic guard. (Hash sync proves export⇄source; diagram-vs-code currency is still the verifier's judgment.)
 - **2026-06-14** — §3: "one concern per doc" — merge docs that are the *same concern* fragmented (e.g. the two engineering playbooks), keep *different concerns* separate (messaging vs structure vs process) even for the same product; they change for different reasons and get read on different triggers, so fusing them bloats context and couples unrelated edits.
