@@ -186,6 +186,71 @@ quality bars, navigation/perf invariants) and [`ENGINEERING-PLAYBOOK.md`](./ENGI
 
 ---
 
+## 3. Key design & implementation decisions (and *why*)
+
+The decisions worth defending — each is a deliberate trade-off, not an accident.
+
+### A. The agentic engineering system
+- **A custom `/run-loop` skill is the driver.** The autonomous loop isn't ad-hoc prompting — it's a
+  committed Claude Code skill (`.claude/skills/run-loop`) that *defines the procedure* (pick → implement
+  → self-check → spawn verifier → ship → record → next). *Why:* the next step comes from a **feedback
+  signal** (a failing test, a verifier gap, the next backlog item), never a guess — that's what makes
+  unattended progress reliable instead of drifting.
+- **Doer ⇄ verifier split (independent, fresh context).** Every change is graded by a *separate*
+  ephemeral sub-agent that inherits none of the doer's context, re-runs build/tests, and checks the diff
+  against the rules it's explicitly told to read. *Why:* the doer can't grade its own homework; a
+  fresh context is what makes the check honest.
+- **Model tiering — cheapen the work, not the rigor.** The premium model plans/decides and handles
+  high-risk tasks; a cheaper **Sonnet** verifier + mechanical passes do the bulk. *Why:* the verifier's
+  job (re-run, grade against explicit criteria) sits well within a mid-tier model, so we don't burn the
+  frontier model on the easy parts — without dropping a single standing check.
+- **Risk drives autonomy.** `low`/`med` auto-merge; `high`/architectural/outward-facing **pause for a
+  human** (PR opened, not merged). *Why:* full speed where it's safe, a human gate exactly where a
+  mistake is expensive (money, auth, the live marketing site).
+- **Durable state in committed files.** The backlog + done-log (`TASKS.md`), the rules, and this diagram
+  are all committed. *Why:* the runtime is an **ephemeral container** — committing the state is what lets
+  a fresh session resume mid-backlog after a reset.
+- **Two on-ramps, one procedure.** Local `/run-loop` (your subscription) or a `loop-task`-labelled
+  **GitHub issue → `run-loop.yml` Action** (API credits) — both run the *same* skill. *Why:* trigger it
+  however suits the moment without forking the logic.
+- **Enforce, don't document.** Commit guards (secrets · internal model-ids · stale-diagram hash ·
+  money-sim markers), CI checks (`architecture-current`, `landing-lean`), a deny-push-to-`main` rule, and
+  a SessionStart resync. *Why:* a convention you must *remember* gets forgotten; a hook/CI that **blocks**
+  the bad commit/merge can't be.
+- **Rules in two tiers, both in the repo.** A portable **ENGINEERING-PLAYBOOK** (works in any repo, kept
+  in-repo and `@imported`) + project-specific **CLAUDE.md**/**POSITIONING.md**. *Why:* portable practice
+  travels; project law stays local; both are versioned, reviewed, and read by the verifier.
+- **Living architecture.** This document's diagrams are committed, auto-regenerated, and a deterministic
+  **currency guard** fails CI if a source changed without re-rendering. *Why:* a diagram is wrong the
+  moment the system changes without it — so we make staleness a build failure, not a vibe.
+
+### B. The application
+- **Thin, data-driven router.** `App.jsx` is a `ROUTES` registry (`{key, path, title, desc, el}`); adding
+  a screen is **one appended entry**. *Why:* the router is a "hot file" every feature wants to touch —
+  append-only keeps it conflict-free for parallel work.
+- **One feature = one file; foundation vs features; single source of truth.** Screens are independent
+  files; shared logic (e.g. `funnel.js`, `courseDates.js`) lives in dependency-free modules imported by
+  the app, the serverless API, **and** the tests. *Why:* small units, clear ownership, no drift, trivially
+  unit-testable.
+- **Performance budget, enforced.** recharts (~110 KB gzip) is lazy-split so the landing ships ~90 KB;
+  **T13** then cut the landing's *height* ~60% by moving long-form content to crawlable sub-pages
+  (`/about`, `/curriculum`, `/faq`), locked by a `landing-lean` height guard. *Why:* the funnel leaks at
+  "before they act" — every extra KB and every extra screen-height costs conversions.
+- **Accessibility + concurrency as standing bars.** WCAG-AA (the `act()` helper, focus-visible, contrast)
+  and a single-flight **`navLock`** that makes double-clicks/races safe (no double-enroll). *Why:* these
+  are easy to regress and expensive to retrofit, so they're guarded, not hoped.
+- **Serverless within the Hobby 12-function cap.** `/api/funnel` is **method-routed** (POST ingest · GET
+  founder read · PUT save · DELETE reset) instead of four endpoints. *Why:* real platform constraint →
+  a deliberate consolidation.
+- **Aggregate, no-PII analytics.** A connected funnel + traffic/engagement, with a **server-side
+  allowlist** dropping anything off-list and foreground-only dwell. *Why:* investor-grade insight without
+  collecting or trusting client-side PII.
+- **Founder-editable, KV-backed config.** Cohorts, Stripe links, and site settings are live-editable from
+  a console (no redeploy); secrets stay env-only. *Why:* the operator owns go-live config; the host keeps
+  the secrets.
+
+---
+
 ## Acceptance criteria for this doc (so changes can be *verified*, not just eyeballed)
 
 The "done" conditions for any change to `BUILD-YOUNG-ARCHITECTURE.md` — most are objectively checkable (by the

@@ -1,4 +1,4 @@
-<svg width="1600" height="800" viewBox="0 0 1600 800" xmlns="http://www.w3.org/2000/svg">
+<svg width="1600" height="864" viewBox="0 0 1600 864" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
       text{font-family:'Inter','Segoe UI',Helvetica,Arial,sans-serif;}
@@ -45,7 +45,7 @@
     <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#00897b"/></marker>
   </defs>
 
-  <rect width="1600" height="800" fill="#ffffff"/>
+  <rect width="1600" height="864" fill="#ffffff"/>
   <text class="title" x="800" y="32" text-anchor="middle">Build Young — Agent Harness (the loop)</text>
   <text class="sub" x="800" y="53" text-anchor="middle">One task at a time: pick &amp; build → self-check → verify → risk gate → ship → record → the next task. A portable engineering playbook is the core; everything is committed in the GitHub repo; always-on machinery guards every step.</text>
 
@@ -93,9 +93,21 @@
   <rect class="subagent" x="52" y="599" width="292" height="28" rx="8"/>
   <text class="sm" x="198" y="617" text-anchor="middle">parallel sub-agents · own worktree + branch → merge one at a time</text>
 
+  <!-- 🛠 the /run-loop skill — the driver we built (core component) -->
+  <rect class="core" x="36" y="648" width="324" height="168" rx="10"/>
+  <text class="ch" x="52" y="670">🛠 /run-loop skill — the driver we built</text>
+  <text class="cb" x="52" y="687">a Claude Code skill (.claude/skills/run-loop) that IS this loop's</text>
+  <text class="cb" x="52" y="701">procedure: pick → implement → self-check → spawn the verifier</text>
+  <text class="cb" x="52" y="715">→ ship → record → next (stops on a stop-condition).</text>
+  <text class="cb" x="52" y="735">Run locally (/run-loop) OR the Action runs the SAME skill in CI.</text>
+  <text class="cb" x="52" y="749">Companion /ship = the verified-merge step (build/test/verify → PR).</text>
+  <text class="cb" x="52" y="763">Cheap sub-agents do the bulk; the premium model plans &amp; decides.</text>
+  <path class="edge-d" d="M360,704 C 418,702 448,701 470,700" marker-end="url(#arrd)"/>
+  <text class="elabel" x="416" y="694" text-anchor="middle">drives the loop</text>
+
   <!-- ③ THE LOOP -->
   <rect class="loopbg" x="470" y="118" width="372" height="650" rx="12"/>
-  <text class="loopt" x="656" y="142" text-anchor="middle">③ The loop — repeat for each task</text>
+  <text class="loopt" x="656" y="142" text-anchor="middle">③ The loop — driven by the /run-loop skill (we built it)</text>
   <rect class="agent" x="502" y="156" width="308" height="66" rx="8"/>
   <text class="nlb" x="656" y="178" text-anchor="middle">Main agent — driver + doer</text>
   <text class="nl" x="656" y="194" text-anchor="middle">pick the task · write the smallest change</text>
@@ -136,7 +148,7 @@
   <path class="edge-d" d="M344,430 C 412,420 448,406 470,402" marker-end="url(#arrd)"/>
   <text class="elabel" x="406" y="414" text-anchor="middle">the backlog + the rules</text>
   <path class="edge-d" d="M502,520 C 440,560 400,592 360,604" marker-end="url(#arrd)"/>
-  <text class="elabel" x="436" y="556" text-anchor="middle" transform="rotate(26 436 556)">if tasks are independent</text>
+  <text class="elabel" x="436" y="556" text-anchor="middle" transform="rotate(26 436 556)">doer can fan out (independent tasks)</text>
 
   <!-- RIGHT: the rules — ENGINEERING-PLAYBOOK as the meaty core -->
   <rect class="core" x="864" y="112" width="700" height="288" rx="10"/>
@@ -148,7 +160,7 @@
   <text class="cb" x="888" y="223"><tspan class="cbk">Shipping</tspan> — small verifiable increments · never push to main · build + test + guards before every commit · enforce via hooks/CI</text>
   <text class="cb" x="888" y="239"><tspan class="cbk">Loop engineering (§9)</tspan> — goal + acceptance criteria · doer ⇄ verifier split (fresh context) · model tiering (premium doer · Sonnet verifier)</text>
   <text class="cb" x="906" y="254">· risk drives autonomy (low/med auto-merge; high pauses) · all state in committed files so an ephemeral container resumes</text>
-  <text class="cb" x="888" y="270"><tspan class="cbk">Diagrams (§3)</tspan> — self-explanatory · compact · short labels · regenerate exports + a deterministic currency guard (this very diagram)</text>
+  <text class="cb" x="888" y="270"><tspan class="cbk">Living architecture (§3)</tspan> — the architecture is a committed, auto-regenerated doc with a currency guard (CI blocks a stale one) — this very diagram</text>
   <text class="chp" x="884" y="295">📦 CLAUDE.md — THIS repo's law (project-specific)</text>
   <text class="cb" x="888" y="311">house style (optimize-for-less-scrolling · no flag/emoji glyphs in data · statistics integrity) · the module/endpoint map · quality bars</text>
   <text class="cb" x="888" y="326">(WCAG-AA · ~120 KB JS budget · navLock · act() on clickables) · @imports the playbook so the doer auto-loads both</text>
