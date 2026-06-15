@@ -87,23 +87,25 @@
   <text class="sm" x="52" y="523">in the repo so the rules travel with the code (versioned, reviewable).</text>
   <text class="sm" x="52" y="544">+ .github/workflows · src/ (the app) — all versioned together.</text>
 
-  <!-- ④ fan-out -->
-  <rect class="grp" x="36" y="572" width="324" height="62" rx="10"/>
-  <text class="grpt" x="52" y="592">④ Fan-out (optional)</text>
-  <rect class="subagent" x="52" y="599" width="292" height="28" rx="8"/>
-  <text class="sm" x="198" y="617" text-anchor="middle">parallel sub-agents · own worktree + branch → merge one at a time</text>
+  <!-- ④ fan-out — the GATE: default sequential; parallelize only when provably safe -->
+  <rect class="grp" x="36" y="568" width="324" height="116" rx="10"/>
+  <text class="grpt" x="52" y="587">④ Fan-out — when to go parallel</text>
+  <text class="sm" x="52" y="603">Default is SEQUENTIAL. Parallelize only if ALL:</text>
+  <text class="sm" x="52" y="618">• ≥2 tasks on DISJOINT files</text>
+  <text class="sm" x="52" y="632">• no foundation-module change mid-flight</text>
+  <text class="sm" x="52" y="646">• no dependency · contract (seams) pinnable up front</text>
+  <text class="sm" x="52" y="662">→ sub-agents (worktree+branch) → merge 1-by-1; else seq.</text>
+  <text class="sm" x="52" y="676">disjointness ← each task's Files: hint + the module map</text>
 
   <!-- 🛠 the /run-loop skill — the driver we built (core component) -->
-  <rect class="core" x="36" y="648" width="324" height="168" rx="10"/>
-  <text class="ch" x="52" y="670">🛠 /run-loop skill — the driver we built</text>
-  <text class="cb" x="52" y="687">a Claude Code skill (.claude/skills/run-loop) that IS this loop's</text>
-  <text class="cb" x="52" y="701">procedure: pick → implement → self-check → spawn the verifier</text>
-  <text class="cb" x="52" y="715">→ ship → record → next (stops on a stop-condition).</text>
-  <text class="cb" x="52" y="735">Run locally (/run-loop) OR the Action runs the SAME skill in CI.</text>
-  <text class="cb" x="52" y="749">Companion /ship = the verified-merge step (build/test/verify → PR).</text>
-  <text class="cb" x="52" y="763">Cheap sub-agents do the bulk; the premium model plans &amp; decides.</text>
-  <path class="edge-d" d="M360,704 C 418,702 448,701 470,700" marker-end="url(#arrd)"/>
-  <text class="elabel" x="416" y="694" text-anchor="middle">drives the loop</text>
+  <rect class="core" x="36" y="696" width="324" height="118" rx="10"/>
+  <text class="ch" x="52" y="716">🛠 /run-loop skill — the driver we built</text>
+  <text class="cb" x="52" y="733">a Claude Code skill (.claude/skills/run-loop) — the loop's</text>
+  <text class="cb" x="52" y="747">procedure: pick → build → self-check → verify → ship → record.</text>
+  <text class="cb" x="52" y="764">Run locally (/run-loop) or the Action runs the SAME skill in CI.</text>
+  <text class="cb" x="52" y="778">Companion /ship = verified merge → PR → squash-merge.</text>
+  <path class="edge-d" d="M360,742 C 418,728 448,716 470,712" marker-end="url(#arrd)"/>
+  <text class="elabel" x="416" y="724" text-anchor="middle">drives the loop</text>
 
   <!-- ③ THE LOOP -->
   <rect class="loopbg" x="470" y="118" width="372" height="650" rx="12"/>
@@ -147,8 +149,8 @@
   <text class="elabel" x="426" y="202" text-anchor="middle">kicks off a run → a task</text>
   <path class="edge-d" d="M344,430 C 412,420 448,406 470,402" marker-end="url(#arrd)"/>
   <text class="elabel" x="406" y="414" text-anchor="middle">the backlog + the rules</text>
-  <path class="edge-d" d="M502,520 C 440,560 400,592 360,604" marker-end="url(#arrd)"/>
-  <text class="elabel" x="436" y="556" text-anchor="middle" transform="rotate(26 436 556)">doer can fan out (independent tasks)</text>
+  <path class="edge-d" d="M502,520 C 440,556 400,580 360,592" marker-end="url(#arrd)"/>
+  <text class="elabel" x="436" y="548" text-anchor="middle" transform="rotate(24 436 548)">the doer may fan out →</text>
 
   <!-- RIGHT: the rules — ENGINEERING-PLAYBOOK as the meaty core -->
   <rect class="core" x="864" y="112" width="700" height="288" rx="10"/>

@@ -79,6 +79,16 @@ pinnable** up front. Any miss → sequential. Borderline → ask the human; you 
 guard-rails (one feature = one file · freeze the foundation · contract-first · merge one-at-a-time) live in
 [`build-young-app/CLAUDE.md`](./build-young-app/CLAUDE.md) → "Parallel work protocol."
 
+**Where the `Files:` hint comes from — and why not from you.** This is a deliberate division of labour:
+**you work at the intent level** ("cut the scrolling", "make GitHub a core component") and own the backlog +
+the risk/positioning calls — you haven't needed to read the code. **The agent built the system and holds its
+structure** (the `CLAUDE.md` **module map** *is* that model, kept current), so the **driver writes the
+`Files:` hint** when it records your request as a task — asking someone who hasn't read the code for file
+paths would make no sense. Because the *same* agent authors the hint **and** could act on it, safety never
+rests on the hint: the **default is sequential**, the **module map is the ground truth**, a doer that needs an
+un-owned file **stops and surfaces** (no cross-boundary edits), **you approve the backlog**, and the
+independent **verifier** grades the result — so a wrong/missing hint just stays sequential or pauses.
+
 ---
 
 ## 2. The application
