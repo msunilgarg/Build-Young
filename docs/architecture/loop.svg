@@ -18,57 +18,57 @@
       .plain{fill:#f5f3fb;stroke:#9b87c4;stroke-width:1.8;}
       .start{fill:#fff3e0;stroke:#fb8c00;stroke-width:2.5;}
       .note{fill:#ffffff;stroke:#9e9e9e;stroke-width:1.5;}
+      .core{fill:#f3eefc;stroke:#5e35b1;stroke-width:2;}
       .loopbg{fill:#faf7ff;stroke:#cdb8f0;stroke-width:1.8;}
       .loopt{font-size:13px;font-weight:800;fill:#5e35b1;}
       .nlb{font-size:11.5px;font-weight:700;fill:#222;}
       .nl{font-size:10.5px;fill:#333;}
       .mono{font-size:10px;fill:#37474f;font-family:'SF Mono',Menlo,Consolas,monospace;}
       .sm{font-size:9.5px;fill:#667;}
-      .ct{font-size:12.5px;font-weight:700;fill:#333;}
-      .cdh{font-size:11px;font-weight:700;fill:#5e35b1;}
-      .cd{font-size:10.5px;fill:#333;}
+      .ct{font-size:12.5px;font-weight:800;fill:#222;}
+      .ch{font-size:11.5px;font-weight:800;fill:#5e35b1;}
+      .chp{font-size:11px;font-weight:700;fill:#8a6d00;}
+      .cb{font-size:9.5px;fill:#333;}
+      .cbk{font-size:9.5px;font-weight:700;fill:#5e35b1;}
       .mt{font-size:12.5px;font-weight:700;fill:#00695c;}
-      .mtrig{font-size:10px;font-weight:700;fill:#00695c;}
       .md{font-size:10.5px;fill:#333;}
       .elabel{font-size:10.5px;fill:#333;paint-order:stroke;stroke:#fff;stroke-width:3.4px;stroke-linejoin:round;}
       .elabelr{font-size:10.5px;fill:#b00020;paint-order:stroke;stroke:#fff;stroke-width:3.4px;stroke-linejoin:round;}
       .edge{fill:none;stroke:#666;stroke-width:1.6;}
-      .edge-d{fill:none;stroke:#7e57c2;stroke-width:1.5;stroke-dasharray:5 4;}
+      .edge-d{fill:none;stroke:#7e57c2;stroke-width:1.6;stroke-dasharray:5 4;}
       .edge-t{fill:none;stroke:#333;stroke-width:3;}
       .edge-g{fill:none;stroke:#00897b;stroke-width:1.5;stroke-dasharray:2 3;}
-      .edge-gh{fill:none;stroke:#24292f;stroke-width:1.6;}
     </style>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#666"/></marker>
     <marker id="arrd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7e57c2"/></marker>
     <marker id="arrt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker>
     <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#00897b"/></marker>
-    <marker id="arrgh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#24292f"/></marker>
   </defs>
 
   <rect width="1600" height="800" fill="#ffffff"/>
   <text class="title" x="800" y="32" text-anchor="middle">Build Young — Agent Harness (the loop)</text>
-  <text class="sub" x="800" y="53" text-anchor="middle">One task at a time: pick &amp; build → self-check → verify → risk gate → ship → record → the next task. Everything is committed in the GitHub repo; always-on machinery guards every step.</text>
+  <text class="sub" x="800" y="53" text-anchor="middle">One task at a time: pick &amp; build → self-check → verify → risk gate → ship → record → the next task. A portable engineering playbook is the core; everything is committed in the GitHub repo; always-on machinery guards every step.</text>
 
-  <!-- ▶ START → SessionStart (machinery at the entry) → on-ramp -->
+  <!-- ▶ START → SessionStart → on-ramp -->
   <rect class="start" x="36" y="62" width="324" height="42" rx="21"/>
   <text class="nlb" x="198" y="89" text-anchor="middle" fill="#e65100">▶ START HERE — kick off a run</text>
   <rect class="toollite" x="36" y="112" width="324" height="42" rx="6"/>
-  <text class="mtrig" x="48" y="130">⟳ SessionStart hook — on every new session:</text>
+  <text class="sm" x="48" y="130" fill="#00695c" font-weight="700">⟳ SessionStart hook — on every new session:</text>
   <text class="md" x="48" y="146">resync the workspace to origin/main · reinstall the commit guards</text>
   <path class="edge" d="M198,104 L198,112" marker-end="url(#arr)"/>
 
-  <!-- ① on-ramps -->
+  <!-- ① on-ramps (mechanics live in the boxes) -->
   <rect class="grp" x="36" y="164" width="324" height="128" rx="10"/>
   <text class="grpt" x="52" y="185">① Start a run — ONE on-ramp</text>
   <rect class="human" x="52" y="193" width="292" height="44" rx="6"/>
   <text class="nlb" x="198" y="212" text-anchor="middle">You — run /run-loop locally</text>
-  <text class="sm" x="198" y="227" text-anchor="middle">your Claude subscription</text>
+  <text class="sm" x="198" y="227" text-anchor="middle">your subscription · drains the TASKS.md backlog</text>
   <rect class="tool" x="52" y="243" width="292" height="44" rx="6"/>
   <text class="nlb" x="198" y="262" text-anchor="middle">GitHub issue + “loop-task” label</text>
-  <text class="sm" x="198" y="277" text-anchor="middle">→ GitHub Actions: .github/workflows/run-loop.yml</text>
+  <text class="sm" x="198" y="277" text-anchor="middle">→ Actions (run-loop.yml) · the issue IS the task</text>
   <path class="edge" d="M198,154 L198,164" marker-end="url(#arr)"/>
 
-  <!-- 📁 GitHub repo = single source of truth (docs + backlog + workflows + app all committed) -->
+  <!-- 📁 GitHub repo = single source of truth -->
   <rect class="gh" x="36" y="304" width="324" height="256" rx="10"/>
   <text class="ght" x="52" y="326">📁 GitHub repo — single source of truth</text>
   <text class="sm" x="52" y="341">all committed here, so a fresh container resumes from it</text>
@@ -93,7 +93,7 @@
   <rect class="subagent" x="52" y="599" width="292" height="28" rx="8"/>
   <text class="sm" x="198" y="617" text-anchor="middle">parallel sub-agents · own worktree + branch → merge one at a time</text>
 
-  <!-- ③ THE LOOP (center) — named steps (no numbers), with concrete mechanics -->
+  <!-- ③ THE LOOP -->
   <rect class="loopbg" x="470" y="118" width="372" height="650" rx="12"/>
   <text class="loopt" x="656" y="142" text-anchor="middle">③ The loop — repeat for each task</text>
   <rect class="agent" x="502" y="156" width="308" height="66" rx="8"/>
@@ -126,61 +126,57 @@
   <!-- fail -> fix (right of spine) -->
   <path class="edge-d" d="M810,378 C 838,356 838,200 810,184" marker-end="url(#arrd)"/>
   <text class="elabelr" x="846" y="284" text-anchor="middle" transform="rotate(90 846 284)">fail → fix</text>
-  <!-- next task -> Main agent (right of the spine, kept clear of the callout) -->
+  <!-- next task return (right of spine, clear of the callout) -->
   <path class="edge-t" d="M810,712 C 858,692 858,178 810,168" marker-end="url(#arrt)"/>
   <text class="elabel" x="852" y="556" text-anchor="middle" transform="rotate(90 852 556)">next task</text>
 
-  <!-- on-ramps → Main agent, each with its mechanic -->
-  <path class="edge" d="M344,214 C 430,206 472,182 502,178" marker-end="url(#arr)"/>
-  <text class="elabel" x="420" y="198" text-anchor="middle">drains the backlog</text>
-  <path class="edge" d="M344,266 C 436,260 474,190 502,186" marker-end="url(#arr)"/>
-  <text class="elabel" x="424" y="244" text-anchor="middle">the issue IS the task</text>
-  <path class="edge" d="M344,368 C 440,360 476,200 502,196" marker-end="url(#arr)"/>
-  <text class="elabel" x="430" y="330" text-anchor="middle">first unchecked task</text>
-
-  <!-- rules → loop: doer auto-loads · verifier re-reads -->
-  <path class="edge-d" d="M344,414 C 432,400 474,216 502,208" marker-end="url(#arrd)"/>
-  <text class="elabel" x="430" y="392" text-anchor="middle">loaded automatically (doer)</text>
-  <path class="edge-d" d="M344,466 C 438,464 478,384 502,380" marker-end="url(#arrd)"/>
-  <text class="elabel" x="432" y="446" text-anchor="middle">re-read to grade (verifier)</text>
-  <!-- fan-out gets the same rules + worktrees -->
+  <!-- ONE arrow per outer box -->
+  <path class="edge" d="M344,230 C 432,220 474,186 502,184" marker-end="url(#arr)"/>
+  <text class="elabel" x="426" y="202" text-anchor="middle">kicks off a run → a task</text>
+  <path class="edge-d" d="M344,430 C 412,420 448,406 470,402" marker-end="url(#arrd)"/>
+  <text class="elabel" x="406" y="414" text-anchor="middle">the backlog + the rules</text>
   <path class="edge-d" d="M502,520 C 440,560 400,592 360,604" marker-end="url(#arrd)"/>
   <text class="elabel" x="436" y="556" text-anchor="middle" transform="rotate(26 436 556)">if tasks are independent</text>
 
-  <!-- RIGHT: rich doc-scope callout (what the verifier grades against) -->
-  <rect class="note" x="864" y="118" width="700" height="236" rx="10"/>
-  <text class="ct" x="884" y="144">📋 What each rule-doc covers — the verifier READs these &amp; grades the diff against them</text>
-  <text class="cdh" x="884" y="172">🌐 ENGINEERING-PLAYBOOK.md — how we build (portable to any repo)</text>
-  <text class="cd" x="900" y="188">one feature = one file · the 4-rule parallel-agent protocol · ship = build/test/verify → PR → squash-merge</text>
-  <text class="cd" x="900" y="203">· §3 diagram rules (this diagram) · §9 loop engineering · model tiering (premium doer / sonnet verifier)</text>
-  <text class="cdh" x="884" y="229">📦 CLAUDE.md — this repo's law (project-specific)</text>
-  <text class="cd" x="900" y="245">house style: optimize-for-less-scrolling · no flag/emoji glyphs in data · statistics integrity · the module/endpoint map</text>
-  <text class="cd" x="900" y="260">· quality bars: WCAG-AA · ~120 KB JS budget (recharts lazy) · navLock · act() on clickables · @imports the playbook</text>
-  <text class="cdh" x="884" y="286">📦 POSITIONING.md — voice &amp; claims (project-specific)</text>
-  <text class="cd" x="900" y="302">tagline “raising builders, not consumers” · what we DON'T claim (no income/return promises; build WITH AI,</text>
-  <text class="cd" x="900" y="317">not teach coding) · canonical phrasings (Talk to us · ex-Microsoft · the First-year builder prize)</text>
-  <text class="sm" x="884" y="340">Fresh verifier inherits none of this — it is TOLD to read them: 🌐 always · 📦 CLAUDE on app/UI · 📦 POSITIONING on copy.</text>
+  <!-- RIGHT: the rules — ENGINEERING-PLAYBOOK as the meaty core -->
+  <rect class="core" x="864" y="112" width="700" height="288" rx="10"/>
+  <text class="ct" x="884" y="134">📋 The rules — the verifier READs these &amp; grades every change against them</text>
+  <text class="ch" x="884" y="158">🌐 ENGINEERING-PLAYBOOK.md — THE CORE: portable engineering practice (works in any repo)</text>
+  <text class="cb" x="888" y="175"><tspan class="cbk">Modularity</tspan> — one feature = one file · foundation vs features · single source of truth · keep the router thin &amp; data-driven</text>
+  <text class="cb" x="888" y="191"><tspan class="cbk">Parallel agents</tspan> — 4 anti-collision rules: disjoint files · freeze the foundation (additive-only) · contract-first · merge one-at-a-time</text>
+  <text class="cb" x="888" y="207"><tspan class="cbk">Docs as code</tspan> — CLAUDE.md is the coordination layer · fix stale docs in the same change · every patterned bug becomes a standing rule</text>
+  <text class="cb" x="888" y="223"><tspan class="cbk">Shipping</tspan> — small verifiable increments · never push to main · build + test + guards before every commit · enforce via hooks/CI</text>
+  <text class="cb" x="888" y="239"><tspan class="cbk">Loop engineering (§9)</tspan> — goal + acceptance criteria · doer ⇄ verifier split (fresh context) · model tiering (premium doer · Sonnet verifier)</text>
+  <text class="cb" x="906" y="254">· risk drives autonomy (low/med auto-merge; high pauses) · all state in committed files so an ephemeral container resumes</text>
+  <text class="cb" x="888" y="270"><tspan class="cbk">Diagrams (§3)</tspan> — self-explanatory · compact · short labels · regenerate exports + a deterministic currency guard (this very diagram)</text>
+  <text class="chp" x="884" y="295">📦 CLAUDE.md — THIS repo's law (project-specific)</text>
+  <text class="cb" x="888" y="311">house style (optimize-for-less-scrolling · no flag/emoji glyphs in data · statistics integrity) · the module/endpoint map · quality bars</text>
+  <text class="cb" x="888" y="326">(WCAG-AA · ~120 KB JS budget · navLock · act() on clickables) · @imports the playbook so the doer auto-loads both</text>
+  <text class="chp" x="884" y="351">📦 POSITIONING.md — voice &amp; claims (project-specific)</text>
+  <text class="cb" x="888" y="367">tagline “raising builders, not consumers” · what we DON'T claim (no income/return promises; build WITH AI, not coding)</text>
+  <text class="cb" x="888" y="382">· the canonical phrasings (e.g. “Talk to us” · the First-year builder prize)</text>
+  <text class="sm" x="884" y="396">Fresh verifier inherits none of this — it is TOLD to read them: 🌐 always · 📦 CLAUDE on app/UI · 📦 POSITIONING on copy.</text>
 
-  <!-- RIGHT: pause output (above the machinery panel) -->
-  <rect class="plain" x="864" y="392" width="356" height="60" rx="8"/>
-  <text class="nlb" x="1042" y="416" text-anchor="middle">⏸ Pause for human review</text>
-  <text class="nl" x="1042" y="434" text-anchor="middle">high-risk / outward-facing → open PR, don't merge</text>
-  <path class="edge" d="M778,500 C 834,498 824,426 864,424" marker-end="url(#arr)"/>
-  <text class="elabelr" x="842" y="468" text-anchor="middle">high-risk</text>
+  <!-- RIGHT: pause -->
+  <rect class="plain" x="864" y="414" width="356" height="56" rx="8"/>
+  <text class="nlb" x="1042" y="436" text-anchor="middle">⏸ Pause for human review</text>
+  <text class="nl" x="1042" y="454" text-anchor="middle">high-risk / outward-facing → open PR, don't merge</text>
+  <path class="edge" d="M778,500 C 836,498 826,444 864,442" marker-end="url(#arr)"/>
+  <text class="elabelr" x="844" y="476" text-anchor="middle">high-risk</text>
 
-  <!-- RIGHT: always-on machinery (compact) — much of it IS GitHub — plumbed into Ship -->
-  <rect class="toollite" x="864" y="470" width="700" height="106" rx="10"/>
-  <text class="mt" x="884" y="494">🛡 Always-on machinery — enforced by hooks &amp; GitHub Actions, not memory</text>
-  <text class="md" x="884" y="516">on commit / push / PR → guards + CI block: secrets · internal model-ids · stale diagram (hash) · page-height · push-to-main</text>
-  <text class="md" x="884" y="536">GitHub MCP = the agent's API to GitHub (PR · issue · merge) · git worktrees = fan-out isolation · SessionStart = resync per session</text>
-  <text class="md" x="884" y="556">GitHub is the hub: the repo (state) · Issues (an on-ramp) · Actions (run-loop + CI) · Pull Requests (how every change ships)</text>
-  <path class="edge-g" d="M864,524 C 836,558 822,606 810,612" marker-end="url(#arrg)"/>
-  <text class="elabel" x="846" y="596" text-anchor="middle">guards Ship</text>
+  <!-- RIGHT: machinery (compact) — much of it IS GitHub — plumbed into Ship -->
+  <rect class="toollite" x="864" y="486" width="700" height="104" rx="10"/>
+  <text class="mt" x="884" y="510">🛡 Always-on machinery — enforced by hooks &amp; GitHub Actions, not memory</text>
+  <text class="md" x="884" y="532">on commit / push / PR → guards + CI block: secrets · internal model-ids · stale diagram (hash) · page-height · push-to-main</text>
+  <text class="md" x="884" y="552">GitHub MCP = the agent's API to GitHub (PR · issue · merge) · git worktrees = fan-out isolation · SessionStart = resync per session</text>
+  <text class="md" x="884" y="572">GitHub is the hub: the repo (state) · Issues (an on-ramp) · Actions (run-loop + CI) · Pull Requests (how every change ships)</text>
+  <path class="edge-g" d="M864,540 C 836,566 822,608 810,614" marker-end="url(#arrg)"/>
+  <text class="elabel" x="846" y="600" text-anchor="middle">guards Ship</text>
 
-  <!-- RIGHT: live site (below the machinery panel, at Ship's level — ship→deploy stays clear) -->
-  <rect class="ext" x="1240" y="598" width="324" height="58" rx="8"/>
-  <text class="nlb" x="1402" y="621" text-anchor="middle">🌐 Live site — Vercel</text>
-  <text class="nl" x="1402" y="639" text-anchor="middle">auto-deploys on squash-merge to main</text>
-  <path class="edge" d="M810,616 C 1010,642 1130,636 1240,630" marker-end="url(#arr)"/>
-  <text class="elabel" x="1040" y="654" text-anchor="middle">low/med → squash-merge → deploy</text>
+  <!-- RIGHT: live site (below machinery, ship→deploy stays clear) -->
+  <rect class="ext" x="1240" y="612" width="324" height="56" rx="8"/>
+  <text class="nlb" x="1402" y="634" text-anchor="middle">🌐 Live site — Vercel</text>
+  <text class="nl" x="1402" y="652" text-anchor="middle">auto-deploys on squash-merge to main</text>
+  <path class="edge" d="M810,616 C 1010,648 1130,644 1240,640" marker-end="url(#arr)"/>
+  <text class="elabel" x="1040" y="664" text-anchor="middle">low/med → squash-merge → deploy</text>
 </svg>
