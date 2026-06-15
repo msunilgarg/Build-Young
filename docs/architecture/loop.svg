@@ -152,9 +152,14 @@
   <path class="edge-d" d="M502,520 C 440,556 400,580 360,592" marker-end="url(#arrd)"/>
   <text class="elabel" x="436" y="548" text-anchor="middle" transform="rotate(24 436 548)">the doer may fan out →</text>
 
+  <!-- RIGHT: TASKS.md (the backlog) — the task is ALSO what the verifier grades against -->
+  <rect class="state" x="864" y="62" width="700" height="46" rx="8"/>
+  <text class="chp" x="876" y="80">🗂 TASKS.md — the backlog (the agent writes each task from your intent; you approve)</text>
+  <text class="cb" x="876" y="97">each task = goal · acceptance criteria (the verifier grades the diff vs THESE) · risk: (drives autonomy) · Files: hint · committed → resumes</text>
+
   <!-- RIGHT: the rules — ENGINEERING-PLAYBOOK as the meaty core -->
   <rect class="core" x="864" y="112" width="700" height="288" rx="10"/>
-  <text class="ct" x="884" y="134">📋 The rules — the verifier READs these &amp; grades every change against them</text>
+  <text class="ct" x="884" y="134">📋 The rules — read with the task above; the verifier grades every change against both</text>
   <text class="ch" x="884" y="158">🌐 ENGINEERING-PLAYBOOK.md — THE CORE: portable engineering practice (works in any repo)</text>
   <text class="cb" x="888" y="175"><tspan class="cbk">Modularity</tspan> — one feature = one file · foundation vs features · single source of truth · keep the router thin &amp; data-driven</text>
   <text class="cb" x="888" y="191"><tspan class="cbk">Parallel agents</tspan> — 4 anti-collision rules: disjoint files · freeze the foundation (additive-only) · contract-first · merge one-at-a-time</text>
