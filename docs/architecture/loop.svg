@@ -105,9 +105,9 @@
   <path class="edge" d="M712,514 L712,548" marker-end="url(#arr)"/>
   <text class="elabel" x="726" y="534">yes</text>
   <path class="edge" d="M712,598 L712,636" marker-end="url(#arr)"/>
-  <!-- fail -> fix (left, internal) -->
-  <path class="edge-d" d="M598,366 C 566,348 566,212 598,198" marker-end="url(#arrd)"/>
-  <text class="elabelr" x="556" y="290" text-anchor="middle">fail → fix</text>
+  <!-- fail -> fix (hugs the RIGHT of the spine, nested inside the next-task return — keeps the left clean) -->
+  <path class="edge-d" d="M826,366 C 862,346 862,218 826,200" marker-end="url(#arrd)"/>
+  <text class="elabelr" x="874" y="286" text-anchor="middle" transform="rotate(90 874 286)">fail → fix</text>
   <!-- next task -> 1 (right, internal) -->
   <path class="edge-t" d="M826,660 C 902,648 902,196 826,186" marker-end="url(#arrt)"/>
   <text class="elabel" x="905" y="420" text-anchor="middle" transform="rotate(90 905 420)">next task → 1</text>
@@ -115,16 +115,16 @@
   <!-- inputs/rules feed the loop -->
   <path class="edge" d="M278,250 C 430,240 470,188 596,184" marker-end="url(#arr)"/>
   <text class="elabel" x="452" y="206" text-anchor="middle">picks a task</text>
-  <path class="edge-d" d="M452,470 C 510,440 540,210 596,194" marker-end="url(#arrd)"/>
-  <text class="elabel" x="512" y="318" text-anchor="middle">loaded automatically</text>
-  <path class="edge-d" d="M452,508 C 512,508 545,372 596,366" marker-end="url(#arrd)"/>
-  <text class="elabel" x="512" y="452" text-anchor="middle">re-read to grade</text>
+  <path class="edge-d" d="M452,440 C 520,420 548,214 596,198" marker-end="url(#arrd)"/>
+  <text class="elabel" x="520" y="312" text-anchor="middle">loaded automatically</text>
+  <path class="edge-d" d="M452,522 C 516,518 548,372 596,366" marker-end="url(#arrd)"/>
+  <text class="elabel" x="518" y="488" text-anchor="middle">re-read to grade</text>
   <!-- same rules apply -> fan-out (short, both on left) -->
   <path class="edge-d" d="M246,564 L246,616" marker-end="url(#arrd)"/>
   <text class="elabel" x="312" y="592" text-anchor="middle">same rules apply</text>
-  <!-- if independent: agent -> fan-out -->
-  <path class="edge-d" d="M598,206 C 470,250 360,470 360,616" marker-end="url(#arrd)"/>
-  <text class="elabel" x="372" y="430" text-anchor="middle" transform="rotate(90 372 430)">if tasks are independent</text>
+  <!-- if independent: the loop can fan out — short hop down to the fan-out box (clear of the context lane) -->
+  <path class="edge-d" d="M556,540 C 510,580 482,608 452,628" marker-end="url(#arrd)"/>
+  <text class="elabel" x="520" y="566" text-anchor="middle" transform="rotate(36 520 566)">if tasks are independent</text>
 
   <!-- right column: scope callout (top-right) -->
   <rect class="note" x="980" y="72" width="470" height="200" rx="10"/>
