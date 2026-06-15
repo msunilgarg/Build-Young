@@ -239,4 +239,5 @@
   <text class="sm" x="1432" y="775" text-anchor="middle">↳ the loop</text>
   <text class="cb" x="884" y="800">Not used (yet): <tspan class="cbk">Generate-And-Filter</tspan> · <tspan class="cbk">Tournament</tspan> — one doer per task; quality comes from the verifier + guards, not candidate</text>
   <text class="cb" x="884" y="816">diversity. Add them (N candidates → filter / pairwise judge) only when a task needs higher-variance solutions.</text>
+  <text class="cb" x="884" y="831">Same call on coordination: <tspan class="cbk">isolated subagents</tspan> (report-back) over <tspan class="cbk">Agent Teams</tspan> (inter-agent chat) — orchestrator + serialized merge.</text>
 </svg>
