@@ -110,7 +110,7 @@ export function About({ onBack, onHome, onEnroll, onCall }) {
 
           {/* founder */}
           <Card style={{ padding: 28, marginTop: 24, display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <img src={SUNIL_PHOTO} alt="Sunil Garg" style={{ width: 128, height: 128, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />
+            <img src={CONFIG.founderPhoto || SUNIL_PHOTO} alt="Sunil Garg" style={{ width: 128, height: 128, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 260 }}>
               <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 16, lineHeight: 1.6, marginTop: 8 }}>

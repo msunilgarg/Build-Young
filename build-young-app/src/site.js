@@ -19,6 +19,11 @@ export const SITE_DEFAULTS = {
   showcaseEnabled: false,                             // OFF by default; founder flips it on once there
                                                       // are products worth showing. Gates the capstone
                                                       // "share your product + feedback" capture.
+  founderPhoto: "",                                   // founder headshot shown on the landing + /about
+                                                      // founder cards. Empty = the bundled default photo
+                                                      // (theme.js SUNIL_PHOTO). A data:image/… URI (the
+                                                      // console resizes an upload to a small square) or a
+                                                      // hosted https image URL; capped server-side.
 };
 
 // The keys a founder may edit (the store allowlist + the console editor iterate these).
@@ -33,4 +38,5 @@ export const SETTINGS_FIELDS = [
   { key: "linkedinUrl", label: "LinkedIn URL", placeholder: "https://www.linkedin.com/in/you", hint: "Linked from the founder section + footer." },
   { key: "stripeLink", label: "Shared Stripe Payment Link", placeholder: "https://buy.stripe.com/…", hint: "Used for every cohort that has no link of its own (a cohort's own link in the cohort editor overrides it). One Payment Link has one fixed price, so all cohorts sharing it must be the same price." },
   { key: "showcaseEnabled", label: "Student showcase capture", type: "boolean", hint: "When on, graduating students can share their product link + feedback at the capstone. Turn on once you have products worth collecting." },
+  { key: "founderPhoto", label: "Founder photo", type: "image", hint: "Shown on the landing page + Our story founder cards. Upload a photo (it's resized to a small square) or leave empty to use the built-in default." },
 ];
