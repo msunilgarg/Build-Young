@@ -48,6 +48,7 @@ const botIcon = (n, color) => `<div class="bi">${ic(n, "0.52in", color, "1.9")}<
   .brand { font-size: 22pt; font-weight: 800; color: ${NAVY}; letter-spacing: -.3px; margin-top: -2px; }
   .kicker { text-align:center; font-size: 14pt; font-weight: 800; color: ${NAVY}; letter-spacing: 1px; margin-top: 0.30in; }
   .h1 { text-align:center; font-size: 58pt; font-weight: 800; color: ${NAVY}; line-height: .98; letter-spacing: -1.5px; margin: 0.02in 0 0; }
+  .h1 .ac { color: ${ORANGE}; }
   .sub { text-align:center; font-size: 12.5pt; color: ${INK}; line-height: 1.4; max-width: 6.1in; margin: 0.16in auto 0; }
   .sub b { color: ${NAVY}; }
   .midrow { display:flex; align-items:center; gap: 0.18in; margin: 0.26in 0 0; }
@@ -80,10 +81,10 @@ const botIcon = (n, color) => `<div class="bi">${ic(n, "0.52in", color, "1.9")}<
       <div class="brand">${MARK} BUILD YOUNG</div>
     </div>
 
-    <div class="kicker">HIGH SCHOOLERS — IN 12 WEEKS, WITH AI</div>
-    <div class="h1">BUILD SOMETHING<br>REAL.</div>
-    <div class="sub">A <b>live online course</b> where you build a <b>real product with AI</b>, take it
-      <b>live on the internet</b>, and go get your <b>first customers</b> — no coding required.</div>
+    <div class="kicker">A LIVE, 12-WEEK ONLINE COURSE</div>
+    <div class="h1">BUILD WITH<br><span class="ac">AI.</span></div>
+    <div class="sub">Build a <b>real product</b> with AI, take it <b>live on the internet</b>, and go get your
+      <b>first customers</b> — <b>no coding</b> required; AI does the how.</div>
 
     <div class="midrow">
       <div class="pill">LIVE · SMALL GROUPS · ONLINE</div>
@@ -91,8 +92,8 @@ const botIcon = (n, color) => `<div class="bi">${ic(n, "0.52in", color, "1.9")}<
         <svg width="0.7in" height="0.5in" viewBox="0 0 70 50" fill="none" stroke="${ORANGE}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 10 C 30 6, 52 14, 60 34"/><path d="M50 30 l11 6 l-3 -12"/></svg>
       </div>
-      <div class="callout"><b>No coding.</b> AI does the how — the real skill is taste: knowing what's
-        worth making, and shipping it. The edge isn't a degree; it's <b>what you can build.</b></div>
+      <div class="callout"><b>No coding</b> — you build with <b>Claude Code</b>. The real skill is taste:
+        knowing what's worth making, and shipping it. The edge isn't a degree; it's <b>what you can build.</b></div>
     </div>
 
     <div class="card">
