@@ -32,6 +32,16 @@ describe("site settings store", () => {
     expect(sanitizeSettings({ showcaseEnabled: "garbage" }).showcaseEnabled).toBe(false); // default
   });
 
+  it("founderPhoto accepts a data:image URI or http(s) URL, rejects junk + oversize, defaults to empty", () => {
+    const dataUri = "data:image/jpeg;base64,/9j/4AAQ";
+    expect(sanitizeSettings({ founderPhoto: dataUri }).founderPhoto).toBe(dataUri);
+    expect(sanitizeSettings({ founderPhoto: "  https://cdn.x/p.jpg  " }).founderPhoto).toBe("https://cdn.x/p.jpg"); // trimmed
+    expect(sanitizeSettings({}).founderPhoto).toBe(""); // default = bundled photo
+    expect(sanitizeSettings({ founderPhoto: "javascript:alert(1)" }).founderPhoto).toBe(""); // not an image src
+    expect(sanitizeSettings({ founderPhoto: 123 }).founderPhoto).toBe(""); // wrong type
+    expect(sanitizeSettings({ founderPhoto: "data:image/png;base64," + "A".repeat(400 * 1024) }).founderPhoto).toBe(""); // oversize → dropped
+  });
+
   it("loadSettings falls back to defaults when KV is unconfigured", async () => {
     expect(await loadSettings()).toEqual(SITE_DEFAULTS);
   });

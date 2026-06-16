@@ -257,12 +257,19 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   `{sources, screens (views + avgMs), exits (count + pct), exitTotal}`; the console renders it as
   three cards under the drop-off. Explains the Visited → Enroll-started leak.
 - **Founder-editable site settings (NEW):** the runtime, non-secret public values — **booking link
-  (Calendly), contact email, LinkedIn URL** — are now editable live from the console (no redeploy),
+  (Calendly), contact email, LinkedIn URL, the shared Stripe link, the showcase toggle, and the
+  founder photo** — are now editable live from the console (no redeploy),
   alongside cohorts/Stripe links. Defaults are single-sourced in **`src/site.js`** (`SITE_DEFAULTS`,
   imported by `CONFIG` and the server store); stored in KV (`settings:site` via
   `api/_lib/settingsStore.js`); read publicly folded into **`GET /api/cohorts`** (`{batches, checkins,
   settings}`) and saved via `PUT /api/funnel?resource=settings`. The client hydrates by
-  `Object.assign(CONFIG, settings)` on load + a re-render. **Secrets/deploy toggles stay env-only**
+  `Object.assign(CONFIG, settings)` on load + a re-render. **Field types:** a `SETTINGS_FIELDS` entry
+  is a text input by default, `type:"boolean"` a checkbox, or `type:"image"` an upload control
+  (`ImageSettingField`) that resizes the pick to a ~360px square JPEG data URI client-side. The
+  **founder photo** (`founderPhoto`) is consumed on the landing + `/about` cards as
+  `CONFIG.founderPhoto || SUNIL_PHOTO` (empty = the bundled `theme.js` default); because it ships
+  publicly and is inlined on the page, `sanitizeSettings` only accepts a `data:image/…` URI or
+  http(s) URL and caps it at ~300 KB (else `""`). **Secrets/deploy toggles stay env-only**
   (`emailEnabled`/`authEnabled`/`RESEND_API_KEY`/`AUTH_SECRET`/KV); the console shows them read-only
   in **System status**. So: every founder go-live config a web console *can* own is in the console;
   only host secrets remain on the host.

@@ -27,6 +27,17 @@ export async function loadSettings() {
   return defaultSettings();
 }
 
+// founderPhoto is shipped publicly (folded into /api/cohorts) and inlined on the page, so guard it:
+// accept only an empty string, a data:image/… URI, or an http(s) URL, and cap the size so a huge
+// blob can't bloat the public payload. Anything else → "" (the bundled default photo is used).
+const MAX_PHOTO_CHARS = 300 * 1024; // ~300 KB of data-URI text; a console-resized square is ~25 KB
+function sanitizePhoto(v) {
+  if (typeof v !== "string") return "";
+  const s = v.trim();
+  if (s === "" || s.length > MAX_PHOTO_CHARS) return "";
+  return /^data:image\/[a-z+]+;base64,/i.test(s) || /^https?:\/\//i.test(s) ? s : "";
+}
+
 // Keep only the known keys, coerce to trimmed strings, and fill any gap from the defaults — so a
 // saved blob can never introduce junk fields or drop a key the client expects.
 export function sanitizeSettings(input) {
@@ -36,6 +47,8 @@ export function sanitizeSettings(input) {
     if (typeof SITE_DEFAULTS[k] === "boolean") {
       // Boolean flags: accept a real boolean or the strings "true"/"on"; everything else → default.
       out[k] = typeof v === "boolean" ? v : (v === "true" || v === "on" ? true : (v === "false" || v === "off" ? false : SITE_DEFAULTS[k]));
+    } else if (k === "founderPhoto") {
+      out[k] = sanitizePhoto(v);
     } else {
       out[k] = typeof v === "string" ? v.trim() : SITE_DEFAULTS[k];
     }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { GraduationCap, ArrowRight, Check, CircleDollarSign, Video, Linkedin, Download, Users, Activity, Calendar, Clock, RefreshCw } from "lucide-react";
-import { C, fmt } from "./theme.js";
+import { C, fmt, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, act, Stat } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, AUTH, downloadFile, HESITATION_REASONS } from "./lib.js";
 import { cohortDays, cohortTime, nextClass, dayNum, classMeetingOn, REFUND_WINDOW } from "./courseDates.js";
@@ -608,6 +608,65 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   );
 }
 
+// Read an uploaded image File and return a small square JPEG data URI (center-cropped "cover",
+// 360px @ q0.85 ≈ the bundled default's ~18 KB) — so an unbounded camera photo never bloats the
+// publicly-shipped settings blob. Resizing happens here in the browser; the server also caps it.
+function fileToSquareDataUrl(file, size = 360, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("read failed"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("not an image"));
+      img.onload = () => {
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side) / 2, sy = (img.height - side) / 2; // center crop
+        const canvas = document.createElement("canvas");
+        canvas.width = canvas.height = size;
+        canvas.getContext("2d").drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// One settings field that's an image (the founder photo): a live preview + upload + reset-to-default.
+function ImageSettingField({ field, value, onChange }) {
+  const [err, setErr] = useState("");
+  const inputRef = useRef(null);
+  const onPick = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    setErr("");
+    try { onChange(await fileToSquareDataUrl(file)); }
+    catch { setErr("Couldn't read that image — try a JPG or PNG."); }
+    if (inputRef.current) inputRef.current.value = ""; // allow re-picking the same file
+  };
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
+  return (
+    <div>
+      <span style={lab}>{field.label}</span>
+      <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+        <img src={value || SUNIL_PHOTO} alt="Founder photo preview"
+          style={{ width: 72, height: 72, borderRadius: 6, objectFit: "cover", flexShrink: 0, border: `1px solid ${C.line}` }} />
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <button type="button" className="btn" onClick={() => inputRef.current && inputRef.current.click()}
+            style={{ background: C.paper2, color: C.ink, border: `1px solid ${C.line}`, padding: "8px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700 }}>
+            {value ? "Replace photo" : "Upload photo"}
+          </button>
+          {value && <button type="button" className="btn" onClick={() => onChange("")}
+            style={{ background: "transparent", color: C.muted, border: "none", padding: "8px 4px", borderRadius: 4, fontSize: 13, fontWeight: 700 }}>Use default</button>}
+          <input ref={inputRef} type="file" accept="image/*" aria-label={field.label} onChange={onPick} style={{ display: "none" }} />
+        </div>
+      </div>
+      {field.hint && <span style={{ fontSize: 12, color: C.muted, display: "block", marginTop: 6 }}>{field.hint}</span>}
+      {err && <span style={{ fontSize: 12, color: C.pink, display: "block", marginTop: 4, fontWeight: 700 }}>{err}</span>}
+    </div>
+  );
+}
+
 // Live site-settings editor — the founder-editable runtime values (booking link, contact email,
 // LinkedIn). Reads the current settings from /api/cohorts and saves via the founder-gated
 // PUT /api/funnel?resource=settings. Changes show on the public site without a redeploy.
@@ -647,7 +706,9 @@ function SettingsEditor() {
     <Card style={{ padding: 16 }}>
       <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>These take effect on the public site immediately (no redeploy). Leave the booking link empty to use the built-in demo scheduler.</div>
       <div style={{ display: "grid", gap: 14 }}>
-        {SETTINGS_FIELDS.map((f) => f.type === "boolean" ? (
+        {SETTINGS_FIELDS.map((f) => f.type === "image" ? (
+          <ImageSettingField key={f.key} field={f} value={vals[f.key] ?? ""} onChange={(v) => set(f.key, v)} />
+        ) : f.type === "boolean" ? (
           <label key={f.key} style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer" }}>
             <input type="checkbox" aria-label={f.label} checked={!!vals[f.key]} onChange={(e) => set(f.key, e.target.checked)}
               style={{ width: 17, height: 17, marginTop: 1, flexShrink: 0, accentColor: C.emerald, cursor: "pointer" }} />
