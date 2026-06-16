@@ -384,7 +384,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
           </p>
           {/* founder teaser card → links through to the full story page */}
           <Card style={{ padding: "20px 22px", marginTop: 22, display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap" }}>
-            <img src={SUNIL_PHOTO} alt="Sunil Garg" style={{ width: 60, height: 60, borderRadius: 4, objectFit: "cover", flexShrink: 0 }} />
+            <img src={SUNIL_PHOTO} alt="Sunil Garg" style={{ width: 96, height: 96, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 240 }}>
               <div className="disp" style={{ fontSize: 17, fontWeight: 800 }}>Why this exists</div>
               <p style={{ color: C.ink2, fontSize: 15, lineHeight: 1.55, margin: "6px 0 0" }}>
