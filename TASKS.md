@@ -26,24 +26,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T19 — Refund proration by HOURS (not weeks); keep the 1-week window  ·  risk: high
-Goal: the prorated refund is computed from HOURS of the course delivered/remaining (the pace-independent
-quantity), not calendar weeks — and the full-refund eligibility window stays "1 week" as today.
-Context: each lesson = 3 hrs; 12 lessons = 36 hrs. After T20 `refundFor` prorates by LESSONS (so it's
-numerically hours-correct at 3-hr granularity); this task makes the BASIS explicitly hours and fixes the
-copy that still says "weeks" so the Terms/emails read correctly at any cadence.
-Acceptance criteria:
-- `refundFor` expressed in hours: `refund = price × (totalHours − heldHours) / totalHours`, where
-  `totalHours = lessonsTotalFor(batch) × HOURS_PER_LESSON` (3) and `heldHours = (lesson−1) × 3`. Flagship
-  amounts unchanged ($916 after lesson 1, $833 after lesson 2).
-- Eligibility window unchanged: `REFUND_WEEKS = 1` (the first week) — do NOT widen it.
-- Copy synced from "weeks not yet held" / "X of 12 weeks" → HOURS wording in `engine.js`
-  (`withdrawalEmail`), the in-app `LEGAL` Terms, and `public/terms.html` (all three kept in sync).
-- Build + tests green; update `test/engine.test.js` refund/withdrawal-copy assertions to the hours wording.
-Files: `src/courseDates.js`, `src/engine.js`, `src/Legal.jsx`, `public/terms.html`, `test/engine.test.js`
-Stop-and-ask if: money + attorney-reviewed Terms copy — implement, open a PR, pause for human review. Also
-confirm granularity: per-EXERCISE (3-hr blocks) hours vs finer per-SESSION (1.5-hr) hours.
-
 ## [ ] T21 — Founder console: create a cohort with ANY lesson schedule (not just weekly-12)  ·  risk: med
 Goal: from the founder dashboard's **cohort editor**, the founder can set a cohort's PACE — how its 12
 lessons land on the calendar and how each lesson's sittings are scheduled — writing the per-cohort
@@ -100,6 +82,9 @@ student-visible "next class"/reminders or only the progress/done-state.
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T19 — Refund prorated by hours (dollars unchanged); 1-week window kept  ·  risk: high
+Done (PR #426; merged, full-auto). `refundFor` re-expressed in HOURS — `price × (totalHours − heldHours)/totalHours`, `totalHours = lessons×3 = 36` — numerically identical (every lesson is 3 hrs) so dollars are unchanged ($916/$833), but the basis is hours so it reads right at any cadence. Copy synced to hours in the withdrawal email, the dashboard withdrawal block, the in-app LEGAL Terms + `public/terms.html`; graduation email "12 weeks"→"12 lessons"; window kept (`REFUND_WEEKS=1`). Tests → hours wording. Build + 261; Sonnet-verified by RENDERING the withdrawal flow. ⚠ Terms wording changed — flagged for the founder's attorney.
 
 ## [x] T15 — Dashboard progress reads "Lesson N of 12"  ·  risk: med
 Done (PR #423; merged). Relabeled the student dashboard's position chrome week→lesson — header pill
