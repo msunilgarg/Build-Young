@@ -1,6 +1,6 @@
 ---
 name: run-loop
-description: Autonomously drain the Build Young task backlog (TASKS.md) — the loop-engineering driver. For each task it implements the change, runs build+tests+guards, has an INDEPENDENT verifier sub-agent grade it against the task's acceptance criteria, ships it (PR → squash-merge → sync), marks it done, and moves to the next — looping until the backlog is empty or it hits a stop condition. Invoke when asked to "run the loop", "work the backlog", "drain TASKS.md", or with a task id (e.g. /run-loop T2).
+description: Autonomously drain the Build Young task backlog (TASKS.md) — the loop-engineering driver. For each task it implements the change, runs build+tests+guards, has an INDEPENDENT verifier sub-agent grade it against the task's acceptance criteria, ships it (PR → squash-merge → sync), marks it done, and moves to the next — looping until the backlog is empty or it hits a hard floor (full auto: no per-task human confirmation). Invoke when asked to "run the loop", "work the backlog", "drain TASKS.md", or with a task id (e.g. /run-loop T2).
 ---
 
 # Run the loop (autonomous backlog driver)
@@ -10,19 +10,28 @@ without being prompted per step. The next step always comes from a **signal** �
 verifier's gap report, or the next backlog item — never from guesswork. Read `ENGINEERING-PLAYBOOK.md` §9 (loop engineering) once for the
 full picture.
 
-## Autonomy: FULL AUTO
-Implement → verify → **squash-merge to `main`** → next task, unattended. Only stop (and ask the human)
-when one of the **stop conditions** below is hit. (To change this, the human edits this section.)
+## Autonomy: FULL AUTO (no per-task confirmation)
+Implement → verify → **squash-merge to `main`** → next task, unattended, for **EVERY task regardless of
+risk level**. The **independent verifier (step 5) is the gate — not a human.** Do **NOT** pause for review
+on `risk: high`, architectural, money/refund, or outward-facing UI/copy tasks; ship them the moment the
+verifier PASSes. This deliberately **overrides the playbook's default "high-risk pauses for review"** (§9)
+for this project — the founder has opted into full autonomy.
+- `risk` now only tunes **how thorough the verifier is** and **which docs it reads** (and keeps the premium
+  model on the doer for reasoning-hard tasks) — it does **not** decide whether a human is asked.
+- A task's **"Stop-and-ask if" note is downgraded to "flag-in-report"**: surface the concern in the PR body
+  + the run summary (e.g. "Terms copy changed — founder's attorney should glance"), but **keep going**;
+  don't block the loop on it.
+- Only the **Hard floors** below ever stop the loop. When in doubt, make the smallest safe assumption,
+  **write it down in the PR/report**, and proceed.
 
-## The loop (repeat until backlog empty or a stop condition)
+## The loop (repeat until backlog empty or a hard floor)
 1. **Pick the task.** `git fetch origin main` and start from the latest `origin/main` on the dev
    branch (`claude/<branch>`), per the ship discipline. Read `TASKS.md`; take the **first `[ ]` task**
    (or the id the user named). Parse its Goal + Acceptance criteria + risk + any "Stop-and-ask if".
-2. **Check the stop conditions FIRST** (see below). If the task is `risk: high`, ambiguous, or
-   destructive/outward-facing → do NOT auto-merge; implement on a branch, open a PR, and **stop**.
-3. **Implement** the smallest change that satisfies the acceptance criteria. For an isolated feature
-   file you may delegate to a worktree-isolated sub-agent; otherwise edit directly. Stay in the
-   task's lane (don't touch unrelated files).
+2. **Implement** the smallest change that satisfies the acceptance criteria — **regardless of risk level**
+   (the verifier gates the merge, not a human). For an isolated feature file you may delegate to a
+   worktree-isolated sub-agent; otherwise edit directly. Stay in the task's lane (don't touch unrelated
+   files); if the task genuinely needs a foundation change, do that FIRST, serially, then the rest.
 4. **Self-check:** `cd build-young-app && npm run build && npx vitest run`. Run the repo's guards
    (no `\uXXXX` escapes, no internal model id, no resurrected money-sim markers). If the change touched
    `BUILD-YOUNG-ARCHITECTURE.md` or `docs/architecture/`, run `bash scripts/check-architecture-current.sh`
@@ -71,14 +80,21 @@ when one of the **stop conditions** below is hit. (To change this, the human edi
    container resume). Then go to step 1 for the next task.
 8. **When the backlog is empty:** report a one-line summary of what shipped and stop.
 
-## Stop conditions (bounce back to the human instead of merging)
-- The task is **`risk: high`** or its "Stop-and-ask if" condition is met → implement, open a PR, stop.
-- The change is **destructive, irreversible, or outward-facing** (deletes data, sends email/charges,
-  changes auth/money/enrollment behavior) → confirm before doing it.
-- The task is **ambiguous or underspecified** — you'd be guessing at intent → ask, don't guess.
-- The **verifier keeps failing** (~3 rounds) → stop with the diagnosis.
-- A change would require touching files **outside the task's scope** or a foundation module in a
-  breaking way → stop (see the parallel-work protocol in CLAUDE.md).
+## Hard floors (the ONLY things that stop the loop — everything else ships after the verifier PASSes)
+1. **Verification is never skipped**, and after **~3 FAIL rounds on one task** stop with the diagnosis
+   (don't thrash) — skip that task and move on, or surface it if it blocks others.
+2. **Never push `main` directly** — always branch → PR → **verify `get_files`** → squash-merge → sync.
+3. **Never commit secrets or internal/model identifiers** (the commit guards block this anyway).
+4. **A genuinely IRREVERSIBLE real-world side-effect the loop would trigger *right now*** — sending real
+   email to real people, charging/refunding real money, deleting production data, rotating a live secret —
+   confirm first. *(Shipping code/UI/copy/refund-MATH to the repo is reversible via another PR and is NOT
+   this — it ships without asking. This floor is about runtime side-effects, not merges.)*
+5. **A task that literally cannot proceed without a value only the human has** (e.g. a real Stripe link, a
+   real cohort date) — make the smallest safe placeholder, **flag it in the report**, and continue; only
+   hard-stop if proceeding would actually be unsafe/wrong.
+
+Legal/Terms or other "get a human's eyes eventually" concerns are **flagged in the report, not blocked** —
+the loop merges and the founder reviews async.
 
 ## Reporting
 Be terse between tasks — the merged PRs are the record. Don't narrate every round. Reply only to
@@ -88,6 +104,7 @@ it back** — surface the regenerated PNG to the human (`SendUserFile`) when you
 
 ## Don't
 - Don't invent backlog items or "lessons"; pursue only what's in `TASKS.md`.
-- Don't auto-merge anything a stop condition covers.
+- Don't merge **unverified** work, and don't merge anything that trips a **Hard floor**.
+- Don't pause for per-task confirmation on risk/outward-facing grounds — that's the whole point now; flag + ship.
 - Don't put internal/model identifiers in commits, PRs, or code (the commit guards block this).
 - Don't push `main` directly (the settings deny rule blocks it) — always branch → PR → squash-merge.
