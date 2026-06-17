@@ -109,7 +109,7 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     <span className="disp" style={{ fontSize: 26, fontWeight: 800 }}>${b.price}</span>
                   </div>
                   <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
-                    <b style={{ color: C.ink2 }}>Full refund</b> if you cancel before {b.start}. After classes begin, a <b style={{ color: C.ink2 }}>prorated refund</b> is available through the first week; non-refundable after.
+                    <b style={{ color: C.ink2 }}>Full refund</b> if you cancel before {b.start}. After classes begin, a <b style={{ color: C.ink2 }}>flat 75% refund</b> is available through the first week; non-refundable after.
                   </div>
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 8, fontWeight: 700, letterSpacing: ".04em" }}>WHAT YOU GET FROM ME</div>
                   <div style={{ marginTop: 8, display: "grid", gap: 7 }}>

@@ -76,10 +76,6 @@ export const cancelReasonLabel = (v) => (CANCEL_REASONS.find((r) => r.value === 
 
 export function withdrawalEmail(s, batch, refund, notStarted, reasonText) {
   const first = s.student.name.split(" ")[0] || "there";
-  // week increments on each advance, so weeks held = week − 1 once started; the rest are
-  // "not yet held" (the prorated refund basis — matches the Terms).
-  const attended = notStarted ? 0 : s.week - 1;
-  const unheld = 12 - attended;
   return {
     id: "x" + Date.now(), from: MAIL_FROM, when: "Just now", type: "withdrawal",
     subject: notStarted ? "Your Build Young enrollment is canceled" : "Your Build Young withdrawal is confirmed",
@@ -97,11 +93,10 @@ Take care,
 The Build Young Team`
       : `Hi ${first},
 
-We've processed your withdrawal from the ${batch.track} cohort and started your refund. A prorated refund of ${fmt(refund)} — covering the ${unheld * 3} hours not yet held — will be returned to your original payment method, typically within 5–10 business days.
+We've processed your withdrawal from the ${batch.track} cohort and started your refund. A 75% refund of ${fmt(refund)} — the flat rate for cancelling within the first week — will be returned to your original payment method, typically within 5–10 business days.
 
   •  Cohort: ${batch.track} — ${batch.day}
-  •  Attended: ${attended * 3} of 36 hours
-  •  Refund: ${fmt(refund)} (prorated)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
+  •  Refund: ${fmt(refund)} (75% of tuition)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
 
 Thanks for giving it a try — you're welcome back anytime. Just reply to this email if anything looks off.
 

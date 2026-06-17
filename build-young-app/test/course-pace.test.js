@@ -73,10 +73,11 @@ describe("classMeetingOn / nextClass follow the cohort's real schedule", () => {
   });
 });
 
-describe("refundFor prorates over the cohort's own lesson total (12 either way)", () => {
-  it("matches the flagship math because both have 12 lessons", () => {
-    expect(refundFor(INTENSIVE, false, 1)).toBe(999); // full before start
-    expect(refundFor(INTENSIVE, true, 3)).toBe(Math.round((999 * 10) / 12)); // 2 held, 10 unheld → $833
-    expect(refundFor(INTENSIVE, true, 3)).toBe(refundFor(FLAGSHIP, true, 3));
+describe("refundFor — flat rule, same for any pace (full before start · 75% first lesson · 0 after)", () => {
+  it("is full before start, a flat 75% in lesson 1, and 0 after — identical for intensive and flagship", () => {
+    expect(refundFor(INTENSIVE, false, 1)).toBe(999);                 // full before start
+    expect(refundFor(INTENSIVE, true, 1)).toBe(Math.round(999 * 0.75)); // flat 75% within the window
+    expect(refundFor(INTENSIVE, true, 3)).toBe(0);                    // past the window → non-refundable
+    expect(refundFor(INTENSIVE, true, 1)).toBe(refundFor(FLAGSHIP, true, 1)); // pace-independent
   });
 });

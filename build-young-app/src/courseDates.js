@@ -221,17 +221,17 @@ export function cohortDays(batch) {
   return String((batch && batch.day) || "").split("·")[0].trim();
 }
 
-// The refund a student gets if they cancel now. Full price before the cohort starts; otherwise
-// prorated by HOURS NOT YET HELD — the Terms basis (each lesson = `HOURS_PER_LESSON` hrs, so this is
-// the pace-independent quantity). `week` (= lesson number) increments on each advance, so hours held =
-// (week − 1) × HOURS_PER_LESSON. The eligibility window is enforced separately by `canWithdraw` in
-// Platform — this just computes the amount. (Numerically equals the old lesson-proportion since every
-// lesson is the same length; expressing it in hours keeps the Terms/emails correct at any cadence.)
+// The refund a student gets if they cancel now — a SIMPLE flat rule (no proration):
+//   • before the cohort starts → FULL price;
+//   • started, within the first-week window (`week` = lesson number ≤ REFUND_WEEKS) → flat REFUND_RATE (75%);
+//   • after that → 0 (non-refundable).
+// The eligibility window is also enforced by `canWithdrawNow` (the withdraw UI only shows when eligible);
+// this returns the amount. Flat-rate by the founder's call — simpler than per-hour proration.
+export const REFUND_RATE = 0.75; // flat refund for cancelling within the first week
 export function refundFor(batch, started, week) {
   if (!started) return batch.price;
-  const totalHours = lessonsTotalFor(batch) * HOURS_PER_LESSON; // 36 for the standard course
-  const heldHours = (week - 1) * HOURS_PER_LESSON;
-  return Math.round((batch.price * (totalHours - heldHours)) / totalHours);
+  if (week <= REFUND_WEEKS) return Math.round(batch.price * REFUND_RATE);
+  return 0;
 }
 // The prorated-refund window: a cancellation is only allowed during the first N weeks of class
 // (plus any time before the cohort starts). Change this one number to move the window.
