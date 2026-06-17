@@ -26,20 +26,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T22 — Simplify refunds: flat 75% if cancelled within the first week of class  ·  risk: high
-Goal: replace the prorated-by-hours refund (T19) with a SIMPLE rule — full refund before the cohort
-starts; **a flat 75% refund if cancelled within the first week of class**; non-refundable after that.
-Acceptance criteria:
-- `refundFor` (courseDates.js): not started → full price; started AND within the first-week window →
-  `round(price × 0.75)`; otherwise → 0. (Supersedes T19's hours proration; keep the eligibility window =
-  the first week, `REFUND_WEEKS`/`canWithdrawNow` unchanged so the button only shows when eligible.)
-- Copy synced to the flat rule everywhere: withdrawal email (`engine.js`), the dashboard withdrawal block
-  (`Platform.jsx` — drop the "X of 36 hours / N hours not yet held" proration wording → "75% of tuition"),
-  in-app `LEGAL` Terms (`Legal.jsx`) + `public/terms.html` ("a flat 75% refund within the first week").
-- Update `test/engine.test.js` refund assertions to the flat amounts (e.g. started within window → `round(price×0.75)`); build + tests green.
-Files: `src/courseDates.js`, `src/engine.js`, `src/Platform.jsx`, `src/Legal.jsx`, `public/terms.html`, `test/engine.test.js`
-Stop-and-ask if: money + attorney-reviewed Terms — under full auto, ship + FLAG the Terms change for the founder's attorney (don't block).
-
 ## [ ] T17 — Founder schedule, class reminders & funnel curve follow the cohort pace  ·  risk: med
 Goal: the founder/ops surfaces and analytics work for any pace, not just weekly.
 Acceptance criteria:
@@ -75,6 +61,9 @@ student-visible "next class"/reminders or only the progress/done-state.
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T22 — Simplify refunds: flat 75% within the first week  ·  risk: high
+Done (PR #429; merged, full-auto). Replaced T19's hours proration with a flat rule: full before start; round(price×0.75) within the first-week window (REFUND_RATE=0.75); 0 after. Window/canWithdrawNow unchanged. All refund copy → flat 75%: withdrawal email, dashboard withdrawal dialog + completion card, in-app LEGAL Terms + public/terms.html, and the Enroll/Landing/FAQ policy copy. Internal analytics tier value (refundTier "prorated") kept for data continuity. Tests → full/75%/0; build + 266. Sonnet-verified by RENDERING (FAILed first on a "prorated" completion-card miss → fixed). ⚠ Terms wording changed — flagged for the founder's attorney.
 
 ## [x] T21 — Founder console: build a cohort with any lesson schedule  ·  risk: med
 Done (PR #427; merged, full-auto). Cohort editor gains a Pace control (lessons/week + sittings/lesson → buildLessonSchedule writes the per-cohort `lessons` array) with a live preview (count + computed end date) and a "Use weekly default" reset; flagship cohorts unchanged. New pure `courseDates.buildLessonSchedule` (defaults reproduce the flagship). `test/lesson-schedule.test.js`. Build + 265; Sonnet-verified by RENDERING the cohort editor (Generate → "Custom schedule · 12 lessons · 24 sittings · ends …"; reset reverts).
