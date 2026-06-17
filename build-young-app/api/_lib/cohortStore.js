@@ -89,6 +89,9 @@ export function sanitizeCatalog(input) {
         audience: str(b && b.audience).trim(),
         format: str(b && b.format).trim(),
         blurb: str(b && b.blurb).trim(),
+        // Manual progress override (founder): 0 = AUTO (follow the calendar), 1..12 = on that lesson,
+        // 13 = graduated. Effective position = this when ≥1, else the calendar (effectivePosition).
+        manualLesson: Math.min(13, Math.max(0, Math.round(num(b && b.manualLesson, 0)))),
         // Optional accelerated pace; omitted when absent so the flagship cadence is regenerated.
         ...(lessons ? { lessons } : {}),
       };

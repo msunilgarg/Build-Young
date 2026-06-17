@@ -3,7 +3,7 @@ import { TrendingUp, LineChart as LineIcon, GraduationCap, Check, Lock, Newspape
 import { C, fmt } from "./theme.js";
 import { Card, Mark, Pill, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH } from "./lib.js";
-import { cohortStartInfo, classDateLabel, coursePosition, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
+import { cohortStartInfo, classDateLabel, effectivePosition, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
 import { WEEKS } from "./course.js";
 import { OBJECTIVES } from "./courseState.js";
 import { withdrawalEmail, advance, CANCEL_REASONS, cancelReasonLabel } from "./engine.js";
@@ -1228,7 +1228,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
   // double-emails. Skipped for founders (preview/authoring) so it can't pollute the funnel.
   useEffect(() => {
     if (!batch || !s || s.phase !== "course" || isFounder) return;
-    const pos = coursePosition(batch);
+    const pos = effectivePosition(batch); // founder's manual override when set, else the calendar
     if (s.week === pos.week && s.started === pos.started && s.done === pos.done) return;
     const fmeta = { season: batch.season, track: batch.track, batchId: batch.id };
     if (!s.started && pos.started) track("class_started", fmeta);

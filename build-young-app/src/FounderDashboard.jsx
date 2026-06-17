@@ -1094,6 +1094,15 @@ function CohortEditor() {
           <label style={{ display: "block", marginTop: 8 }}><span style={lab}>Card blurb (the sentence after “The full N-week program …”) — leave blank for the default</span>
             <textarea aria-label={`Card blurb for cohort ${i + 1}`} value={rows[i].blurb ?? ""} onChange={(e) => update(i, "blurb", e.target.value)} rows={2} style={{ ...inp, resize: "vertical" }} placeholder="build a product you believe people would pay for, take it live, …" /></label>
           {paceBlock(i)}
+          <label style={{ display: "block", marginTop: 8 }}>
+            <span style={lab}>Progress override — where this cohort actually is (use if class ran ahead/behind its dates)</span>
+            <select aria-label={`Progress override for cohort ${i + 1}`} value={Number(rows[i].manualLesson) || 0}
+              onChange={(e) => update(i, "manualLesson", Number(e.target.value))} style={{ ...inp, maxWidth: 320 }}>
+              <option value={0}>Auto — follow the calendar</option>
+              {Array.from({ length: 12 }, (_, k) => <option key={k + 1} value={k + 1}>On lesson {k + 1}</option>)}
+              <option value={13}>Graduated (course complete)</option>
+            </select>
+          </label>
           <div style={{ textAlign: "right", marginTop: 8 }}>
             <span {...act(() => remove(i))} style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.rust }}>Remove cohort</span>
           </div>
