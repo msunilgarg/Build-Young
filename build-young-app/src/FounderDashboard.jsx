@@ -970,7 +970,6 @@ function ObjectivesEditor() {
 // founder-gated PUT /api/funnel. Changes show on the public site without a redeploy.
 function CohortEditor() {
   const [rows, setRows] = useState(null);
-  const [checkins, setCheckins] = useState(1);
   const [status, setStatus] = useState("");
 
   useEffect(() => {
@@ -979,7 +978,7 @@ function CohortEditor() {
       try {
         const r = await fetch("/api/cohorts");
         const cat = await r.json();
-        if (live) { setRows(Array.isArray(cat.batches) ? cat.batches : []); setCheckins(cat.checkins ?? 1); }
+        if (live) setRows(Array.isArray(cat.batches) ? cat.batches : []);
       } catch { if (live) setRows([]); }
     })();
     return () => { live = false; };
@@ -995,10 +994,10 @@ function CohortEditor() {
     try {
       const r = await fetch("/api/funnel", {
         method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ batches: rows, checkins: Number(checkins) }),
+        body: JSON.stringify({ batches: rows }),
       });
       const data = await r.json().catch(() => ({}));
-      if (r.ok && data.ok) { setRows(data.catalog.batches); setCheckins(data.catalog.checkins); setStatus("Saved — live now ✓"); }
+      if (r.ok && data.ok) { setRows(data.catalog.batches); setStatus("Saved — live now ✓"); }
       else setStatus(adminSaveErr(r, data, "save cohorts"));
     } catch { setStatus(ADMIN_NET_ERR); }
   };
@@ -1098,8 +1097,6 @@ function CohortEditor() {
       ))}
       <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginTop: 6 }}>
         <span {...act(add)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.emerald, border: `1px solid ${C.emerald}`, borderRadius: 4, padding: "8px 14px" }}>+ Add cohort</span>
-        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.ink2 }}>Monthly check-ins
-          <input aria-label="number of follow-up check-ins" type="number" value={checkins} onChange={(e) => setCheckins(e.target.value)} style={{ ...inp, width: 64 }} /></label>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700, marginLeft: "auto" }}>Save changes</button>
         {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>

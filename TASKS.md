@@ -26,27 +26,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T21 — Founder console: create a cohort with ANY lesson schedule (not just weekly-12)  ·  risk: med
-Goal: from the founder dashboard's **cohort editor**, the founder can set a cohort's PACE — how its 12
-lessons land on the calendar and how each lesson's sittings are scheduled — writing the per-cohort
-`lessons` array (T20). So an accelerated/custom-cadence cohort is created from the console, no code and no
-hard-coded cohort (**supersedes the old T16**). Blank/default = today's weekly flagship cadence.
-Acceptance criteria:
-- The cohort editor exposes a **pace control** that produces a valid `lessons` schedule (array, one entry
-  per lesson, of that lesson's sitting day-offsets from `start`) via a **founder-friendly** input — e.g.
-  lessons-per-week + sittings-per-lesson + weekday(s), or per-lesson date pickers — **not** raw offsets.
-  Left blank → the flagship weekly cadence (existing cohorts unchanged).
-- Shows a **computed preview**: the resulting end date + the per-lesson dates, so the founder sees the
-  schedule they built before saving.
-- Saved via the existing founder-gated `PUT /api/funnel`; `sanitizeLessons` (T20, `cohortStore.js`) already
-  validates it; it round-trips on reload. The created cohort drives `coursePosition`/`nextClass`/refund via
-  the T14/T20 infra.
-- Build + tests green; a test covers building an accelerated schedule + round-trip. **VERIFY BY RENDERING**
-  the cohort editor (per playbook §9 — UX is verified by viewing, not reading the diff).
-Files: `src/FounderDashboard.jsx`, `api/_lib/cohortStore.js` (validation exists), `src/courseDates.js`
-(a schedule-builder helper if useful), `test/cohorts-endpoints.test.js` + a FounderDashboard test
-Stop-and-ask if: founder-only console + reversible → none expected. Flag if the schedule-builder UX needs a product call.
-
 ## [ ] T22 — Simplify refunds: flat 75% if cancelled within the first week of class  ·  risk: high
 Goal: replace the prorated-by-hours refund (T19) with a SIMPLE rule — full refund before the cohort
 starts; **a flat 75% refund if cancelled within the first week of class**; non-refundable after that.
@@ -96,6 +75,9 @@ student-visible "next class"/reminders or only the progress/done-state.
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T21 — Founder console: build a cohort with any lesson schedule  ·  risk: med
+Done (PR #427; merged, full-auto). Cohort editor gains a Pace control (lessons/week + sittings/lesson → buildLessonSchedule writes the per-cohort `lessons` array) with a live preview (count + computed end date) and a "Use weekly default" reset; flagship cohorts unchanged. New pure `courseDates.buildLessonSchedule` (defaults reproduce the flagship). `test/lesson-schedule.test.js`. Build + 265; Sonnet-verified by RENDERING the cohort editor (Generate → "Custom schedule · 12 lessons · 24 sittings · ends …"; reset reverts).
 
 ## [x] T19 — Refund prorated by hours (dollars unchanged); 1-week window kept  ·  risk: high
 Done (PR #426; merged, full-auto). `refundFor` re-expressed in HOURS — `price × (totalHours − heldHours)/totalHours`, `totalHours = lessons×3 = 36` — numerically identical (every lesson is 3 hrs) so dollars are unchanged ($916/$833), but the basis is hours so it reads right at any cadence. Copy synced to hours in the withdrawal email, the dashboard withdrawal block, the in-app LEGAL Terms + `public/terms.html`; graduation email "12 weeks"→"12 lessons"; window kept (`REFUND_WEEKS=1`). Tests → hours wording. Build + 261; Sonnet-verified by RENDERING the withdrawal flow. ⚠ Terms wording changed — flagged for the founder's attorney.
