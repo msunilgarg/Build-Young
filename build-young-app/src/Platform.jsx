@@ -1375,7 +1375,7 @@ function WeekNotes({ week, s, setState }) {
     <Card style={{ padding: 16 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
         <BookOpen size={15} color={C.emerald} />
-        <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>Your notes · Week {week}</span>
+        <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>Your notes · Lesson {week}</span>
       </div>
       <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>Jot anything from class — saved automatically, private to you.</div>
       <textarea aria-label={`Your notes for week ${week}`} value={notes} onChange={(e) => set(e.target.value)} rows={14}
@@ -1398,8 +1398,8 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
   const selW = WEEKS[selected - 1];
   const selUnlocked = previewAll || offCourse || selected <= currentWeek;
   const isThisWeek = selected === currentWeek; // the live week (the final week, once off-course)
-  const selStatus = !selUnlocked ? "Upcoming" : (isThisWeek && !offCourse ? "This week" : "Completed");
-  const selStatusColor = selStatus === "This week" ? C.emerald : selStatus === "Completed" ? C.turq : C.muted;
+  const selStatus = !selUnlocked ? "Upcoming" : (isThisWeek && !offCourse ? "Current" : "Completed");
+  const selStatusColor = selStatus === "Current" ? C.emerald : selStatus === "Completed" ? C.turq : C.muted;
   const selMaterials = selUnlocked ? (selW.materials || []) : [];
   const selParked = selUnlocked ? (selW.parked || []) : [];
   const secLabel = { fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em", textTransform: "uppercase", marginBottom: 8 };
@@ -1478,7 +1478,7 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
         </div>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 12, fontSize: 11.5, color: C.muted }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 10, height: 10, borderRadius: 999, background: C.green, display: "inline-block" }} /> Done</span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 10, height: 10, borderRadius: 999, background: C.emerald, display: "inline-block" }} /> This week</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><i style={{ width: 10, height: 10, borderRadius: 999, background: C.emerald, display: "inline-block" }} /> Current</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}><Lock size={11} /> Upcoming</span>
         </div>
       </Card>
@@ -1528,7 +1528,7 @@ function WeekPanel({ s, setState, batch, cert, preview }) {
     <Card style={{ padding: 22 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: C.emerald, letterSpacing: ".04em" }}>{s.phase === "course" ? `WEEK ${s.week} · THIS WEEK` : "CHECK-IN"}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.emerald, letterSpacing: ".04em" }}>{s.phase === "course" ? `LESSON ${s.week} · CURRENT` : "CHECK-IN"}</div>
           <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{title}</div>
         </div>
         {batch && (

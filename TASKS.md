@@ -44,19 +44,6 @@ Files: `src/courseDates.js`, `src/engine.js`, `src/Legal.jsx`, `public/terms.htm
 Stop-and-ask if: money + attorney-reviewed Terms copy — implement, open a PR, pause for human review. Also
 confirm granularity: per-EXERCISE (3-hr blocks) hours vs finer per-SESSION (1.5-hr) hours.
 
-## [ ] T15 — Dashboard progress + "next class" become pace-truthful  ·  risk: med
-Goal: the student dashboard reports progress as **"Lesson N of 12"** (pace-agnostic) and shows the next
-live sitting from the cohort's **real schedule**, so an accelerated cohort isn't mislabeled "Week N of 12".
-Acceptance criteria:
-- Progress indicator/pill is **lesson-based** (reads `coursePosition`); for a flagship 12-week cohort it
-  still reads naturally (lesson 6 ≈ week 6) — i.e. flagship UX visibly unchanged.
-- The "next class" banner + pre-start countdown derive from the cohort schedule (real end date, next sitting
-  could be sooner than +7 days), not `start + (week−1)×7`.
-- The 3-act journey, per-exercise activities, withdrawal, and cert card render unchanged.
-Files: `src/Platform.jsx`, `src/courseDates.js` (consume only — no new behavior), `test/Platform.test.jsx`
-Stop-and-ask if: the change is outward-facing visual — pause for a screenshot sign-off before merge (per the
-T12/T13 pattern).
-
 ## [ ] T16 — Add the 4-week intensive cohort + honest cohort cards  ·  risk: med
 Goal: a real intensive cohort exists and the enroll surfaces tell the truth about pace, with the **flagship
 12-week messaging kept as the headline** (the intensive is an *alternate schedule*, not a rebrand).
@@ -105,6 +92,16 @@ student-visible "next class"/reminders or only the progress/done-state.
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T15 — Dashboard progress reads "Lesson N of 12"  ·  risk: med
+Done (PR #423; merged). Relabeled the student dashboard's position chrome week→lesson — header pill
+("Lesson N of 12"), lesson stepper (aria/title), "LESSON N · …" status headings, locked message, the
+"Your course, lesson by lesson" heading + helper, and overview chips ("12 lessons · 3 hrs each" + "36 hours
+of live building", pace-independent). Pure display relabel — `coursePosition`/gating/`s.week` untouched.
+Deferred (still "week", pending a deeper pass): curriculum-arc prose ("Weeks 1–7"), per-lesson instructions
+("your Week 2 spec"), prereq tool-timing, and withdrawal copy (T19's lane). Build + 261 tests (Platform +
+axe a11y updated); Sonnet-verified. NOTE: this was the last task merged under the old "pause for sign-off"
+rule — the loop is now FULL AUTO (see `.claude/skills/run-loop/SKILL.md`).
 
 ## [x] T20 — Lesson-based pace model (3-hr lesson, flexible sittings)  ·  risk: high
 Done (human-approved the merge; PR #422). Refined T14 to the founder's spec: the unit is the **3-hour

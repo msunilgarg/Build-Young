@@ -46,6 +46,13 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await user.click(await screen.findByRole("button", { name: "Course progress" }));
     expect(await screen.findByText(/Your course, lesson by lesson/i)).toBeInTheDocument();
 
+    // Regression guard: the position chrome reads "Lesson", NEVER "WEEK N" / "THIS WEEK" — a missed
+    // `WEEK ${s.week} · THIS WEEK` header shipped once because the verifier only read code + grepped
+    // (and the grep pattern missed it). The current-lesson header must render with "LESSON 1".
+    expect(screen.getByText(/LESSON 1 ·/i)).toBeInTheDocument();
+    expect(screen.queryByText(/WEEK \d/)).toBeNull();
+    expect(screen.queryByText(/THIS WEEK/)).toBeNull();
+
     // Lesson 1 is selected by default — its title shows in the left rail + the right pane.
     expect(screen.getAllByText(/Find a Problem Worth Solving/i).length).toBeGreaterThan(0);
     // The lesson is now tabbed; the activity (build plan) lives in the "Your exercise" tab.
