@@ -25,13 +25,15 @@ export function defaultCatalog() {
   return normalize({ batches: DEFAULT_BATCHES.map((b) => ({ stripeLink: "", recordings: {}, groupAudienceId: "", ...b })), checkins: DEFAULT_CHECKINS });
 }
 
-// The cohort PACE: an ascending list of integer day-offsets from `start`, one per live session.
-// Absent/invalid → omitted entirely (courseDates.cohortSchedule regenerates the flagship cadence).
-// We keep only finite non-negative integers; an even count (two sessions per exercise) is expected.
-function sanitizeSchedule(s) {
-  if (!Array.isArray(s)) return undefined;
-  const clean = s.map((n) => Math.round(num(n, NaN))).filter((n) => Number.isFinite(n) && n >= 0).sort((a, b) => a - b);
-  return clean.length >= 2 ? clean : undefined;
+// The cohort PACE: an array (one per 3-hr LESSON) of that lesson's sitting day-offsets from `start`,
+// e.g. [[0,2],[7,9], …]. Absent/invalid → omitted entirely (courseDates.cohortLessons regenerates the
+// flagship cadence). Each lesson keeps only finite non-negative integers (sorted); empty lessons drop.
+function sanitizeLessons(v) {
+  if (!Array.isArray(v)) return undefined;
+  const clean = v
+    .map((sits) => (Array.isArray(sits) ? sits.map((n) => Math.round(num(n, NaN))).filter((n) => Number.isFinite(n) && n >= 0).sort((a, b) => a - b) : []))
+    .filter((sits) => sits.length > 0);
+  return clean.length ? clean : undefined;
 }
 
 export async function loadCatalog() {
@@ -69,7 +71,7 @@ export function sanitizeCatalog(input) {
   const batches = (input && Array.isArray(input.batches) ? input.batches : [])
     .map((b) => {
       const id = str(b && b.id).trim();
-      const schedule = sanitizeSchedule(b && b.schedule); // optional accelerated pace (else flagship)
+      const lessons = sanitizeLessons(b && b.lessons); // optional accelerated pace (else flagship)
       return {
         id,
         season: str(b && b.season).trim() || "fall",
@@ -84,7 +86,7 @@ export function sanitizeCatalog(input) {
         stripeLink: str(b && b.stripeLink).trim(),
         recordings: sanitizeRecordings(b && b.recordings),
         // Optional accelerated pace; omitted when absent so the flagship cadence is regenerated.
-        ...(schedule ? { schedule } : {}),
+        ...(lessons ? { lessons } : {}),
       };
     })
     .filter((b) => b.id && !seen.has(b.id) && (seen.add(b.id), true));
