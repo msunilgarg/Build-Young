@@ -86,6 +86,27 @@ Acceptance criteria:
 Files: `src/FounderDashboard.jsx`, `api/_lib/schedule.js`, `api/cron/market-news.js`, `src/funnel.js`,
 `api/funnel.js`, `test/schedule.test.js`, `test/funnel.test.js`
 
+## [ ] T18 — Make class/exercise completion manually controllable from the admin dashboard  ·  risk: high
+Goal: the founder can mark a cohort's progress (which exercises are complete) by hand from the founder
+console, instead of completion being computed *only* from the calendar — so a class that runs ahead/behind
+its schedule reflects reality (and an intensive isn't at the mercy of date math).
+Acceptance criteria:
+- A per-cohort, founder-editable **"completed through exercise N"** value, persisted in KV (mirroring the
+  cohort catalog / site settings pattern) and saved via the founder-gated `PUT /api/funnel`.
+- A control in the **founder console** (e.g. in the teaching-schedule or cohort editor) to bump/set it —
+  "mark this class complete" / set the current exercise — with clear current-vs-scheduled context.
+- `coursePosition` (or a thin wrapper the dashboard consumes) treats the **manual value as authoritative
+  when set**, and **falls back to the calendar-derived position when unset** — so existing cohorts with no
+  manual value behave exactly as today (T14's calendar default). Graduation/cert minting and the refund
+  "exercises held" basis follow the effective (manual-or-calendar) position consistently.
+- Aggregate/no-PII preserved; build + tests green; a test covers manual-overrides-calendar + unset-falls-back.
+Files: `src/courseDates.js` (effective-position helper), `src/Platform.jsx` (consume it),
+`src/FounderDashboard.jsx` (the control), `api/_lib/cohortStore.js` (or a small completion store),
+`api/funnel.js` (persist), `src/funnel.js`, relevant tests
+Stop-and-ask if: this changes how graduation/cert + the refund window are determined (money/behavioral) —
+implement, open a PR, and pause for human review. Confirm whether manual completion should also drive the
+student-visible "next class"/reminders or only the progress/done-state.
+
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
