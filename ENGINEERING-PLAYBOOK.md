@@ -275,6 +275,19 @@ a **driver** pursues them. The payoff isn't "more agents"; it's that each next s
 - **Every shipped change is independently verified — regardless of how it was triggered.** Don't let a
   "direct edit" become an unverified path: verification is a property of *shipping*, not of one entry
   point. Scale the check to the change (trivial vs substantive), but never skip it.
+- **A UX/visual or user-facing-copy change is verified by SEEING it, not by reading the diff.** Reading
+  code + grepping is *necessary but not sufficient* for anything a user looks at — the verifier must
+  **render the actual screen and view it** (a real browser screenshot it can Read, exactly as it VIEWS a
+  regenerated diagram PNG in §3) **and/or** the change must add a **deterministic render test** that
+  asserts the visible strings (and asserts the *banned* ones are absent). *Why (this bit us):* a
+  "Week N of 12" → "Lesson N of 12" relabel shipped green — build, tests, an independent verifier, and a
+  hand grep all passed — yet the live dashboard still showed **"WEEK 1 · THIS WEEK"**, because the doer's
+  grep pattern (`WEEK \{`) didn't match the real template (`WEEK ${...}`), no test rendered that header,
+  and the verifier only *read* code. Two grep/read passes share the same blind spot; a render does not.
+  So: on a UI/copy diff, **(a)** the verifier renders + looks (or runs the new render test), and **(b)**
+  prefer a test that pins the rendered string over trusting a grep — a grep that "finds nothing" is as
+  often a bad pattern as a clean result. (This is §3's "VIEW the artifact" generalized from diagrams to
+  every rendered surface.)
 - **Tier the model to the role — cheapen the *work*, never the *rigor*.** Spend the expensive frontier
   model where extra capability changes the outcome — **planning, architecture/design, and high-risk or
   ambiguous tasks** — and run the **bulk execution** on a cheaper, faster model: the independent
@@ -312,6 +325,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-16** — §9: a UX/visual or user-facing-copy change must be verified by **rendering + viewing the actual screen** (or a deterministic render test that asserts the visible strings + absence of banned ones), not by reading the diff + grepping. Shipped "WEEK 1 · THIS WEEK" green because a grep pattern (`WEEK \{`) missed the real template (`WEEK ${...}`) and no test rendered that header — two read/grep passes share the same blind spot; a render doesn't. Generalizes §3's "VIEW the artifact" from diagrams to every rendered surface.
 - **2026-06-15** — §3: diagram labels must be short, plain-English, and name the *function*; push who/when/why detail to the table/prose, not the label. Verbose multi-line edge labels get routed as free-floating blocks by auto-layout and collide into an unreadable wall — so the verifier's PNG check now also fails overlapping/sentence-length labels.
 - **2026-06-15** — §3: when handing a diagram back to the human, deliver the **PDF** (zoomable vector), not just the PNG — it stays crisp when zoomed/printed; the PNG remains for the verifier's inline view.
 - **2026-06-15** — §3: prefer fewer diagrams — fold a closely-related concept (e.g. parallel fan-out) *into* an existing diagram as a single annotation node rather than spawning a second diagram of the same system; two diagrams of one system drift apart and double the upkeep. Encode the cap as an acceptance criterion so the verifier blocks a re-split. (Applied: merged the standalone "parallel fan-out" diagram into the loop diagram's FAN-OUT node.)
