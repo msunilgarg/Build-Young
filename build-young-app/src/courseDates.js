@@ -204,15 +204,16 @@ export function cohortDays(batch) {
 }
 
 // The refund a student gets if they cancel now. Full price before the cohort starts; otherwise
-// prorated by LESSONS NOT YET HELD (the Terms basis). `week` (= lesson number) increments on each
-// advance, so lessons held = week − 1 once started. Prorated over the cohort's own lesson total (12
-// for the standard course). The eligibility window is enforced separately by `canWithdraw` in
-// Platform — this just computes the amount. (T19 reframes this proration explicitly in HOURS.)
+// prorated by HOURS NOT YET HELD — the Terms basis (each lesson = `HOURS_PER_LESSON` hrs, so this is
+// the pace-independent quantity). `week` (= lesson number) increments on each advance, so hours held =
+// (week − 1) × HOURS_PER_LESSON. The eligibility window is enforced separately by `canWithdraw` in
+// Platform — this just computes the amount. (Numerically equals the old lesson-proportion since every
+// lesson is the same length; expressing it in hours keeps the Terms/emails correct at any cadence.)
 export function refundFor(batch, started, week) {
   if (!started) return batch.price;
-  const total = lessonsTotalFor(batch);
-  const unheld = total - (week - 1); // lessons not yet held
-  return Math.round((batch.price * unheld) / total);
+  const totalHours = lessonsTotalFor(batch) * HOURS_PER_LESSON; // 36 for the standard course
+  const heldHours = (week - 1) * HOURS_PER_LESSON;
+  return Math.round((batch.price * (totalHours - heldHours)) / totalHours);
 }
 // The prorated-refund window: a cancellation is only allowed during the first N weeks of class
 // (plus any time before the cohort starts). Change this one number to move the window.

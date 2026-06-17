@@ -54,8 +54,8 @@ describe("withdrawalEmail (refund confirmation)", () => {
     const mail = withdrawalEmail(s, batch, refund, false);
     expect(mail.subject).toMatch(/withdrawal is confirmed/i);
     expect(mail.body).toContain("prorated refund");
-    expect(mail.body).toContain("10 weeks not yet held"); // 12 - (3 - 1)
-    expect(mail.body).toContain("Attended: 2 of 12");        // not 3
+    expect(mail.body).toContain("30 hours not yet held"); // 12 - (3 - 1)
+    expect(mail.body).toContain("Attended: 6 of 36 hours");        // not 3
     expect(mail.body).toContain(`$${refund.toLocaleString()}`);
   });
 });
