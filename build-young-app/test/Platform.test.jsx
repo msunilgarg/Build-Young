@@ -44,17 +44,17 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await enrollToDashboard(user);
 
     await user.click(await screen.findByRole("button", { name: "Course progress" }));
-    expect(await screen.findByText(/Your course, week by week/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Your course, lesson by lesson/i)).toBeInTheDocument();
 
-    // Week 1 is selected by default — its title shows in the left rail + the right pane.
+    // Lesson 1 is selected by default — its title shows in the left rail + the right pane.
     expect(screen.getAllByText(/Find a Problem Worth Solving/i).length).toBeGreaterThan(0);
-    // The week is now tabbed; the activity (build plan) lives in the "Your exercise" tab.
+    // The lesson is now tabbed; the activity (build plan) lives in the "Your exercise" tab.
     await user.click(screen.getByRole("button", { name: "Your exercise" }));
     expect(screen.getByText(/start from the customer/i)).toBeInTheDocument();
 
-    // A future week is locked: selecting it shows the no-spoilers message (no content leaked).
-    await user.click(screen.getByRole("button", { name: /Week 12 \(locked\)/i }));
-    expect(await screen.findByText(/Unlocks when you reach Week 12/i)).toBeInTheDocument();
+    // A future lesson is locked: selecting it shows the no-spoilers message (no content leaked).
+    await user.click(screen.getByRole("button", { name: /Lesson 12 \(locked\)/i }));
+    expect(await screen.findByText(/Unlocks when you reach Lesson 12/i)).toBeInTheDocument();
   });
 
   it("has no serious/critical accessibility violations on the Course hub", async () => {
@@ -69,7 +69,7 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await user.click(await screen.findByRole("button", { name: /Pay \$\d+ \(demo\)/i }));
     await user.click(await screen.findByRole("button", { name: /Open my dashboard/i }));
     await user.click(await screen.findByRole("button", { name: "Course progress" }));
-    await screen.findByText(/Your course, week by week/i);
+    await screen.findByText(/Your course, lesson by lesson/i);
     await expectNoSeriousA11y(container);
   });
 });

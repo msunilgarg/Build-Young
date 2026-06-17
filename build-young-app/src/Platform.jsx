@@ -68,8 +68,8 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           </div>
           <div style={{ flex: "0 1 280px", display: "flex", flexDirection: "column", gap: 14, justifyContent: "center" }}>
             {info.beforeStart && chip(info.days, `${info.days === 1 ? "day" : "days"} until your first class`)}
-            {chip(12, "weeks · 2 sessions/week")}
-            {chip(24, "live sessions in all")}
+            {chip(12, "lessons · 3 hrs each")}
+            {chip(36, "hours of live building")}
           </div>
         </div>
       </Card>
@@ -1305,7 +1305,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <Pill bg={C.turq}>{s.done ? "Graduated"
-            : (s.started || !startInfo.beforeStart ? `Week ${s.week} of 12` : `Starts ${startInfo.shortDate}`)}</Pill>
+            : (s.started || !startInfo.beforeStart ? `Lesson ${s.week} of 12` : `Starts ${startInfo.shortDate}`)}</Pill>
           {onFounder && <button className="btn" onClick={onFounder} style={{ background: "transparent", border: `1.5px solid ${C.turq}`, color: C.turq, padding: "7px 12px", borderRadius: 4, fontSize: 13, fontWeight: 700 }}>Admin</button>}
           <button className="btn" onClick={onExit} style={{ background: "transparent", border: `1.5px solid ${C.line}`, color: C.muted, padding: "7px 12px", borderRadius: 4, fontSize: 13 }}>Exit</button>
         </div>
@@ -1414,8 +1414,8 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
     const bg = !unlocked ? C.paper2 : isCur ? C.emerald : C.green; // done = green, this week = blue (easy to tell apart)
     const fg = unlocked ? "#fff" : C.muted;
     return (
-      <button key={week} type="button" className="tab" aria-label={`Week ${week}${unlocked ? "" : " (locked)"}`} aria-current={isSel ? "true" : undefined}
-        title={unlocked ? w.t : `Week ${week} — locked`} onClick={() => setSelected(week)}
+      <button key={week} type="button" className="tab" aria-label={`Lesson ${week}${unlocked ? "" : " (locked)"}`} aria-current={isSel ? "true" : undefined}
+        title={unlocked ? w.t : `Lesson ${week} — locked`} onClick={() => setSelected(week)}
         style={{ flex: "0 0 auto", width: 38, height: 38, borderRadius: 999, background: bg, color: fg, fontWeight: 800, fontSize: 14, cursor: "pointer", display: "grid", placeItems: "center", boxShadow: isSel ? `0 0 0 3px ${C.ink}` : "none", border: "none" }}>
         {unlocked ? week : <Lock size={13} />}
       </button>
@@ -1427,7 +1427,7 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
     <Card style={{ padding: 22 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: selStatusColor, letterSpacing: ".04em" }}>WEEK {selected} · {selStatus.toUpperCase()}</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: selStatusColor, letterSpacing: ".04em" }}>LESSON {selected} · {selStatus.toUpperCase()}</div>
           <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{selW.t}</div>
         </div>
         {batch && (() => {
@@ -1471,8 +1471,8 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
   return (
     <div className="rise">
       <Card style={{ padding: 20, marginBottom: 12 }}>
-        <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Your course, week by week</div>
-        <div style={{ fontSize: 13.5, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>Tap any week you've reached to see its activity, materials, and resources. Weeks unlock as you get there.</div>
+        <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Your course, lesson by lesson</div>
+        <div style={{ fontSize: 13.5, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>Tap any lesson you've reached to see its activity, materials, and resources. Lessons unlock as you get there.</div>
         <div style={{ display: "flex", gap: 9, alignItems: "center", flexWrap: "wrap", marginTop: 14 }}>
           {WEEKS.map((w, i) => step(i + 1))}
         </div>
@@ -1496,9 +1496,9 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
             <WeekPanel s={{ ...s, week: selected, phase: "course", started: true }} setState={setState} batch={batch} cert={cert} preview />
           ) : !selUnlocked ? (
             <Card style={{ padding: 22 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".04em" }}>WEEK {selected} · UPCOMING</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".04em" }}>LESSON {selected} · UPCOMING</div>
               <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: C.muted, background: C.paper, borderRadius: 4, padding: "12px 14px", marginTop: 12 }}>
-                <Lock size={15} style={{ flexShrink: 0 }} /> Unlocks when you reach Week {selected}. No spoilers — keep your focus on where you are now.
+                <Lock size={15} style={{ flexShrink: 0 }} /> Unlocks when you reach Lesson {selected}. No spoilers — keep your focus on where you are now.
               </div>
             </Card>
           ) : isThisWeek ? (
