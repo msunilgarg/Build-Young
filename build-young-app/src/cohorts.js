@@ -23,6 +23,9 @@
 //                twice-weekly day-pair → `[[0,2],[7,9], …, [77,79]]`); supply it for an accelerated
 //                cohort (more lessons/week → fewer calendar weeks). All calendar/progression/refund
 //                math derives from it — see `cohortLessons` in courseDates.js.
+//   - manualLesson (OPTIONAL) — founder progress override: 0/absent = AUTO (follow the calendar),
+//                1..12 = the cohort is on that lesson, 13 = graduated. The dashboard reads
+//                `effectivePosition` (this when set, else the calendar) — see courseDates.js.
 
 // Follow-up check-ins after the 12-week course. The program is now 12 weeks flat — the finale is
 // the Week 12 capstone (no separate check-in call, no tuition prize) — so this is 0. Kept as a

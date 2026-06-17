@@ -223,6 +223,21 @@ export function coursePosition(batch, now = new Date()) {
   for (const sits of lessons) if (sits[0] <= offset) week++;
   return { week: Math.min(lessons.length, Math.max(1, week)), started: true, done };
 }
+// The EFFECTIVE course position the dashboard uses: a founder's MANUAL override when set, else the
+// calendar-derived `coursePosition`. The override is the per-cohort `manualLesson` integer — 0/absent
+// = AUTO (follow the calendar), 1..total = the cohort is on that lesson (started, not done), and
+// > total = graduated (done). So a founder can mark a cohort ahead/behind its dates (an intensive that
+// ran fast, a snow-day, etc.), and progression/graduation/refund all follow it; cohorts without an
+// override behave EXACTLY as the calendar (today's behavior). `now` injectable for tests.
+export function effectivePosition(batch, now = new Date()) {
+  const m = Number(batch && batch.manualLesson);
+  if (Number.isInteger(m) && m >= 1) {
+    const total = lessonsTotalFor(batch);
+    if (m > total) return { week: total, started: true, done: true };       // founder marked graduated
+    return { week: m, started: true, done: false };                          // on lesson m
+  }
+  return coursePosition(batch, now); // auto / no override → calendar
+}
 // The time-of-day portion of a cohort's `day` label ("Mondays & Wednesdays · 5:00–6:30 PM PT").
 export function cohortTime(batch) {
   const parts = String((batch && batch.day) || "").split("·");
