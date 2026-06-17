@@ -26,28 +26,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T18 — Make class/exercise completion manually controllable from the admin dashboard  ·  risk: high
-Goal: the founder can mark a cohort's progress (which exercises are complete) by hand from the founder
-console, instead of completion being computed *only* from the calendar — so a class that runs ahead/behind
-its schedule reflects reality (and an intensive isn't at the mercy of date math).
-Acceptance criteria:
-- A per-cohort, founder-editable **"completed through exercise N"** value, persisted in KV (mirroring the
-  cohort catalog / site settings pattern) and saved via the founder-gated `PUT /api/funnel`.
-- A control in the **founder console** (e.g. in the teaching-schedule or cohort editor) to bump/set it —
-  "mark this class complete" / set the current exercise — with clear current-vs-scheduled context.
-- `coursePosition` (or a thin wrapper the dashboard consumes) treats the **manual value as authoritative
-  when set**, and **falls back to the calendar-derived position when unset** — so existing cohorts with no
-  manual value behave exactly as today (T14's calendar default). Graduation/cert minting and the refund
-  "exercises held" basis follow the effective (manual-or-calendar) position consistently.
-- Aggregate/no-PII preserved; build + tests green; a test covers manual-overrides-calendar + unset-falls-back.
-Files: `src/courseDates.js` (effective-position helper), `src/Platform.jsx` (consume it),
-`src/FounderDashboard.jsx` (the control), `api/_lib/cohortStore.js` (or a small completion store),
-`api/funnel.js` (persist), `src/funnel.js`, relevant tests
-Stop-and-ask if: this changes how graduation/cert + the refund window are determined (money/behavioral) —
-implement, open a PR, and pause for human review. Confirm whether manual completion should also drive the
-student-visible "next class"/reminders or only the progress/done-state.
-
----
 ## [ ] T25 — Founder controls the order cohorts appear (sort from the dashboard)  ·  risk: med
 Goal: the founder decides the sequence cohorts show in — e.g. an August cohort appears BEFORE a
 September one — managed from the dashboard, not by creation/array order.
@@ -66,6 +44,9 @@ Stop-and-ask if: founder-only + reversible → none.
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T18 — Founder can manually set a cohort's progress (effectivePosition override)  ·  risk: high
+Done (PR #433; merged, full-auto). New courseDates.effectivePosition(batch) = per-cohort manualLesson override when set (1..12 on that lesson; 13 graduated) else the calendar coursePosition (unchanged). Platform position-sync uses it, so progression/cert(done)/refund(s.week) follow it; cohorts without an override are identical. Cohort editor "Progress override" select; sanitizeCatalog clamps 0..13. CLAUDE.md + cohorts.js doc. test/effective-position.test.js; build + 277; Sonnet-verified (override + cert/refund cascade + fallback deep-equals).
 
 ## [x] T24 — Make the whole cohort card founder-editable (badge/format/blurb)  ·  risk: med
 Done (PR #432; merged). CARD_DEFAULTS (cohorts.js) + optional per-cohort audience/format/blurb; Landing card renders `b.field || default` (badge suffix, format line, description blurb), pace line stays computed (T23). Cohort editor gains the two inputs + a blurb textarea; sanitizeCatalog trims/whitelists. test/card-copy.test.js; build + 273; Sonnet-verified by rendering the card (defaults + overrides) + the editor inputs.
