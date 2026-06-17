@@ -53,7 +53,22 @@ export const BATCHES = [
   // automatically; the seasons already exist in SEASONS above so they render as "Not yet scheduled".
 ];
 
-export const seasonLabel = (key) => (SEASONS.find((s) => s.key === key) || {}).label || "";
+export const seasonLabel = (key) => (SEASONS.find((s) => s.key === key) || {}).label || titleCase(key);
+// Title-case a raw season key for display when it's not one of the predefined SEASONS (e.g. a founder
+// adds a "summer" cohort → "Summer"). Keeps custom seasons readable without a hardcoded label.
+function titleCase(k) {
+  return String(k || "").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+// The seasons to DISPLAY (landing tabs + enroll dropdown): the predefined SEASONS plus any season key
+// that actually appears in the live catalog but isn't predefined — so a founder-created cohort in a new
+// season (e.g. "summer") shows up instead of being orphaned. Predefined first, then extras in first-seen
+// order. Each entry is `{ key, label, note }`.
+export function catalogSeasons(batches) {
+  const extra = [...new Set((batches || []).map((b) => b && b.season).filter(Boolean))]
+    .filter((k) => !SEASONS.some((s) => s.key === k))
+    .map((k) => ({ key: k, label: seasonLabel(k), note: "" }));
+  return [...SEASONS, ...extra];
+}
 
 // Editable cohort-card COPY — the parts of the enroll/landing card that aren't structural data.
 // Each is an OPTIONAL per-cohort string (`audience`/`format`/`blurb`); these are the DEFAULTS used

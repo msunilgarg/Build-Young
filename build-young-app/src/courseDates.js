@@ -46,19 +46,19 @@ export function cohortSummary(batch) {
   return { lessons, hours, weeks, hoursPerWeek: Math.round(hours / weeks) };
 }
 // Build a `lessons` schedule from founder-friendly pace inputs (used by the cohort editor) — the
-// inverse of cohortLessons. Lays the 12 lessons at a fixed stride and spaces each lesson's sittings
-// `gapDays` apart; the stride is the larger of "fit `lessonsPerWeek` into 7 days" and "the span a
-// lesson's own sittings need" (so offsets stay strictly ascending — no collisions). At the defaults
-// (1 lesson/week, 2 sittings) it reproduces the flagship `[[0,2],[7,9], …, [77,79]]` exactly.
+// inverse of cohortLessons. Places `lessonsPerWeek` lessons on CONSECUTIVE days within each 7-day week
+// (then jumps to the next week), spacing each lesson's own sittings `gapDays` apart — so the schedule
+// lands on real class days and doesn't trickle across weekends. From a Monday start, 4 lessons/week →
+// Mon–Thu each week (12 lessons = 3 weeks). At the defaults (1 lesson/week, 2 sittings) it reproduces
+// the flagship `[[0,2],[7,9], …, [77,79]]` exactly. `week` index ⇒ offsets stay ascending per lesson.
 export function buildLessonSchedule({ lessonsPerWeek = 1, sittingsPerLesson = 2, gapDays = 2 } = {}) {
   const lpw = Math.max(1, Math.round(lessonsPerWeek));
   const spl = Math.max(1, Math.round(sittingsPerLesson));
   const gap = Math.max(1, Math.round(gapDays));
-  const span = (spl - 1) * gap;                       // days a lesson's sittings span
-  const stride = Math.max(Math.ceil(7 / lpw), span + 1); // days between lesson starts (no overlap)
+  const intra = (spl - 1) * gap + 1;                  // days between lesson-starts WITHIN a week
   const out = [];
   for (let i = 0; i < LESSONS_TOTAL; i++) {
-    const base = i * stride;
+    const base = Math.floor(i / lpw) * 7 + (i % lpw) * intra; // reset to a new week every `lpw` lessons
     out.push(Array.from({ length: spl }, (_, s) => base + s * gap));
   }
   return out;
