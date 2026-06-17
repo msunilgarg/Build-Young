@@ -4,7 +4,7 @@ import { C, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, Pill, act } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, postJson } from "./lib.js";
 import { cohortClosed, cohortSummary } from "./courseDates.js";
-import { SEASONS, seasonLabel, CARD_DEFAULTS, sortCohorts } from "./cohorts.js";
+import { SEASONS, seasonLabel, CARD_DEFAULTS, sortCohorts, catalogSeasons } from "./cohorts.js";
 import { ACTS } from "./course.js";
 
 // The marketing landing page + all its sub-pieces (hero preview, product teaser, testimonials,
@@ -411,7 +411,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
         </div>
         {/* season selector */}
         <div role="tablist" aria-label="Choose a season" style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 22 }}>
-          {SEASONS.map((s) => {
+          {catalogSeasons(BATCHES).map((s) => {
             const on = season === s.key;
             const open = BATCHES.some((b) => b.season === s.key);
             return (

@@ -4,7 +4,7 @@ import { C } from "./theme.js";
 import { Card, Mark, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, setPendingEnroll } from "./lib.js";
 import { cohortClosed, cohortSummary } from "./courseDates.js";
-import { SEASONS, seasonLabel, sortCohorts } from "./cohorts.js";
+import { SEASONS, seasonLabel, sortCohorts, catalogSeasons } from "./cohorts.js";
 import { WhyStrip, HesitationStrip } from "./WhyStrip.jsx";
 
 // 3-step enrollment: details (step 1), payment (Stripe link or demo), confirmation.
@@ -58,7 +58,7 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
               <div>
                 <div><div style={label}>Batch</div>
                   <select aria-label="Batch" value={batch} onChange={(e) => { setBatch(e.target.value); setNotified(false); }} style={inputS}>
-                    {SEASONS.filter((s) => BATCHES.some((x) => x.season === s.key)).map((s) => (
+                    {catalogSeasons(BATCHES).filter((s) => BATCHES.some((x) => x.season === s.key)).map((s) => (
                       <optgroup key={s.key} label={s.label}>
                         {sortCohorts(BATCHES.filter((x) => x.season === s.key)).map((x) => (
                           <option key={x.id} value={x.id}>{x.day.split(" · ")[0]} (starts {x.start}){cohortClosed(x) ? " — ENROLLMENT FULL" : ""}</option>
