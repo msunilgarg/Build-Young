@@ -26,6 +26,87 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
+## [ ] T14 — Make cohort *pace* a per-cohort property (decouple "exercise" from "7-day week")  ·  risk: high
+Goal: the course's atomic unit becomes the **3-hour exercise** (12 exercises = 36 hrs, invariant), and a
+cohort carries *how fast it delivers them*, so the same curriculum can run as the 12-week flagship OR a
+compressed schedule — with **today's behavior reproduced exactly when the new fields are absent/default**.
+Acceptance criteria:
+- `src/cohorts.js`: each cohort gains optional pace fields (e.g. `weeksTotal`, `sessionsPerWeek` — or an
+  explicit session schedule) with **defaults = today's 12 / 2-per-week / 7-day cadence**. No new *cohort*
+  added in this task (schema + defaults only).
+- `src/courseDates.js`: `coursePosition`, `classMeetingOn`, `nextClass`, `sessionDate`, `checkinDateLabel`,
+  and `refundFor` stop hard-coding `12` / `÷12` / `% 7` / "2 sessions" and instead derive from the cohort's
+  pace — progression keyed off **exercises delivered**, the end/grad date off the cohort's real schedule.
+- **Invariance proof:** all existing cohorts (no pace fields) behave **identically** — every current
+  `test/engine.test.js` / `test/schedule.test.js` case stays green unchanged.
+- New unit tests cover the pace math at a compressed cadence (e.g. 3 exercises/week → exercise N on the
+  right calendar day; correct end/grad date; refund prorates over the cohort's own total).
+- Curriculum content, per-exercise activities, and the certificate are untouched (already exercise-indexed).
+Files: `src/courseDates.js`, `src/cohorts.js`, `api/_lib/cohortStore.js` (normalize/carry the new fields),
+`test/engine.test.js`, new `test/course-pace.test.js`
+Stop-and-ask if: (a) **delivery shape** — confirm an exercise is delivered as two 90-min sessions (current
+model, the default) vs one 3-hr session; (b) **refund "first week" window** — confirm it means the first 7
+calendar days (student-friendly, default) vs the first exercise. Both diverge once exercises come fast — get
+the human's call at the PR pause before dependent tasks build on the model.
+
+## [ ] T15 — Dashboard progress + "next class" become pace-truthful  ·  risk: med
+Goal: the student dashboard reports progress as **"Exercise N of 12"** (pace-agnostic) and shows the next
+live session from the cohort's **real schedule**, so an accelerated cohort isn't mislabeled "Week N of 12".
+Acceptance criteria:
+- Progress indicator/pill is exercise-based (reads `coursePosition`); for a flagship 12-week cohort it still
+  reads naturally (exercise 6 ≈ week 6) — i.e. flagship UX visibly unchanged.
+- The "next class" banner + pre-start countdown derive from the cohort schedule (real end date, next session
+  could be sooner than +7 days), not `start + (week−1)×7`.
+- The 3-act journey, per-exercise activities, withdrawal, and cert card render unchanged.
+Files: `src/Platform.jsx`, `src/courseDates.js` (consume only — no new behavior), `test/Platform.test.jsx`
+Stop-and-ask if: the change is outward-facing visual — pause for a screenshot sign-off before merge (per the
+T12/T13 pattern).
+
+## [ ] T16 — Add the 4-week intensive cohort + honest cohort cards  ·  risk: med
+Goal: a real intensive cohort exists and the enroll surfaces tell the truth about pace, with the **flagship
+12-week messaging kept as the headline** (the intensive is an *alternate schedule*, not a rebrand).
+Acceptance criteria:
+- `src/cohorts.js`: one intensive `BATCHES` row using T14's pace fields (12 exercises over ~4 weeks; price
+  per the founder's call — default same `$999`).
+- Landing "Upcoming batches" card + enroll dropdown show, for the intensive: a computed **end date**, the
+  **meeting pattern**, and **hours/week**, plus one line tying them together ("the same 36-hour, 12-exercise
+  course — choose your pace"). Flagship cards/copy unchanged.
+- `landing-lean` guard stays green (no long-form added); a11y preserved.
+Files: `src/cohorts.js`, `src/Landing.jsx`, `src/Enroll.jsx`, relevant tests
+Stop-and-ask if: outward-facing copy/visual — pause for sign-off; confirm the intensive's price + exact dates.
+
+## [ ] T17 — Founder schedule, class reminders & funnel curve follow the cohort pace  ·  risk: med
+Goal: the founder/ops surfaces and analytics work for any pace, not just weekly.
+Acceptance criteria:
+- Founder console teaching-schedule view ("what am I teaching today/next") computes from the cohort's real
+  schedule (handles several sessions/week), not the `%7` day-pair.
+- The cron "prepare for next session" reminder fires per the actual schedule (multiple per week).
+- The funnel progression curve becomes **exercise 2→12** (still 12 points) so intensive and standard cohorts
+  stay comparable on one chart.
+Files: `src/FounderDashboard.jsx`, `api/_lib/schedule.js`, `api/cron/market-news.js`, `src/funnel.js`,
+`api/funnel.js`, `test/schedule.test.js`, `test/funnel.test.js`
+
+## [ ] T18 — Make class/exercise completion manually controllable from the admin dashboard  ·  risk: high
+Goal: the founder can mark a cohort's progress (which exercises are complete) by hand from the founder
+console, instead of completion being computed *only* from the calendar — so a class that runs ahead/behind
+its schedule reflects reality (and an intensive isn't at the mercy of date math).
+Acceptance criteria:
+- A per-cohort, founder-editable **"completed through exercise N"** value, persisted in KV (mirroring the
+  cohort catalog / site settings pattern) and saved via the founder-gated `PUT /api/funnel`.
+- A control in the **founder console** (e.g. in the teaching-schedule or cohort editor) to bump/set it —
+  "mark this class complete" / set the current exercise — with clear current-vs-scheduled context.
+- `coursePosition` (or a thin wrapper the dashboard consumes) treats the **manual value as authoritative
+  when set**, and **falls back to the calendar-derived position when unset** — so existing cohorts with no
+  manual value behave exactly as today (T14's calendar default). Graduation/cert minting and the refund
+  "exercises held" basis follow the effective (manual-or-calendar) position consistently.
+- Aggregate/no-PII preserved; build + tests green; a test covers manual-overrides-calendar + unset-falls-back.
+Files: `src/courseDates.js` (effective-position helper), `src/Platform.jsx` (consume it),
+`src/FounderDashboard.jsx` (the control), `api/_lib/cohortStore.js` (or a small completion store),
+`api/funnel.js` (persist), `src/funnel.js`, relevant tests
+Stop-and-ask if: this changes how graduation/cert + the refund window are determined (money/behavioral) —
+implement, open a PR, and pause for human review. Confirm whether manual completion should also drive the
+student-visible "next class"/reminders or only the progress/done-state.
+
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done

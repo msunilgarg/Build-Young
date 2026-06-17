@@ -16,6 +16,12 @@
 //               start + (N-1)*7 days. The weekdays are echoed in `day`.
 //   - day     — human label, e.g. "Mondays & Wednesdays · 5:00–6:30 PM PT"
 //   - seats / price / zoom — enrollment + class details
+//   - schedule (OPTIONAL) — the cohort's PACE: an ascending array of integer day-offsets from
+//                `start`, one per live session (two sessions = one 3-hr exercise; 12 exercises = 36
+//                hrs, invariant). Omit it for the flagship cadence (1 exercise/week, twice weekly →
+//                offsets [0,2, 7,9, …]); supply it for an accelerated cohort (more sessions/week, so
+//                the same 12 exercises finish in fewer calendar weeks). All calendar/progression/
+//                refund math derives from it — see `cohortSchedule` in courseDates.js.
 
 // Follow-up check-ins after the 12-week course. The program is now 12 weeks flat — the finale is
 // the Week 12 capstone (no separate check-in call, no tuition prize) — so this is 0. Kept as a
