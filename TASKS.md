@@ -44,18 +44,26 @@ Files: `src/courseDates.js`, `src/engine.js`, `src/Legal.jsx`, `public/terms.htm
 Stop-and-ask if: money + attorney-reviewed Terms copy — implement, open a PR, pause for human review. Also
 confirm granularity: per-EXERCISE (3-hr blocks) hours vs finer per-SESSION (1.5-hr) hours.
 
-## [ ] T16 — Add the 4-week intensive cohort + honest cohort cards  ·  risk: med
-Goal: a real intensive cohort exists and the enroll surfaces tell the truth about pace, with the **flagship
-12-week messaging kept as the headline** (the intensive is an *alternate schedule*, not a rebrand).
+## [ ] T21 — Founder console: create a cohort with ANY lesson schedule (not just weekly-12)  ·  risk: med
+Goal: from the founder dashboard's **cohort editor**, the founder can set a cohort's PACE — how its 12
+lessons land on the calendar and how each lesson's sittings are scheduled — writing the per-cohort
+`lessons` array (T20). So an accelerated/custom-cadence cohort is created from the console, no code and no
+hard-coded cohort (**supersedes the old T16**). Blank/default = today's weekly flagship cadence.
 Acceptance criteria:
-- `src/cohorts.js`: one intensive `BATCHES` row using T14's pace fields (12 exercises over ~4 weeks; price
-  per the founder's call — default same `$999`).
-- Landing "Upcoming batches" card + enroll dropdown show, for the intensive: a computed **end date**, the
-  **meeting pattern**, and **hours/week**, plus one line tying them together ("the same 36-hour, 12-exercise
-  course — choose your pace"). Flagship cards/copy unchanged.
-- `landing-lean` guard stays green (no long-form added); a11y preserved.
-Files: `src/cohorts.js`, `src/Landing.jsx`, `src/Enroll.jsx`, relevant tests
-Stop-and-ask if: outward-facing copy/visual — pause for sign-off; confirm the intensive's price + exact dates.
+- The cohort editor exposes a **pace control** that produces a valid `lessons` schedule (array, one entry
+  per lesson, of that lesson's sitting day-offsets from `start`) via a **founder-friendly** input — e.g.
+  lessons-per-week + sittings-per-lesson + weekday(s), or per-lesson date pickers — **not** raw offsets.
+  Left blank → the flagship weekly cadence (existing cohorts unchanged).
+- Shows a **computed preview**: the resulting end date + the per-lesson dates, so the founder sees the
+  schedule they built before saving.
+- Saved via the existing founder-gated `PUT /api/funnel`; `sanitizeLessons` (T20, `cohortStore.js`) already
+  validates it; it round-trips on reload. The created cohort drives `coursePosition`/`nextClass`/refund via
+  the T14/T20 infra.
+- Build + tests green; a test covers building an accelerated schedule + round-trip. **VERIFY BY RENDERING**
+  the cohort editor (per playbook §9 — UX is verified by viewing, not reading the diff).
+Files: `src/FounderDashboard.jsx`, `api/_lib/cohortStore.js` (validation exists), `src/courseDates.js`
+(a schedule-builder helper if useful), `test/cohorts-endpoints.test.js` + a FounderDashboard test
+Stop-and-ask if: founder-only console + reversible → none expected. Flag if the schedule-builder UX needs a product call.
 
 ## [ ] T17 — Founder schedule, class reminders & funnel curve follow the cohort pace  ·  risk: med
 Goal: the founder/ops surfaces and analytics work for any pace, not just weekly.

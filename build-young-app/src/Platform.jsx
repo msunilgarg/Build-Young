@@ -1389,7 +1389,7 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
   // Preview (every week open + each shows its full activity) is for the FOUNDER only, for course
   // authoring — students always get normal gating (only Lesson 1 open on signup; later lessons unlock
   // as they advance).
-  const previewAll = CONFIG.previewAllLessons&& isFounder;
+  const previewAll = CONFIG.previewAllWeeks && isFounder;
   const offCourse = s.phase !== "course"; // in check-ins / graduated, the 12 weeks are all done
   const currentWeek = offCourse ? 12 : s.week;
   const [selected, setSelected] = useState(currentWeek); // which week's content is shown below
@@ -1484,7 +1484,7 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
       </Card>
 
       {previewAll && (
-        <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, margin: "0 2px 8px" }}>Preview mode — every week is open for authoring (set CONFIG.previewAllLessonsfalse to lock).</div>
+        <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, margin: "0 2px 8px" }}>Preview mode — every lesson is open for authoring (set CONFIG.previewAllWeeks=false to lock).</div>
       )}
 
       {/* selected week, full width. Preview: render the SELECTED week's activity (so any week can
