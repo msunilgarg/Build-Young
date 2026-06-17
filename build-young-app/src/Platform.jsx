@@ -1162,7 +1162,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
   const canWithdraw = canWithdrawNow(s); // pre-start, or within the first REFUND_WEEKS weeks
   // `week` increments on each advance (attending session 1 moves you to "Lesson 2"), so sessions
   // actually held = week − 1 once started. Refund covers every session NOT yet held — matching
-  // the Terms ("the fraction of the program's weeks not yet held").
+  // the Terms ("the fraction of the program's hours not yet held").
   const attended = notStarted ? 0 : s.week - 1;
   const unheld = 12 - attended;
   const refund = refundFor(batch, s.started, s.week);
@@ -1268,7 +1268,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
                 <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>
                   {notStarted
                     ? <>Your cohort hasn't started yet, so you'll receive a <b>full refund of {fmt(refund)}</b> — no questions asked. This frees up your seat for someone else.</>
-                    : <>You've attended {attended} of 12 weeks. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {unheld} weeks not yet held. Refunds are available only through the {REFUND_WINDOW}, so this can't be reversed.</>}
+                    : <>You've attended {attended * 3} of 36 hours. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {unheld * 3} hours not yet held. Refunds are available only through the {REFUND_WINDOW}, so this can't be reversed.</>}
                 </p>
                 <label style={{ display: "block", marginTop: 16 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: C.ink2, display: "block", marginBottom: 5 }}>Reason for cancelling <span style={{ color: C.rust }}>*</span></span>
@@ -1330,7 +1330,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
               <div style={{ fontSize: 13, color: C.muted, maxWidth: 560 }}>
                 {notStarted
                   ? <>Changed your mind before the first class? Cancel any time before your cohort starts on <b style={{ color: C.ink }}>{classDateLabel(batch, 1)}</b> for a <b style={{ color: C.ink }}>full refund of {fmt(refund)}</b> — no questions asked.</>
-                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> through the end of the {REFUND_WINDOW} — up until your Week {REFUND_WEEKS + 1} session on <b style={{ color: C.ink }}>{classDateLabel(batch, REFUND_WEEKS + 1)}</b>. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {unheld} sessions you haven't attended.</>}
+                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> through the end of the {REFUND_WINDOW} — up until your Lesson {REFUND_WEEKS + 1} session on <b style={{ color: C.ink }}>{classDateLabel(batch, REFUND_WEEKS + 1)}</b>. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {unheld * 3} hours you haven't attended.</>}
               </div>
               <button className="btn" onClick={() => setWithdraw("confirm")} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "9px 14px", borderRadius: 4, fontSize: 13 }}>{notStarted ? "Cancel enrollment" : "Withdraw"}</button>
             </Card>
@@ -1338,7 +1338,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
           {!canWithdraw && s.started && s.phase === "course" && s.week > REFUND_WEEKS && (
             <Card style={{ padding: 14, marginTop: 14 }}>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
-                The refund window closed at the end of the {REFUND_WINDOW}. Past that point, tuition is non-refundable — but you keep full access through all 12 weeks.
+                The refund window closed at the end of the {REFUND_WINDOW}. Past that point, tuition is non-refundable — but you keep full access through all 12 lessons.
               </div>
             </Card>
           )}

@@ -43,7 +43,7 @@ export function followupEmail(s, week, batch) {
     body: last
       ? `Hi ${first},
 
-You finished all 12 weeks of Build Young.
+You finished all 12 lessons of Build Young.
 
 You built something real, took it live, and learned how to grow it and go after your first customers. Your certificate of completion is waiting in your dashboard — download it and add it to LinkedIn.
 
@@ -97,10 +97,10 @@ Take care,
 The Build Young Team`
       : `Hi ${first},
 
-We've processed your withdrawal from the ${batch.track} cohort and started your refund. A prorated refund of ${fmt(refund)} — covering the ${unheld} weeks not yet held — will be returned to your original payment method, typically within 5–10 business days.
+We've processed your withdrawal from the ${batch.track} cohort and started your refund. A prorated refund of ${fmt(refund)} — covering the ${unheld * 3} hours not yet held — will be returned to your original payment method, typically within 5–10 business days.
 
   •  Cohort: ${batch.track} — ${batch.day}
-  •  Attended: ${attended} of 12 weeks
+  •  Attended: ${attended * 3} of 36 hours
   •  Refund: ${fmt(refund)} (prorated)${reasonText ? `\n  •  Reason: ${reasonText}` : ""}
 
 Thanks for giving it a try — you're welcome back anytime. Just reply to this email if anything looks off.
