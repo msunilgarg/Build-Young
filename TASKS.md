@@ -26,16 +26,34 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
+## [ ] T20 — Lesson-based pace model: a lesson = 3 hrs, with FLEXIBLE sittings (don't hardcode 2/lesson)  ·  risk: high
+Goal: make the **3-hour LESSON** the unit (12 lessons = 36 hrs, invariant) and let each lesson be delivered
+as ANY number of live sittings the founder schedules — flagship = two 90-min sittings; an accelerated cohort
+may use one 3-hr slot or several short ones. Do NOT hardcode "2 sittings/lesson" (T14's interim assumption);
+the lesson (3 hrs) is the only fixed unit, sitting cadence is fully flexible per cohort.
+Acceptance criteria:
+- Represent the schedule as **lessons → their sitting day-offsets** (e.g. `lessons: [[0,2],[7,9], …]`) so
+  sittings-per-lesson varies per cohort. Absent → the flagship default (12 lessons × `[7w, 7w+2]`),
+  reproducing today's behavior EXACTLY.
+- Rename the internal unit exercise→**lesson** (`LESSONS_TOTAL`, `lessonsTotalFor`, `cohortLessons`); keep
+  back-compat re-exports if anything still imports the old names. `coursePosition` reports the current
+  LESSON; `refundFor` prorates over lessons (× 3 hrs); `classMeetingOn`/`nextClass`/`sessionDate` work
+  across all sittings of all lessons.
+- Every existing `engine.test.js` + `course-pace.test.js` invariance case stays green; add a test for a
+  cohort whose lessons have a NON-2 sitting count (e.g. one lesson = 1 sitting, another = 3).
+Files: `src/courseDates.js`, `src/cohorts.js`, `api/_lib/cohortStore.js`, `test/course-pace.test.js`
+Stop-and-ask if: foundation + behavioral — implement, open a PR, pause for human review.
+
 ## [ ] T19 — Refund proration by HOURS (not weeks); keep the 1-week window  ·  risk: high
 Goal: the prorated refund is computed from HOURS of the course delivered/remaining (the pace-independent
 quantity), not calendar weeks — and the full-refund eligibility window stays "1 week" as today.
-Context: each exercise = 3 hrs; 12 exercises = 36 hrs. Today `refundFor` already prorates by EXERCISES (so
-it's numerically hours-correct at 3-hr granularity); this task makes the BASIS explicitly hours and fixes
-the copy that still says "weeks" so the Terms/emails read correctly at any cadence.
+Context: each lesson = 3 hrs; 12 lessons = 36 hrs. After T20 `refundFor` prorates by LESSONS (so it's
+numerically hours-correct at 3-hr granularity); this task makes the BASIS explicitly hours and fixes the
+copy that still says "weeks" so the Terms/emails read correctly at any cadence.
 Acceptance criteria:
 - `refundFor` expressed in hours: `refund = price × (totalHours − heldHours) / totalHours`, where
-  `totalHours = exercisesTotalFor(batch) × HOURS_PER_EXERCISE` (3) and `heldHours = (week−1) × 3`. Flagship
-  amounts unchanged ($916 at "week 2", $833 at "week 3").
+  `totalHours = lessonsTotalFor(batch) × HOURS_PER_LESSON` (3) and `heldHours = (lesson−1) × 3`. Flagship
+  amounts unchanged ($916 after lesson 1, $833 after lesson 2).
 - Eligibility window unchanged: `REFUND_WEEKS = 1` (the first week) — do NOT widen it.
 - Copy synced from "weeks not yet held" / "X of 12 weeks" → HOURS wording in `engine.js`
   (`withdrawalEmail`), the in-app `LEGAL` Terms, and `public/terms.html` (all three kept in sync).
@@ -45,12 +63,12 @@ Stop-and-ask if: money + attorney-reviewed Terms copy — implement, open a PR, 
 confirm granularity: per-EXERCISE (3-hr blocks) hours vs finer per-SESSION (1.5-hr) hours.
 
 ## [ ] T15 — Dashboard progress + "next class" become pace-truthful  ·  risk: med
-Goal: the student dashboard reports progress as **"Exercise N of 12"** (pace-agnostic) and shows the next
-live session from the cohort's **real schedule**, so an accelerated cohort isn't mislabeled "Week N of 12".
+Goal: the student dashboard reports progress as **"Lesson N of 12"** (pace-agnostic) and shows the next
+live sitting from the cohort's **real schedule**, so an accelerated cohort isn't mislabeled "Week N of 12".
 Acceptance criteria:
-- Progress indicator/pill is exercise-based (reads `coursePosition`); for a flagship 12-week cohort it still
-  reads naturally (exercise 6 ≈ week 6) — i.e. flagship UX visibly unchanged.
-- The "next class" banner + pre-start countdown derive from the cohort schedule (real end date, next session
+- Progress indicator/pill is **lesson-based** (reads `coursePosition`); for a flagship 12-week cohort it
+  still reads naturally (lesson 6 ≈ week 6) — i.e. flagship UX visibly unchanged.
+- The "next class" banner + pre-start countdown derive from the cohort schedule (real end date, next sitting
   could be sooner than +7 days), not `start + (week−1)×7`.
 - The 3-act journey, per-exercise activities, withdrawal, and cert card render unchanged.
 Files: `src/Platform.jsx`, `src/courseDates.js` (consume only — no new behavior), `test/Platform.test.jsx`
