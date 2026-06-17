@@ -178,10 +178,10 @@
 
   <!-- RIGHT: pause -->
   <rect class="plain" x="864" y="414" width="356" height="56" rx="8"/>
-  <text class="nlb" x="1042" y="436" text-anchor="middle">⏸ Pause for human review</text>
-  <text class="nl" x="1042" y="454" text-anchor="middle">high-risk / outward-facing → open PR, don't merge</text>
+  <text class="nlb" x="1042" y="436" text-anchor="middle">⏸ Pause only on a HARD FLOOR</text>
+  <text class="nl" x="1042" y="454" text-anchor="middle">irreversible real-world side-effect → confirm; else FULL AUTO</text>
   <path class="edge" d="M778,500 C 836,498 826,444 864,442" marker-end="url(#arr)"/>
-  <text class="elabelr" x="844" y="476" text-anchor="middle">high-risk</text>
+  <text class="elabelr" x="844" y="476" text-anchor="middle">hard floor</text>
 
   <!-- RIGHT: machinery (compact) — much of it IS GitHub — plumbed into Ship -->
   <rect class="toollite" x="864" y="486" width="700" height="104" rx="10"/>
@@ -197,7 +197,7 @@
   <text class="nlb" x="1402" y="634" text-anchor="middle">🌐 Live site — Vercel</text>
   <text class="nl" x="1402" y="652" text-anchor="middle">auto-deploys on squash-merge to main</text>
   <path class="edge" d="M810,616 C 1010,648 1130,644 1240,640" marker-end="url(#arr)"/>
-  <text class="elabel" x="1040" y="664" text-anchor="middle">low/med → squash-merge → deploy</text>
+  <text class="elabel" x="1040" y="664" text-anchor="middle">verified (any risk) → squash-merge → deploy</text>
 
   <!-- 🧩 alignment to the standard multi-agent coordination patterns — same iconography
        (○ = agent · ◇ = decision · ▭ = task · ▮ = synthesize), mapped to our components -->

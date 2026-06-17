@@ -16,20 +16,20 @@ import { SCENARIO_GROUPS } from "./scenarios.js";
 
 const PREREQS = [
   { id: "computer", title: "A laptop or desktop", when: "Day one", why: "You'll be writing, building, and checking your app — much easier on a real keyboard and screen than a phone or tablet. A modern web browser and a steady internet connection too.", },
-  { id: "github", title: "A free GitHub account", when: "Week 3", build: true, why: "Sign up for this one first — it's how you'll sign in to the other tools below, so they're one click instead of a new account each time. It's also where your code lives, with every version saved, so nothing ever gets lost.", link: "https://github.com" },
-  { id: "claude", title: "A Claude account with Claude Pro, for Claude Code", when: "Week 3", build: true, why: "Claude Code is your AI build partner — the coding agent that writes and edits your whole app as you describe what you want (it's how this very site was built). It runs right in your browser at claude.ai/code — you sign in with your Claude account. You'll need Claude Pro (about $20/month) for real building — a free account won't keep up with a full project. A parent can set this up.", link: "https://claude.ai/code" },
-  { id: "vercel", title: "A free Vercel account", when: "Week 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — it builds and hosts it for you (no installs on your computer), and gives you a free web address (like your-app.vercel.app).", link: "https://vercel.com" },
-  { id: "stripe", title: "A Stripe account — a parent sets this up", when: "Week 5", why: "When you add payments in Week 5, Stripe is how your product takes real money safely — you never handle card details yourself. A parent must set it up since you're under 18 (free to start; Stripe takes a small fee per sale).", link: "https://stripe.com" },
-  { id: "resend", title: "A free Resend account — for sending email", when: "Week 6", why: "In Week 6 you make your product real, and most real products send email — a welcome note, a receipt, a password reset. Resend is the tool that sends those for you, simply and safely (it's what Build Young uses). The free plan is plenty for the course; a parent can help with sign-up.", link: "https://resend.com" },
-  { id: "domain", title: "Optional — your own web address (domain)", when: "Week 7", why: "A free Vercel link (your-app.vercel.app) works the whole course. When you go live in Week 7, you can optionally BUY your app's OWN web address (like build-young.com) — usually ~$10–20/year, bought right on Vercel (where we got build-young.com).",
+  { id: "github", title: "A free GitHub account", when: "Lesson 3", build: true, why: "Sign up for this one first — it's how you'll sign in to the other tools below, so they're one click instead of a new account each time. It's also where your code lives, with every version saved, so nothing ever gets lost.", link: "https://github.com" },
+  { id: "claude", title: "A Claude account with Claude Pro, for Claude Code", when: "Lesson 3", build: true, why: "Claude Code is your AI build partner — the coding agent that writes and edits your whole app as you describe what you want (it's how this very site was built). It runs right in your browser at claude.ai/code — you sign in with your Claude account. You'll need Claude Pro (about $20/month) for real building — a free account won't keep up with a full project. A parent can set this up.", link: "https://claude.ai/code" },
+  { id: "vercel", title: "A free Vercel account", when: "Lesson 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — it builds and hosts it for you (no installs on your computer), and gives you a free web address (like your-app.vercel.app).", link: "https://vercel.com" },
+  { id: "stripe", title: "A Stripe account — a parent sets this up", when: "Lesson 5", why: "When you add payments in Lesson 5, Stripe is how your product takes real money safely — you never handle card details yourself. A parent must set it up since you're under 18 (free to start; Stripe takes a small fee per sale).", link: "https://stripe.com" },
+  { id: "resend", title: "A free Resend account — for sending email", when: "Lesson 6", why: "In Lesson 6 you make your product real, and most real products send email — a welcome note, a receipt, a password reset. Resend is the tool that sends those for you, simply and safely (it's what Build Young uses). The free plan is plenty for the course; a parent can help with sign-up.", link: "https://resend.com" },
+  { id: "domain", title: "Optional — your own web address (domain)", when: "Lesson 7", why: "A free Vercel link (your-app.vercel.app) works the whole course. When you go live in Lesson 7, you can optionally BUY your app's OWN web address (like build-young.com) — usually ~$10–20/year, bought right on Vercel (where we got build-young.com).",
     links: [{ label: "Buy a domain on Vercel", url: "https://vercel.com/domains" }] },
-  { id: "linkedin", title: "Recommended — a LinkedIn profile", when: "Week 12", why: "You finish the course with a certificate of completion. We recommend a LinkedIn profile so you can show it off — add the certificate (and the product you built) to it, where colleges and future employers can see real proof of what you can do. A parent can help you set one up.", link: "https://www.linkedin.com" },
+  { id: "linkedin", title: "Recommended — a LinkedIn profile", when: "Lesson 12", why: "You finish the course with a certificate of completion. We recommend a LinkedIn profile so you can show it off — add the certificate (and the product you built) to it, where colleges and future employers can see real proof of what you can do. A parent can help you set one up.", link: "https://www.linkedin.com" },
 ];
 
 /* ============================ OVERVIEW (first-login landing) ============================
  * The welcome / orientation tab. It's the DEFAULT tab until the student has started the course
  * (s.started), so someone who enrolls weeks early sees the plan, what to expect, instructions,
- * and the real start date/countdown — not a misleading "Week 1 of 12". */
+ * and the real start date/countdown — not a misleading "Lesson 1 of 12". */
 function OverviewPanel({ s, batch, onTab, setS }) {
   const prereqs = (s && s.prereqs) || {};
   const doneCount = PREREQS.filter((p) => prereqs[p.id]).length;
@@ -80,7 +80,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
           <span style={{ fontSize: 12.5, fontWeight: 700, color: doneCount === PREREQS.length ? C.green : C.muted }}>{doneCount} of {PREREQS.length} done</span>
         </div>
         <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 8px" }}>
-          In your first weeks you'll build your <b>own</b> app with AI — so you need the same tools we used to build this one (all free except <b>Claude Pro</b>, ~$20/month). Tick each off as you set it up, and bring them to the class where they're needed. <span style={{ color: C.muted }}>A parent can help with sign-ups.</span>
+          In your first lessons you'll build your <b>own</b> app with AI — so you need the same tools we used to build this one (all free except <b>Claude Pro</b>, ~$20/month). Tick each off as you set it up, and bring them to the class where they're needed. <span style={{ color: C.muted }}>A parent can help with sign-ups.</span>
         </p>
         {PREREQS.map((p) => {
           const checked = !!prereqs[p.id];
@@ -110,10 +110,10 @@ function OverviewPanel({ s, batch, onTab, setS }) {
 
       <Card style={{ padding: 20 }}>
         <h3 style={sectionTitle}>What to expect</h3>
-        <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 1–7 — Build &amp; launch.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
-        <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Weeks 8–10 — Learn to grow it.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth — the skills that grow a product.</span></div>
-        <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 11 — Prepare your capstone.</b> Pull it all together for the final presentation: polish your product and shape the story of what you built and who it's for.</span></div>
-        <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Week 12 — Capstone.</b> Present everything — what you built, who's using it, and what you'd build next. Parents are welcome to join this final call to watch.</span></div>
+        <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lessons 1–7 — Build &amp; launch.</b> Find a problem, write a spec, build your product with AI in four layers (core product, accounts, payments, production-ready), then take it live.</span></div>
+        <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lessons 8–10 — Learn to grow it.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth — the skills that grow a product.</span></div>
+        <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lesson 11 — Prepare your capstone.</b> Pull it all together for the final presentation: polish your product and shape the story of what you built and who it's for.</span></div>
+        <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lesson 12 — Capstone.</b> Present everything — what you built, who's using it, and what you'd build next. Parents are welcome to join this final call to watch.</span></div>
         <div style={li}><Award size={17} color={C.pink} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>A certificate of completion.</b> Finish the course and earn a certificate you can download and add to your LinkedIn profile.</span></div>
         <div style={li}><Award size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>The builder prize — tuition back.</b> The first builder in your cohort to land a real paying customer within a year of enrolling gets their tuition refunded (real sale + a short video). <span style={{ color: C.muted }}>See Terms.</span></span></div>
       </Card>
@@ -146,7 +146,7 @@ Why families love it: It's live and small-group with a standing weekly time, so 
   financialSuccess: `It makes more money than it costs to run. Most new families come from people telling their friends, so we don't have to spend much to find them — and there's enough left over to keep it going and make it bigger.`,
 };
 
-// Week 2 "Shape the Idea": the spec — the parts the student plans now and builds one at a time over
+// Lesson 2 "Shape the Idea": the spec — the parts the student plans now and builds one at a time over
 // the weeks ahead (core product → accounts & data → payments → production-ready, plus what success
 // looks like). NOTE: keep the spec week-AGNOSTIC in the UI — don't label fields with week numbers;
 // the schedule is revealed week by week so it stays exciting. Worked through for Build Young as the model.
@@ -157,7 +157,7 @@ What to build first (the core product):
 • A marketing site that explains the program, the curriculum, the price, and the founder, and lists the upcoming cohorts to choose from.
 • An enroll flow: pick a cohort, enter the student's name + email, confirm they're in high school.
 • The student dashboard: a week-by-week stepper (1–12). Each week shows its lesson, that week's activity, a Zoom link, and a private notes area; weeks unlock as you reach them.
-• Move through the course: hit "advance" to go to the next week and open its activity. Mistakes are safe — you build in a sandbox.
+• Move through the course: hit "advance" to go to the next lesson and open its activity. Mistakes are safe — you build in a sandbox.
 
 The "wow": the first time a teen shares a link to their live product and watches someone actually use it. Even their parents!
 
@@ -168,7 +168,7 @@ Use a trusted, standard sign-in — never homemade password code.`,
   payments: `Families pay tuition to enroll — a secure checkout, with no charge until they confirm. Each cohort has its own price and number of seats; paying unlocks the student's account (they get an email to set their password). Enrollment closes the day before a cohort starts.
 
 Use a trusted checkout (like Stripe) — never handle card details yourself.`,
-  production: `Emails: a welcome when they enroll, a reminder 2 days before each week's first class, a recap with homework after each week, and a certificate at the end.
+  production: `Emails: a welcome when they enroll, a reminder 2 days before each lesson's first class, a recap with homework after each lesson, and a certificate at the end.
 Findable: the site shows up in search and looks right when someone shares the link (title, description, share image).
 Safe: it checks everything people type in, keeps secret keys off the browser, and protects students' data — they're minors.`,
   success: `Here's how we'll know it's working:
@@ -185,19 +185,19 @@ Financial success: it earns more than it costs to run, and most new families com
 For each stage, show the count AND the conversion rate to the next (visited → enroll-started, enroll-started → enrolled, enrolled → graduated), so it's obvious where families drop off — with revenue (tuition − refunds) alongside.`,
 };
 
-// Week 3 "Make It (with AI)" is a hands-on, live build week — so the class material is just three
+// Lesson 3 "Make It (with AI)" is a hands-on, live build week — so the class material is just three
 // durable principles to keep in mind, not a long worked example. The actionable bits (pre-reqs +
 // copy-your-spec) live in the student activity below.
 const MAKE_PRINCIPLES = [
-  { t: "Build one layer at a time", d: "This week is just Layer 1 — the core product. Don't try to build the whole thing at once. Accounts (Wk4), payments (Wk5), and the production-ready polish (Wk6) each get their own week and their own prompt." },
+  { t: "Build one layer at a time", d: "This lesson is just Layer 1 — the core product. Don't try to build the whole thing at once. Accounts (Lesson 4), payments (Lesson 5), and the production-ready polish (Lesson 6) each get their own week and their own prompt." },
   { t: "Run the loop: describe → see → taste → refine", d: "AI builds it, you look, you judge it with taste (what does GOOD look like?), you ask for the change — repeat. You don't write code; you direct it. That taste is the skill that matters most in an AI world." },
   { t: "Ship it early", d: "Put it live before it's perfect (free, one click on Vercel). Real people surface the real problems worth fixing — not imaginary ones." },
 ];
 
 // Per-week build-activity content for weeks 4–9 (build / prioritize / funnel / scale). Each entry
 // (when present) drives a principles card + copy-paste prompt via PrinciplesCard + InfraBuildPlan,
-// same pattern as Week 3. Currently EMPTY — these weeks show the "coming soon" placeholder while
-// the outline settles; content is built per week next. (Week 3's full build activity is separate.)
+// same pattern as Lesson 3. Currently EMPTY — these weeks show the "coming soon" placeholder while
+// the outline settles; content is built per week next. (Lesson 3's full build activity is separate.)
 const WEEK_INFRA = {};
 
 // Generic class-example card (the worked Build Young model the instructor presents). Generic over
@@ -262,7 +262,7 @@ function PrereqChecklist({ s, setS, items, title, blurb }) {
   );
 }
 
-// Which week a PREREQS item is needed (from its `when`: "Week N" → N). "Day one" items (e.g. a
+// Which week a PREREQS item is needed (from its `when`: "Lesson N" → N). "Day one" items (e.g. a
 // laptop) aren't real setup tasks — they're already in class — so they return null (no per-week tab).
 function prereqWeek(when) {
   const m = /week\s*(\d+)/i.exec(when || "");
@@ -270,17 +270,17 @@ function prereqWeek(when) {
 }
 
 // The "Pre-req" tab content for a week. Every week shows the tab: the tools DUE that week (Claude/
-// GitHub/Vercel in Wk3, Stripe Wk5, Resend Wk6, domain Wk7), else a short note.
+// GitHub/Vercel in Lesson 3, Stripe Lesson 5, Resend Lesson 6, domain Lesson 7), else a short note.
 function weekPrereqs(week, s, setS) {
   const due = PREREQS.filter((p) => prereqWeek(p.when) === week);
   if (due.length) {
-    return <PrereqChecklist s={s} setS={setS} items={due} title="✅ Get set up for this week"
+    return <PrereqChecklist s={s} setS={setS} items={due} title="✅ Get set up for this lesson"
       blurb="Get these ready before class — a parent can help (some services need an adult). Tick each off:" />;
   }
-  const firstWeek = Math.min(...PREREQS.map((p) => prereqWeek(p.when)).filter(Boolean)); // Wk3 (first setup)
+  const firstWeek = Math.min(...PREREQS.map((p) => prereqWeek(p.when)).filter(Boolean)); // Lesson 3 (first setup)
   let msg;
   if (week < firstWeek) msg = `Nothing to set up yet — your first tools come in Week ${firstWeek}, when building starts.`;
-  else if (PREREQS.some((p) => prereqWeek(p.when) > week)) msg = "Nothing new to set up this week — your tools carry through. A few more come as you need them in later weeks.";
+  else if (PREREQS.some((p) => prereqWeek(p.when) > week)) msg = "Nothing new to set up this lesson — your tools carry through. A few more come as you need them in later lessons.";
   else msg = "You're all set — every tool you need is ready. ✓";
   return <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, background: C.paper, border: `1px solid ${C.line}`, borderRadius: 6, padding: "12px 14px" }}>{msg}</div>;
 }
@@ -288,7 +288,7 @@ function weekPrereqs(week, s, setS) {
 // One week's content as horizontal tabs — Pre-req · What you'll learn · Class example · Your exercise.
 // Empty tabs are hidden; defaults to "What you'll learn". Shared by CoursePanel + WeekPanel so they
 // can't drift. Activity input lives in s (lifted), so switching tabs never loses what's typed.
-const BUILD_WEEKS = new Set([3, 4, 5, 6, 8]); // the AI-build weeks (BUILD_LAYERS) — Week 7 "Go Live" is a checklist, not an AI build prompt
+const BUILD_WEEKS = new Set([3, 4, 5, 6, 8]); // the AI-build weeks (BUILD_LAYERS) — Lesson 7 "Go Live" is a checklist, not an AI build prompt
 // A recurring "stretch goal" shown under the build-week exercise: the meta-skill of interrogating
 // your AI tools — ask what you're not using / what you're doing the hard way. Taste applied to the
 // tool itself: builders, not consumers, even in HOW they use AI.
@@ -297,7 +297,7 @@ function StretchGoal() {
     <div style={{ marginTop: 16, border: `1px dashed ${C.gold}`, borderRadius: 6, background: "#f7f4fb", padding: "12px 14px" }}>
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, marginBottom: 6 }}>⭐ Stretch goal</div>
       <p style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, margin: 0 }}>
-        While you build this week — especially when you’re stuck or repeating yourself — ask your AI: <b style={{ color: C.ink }}>“What can you do that I’m not using? What am I doing the hard way?”</b> Try one suggestion, and bring what you learned. The gap between a good builder and a great one is usually a question you didn’t think to ask.
+        While you build this lesson — especially when you’re stuck or repeating yourself — ask your AI: <b style={{ color: C.ink }}>“What can you do that I’m not using? What am I doing the hard way?”</b> Try one suggestion, and bring what you learned. The gap between a good builder and a great one is usually a question you didn’t think to ask.
       </p>
     </div>
   );
@@ -318,7 +318,7 @@ function WeekTabs({ week, s, setState, materials }) {
     (example || mats) && { id: "example", label: "Class example", node: example || mats },
     exercise && { id: "exercise", label: "Your exercise", node: exercise },
   ].filter(Boolean);
-  // Land on the Pre-req tab ONLY when this week actually has tools DUE (something to act on).
+  // Land on the Pre-req tab ONLY when this lesson actually has tools DUE (something to act on).
   // When the pre-req tab is just a "nothing to set up" note, skip it and land on the next tab.
   const hasDuePrereq = PREREQS.some((p) => prereqWeek(p.when) === week);
   const def = hasDuePrereq
@@ -346,12 +346,12 @@ function WeekTabs({ week, s, setState, materials }) {
 }
 
 // "What you'll learn this class" — the in-dashboard kickoff (replaces a slide), shown at the top of
-// each week's activity. From OBJECTIVES (founder-editable), split into bullets. Null when empty.
+// each lesson's activity. From OBJECTIVES (founder-editable), split into bullets. Null when empty.
 function weekObjectivesCard(week) {
   const raw = (OBJECTIVES[week - 1] || "").trim();
   const items = raw.split("\n").map((l) => l.trim()).filter(Boolean);
   if (!items.length) return null;
-  // First line is the connective thread — last week → this week → what's next — so the weeks read as
+  // First line is the connective thread — last lesson → this lesson → what's next — so the weeks read as
   // one story. The rest are the takeaway bullets.
   const [lead, ...bullets] = items;
   return (
@@ -383,8 +383,8 @@ function weekExample(week) {
     ["Production-ready", SHAPE_EXAMPLE.production],
     ["What success looks like", SHAPE_EXAMPLE.success],
   ]} />;
-  // Week 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
-  // Week 8 (build the funnel) needs BOTH glossaries: the funnel concept AND the metrics it'll be
+  // Lesson 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
+  // Lesson 8 (build the funnel) needs BOTH glossaries: the funnel concept AND the metrics it'll be
   // judged by — a student can't write a good "add tracking" prompt without understanding the metrics.
   if (week === 8) return (<>
     <GlossaryCard title="First — the funnel, in plain English" items={FUNNEL_PRIMER} />
@@ -402,7 +402,7 @@ function weekExample(week) {
   return null;
 }
 
-// Plain-English glossary card — defines terms for a week before the hands-on part (e.g. Week 9
+// Plain-English glossary card — defines terms for a week before the hands-on part (e.g. Lesson 9
 // metrics). Clean term — definition rows, same green class-material look.
 function GlossaryCard({ title, items }) {
   return (
@@ -435,13 +435,13 @@ const PLG_PRIMER = [
   { t: "Network effect", d: "the product gets better the more people use it (like a group chat that's more useful once your friends are in it)." },
   { t: "Referral", d: "one user brings in another. The best products make sharing genuinely helpful to the person sharing, not just to you." },
 ];
-// Weeks 9 (analyze your real metrics) and 10 (discuss product-led growth) are NO-PROMPT weeks — the
+// Lessons 9 (analyze your real metrics) and 10 (discuss product-led growth) are NO-PROMPT weeks — the
 // student reads/reflects and jots answers (saved in s.reflect[week]); there's nothing to build with AI.
-// Week 10 (discuss product-led growth) is a NO-PROMPT reflection week — fixed discussion prompts the
-// student jots answers to (saved in s.reflect[10]). (Week 9 is the FunnelScenarios exercise — see below.)
+// Lesson 10 (discuss product-led growth) is a NO-PROMPT reflection week — fixed discussion prompts the
+// student jots answers to (saved in s.reflect[10]). (Lesson 9 is the FunnelScenarios exercise — see below.)
 const REFLECT_WEEKS = {
   10: {
-    intro: "This week is a discussion — no building. Product-led growth means the product grows itself: people share it because it's genuinely good, so you don't have to pay to find every new user. We'll talk through the topics below as a group, then you jot what it means for YOUR product.",
+    intro: "This lesson is a discussion — no building. Product-led growth means the product grows itself: people share it because it's genuinely good, so you don't have to pay to find every new user. We'll talk through the topics below as a group, then you jot what it means for YOUR product.",
     topics: [
       "Think of the last app you started using because a friend told you about it. Why did your friend bother to share it — what did THEY get out of telling you?",
       "Why do some products spread on their own while others have to buy ads to get noticed? What's different about the ones that spread?",
@@ -457,7 +457,7 @@ const REFLECT_WEEKS = {
     ],
   },
   11: {
-    intro: "No building this week — get ready for your capstone. Next week you present what you built to family and friends, so use this week to pull the story together and practice it.",
+    intro: "No building this lesson — get ready for your capstone. Next lesson you present what you built to family and friends, so use this lesson to pull the story together and practice it.",
     fields: [
       { key: "whatBuilt", label: "What you built — in one line", ph: "If you had ten seconds: what is it, and who is it for?" },
       { key: "proud", label: "What you're proudest of", ph: "The part of the build, the journey, or what people did with it that you most want to show off." },
@@ -496,10 +496,10 @@ function ReflectionPanel({ week, s, setS, bare }) {
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// ===== Weeks 8–9: the funnel the student tracks, then reading it =====
-// Week 8 (FunnelStages): the student lists the steps they track in their funnel (top → bottom),
-// saved to s.funnelStages so Week 9 can use the student's OWN labels.
-// Week 9 (FunnelScenarios): a NO-BUILD analysis week. We render a few PRACTICE funnels (modeled, not
+// ===== Lessons 8–9: the funnel the student tracks, then reading it =====
+// Lesson 8 (FunnelStages): the student lists the steps they track in their funnel (top → bottom),
+// saved to s.funnelStages so Lesson 9 can use the student's OWN labels.
+// Lesson 9 (FunnelScenarios): a NO-BUILD analysis week. We render a few PRACTICE funnels (modeled, not
 // live) built from those stages, each shaped to tell a different story (weak activation, weak
 // retention, low traffic, healthy). For each, the student writes what the data is telling them, then
 // reveals the system's read to check themselves. Saved in s.reflect[9] = { notes: { scenarioId } }.
@@ -542,7 +542,7 @@ function scenarioCounts(sc, n, rnd) {
   return counts;
 }
 
-// Week 8 add-on: the student lists the steps in their funnel — used to build Week 9's practice data.
+// Lesson 8 add-on: the student lists the steps in their funnel — used to build Lesson 9's practice data.
 function FunnelStages({ s, setS, bare }) {
   const stages = (s && Array.isArray(s.funnelStages) && s.funnelStages.length) ? s.funnelStages : ["", "", ""];
   const write = (next) => setS((p) => ({ ...p, funnelStages: next }));
@@ -554,7 +554,7 @@ function FunnelStages({ s, setS, bare }) {
     <>
       <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink, marginBottom: 4 }}>📊 The funnel you'll track</div>
       <p style={{ fontSize: 13, color: C.ink2, lineHeight: 1.55, margin: "0 0 12px" }}>
-        List the metrics you're tracking, <b>top to bottom</b> — from the moment someone finds your product to the moment they come back. Have your AI count people at each step. <b>We'll use these next week</b> to read your numbers. <span style={{ color: C.muted }}>Saved automatically.</span>
+        List the metrics you're tracking, <b>top to bottom</b> — from the moment someone finds your product to the moment they come back. Have your AI count people at each step. <b>We'll use these next lesson</b> to read your numbers. <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
       <div style={{ display: "grid", gap: 8 }}>
         {stages.map((st, i) => (
@@ -573,7 +573,7 @@ function FunnelStages({ s, setS, bare }) {
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// Week 9: read several practice funnels built from the student's own stages, then reveal the answer.
+// Lesson 9: read several practice funnels built from the student's own stages, then reveal the answer.
 function FunnelScenarios({ s, setS, bare }) {
   const stages = funnelStagesOf(s);
   const seed = (s.student && (s.student.email || s.student.name)) || "demo";
@@ -662,7 +662,7 @@ function FunnelScenarios({ s, setS, bare }) {
   const inner = (
     <>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "0 0 8px" }}>
-        Nothing to build this week — <b>read the numbers</b>. These funnels are built from <b>the funnel you shipped last week</b> and the metrics <b>you</b> chose to track — your own product, not a generic example. Each shows a different story your numbers could tell. For each, work out what's going on, write it down, then reveal the system's read to check yourself. <span style={{ color: C.muted }}>(In real life these come straight from your own analytics — Vercel + the funnel you built last week.) Saved automatically.</span>
+        Nothing to build this lesson — <b>read the numbers</b>. These funnels are built from <b>the funnel you shipped last lesson</b> and the metrics <b>you</b> chose to track — your own product, not a generic example. Each shows a different story your numbers could tell. For each, work out what's going on, write it down, then reveal the system's read to check yourself. <span style={{ color: C.muted }}>(In real life these come straight from your own analytics — Vercel + the funnel you built last lesson.) Saved automatically.</span>
       </p>
       <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: ".05em", textTransform: "uppercase", color: C.gold, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 99, padding: "3px 10px", marginBottom: 6 }}>Practice data · modeled, not live</div>
       <div style={{ fontSize: 12, color: C.muted, marginBottom: 14 }}>Your funnel: {stages.join(" → ")}</div>
@@ -709,7 +709,7 @@ function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
   if (week === 7) return <GoLiveChecklist s={s} setS={setState} bare={bare} />; // Go Live = an editable checklist, not a prompt
-  // Week 8 = build the funnel (BuildLayer) PLUS list the steps you'll track (FunnelStages, used in wk 9).
+  // Lesson 8 = build the funnel (BuildLayer) PLUS list the steps you'll track (FunnelStages, used in wk 9).
   if (week === 8) return <>{<BuildLayer week={8} s={s} setS={setState} bare={bare} />}{<FunnelStages s={s} setS={setState} bare={bare} />}</>;
   if (week === 9) return <FunnelScenarios s={s} setS={setState} bare={bare} />; // read practice funnels built from the student's stages
   if (REFLECT_WEEKS[week]) return <ReflectionPanel week={week} s={s} setS={setState} bare={bare} />; // wk 10 (discuss) — no prompt
@@ -717,7 +717,7 @@ function weekActivity(week, s, setState, bare) {
   return null;
 }
 
-// Week 7 "Go Live" is a configure-and-verify task, not a build prompt — so it's an EDITABLE checklist.
+// Lesson 7 "Go Live" is a configure-and-verify task, not a build prompt — so it's an EDITABLE checklist.
 // Default items (grouped, each with a "how to do it") cover any app; the student ticks them off and
 // adds/edits/removes anything specific to their product. Saved in s.golive.
 const GO_LIVE_DEFAULT = [
@@ -787,24 +787,24 @@ function GoLiveChecklist({ s, setS, bare }) {
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// The four build layers (Weeks 3–6). Each is ONE prompt that adds the next layer to the SAME app:
-// core product (Wk3) → accounts & data (Wk4) → payments (Wk5) → production-ready (Wk6). The student
-// writes all four in their Week 2 spec (s.shape); each build week shows ONLY its own layer's prompt.
+// The four build layers (Lessons 3–6). Each is ONE prompt that adds the next layer to the SAME app:
+// core product (Lesson 3) → accounts & data (Lesson 4) → payments (Lesson 5) → production-ready (Lesson 6). The student
+// writes all four in their Lesson 2 spec (s.shape); each build week shows ONLY its own layer's prompt.
 const BUILD_LAYERS = {
   3: { key: "product",
     heading: "Build the core product 🛠️",
     lead: "Your spec IS your prompt — no separate writing. Run the loop: describe → see → taste → refine. Just the core for now; more comes later.",
     fieldLabel: "The core product",
     promptLabel: "What to build — the core product:",
-    placeholder: "(From your Week 2 spec — the core product: what it is, who it's for, the main things it does, and the 'wow' moment.)",
+    placeholder: "(From your Lesson 2 spec — the core product: what it is, who it's for, the main things it does, and the 'wow' moment.)",
     intro: "Please build this web app for me — just the core product to start. You write the code; I'll tell you what's good and what to change — keep it simple and tell me exactly what to do.",
     instruction: "Build just this core product — the main thing it does — with clean, simple, friendly styling. Don't add accounts or payments yet. When it's built, tell me exactly how to run it and see it in my browser. Then I'll tell you what to change. Let's go!" },
   4: { key: "accounts",
     heading: "Make it yours — accounts & saved data 🔐",
-    lead: "Build this onto the product you shipped in Week 3 — without breaking what already works.",
+    lead: "Build this onto the product you shipped in Lesson 3 — without breaking what already works.",
     fieldLabel: "Accounts & saved data",
     promptLabel: "What to add — accounts & saved data:",
-    placeholder: "(From your Week 2 spec — accounts & saved data: who signs in, and what's saved for each person.)",
+    placeholder: "(From your Lesson 2 spec — accounts & saved data: who signs in, and what's saved for each person.)",
     intro: "Please add accounts and saved data to the app I've already built. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use a trusted, standard sign-in — do NOT write your own password or security code. Save each user's data so they pick up where they left off. When it's done, tell me how to test signing in and that my data is saved." },
   5: { key: "payments",
@@ -812,7 +812,7 @@ const BUILD_LAYERS = {
     lead: "Add e-commerce to your product — a checkout so people can buy what you built, with real payments handled safely.",
     fieldLabel: "Payments",
     promptLabel: "What to add — payments:",
-    placeholder: "(From your Week 2 spec — payments: what people pay for, how much, and what they get.)",
+    placeholder: "(From your Lesson 2 spec — payments: what people pay for, how much, and what they get.)",
     intro: "Please add payments to the app I've already built. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use a trusted checkout (like Stripe) — never handle card details yourself. Unlock the paid features only after payment is confirmed. When it's done, tell me how to test a payment safely." },
   6: { key: "production",
@@ -820,13 +820,13 @@ const BUILD_LAYERS = {
     lead: "The finishing layer on what you've built — the polish that gets it ready for real customers.",
     fieldLabel: "Production-ready",
     promptLabel: "What to make production-ready:",
-    placeholder: "(From your Week 2 spec — production-ready: emails, being findable, and keeping data safe.)",
+    placeholder: "(From your Lesson 2 spec — production-ready: emails, being findable, and keeping data safe.)",
     intro: "Please make the app I've already built production-ready. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use trusted services to send emails; keep every secret key off the browser; check everything users type in; and make it findable (a clear title, description, and share image). When it's done, give me a short checklist to confirm it's ready for real users." },
-  // Week 8 (the funnel) is the only Act-2 BUILD week. It follows the SAME spec pattern as 3–6 (no
+  // Lesson 8 (the funnel) is the only Act-2 BUILD week. It follows the SAME spec pattern as 3–6 (no
   // `seed`): the student writes their funnel spec in s.shape.funnel and the sample (SHAPE_EXAMPLE.funnel)
   // is shown as class material; Copy wraps their spec in the connected-funnel intro + instruction.
-  // (Week 7 "Go Live" is an editable CHECKLIST; weeks 9/10 are no-prompt reflection — REFLECT_WEEKS.)
+  // (Lesson 7 "Go Live" is an editable CHECKLIST; weeks 9/10 are no-prompt reflection — REFLECT_WEEKS.)
   8: { key: "funnel",
     lead: "Make growth part of the product — a funnel so people find it, try it, and come back. Write your funnel below (the sample shows how we'd spec Build Young's); Copy turns it into a prompt.",
     fieldLabel: "The funnel",
@@ -836,9 +836,9 @@ const BUILD_LAYERS = {
     instruction: "Then add simple, privacy-friendly tracking that shows the count of people at each step AND the conversion rate from one step to the next, so it's obvious where most people drop off. Keep my current styling, build it on top of what I already have without breaking anything, and tell me how to test it." },
 };
 
-// Weeks 4–6 "your turn": a short intro + the week's copy-paste prompt (editable; seeded from
+// Lessons 4–6 "your turn": a short intro + the week's copy-paste prompt (editable; seeded from
 // WEEK_INFRA, stored per-week in s.infra[week].prompt). Same shape as MakePlan, minus the spec
-// generation — the prompt here is this week's GOAL, which they adapt to their own product.
+// generation — the prompt here is this lesson's GOAL, which they adapt to their own product.
 function InfraBuildPlan({ s, setS, bare, week }) {
   const cfg = WEEK_INFRA[week];
   const store = (s.infra && s.infra[week]) || {};
@@ -860,7 +860,7 @@ function InfraBuildPlan({ s, setS, bare, week }) {
       )}
       <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 This week's prompt for Claude</span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 This lesson's prompt for Claude</span>
           <button type="button" className="btn" onClick={copy} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
             {copied ? <><Check size={14} /> Copied!</> : "Copy"}
           </button>
@@ -868,7 +868,7 @@ function InfraBuildPlan({ s, setS, bare, week }) {
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 8px" }}>
           Paste this into Claude on top of what you already built. Tweak anything in <b>[brackets]</b> to fit your own product before you send. <span style={{ color: C.muted }}>Saved automatically.</span>
         </p>
-        <textarea aria-label="This week's prompt" value={promptValue} rows={7} onChange={(e) => setPrompt(e.target.value)}
+        <textarea aria-label="This lesson's prompt" value={promptValue} rows={7} onChange={(e) => setPrompt(e.target.value)}
           style={{ width: "100%", boxSizing: "border-box", fontSize: 12.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink, resize: "vertical", lineHeight: 1.5 }} />
         {edited !== undefined && edited !== cfg.promptSeed && (
           <div style={{ marginTop: 6 }}>
@@ -948,13 +948,13 @@ Why people love it: [the payoff].
           placeholder="Be honest: what does it actually do today, and what's still the goal? Say it that way when you talk about it — 'helps you study' (true now) vs. 'gets you an A' (goal). Honest beats hype, and people trust it more."
           style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
       </label>
-      {/* "What success looks like" lives in Week 2's spec now — Week 1 is the bet (problem/customer/promise). */}
+      {/* "What success looks like" lives in Lesson 2's spec now — Lesson 1 is the bet (problem/customer/promise). */}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// Week 2 student activity — "Shape the Idea": envision the product, its capabilities, and the
+// Lesson 2 student activity — "Shape the Idea": envision the product, its capabilities, and the
 // experience of using it. Persists in s.shape.
 function ShapePlan({ s, setS, bare }) {
   const shape = s.shape || {};
@@ -976,17 +976,17 @@ function ShapePlan({ s, setS, bare }) {
       {field("payments", "Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
       {field("production", "Production-ready", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
       {field("success", "What success looks like", "Make success measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run.", 5)}
-      {/* Tools setup now lives in this week's "Pre-req" tab (weekPrereqs), not inline here. */}
+      {/* Tools setup now lives in this lesson's "Pre-req" tab (weekPrereqs), not inline here. */}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// Week 3 student activity — "Make It (with AI)": hand your Week 2 spec to AI and run the
-// describe → see → taste → refine loop. The spec is the SAME data as Week 2 (s.shape) — editing it
-// here updates Week 2 too; no separate copy, single source of truth.
-// One build week (3–6). Shows ONLY that week's layer prompt, pulled live from the student's Week 2
-// spec (s.shape[cfg.key]) so edits here sync back to Week 2. Week 3 also shows the build pre-reqs.
+// Lesson 3 student activity — "Make It (with AI)": hand your Lesson 2 spec to AI and run the
+// describe → see → taste → refine loop. The spec is the SAME data as Lesson 2 (s.shape) — editing it
+// here updates Lesson 2 too; no separate copy, single source of truth.
+// One build week (3–6). Shows ONLY that week's layer prompt, pulled live from the student's Lesson 2
+// spec (s.shape[cfg.key]) so edits here sync back to Lesson 2. Lesson 3 also shows the build pre-reqs.
 function BuildLayer({ week, s, setS, bare }) {
   const cfg = BUILD_LAYERS[week];
   const setShapeField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
@@ -995,10 +995,10 @@ function BuildLayer({ week, s, setS, bare }) {
   const [copied, setCopied] = useState(false);
   const has = (v) => v && v.trim();
   // The WHOLE 12-week plan is ONE object — s.shape. Every build week (3–10) reads + writes its own
-  // s.shape[key], so it's a single source of truth. Weeks 3–6 are filled from the Week 2 product
+  // s.shape[key], so it's a single source of truth. Lessons 3–6 are filled from the Lesson 2 product
   // spec; weeks 7–10 ship a starter prompt (`seed`) used as the default until the student edits it.
   const seeded = !!cfg.seed;        // weeks 7–10 (growth) come with a starter prompt
-  const fromSpec = !seeded;         // weeks 3–6 are pulled from the Week 2 product spec
+  const fromSpec = !seeded;         // weeks 3–6 are pulled from the Lesson 2 product spec
   const stored = shape[cfg.key];
   const value = stored !== undefined ? stored : (cfg.seed || "");
   const hasLayer = has(value);
@@ -1020,13 +1020,13 @@ function BuildLayer({ week, s, setS, bare }) {
     <>
       <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>{cfg.lead} Saved automatically.</p>
 
-      {/* Build pre-reqs (the tools) now live in this week's "Pre-req" tab (weekPrereqs), not inline. */}
+      {/* Build pre-reqs (the tools) now live in this lesson's "Pre-req" tab (weekPrereqs), not inline. */}
 
-      {/* This week's prompt — the matching slice of the Week 2 spec (s.shape[cfg.key]). Editing here
-          syncs back to Week 2. Copy hands Claude this layer's prompt (the spec slice + instruction). */}
+      {/* This lesson's prompt — the matching slice of the Lesson 2 spec (s.shape[cfg.key]). Editing here
+          syncs back to Lesson 2. Copy hands Claude this layer's prompt (the spec slice + instruction). */}
       <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 This week's prompt — {cfg.fieldLabel}</span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📋 This lesson's prompt — {cfg.fieldLabel}</span>
           <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
             <button type="button" className="btn" onClick={copyPrompt} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
               {copied ? <><Check size={14} /> Copied!</> : "Copy"}
@@ -1035,19 +1035,19 @@ function BuildLayer({ week, s, setS, bare }) {
           </span>
         </div>
         {hasLayer ? (
-          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={13} /> {week <= 6 ? "Pulled from your Week 2 spec — edits here update Week 2 too" : "Your funnel spec — saved automatically"}</div>
+          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.green, marginTop: 6, display: "inline-flex", alignItems: "center", gap: 5 }}><Check size={13} /> {week <= 6 ? "Pulled from your Lesson 2 spec — edits here update Lesson 2 too" : "Your funnel spec — saved automatically"}</div>
         ) : (
           <div style={{ fontSize: 12.5, color: C.ink, lineHeight: 1.5, marginTop: 8, background: "#fbeede", border: `1px solid ${C.goldLite}`, borderRadius: 5, padding: "9px 11px" }}>
             {week <= 6
-              ? <><b>This part of your Week 2 spec is empty.</b> Fill it in below (or back in Week 2) so AI builds <i>your</i> product — it's the same spec.</>
+              ? <><b>This part of your Lesson 2 spec is empty.</b> Fill it in below (or back in Lesson 2) so AI builds <i>your</i> product — it's the same spec.</>
               : <><b>Write your funnel spec below</b> — use the sample above as your model.</>}
           </div>
         )}
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 2px" }}>
           {week === 3
-            ? "This IS your prompt — no separate writing. Edit it and it updates your Week 2 spec too, then Copy it into Claude Code."
+            ? "This IS your prompt — no separate writing. Edit it and it updates your Lesson 2 spec too, then Copy it into Claude Code."
             : week <= 6
-              ? "This builds on top of what you already shipped. Edit it (it syncs to Week 2), then Copy it into Claude Code on top of your existing app."
+              ? "This builds on top of what you already shipped. Edit it (it syncs to Lesson 2), then Copy it into Claude Code on top of your existing app."
               : "Write your funnel here (use the sample above as a model). Copy turns it into a prompt for Claude Code, on top of your existing app."}
         </p>
         <label style={{ display: "block", marginTop: 10 }}>
@@ -1160,7 +1160,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
   const startInfo = cohortStartInfo(batch);
   const notStarted = !s.started; // before the first session → full refund
   const canWithdraw = canWithdrawNow(s); // pre-start, or within the first REFUND_WEEKS weeks
-  // `week` increments on each advance (attending session 1 moves you to "Week 2"), so sessions
+  // `week` increments on each advance (attending session 1 moves you to "Lesson 2"), so sessions
   // actually held = week − 1 once started. Refund covers every session NOT yet held — matching
   // the Terms ("the fraction of the program's weeks not yet held").
   const attended = notStarted ? 0 : s.week - 1;
@@ -1200,7 +1200,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
   // so we fetch it (valid, verifiable certId); the mint can lag the state-save, so retry a few times.
   // Demo mode (no accounts): synthesize one from the student's state so graduates still see and can
   // download their certificate on the Dashboard.
-  // Certificate unlocks once the student has COMPLETED Week 11 — i.e. advanced into Week 12
+  // Certificate unlocks once the student has COMPLETED Lesson 11 — i.e. advanced into Lesson 12
   // (week >= 12) — or has fully graduated / moved to the post-course check-in. We key off the
   // explicit week/done/checkin (NOT a loose "phase !== course") so a legacy record with an unset
   // phase can't surface the cert early — that bug once showed one student's cert before they'd
@@ -1387,9 +1387,9 @@ function WeekNotes({ week, s, setState }) {
 
 function CoursePanel({ s, setState, batch, cert, isFounder }) {
   // Preview (every week open + each shows its full activity) is for the FOUNDER only, for course
-  // authoring — students always get normal gating (only Week 1 open on signup; later weeks unlock
+  // authoring — students always get normal gating (only Lesson 1 open on signup; later lessons unlock
   // as they advance).
-  const previewAll = CONFIG.previewAllWeeks && isFounder;
+  const previewAll = CONFIG.previewAllLessons&& isFounder;
   const offCourse = s.phase !== "course"; // in check-ins / graduated, the 12 weeks are all done
   const currentWeek = offCourse ? 12 : s.week;
   const [selected, setSelected] = useState(currentWeek); // which week's content is shown below
@@ -1411,7 +1411,7 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
     const unlocked = previewAll || offCourse || week <= currentWeek;
     const isSel = week === selected;
     const isCur = week === currentWeek && !offCourse;
-    const bg = !unlocked ? C.paper2 : isCur ? C.emerald : C.green; // done = green, this week = blue (easy to tell apart)
+    const bg = !unlocked ? C.paper2 : isCur ? C.emerald : C.green; // done = green, this lesson = blue (easy to tell apart)
     const fg = unlocked ? "#fff" : C.muted;
     return (
       <button key={week} type="button" className="tab" aria-label={`Lesson ${week}${unlocked ? "" : " (locked)"}`} aria-current={isSel ? "true" : undefined}
@@ -1431,7 +1431,7 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
           <div className="disp" style={{ fontSize: 22, fontWeight: 800, marginTop: 2 }}>{selW.t}</div>
         </div>
         {batch && (() => {
-          // Use this week's class recording when the founder has posted one; otherwise the live link.
+          // Use this lesson's class recording when the founder has posted one; otherwise the live link.
           const rec = batch.recordings && batch.recordings[String(selected)];
           return (
             <a href={rec || batch.zoom} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", flexShrink: 0 }}>
@@ -1484,7 +1484,7 @@ function CoursePanel({ s, setState, batch, cert, isFounder }) {
       </Card>
 
       {previewAll && (
-        <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, margin: "0 2px 8px" }}>Preview mode — every week is open for authoring (set CONFIG.previewAllWeeks false to lock).</div>
+        <div style={{ fontSize: 12, color: C.gold, fontWeight: 700, margin: "0 2px 8px" }}>Preview mode — every week is open for authoring (set CONFIG.previewAllLessonsfalse to lock).</div>
       )}
 
       {/* selected week, full width. Preview: render the SELECTED week's activity (so any week can
@@ -1523,7 +1523,7 @@ function WeekPanel({ s, setState, batch, cert, preview }) {
   const action = s.phase === "course" ? wk.action : "checkin";
 
   // Header matches the catch-up card for past weeks (status label + title on the left, the Zoom
-  // button on the right) so the CURRENT week aligns visually with Weeks 1–2 — no separate banner.
+  // button on the right) so the CURRENT week aligns visually with Lessons 1–2 — no separate banner.
   const Wrap = ({ children, title, blurb }) => (
     <Card style={{ padding: 22 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
@@ -1552,8 +1552,8 @@ function WeekPanel({ s, setState, batch, cert, preview }) {
       )}
 
       {action === "capstone" && (<>
-        {/* Week 12 is the finale (no separate check-in). The certificate unlocks once Week 11 is
-            done (the student has reached Week 12), so lead with it here whenever it exists. */}
+        {/* Lesson 12 is the finale (no separate check-in). The certificate unlocks once Lesson 11 is
+            done (the student has reached Lesson 12), so lead with it here whenever it exists. */}
         {cert && <div style={{ marginBottom: 14 }}><CertificateCard cert={cert} /></div>}
         <Wrap
           title={s.done ? "You've graduated 🎓" : "Capstone: Present What You Built"}
