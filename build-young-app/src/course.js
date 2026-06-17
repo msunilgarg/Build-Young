@@ -7,9 +7,9 @@
 // statistics-integrity bar). A few are seeded as examples; the rest show "coming soon" in the
 // Course hub until filled in.
 // THREE ACTS: Act 1 · 0→1 (Weeks 1–7) — go from nothing to a launched, earning product. Act 2 ·
-// 1→100 (Weeks 8–10) — grow first customers into a real business. Act 3 · THE CAPSTONE (Week 11
-// prep + Week 12 present what you built). Lesson content is the per-week
-// activity (weekActivity); Week 12 is the capstone presentation.
+// 1→100 (Weeks 8–10) — grow first customers into a real business. Act 3 · THE CAPSTONE (Lesson 11
+// prep + Lesson 12 present what you built). Lesson content is the per-week
+// activity (weekActivity); Lesson 12 is the capstone presentation.
 export const WEEKS = [
   // ─── Act 1 · 0 → 1 (Weeks 1–7): find a problem → write the spec → build it in 4 layers
   // (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → Wk7 go live ───
@@ -22,9 +22,9 @@ export const WEEKS = [
   { act: 1, t: "Go Live", s: "Point a real web address at it, switch on live payments, and run your launch checklist — your product is open for business.", action: "build", comingSoon: true },
   // ─── Act 2 · 1 → 100 (Weeks 8–10): grow it — funnel → metrics & scaling → product-led growth ───
   { act: 2, t: "The Funnel", s: "Build a funnel into your product — find it → try it → come back — and add the tracking so you can see how people move through it.", action: "build", comingSoon: true },
-  { act: 2, t: "Metrics & Scaling", s: "No new building — read the real numbers from last week's funnel: active users, retention, and where people drop off. Pick the one thing to fix.", action: "build", comingSoon: true },
+  { act: 2, t: "Metrics & Scaling", s: "No new building — read the real numbers from last lesson's funnel: active users, retention, and where people drop off. Pick the one thing to fix.", action: "build", comingSoon: true },
   { act: 2, t: "Product-Led Growth", s: "A discussion: how could your product grow itself? People share what's genuinely good — work out how yours spreads.", action: "build", comingSoon: true },
-  // ─── Act 3 · THE CAPSTONE (Week 11 prep + Week 12 present): get ready, then present what you built ───
+  // ─── Act 3 · THE CAPSTONE (Lesson 11 prep + Lesson 12 present): get ready, then present what you built ───
   { act: 3, t: "Prepare Your Capstone", s: "Get ready to present — pull together the story of what you built, who it's for, and what's next, and polish your product so it shines on the final call.", action: "build", comingSoon: true },
   { act: 3, t: "Capstone: Present What You Built", s: "Present it all — the product you made, who's using it, and what you'd build next. This is your moment to show family and friends what you created; parents are welcome to join this final call to watch.", action: "capstone" },
 ];

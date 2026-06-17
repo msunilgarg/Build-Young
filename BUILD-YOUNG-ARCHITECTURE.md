@@ -45,12 +45,14 @@ implement → verify (independently) → ship — pausing only on the conditions
 | **Self-check** | `npm run build` + `npx vitest run` + repo guards (no `\uXXXX`, no internal model id, no resurrected money-sim markers). Fix until green. |
 | **Verifier** | A **fresh, ephemeral sub-agent** in its own context. It **inherits none of the driver/doer's auto-loaded context** (no `CLAUDE.md`, no `@imports`) — so the spawn prompt must hand it everything: the task's acceptance criteria (`TASKS.md`) + the diff, **and an explicit instruction to read** `ENGINEERING-PLAYBOOK.md` (portable standing rules — §3 diagram/doc + §4 shipping), **`build-young-app/CLAUDE.md` when the diff touches the app/UI** (the project guide's **House style** — e.g. optimize for less scrolling, no flag/emoji glyphs, statistics integrity — plus the module map + quality bars), **and `POSITIONING.md` when the diff touches user-facing copy** (the voice/claims source of truth). A rule is enforced without editing the skills as long as it lives in the doc the verifier is told to read (portable → playbook, project-specific → CLAUDE.md). That's *how it knows to read them* — it's told, because it can't auto-load them. It independently re-runs build/tests and grades the diff against the criteria **and** those standing rules → **PASS** or **FAIL + gaps**. The doer can't grade its own homework. ~3 rounds, then stop. **Runs on the cheaper model tier** (Sonnet-class — `model: "sonnet"`): cost discipline, rigor unchanged (every standing rule + FAIL→fix retry). See [model tiering](./build-young-app/CLAUDE.md) / playbook §9. |
 | **Ship** | Commit (author `Claude <noreply@anthropic.com>`) → push dev branch → open PR → **verify the PR's file diff is non-empty** → squash-merge → sync `main` and re-push the dev branch. |
-| **Ship gate / Pause** | **low/med** → auto squash-merge to the live site. **high / architectural / destructive / outward-facing / ambiguous** → leave the PR open, comment why, and **stop for human review**. |
+| **Ship gate / Pause** | **FULL AUTO:** once the verifier PASSes, **any** task auto squash-merges to the live site — regardless of `risk:`. `risk` only tunes how thorough the verifier is + the doer's model tier, **not** whether a human is asked. The loop pauses **only on a hard floor** (an irreversible real-world side-effect — sending real email, charging/refunding real money, deleting prod data; or a value only the human has). "Stop-and-ask" notes are downgraded to **flag-in-report**. (Overrides the playbook's default "high-risk pauses"; set in [`run-loop/SKILL.md`](./.claude/skills/run-loop/SKILL.md).) |
 | **Machinery** | The SessionStart hook (state resurrection: resync + reinstall guards), the commit guards (incl. the **diagram-currency** check — `scripts/check-architecture-current.sh`), **CI checks** (e.g. `architecture-current` blocks a merge with a stale diagram; `landing-lean` blocks a merge that re-inflates the landing page past its T13 height ceiling), the settings allowlist (and the deny-push-to-`main` rule), the **GitHub MCP** connector, and worktrees for isolation. |
 
-**Stop conditions** (the loop bounces back to you instead of merging): `risk: high`, a destructive/
-irreversible/outward-facing action, an ambiguous/underspecified task, or a verifier that keeps
-failing. Detail in [`ENGINEERING-PLAYBOOK.md`](./ENGINEERING-PLAYBOOK.md) §9 and [`.claude/skills/run-loop/SKILL.md`](./.claude/skills/run-loop/SKILL.md).
+**Hard floors** (the ONLY things that stop the loop — everything else ships after the verifier PASSes):
+the verifier never being skipped (~3 FAIL rounds → stop with the diagnosis), never pushing `main`
+directly, never committing secrets/internal-ids, a genuinely **irreversible real-world side-effect**
+(confirm first), or a task that needs **a value only the human has**. Legal/Terms etc. are flagged in
+the report, not blocked. Detail in [`ENGINEERING-PLAYBOOK.md`](./ENGINEERING-PLAYBOOK.md) §9 and [`.claude/skills/run-loop/SKILL.md`](./.claude/skills/run-loop/SKILL.md).
 
 There is also a **second automation** that predates the loop: [`.github/workflows/content-integrity.yml`](./.github/workflows/content-integrity.yml)
 — a weekly scheduled agent that verifies curriculum links/stats and opens a PR for human review
@@ -222,9 +224,12 @@ The decisions worth defending — each is a deliberate trade-off, not an acciden
   high-risk tasks; a cheaper **Sonnet** verifier + mechanical passes do the bulk. *Why:* the verifier's
   job (re-run, grade against explicit criteria) sits well within a mid-tier model, so we don't burn the
   frontier model on the easy parts — without dropping a single standing check.
-- **Risk drives autonomy.** `low`/`med` auto-merge; `high`/architectural/outward-facing **pause for a
-  human** (PR opened, not merged). *Why:* full speed where it's safe, a human gate exactly where a
-  mistake is expensive (money, auth, the live marketing site).
+- **Full auto — the verifier is the gate, not a human.** Once the verifier PASSes, **every** task
+  auto-merges regardless of `risk:` (which only tunes verifier thoroughness + the doer's model tier).
+  The loop pauses **only on a hard floor** — an irreversible real-world side-effect (real email/charge/
+  refund/data-delete) or a value only the human has. *Why:* the founder opted into full autonomy; rigor
+  is preserved by the independent verifier + always-on guards, not by a per-task human checkpoint. (This
+  project overrides the playbook's default "high-risk pauses for review.")
 - **Durable state in committed files.** The backlog + done-log (`TASKS.md`), the rules, and this diagram
   are all committed. *Why:* the runtime is an **ephemeral container** — committing the state is what lets
   a fresh session resume mid-backlog after a reset.
@@ -277,8 +282,8 @@ consciously skip two:
   the doer's diff (PASS / FAIL+gaps). This is the quality spine, not an afterthought.
 - **Fanout-And-Synthesize** → **fan-out** — independent tasks run as parallel sub-agents (disjoint files,
   frozen foundation); the "synthesize" step is the **one-at-a-time rebase + squash-merge** integration.
-- **Classify-And-Act** → **the risk gate** — classify the task by `risk:` and route (low/med → auto-merge;
-  high/outward-facing → pause for a human).
+- **Classify-And-Act** → **the risk gate** — classify the task by `risk:` to tune verifier thoroughness +
+  the doer's model tier (all risks auto-merge once verified; only a hard floor pauses).
 - **Generate-And-Filter** & **Tournament** → **deliberately not used (yet).** We run *one* doer per task;
   quality comes from the verifier + the always-on guards, not from generating N candidates and judging
   them down. The hook is clear: for a high-variance/hard task, have the doer emit N candidate diffs and
