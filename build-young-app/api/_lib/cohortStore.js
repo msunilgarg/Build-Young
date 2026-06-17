@@ -85,6 +85,10 @@ export function sanitizeCatalog(input) {
         groupAudienceId: str(b && b.groupAudienceId).trim(),
         stripeLink: str(b && b.stripeLink).trim(),
         recordings: sanitizeRecordings(b && b.recordings),
+        // Editable card copy — blank → the card falls back to CARD_DEFAULTS (so the card is unchanged).
+        audience: str(b && b.audience).trim(),
+        format: str(b && b.format).trim(),
+        blurb: str(b && b.blurb).trim(),
         // Optional accelerated pace; omitted when absent so the flagship cadence is regenerated.
         ...(lessons ? { lessons } : {}),
       };

@@ -26,6 +26,22 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
+## [ ] T24 — Make the WHOLE cohort card founder-editable (no code to change copy)  ·  risk: med
+Goal: the parts of the enroll/landing cohort card that are still hard-coded become per-cohort editable
+from the dashboard cohort editor, with the CURRENT text as defaults (so existing cohorts are unchanged).
+Acceptance criteria:
+- New OPTIONAL per-cohort string fields: `audience` (badge suffix after track, default "high school"),
+  `format` (the descriptor line, default "Live online · Zoom"), `blurb` (the description paragraph,
+  default the current "build a product you believe people would pay for …" text). One source of truth
+  for the defaults (a constant) so absent = today's copy.
+- Landing card + Enroll card consume them (`b.audience ?? DEFAULT`, etc.); pace-derived "~N hrs/week /
+  {weeks}-week" (T23) stays computed, not editable.
+- Cohort editor (FounderDashboard) gets inputs for each (textarea for `blurb`); saved via the existing
+  founder-gated PUT; `sanitizeCatalog` (cohortStore.js) whitelists + trims the new fields.
+- Build + tests green; a test covers an override rendering + sanitize round-trip. VERIFY BY RENDERING.
+Files: `src/cohorts.js`, `api/_lib/cohortStore.js`, `src/Landing.jsx`, `src/Enroll.jsx`, `src/FounderDashboard.jsx`, tests
+Stop-and-ask if: founder-only + reversible → none. (Defaults must keep the current card identical.)
+
 ## [ ] T18 — Make class/exercise completion manually controllable from the admin dashboard  ·  risk: high
 Goal: the founder can mark a cohort's progress (which exercises are complete) by hand from the founder
 console, instead of completion being computed *only* from the calendar — so a class that runs ahead/behind
@@ -50,6 +66,9 @@ student-visible "next class"/reminders or only the progress/done-state.
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T23 — Cohort cards: pace-accurate duration/hours + "Enrollment open"  ·  risk: med
+Done (PR #431; merged). New courseDates.cohortSummary → {lessons,hours,weeks,hoursPerWeek}; Landing + Enroll cards state the cohort's real span/load (flagship still 12-week/~3 hrs/week; accelerated shows its own). Seat count → "Enrollment open"/"Enrollment full". Test + build 270; Sonnet-verified by rendering both cards.
 
 ## [x] T17 — Founder schedule, reminders & funnel curve follow the cohort pace  ·  risk: med
 Done (PR #430; merged). Cron reminders (api/_lib/schedule.js) derive each lesson date from the cohort `lessons` schedule (first sitting via cohortLessons) — accelerated cohorts get several reminders/week; flagship byte-identical. Funnel weekCurve relabeled W->L (already lesson 2->12). Founder teaching-schedule view was already pace-aware (T20). schedule.test pace cases; build + 268; Sonnet-verified.

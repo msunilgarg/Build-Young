@@ -1088,7 +1088,11 @@ function CohortEditor() {
             {field(i, "zoom", "Zoom URL")}
             {field(i, "groupEmail", "Group email (whole cohort)")}
             {field(i, "stripeLink", "Stripe Payment Link")}
+            {field(i, "audience", "Card badge audience")}
+            {field(i, "format", "Card format line")}
           </div>
+          <label style={{ display: "block", marginTop: 8 }}><span style={lab}>Card blurb (the sentence after “The full N-week program …”) — leave blank for the default</span>
+            <textarea aria-label={`Card blurb for cohort ${i + 1}`} value={rows[i].blurb ?? ""} onChange={(e) => update(i, "blurb", e.target.value)} rows={2} style={{ ...inp, resize: "vertical" }} placeholder="build a product you believe people would pay for, take it live, …" /></label>
           {paceBlock(i)}
           <div style={{ textAlign: "right", marginTop: 8 }}>
             <span {...act(() => remove(i))} style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.rust }}>Remove cohort</span>

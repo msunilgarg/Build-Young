@@ -51,3 +51,14 @@ export const BATCHES = [
 ];
 
 export const seasonLabel = (key) => (SEASONS.find((s) => s.key === key) || {}).label || "";
+
+// Editable cohort-card COPY — the parts of the enroll/landing card that aren't structural data.
+// Each is an OPTIONAL per-cohort string (`audience`/`format`/`blurb`); these are the DEFAULTS used
+// when a cohort leaves them blank, so the card is identical until a founder overrides it from the
+// dashboard. (The duration/hours line is computed from the cohort's pace — see cohortSummary — not
+// edited here.) `blurb` is the sentence AFTER the "The full N-week program (L lessons) — " prefix.
+export const CARD_DEFAULTS = {
+  audience: "high school", // badge suffix: "Builders · high school"
+  format: "Live online · Zoom", // the format line (the "~N hrs/week" is appended, computed)
+  blurb: "build a product you believe people would pay for, take it live, grow it with a funnel and metrics, and go to market for your first customers. In an AI world, the edge isn't a degree; it's what you can build.",
+};
