@@ -92,6 +92,8 @@ export function sanitizeCatalog(input) {
         // Manual progress override (founder): 0 = AUTO (follow the calendar), 1..12 = on that lesson,
         // 13 = graduated. Effective position = this when ≥1, else the calendar (effectivePosition).
         manualLesson: Math.min(13, Math.max(0, Math.round(num(b && b.manualLesson, 0)))),
+        // Display order: > 0 pins the cohort ahead (ascending); 0 = sort by start date. See sortCohorts.
+        sortOrder: Math.max(0, Math.round(num(b && b.sortOrder, 0))),
         // Optional accelerated pace; omitted when absent so the flagship cadence is regenerated.
         ...(lessons ? { lessons } : {}),
       };
