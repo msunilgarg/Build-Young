@@ -15,7 +15,9 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [age15, setAge15] = useState(false); // eligibility gate — a parent confirms the student is in high school
-  const [batch, setBatch] = useState(preselect || BATCHES[0].id);
+  // Default to the EARLIEST cohort (sortCohorts is chronological), so the dropdown opens on the same
+  // first option the landing tabs lead with (e.g. a Summer cohort before Fall) — not raw catalog order.
+  const [batch, setBatch] = useState(preselect || (sortCohorts(BATCHES)[0] || BATCHES[0]).id);
   const [notified, setNotified] = useState(false); // captured interest for a full cohort
   const b = BATCHES.find((x) => x.id === batch) || BATCHES[0];
   const closed = cohortClosed(b); // sold out, or past the enrollment cutoff (day before start)

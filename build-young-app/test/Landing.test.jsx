@@ -2,6 +2,10 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
+import { Landing } from "../src/Landing.jsx";
+import { CohortsContext } from "../src/lib.js";
+
+const noop = () => {};
 
 // These exercise the self-contained DEMO flow, so pin demo mode AND clear each cohort's Stripe link
 // (empty link = demo checkout) regardless of the production catalog.
@@ -41,5 +45,22 @@ describe("Landing", () => {
     expect(intro.textContent).not.toMatch(/Mondays & Wednesdays/);
     // and the CTA voice rule (POSITIONING.md): "Talk to us", never "…first"
     expect(intro.parentElement.textContent).not.toMatch(/Talk to us first/);
+  });
+
+  // The default-selected season tab must be the EARLIEST OPEN season (catalogSeasons is chronological),
+  // not a hardcoded Fall — so a Summer cohort that precedes Fall opens selected. Render-pinned (we assert
+  // aria-selected on the actual rendered tab, not the selection logic).
+  it("defaults the season tab to the earliest open season (Summer before Fall)", () => {
+    const catalog = [
+      { id: "summer-1", season: "summer", track: "Builders", start: "Aug 10, 2026", day: "Weekdays · 4:00–7:00 PM PT", seats: 10, price: 999, zoom: "", stripeLink: "" },
+      { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PT", seats: 10, price: 999, zoom: "", stripeLink: "" },
+    ];
+    render(
+      <CohortsContext.Provider value={catalog}>
+        <Landing onEnroll={noop} onCall={noop} onLegal={noop} onStory={noop} onCurriculum={noop} onFaq={noop} onLogin={noop} onDashboard={null} dashLabel="" testimonials={[]} />
+      </CohortsContext.Provider>
+    );
+    expect(screen.getByRole("tab", { name: /Summer 2026/i }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tab", { name: /^Fall 2026$/ }).getAttribute("aria-selected")).toBe("false");
   });
 });

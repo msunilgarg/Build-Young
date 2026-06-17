@@ -258,7 +258,13 @@ function Testimonials({ items = [] }) {
 
 export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFaq, onLogin, onDashboard, dashLabel, testimonials = [] }) {
   const BATCHES = useCohorts(); // live catalog (hydrated from /api/cohorts; defaults to code)
-  const [season, setSeason] = useState(SEASONS[0].key);
+  // Default to the EARLIEST OPEN season — catalogSeasons is chronological, so a Summer cohort that
+  // precedes Fall is selected by default (not a hardcoded Fall). `picked` is null until the visitor
+  // taps a tab; then their choice sticks. (Recomputes as the live catalog hydrates.)
+  const seasons = catalogSeasons(BATCHES);
+  const firstOpen = (seasons.find((s) => BATCHES.some((b) => b.season === s.key)) || seasons[0] || SEASONS[0]).key;
+  const [picked, setPicked] = useState(null);
+  const season = picked || firstOpen;
   const [careers, setCareers] = useState(false); // "teach with us" interest modal
   const [scheduleOpen, setScheduleOpen] = useState(false); // "request a different schedule" modal
   return (
@@ -411,11 +417,11 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
         </div>
         {/* season selector */}
         <div role="tablist" aria-label="Choose a season" style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8, marginTop: 22 }}>
-          {catalogSeasons(BATCHES).map((s) => {
+          {seasons.map((s) => {
             const on = season === s.key;
             const open = BATCHES.some((b) => b.season === s.key);
             return (
-              <button key={s.key} role="tab" aria-selected={on} className="btn" onClick={() => setSeason(s.key)} style={{ padding: "9px 18px", borderRadius: 999, fontSize: 14.5, fontWeight: 700, background: on ? C.ink : C.card, color: on ? C.paper2 : C.ink2, border: `1.5px solid ${on ? C.ink : C.line}` }}>{s.label}{!open && <span style={{ marginLeft: 6, fontSize: 11.5, fontWeight: 600, opacity: 0.7 }}>· soon</span>}</button>
+              <button key={s.key} role="tab" aria-selected={on} className="btn" onClick={() => setPicked(s.key)} style={{ padding: "9px 18px", borderRadius: 999, fontSize: 14.5, fontWeight: 700, background: on ? C.ink : C.card, color: on ? C.paper2 : C.ink2, border: `1.5px solid ${on ? C.ink : C.line}` }}>{s.label}{!open && <span style={{ marginLeft: 6, fontSize: 11.5, fontWeight: 600, opacity: 0.7 }}>· soon</span>}</button>
             );
           })}
         </div>
