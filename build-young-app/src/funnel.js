@@ -97,7 +97,7 @@ export function summarize(events, filter = null) {
 
   // Week-by-week progression curve (weeks 2..12 — week N = students who advanced to it).
   const weekCurve = [];
-  for (let w = 2; w <= 12; w++) weekCurve.push({ week: w, label: `W${w}`, value: count("week_advanced", (e) => e.props?.week === w) });
+  for (let w = 2; w <= 12; w++) weekCurve.push({ week: w, label: `L${w}`, value: count("week_advanced", (e) => e.props?.week === w) });
   // Check-in retention curve — one point per monthly check-in (CHECKINS, currently 1).
   const checkinCurve = [];
   for (let c = 1; c <= CHECKINS; c++) checkinCurve.push({ checkin: c, label: `M${c}`, value: count("checkin_completed", (e) => e.props?.checkin === c) });

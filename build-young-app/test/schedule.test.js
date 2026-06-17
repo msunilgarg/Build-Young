@@ -3,6 +3,7 @@ import {
   toUtcMidnight, daysBetween, classDateForWeek, classISOForWeek, dueReminders, REMINDER_OFFSET,
 } from "../api/_lib/schedule.js";
 import { BATCHES } from "../src/cohorts.js";
+import { buildLessonSchedule } from "../src/courseDates.js";
 
 // A sample cohort: fall-mw — Week 1 class is Mon Sep 7, 2026 → Week N class is +7*(N-1) days.
 const MW = BATCHES.find((b) => b.id === "fall-mw");
@@ -58,5 +59,20 @@ describe("dueReminders (2 days before every weekly class)", () => {
     expect(dueReminders("2026-09-06", [MW])).toEqual([]); // 1 day out, not 2
     expect(dueReminders("2026-09-05", [])).toEqual([]);
     expect(dueReminders("2026-09-05", undefined)).toEqual([]);
+  });
+});
+
+describe("pace-aware: dates + reminders follow the cohort's lesson schedule (T17)", () => {
+  // 3 lessons/week → stride 3 → lessons land on day 0, 3, 6 within the first calendar week.
+  const FAST = { id: "fast", start: "Sep 7, 2026", lessons: buildLessonSchedule({ lessonsPerWeek: 3, sittingsPerLesson: 2 }) };
+  it("derives each lesson's date from the schedule, not a fixed +7", () => {
+    expect(classISOForWeek(FAST, 1)).toBe("2026-09-07");
+    expect(classISOForWeek(FAST, 2)).toBe("2026-09-10"); // +3 days, not +7
+    expect(classISOForWeek(FAST, 3)).toBe("2026-09-13");
+  });
+  it("fires reminders MULTIPLE times in one calendar week for an accelerated cohort", () => {
+    expect(dueReminders("2026-09-05", [FAST])).toContainEqual({ batchId: "fast", week: 1 }); // 2 days before day 0
+    expect(dueReminders("2026-09-08", [FAST])).toContainEqual({ batchId: "fast", week: 2 }); // 2 days before day 3
+    expect(dueReminders("2026-09-11", [FAST])).toContainEqual({ batchId: "fast", week: 3 }); // 2 days before day 6
   });
 });
