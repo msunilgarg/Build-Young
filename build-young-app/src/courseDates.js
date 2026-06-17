@@ -33,6 +33,18 @@ export function cohortLessons(batch) {
 export function lessonsTotalFor(batch) {
   return Math.max(1, cohortLessons(batch).length);
 }
+// A cohort's pace summary for display — { lessons, hours, weeks, hoursPerWeek }. `weeks` is the
+// calendar span (the flagship → 12), `hoursPerWeek` the average load over that span (flagship → 3,
+// an accelerated cohort → more). Lets the enroll/landing cards state the REAL duration/load per
+// cohort instead of a hard-coded "12-week · ~3 hrs/week".
+export function cohortSummary(batch) {
+  const lessons = lessonsTotalFor(batch);
+  const hours = lessons * HOURS_PER_LESSON;
+  const sched = cohortLessons(batch);
+  const last = sched[sched.length - 1];
+  const weeks = Math.max(1, Math.floor(last[last.length - 1] / 7) + 1); // calendar weeks spanned
+  return { lessons, hours, weeks, hoursPerWeek: Math.round(hours / weeks) };
+}
 // Build a `lessons` schedule from founder-friendly pace inputs (used by the cohort editor) — the
 // inverse of cohortLessons. Lays the 12 lessons at a fixed stride and spaces each lesson's sittings
 // `gapDays` apart; the stride is the larger of "fit `lessonsPerWeek` into 7 days" and "the span a

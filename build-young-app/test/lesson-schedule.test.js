@@ -1,6 +1,18 @@
 import { describe, it, expect } from "vitest";
-import { buildLessonSchedule, cohortLessons, coursePosition, lessonsTotalFor } from "../src/courseDates.js";
+import { buildLessonSchedule, cohortLessons, coursePosition, lessonsTotalFor, cohortSummary } from "../src/courseDates.js";
 import { sanitizeCatalog } from "../api/_lib/cohortStore.js";
+
+// T23: the enroll/landing card states each cohort's REAL duration/load from cohortSummary.
+describe("cohortSummary (pace shown on the cohort card)", () => {
+  it("flagship → 12 lessons, 36 hrs, 12 weeks, ~3 hrs/week", () => {
+    expect(cohortSummary({})).toEqual({ lessons: 12, hours: 36, weeks: 12, hoursPerWeek: 3 });
+  });
+  it("an accelerated cohort spans fewer weeks at more hrs/week (same 12 lessons / 36 hrs)", () => {
+    const s = cohortSummary({ lessons: buildLessonSchedule({ lessonsPerWeek: 3, sittingsPerLesson: 2 }) });
+    expect(s.lessons).toBe(12); expect(s.hours).toBe(36);
+    expect(s.weeks).toBeLessThan(12); expect(s.hoursPerWeek).toBeGreaterThan(3);
+  });
+});
 
 // T21: the founder console builds a cohort's `lessons` schedule from pace inputs via buildLessonSchedule.
 describe("buildLessonSchedule (founder pace builder)", () => {

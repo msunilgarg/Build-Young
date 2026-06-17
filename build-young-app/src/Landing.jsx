@@ -3,7 +3,7 @@ import { GraduationCap, ArrowRight, Check, Lock, Sparkles, Video, Mail, Linkedin
 import { C, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, Pill, act } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, postJson } from "./lib.js";
-import { cohortClosed } from "./courseDates.js";
+import { cohortClosed, cohortSummary } from "./courseDates.js";
 import { SEASONS, seasonLabel } from "./cohorts.js";
 import { ACTS } from "./course.js";
 
@@ -434,19 +434,20 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
           {BATCHES.filter((b) => b.season === season).map((b) => {
             const acc = b.id.includes("mw") ? C.emerald : C.green;
             const closed = cohortClosed(b);
+            const sum = cohortSummary(b); // real duration/load for THIS cohort's pace
             return (
             <Card key={b.id} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", height: "100%" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: acc }} />
               <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track} · high school</Pill></div>
               <div className="disp" style={{ fontSize: 24, fontWeight: 800, marginTop: 12 }}>Starts {b.start}</div>
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom · ~3 hrs/week</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> Live online · Zoom · ~{sum.hoursPerWeek} hrs/week</div>
               <div style={{ fontSize: 13, color: C.ink2, marginTop: 10, lineHeight: 1.45 }}>
-                The full 12-week program — build a product you believe people would pay for, take it live, grow it with a funnel and metrics, and go to market for your first customers. In an AI world, the edge isn't a degree; it's what you can build.
+                The full {sum.weeks}-week program ({sum.lessons} lessons) — build a product you believe people would pay for, take it live, grow it with a funnel and metrics, and go to market for your first customers. In an AI world, the edge isn't a degree; it's what you can build.
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
-                <span style={{ fontSize: 13, color: closed ? C.rust : (b.seats < 5 ? C.rust : C.muted), fontWeight: 600 }}>{closed ? "Enrollment full" : `${b.seats} seats left`}</span>
+                <span style={{ fontSize: 13, color: closed ? C.rust : C.green, fontWeight: 600 }}>{closed ? "Enrollment full" : "Enrollment open"}</span>
               </div>
               <button className="btn" onClick={() => onEnroll(b.id)} style={{ width: "100%", background: closed ? C.line : acc, color: "#fff", padding: "12px", borderRadius: 4, fontSize: 15 }}>{closed ? "Join the next cohort →" : "Enroll in this batch"}</button>
             </Card>
