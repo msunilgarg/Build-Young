@@ -26,17 +26,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T17 — Founder schedule, class reminders & funnel curve follow the cohort pace  ·  risk: med
-Goal: the founder/ops surfaces and analytics work for any pace, not just weekly.
-Acceptance criteria:
-- Founder console teaching-schedule view ("what am I teaching today/next") computes from the cohort's real
-  schedule (handles several sessions/week), not the `%7` day-pair.
-- The cron "prepare for next session" reminder fires per the actual schedule (multiple per week).
-- The funnel progression curve becomes **exercise 2→12** (still 12 points) so intensive and standard cohorts
-  stay comparable on one chart.
-Files: `src/FounderDashboard.jsx`, `api/_lib/schedule.js`, `api/cron/market-news.js`, `src/funnel.js`,
-`api/funnel.js`, `test/schedule.test.js`, `test/funnel.test.js`
-
 ## [ ] T18 — Make class/exercise completion manually controllable from the admin dashboard  ·  risk: high
 Goal: the founder can mark a cohort's progress (which exercises are complete) by hand from the founder
 console, instead of completion being computed *only* from the calendar — so a class that runs ahead/behind
@@ -61,6 +50,9 @@ student-visible "next class"/reminders or only the progress/done-state.
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T17 — Founder schedule, reminders & funnel curve follow the cohort pace  ·  risk: med
+Done (PR #430; merged). Cron reminders (api/_lib/schedule.js) derive each lesson date from the cohort `lessons` schedule (first sitting via cohortLessons) — accelerated cohorts get several reminders/week; flagship byte-identical. Funnel weekCurve relabeled W->L (already lesson 2->12). Founder teaching-schedule view was already pace-aware (T20). schedule.test pace cases; build + 268; Sonnet-verified.
 
 ## [x] T22 — Simplify refunds: flat 75% within the first week  ·  risk: high
 Done (PR #429; merged, full-auto). Replaced T19's hours proration with a flat rule: full before start; round(price×0.75) within the first-week window (REFUND_RATE=0.75); 0 after. Window/canWithdrawNow unchanged. All refund copy → flat 75%: withdrawal email, dashboard withdrawal dialog + completion card, in-app LEGAL Terms + public/terms.html, and the Enroll/Landing/FAQ policy copy. Internal analytics tier value (refundTier "prorated") kept for data continuity. Tests → full/75%/0; build + 266. Sonnet-verified by RENDERING (FAILed first on a "prorated" completion-card miss → fixed). ⚠ Terms wording changed — flagged for the founder's attorney.
