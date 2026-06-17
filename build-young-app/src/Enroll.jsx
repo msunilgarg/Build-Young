@@ -3,7 +3,7 @@ import { GraduationCap, Check, Lock, Video, Mail, Award } from "lucide-react";
 import { C } from "./theme.js";
 import { Card, Mark, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, setPendingEnroll } from "./lib.js";
-import { cohortClosed } from "./courseDates.js";
+import { cohortClosed, cohortSummary } from "./courseDates.js";
 import { SEASONS, seasonLabel } from "./cohorts.js";
 import { WhyStrip, HesitationStrip } from "./WhyStrip.jsx";
 
@@ -28,6 +28,7 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
     setNotified(true);
   };
   const acc = b.id.includes("mw") ? C.emerald : C.green;
+  const sum = cohortSummary(b); // real duration/load for this cohort's pace
   const inputS = { width: "100%", padding: "12px 14px", borderRadius: 4, border: `1.5px solid ${C.line}`, background: C.paper2, fontSize: 15, marginTop: 6 };
   const label = { fontSize: 13, fontWeight: 700, color: C.ink2 };
   return (
@@ -114,7 +115,7 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 8, fontWeight: 700, letterSpacing: ".04em" }}>WHAT YOU GET FROM ME</div>
                   <div style={{ marginTop: 8, display: "grid", gap: 7 }}>
                     {[
-                      "12 weeks of live classes — 2 sessions a week (~3 hrs), taught by me",
+                      `${sum.lessons} lessons (${sum.hours} hrs) over ${sum.weeks} weeks — ~${sum.hoursPerWeek} hrs/week live, taught by me`,
                       "Your own student dashboard",
                       "Build a real product, grow it, and get your first customers",
                       "A certificate of completion you can add to LinkedIn",
