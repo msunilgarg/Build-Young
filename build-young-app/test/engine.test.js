@@ -47,15 +47,14 @@ describe("withdrawalEmail (refund confirmation)", () => {
     expect(mail.body).toContain(`$${batch.price.toLocaleString()}`);
     expect(mail.body).toContain("Jordan");
   });
-  it("confirms a prorated refund mid-course (counts weeks not yet held)", () => {
-    // Dashboard "Week 3" = 2 weeks attended (week increments on each advance).
-    const s = newState(STUDENT); s.week = 3; s.started = true;
-    const refund = refundFor(batch, true, 3);
+  it("confirms a flat 75% refund within the first-week window", () => {
+    const s = newState(STUDENT); s.week = 1; s.started = true; // within the window
+    const refund = refundFor(batch, true, 1);
+    expect(refund).toBe(Math.round(batch.price * 0.75)); // flat 75%
     const mail = withdrawalEmail(s, batch, refund, false);
     expect(mail.subject).toMatch(/withdrawal is confirmed/i);
-    expect(mail.body).toContain("prorated refund");
-    expect(mail.body).toContain("30 hours not yet held"); // 12 - (3 - 1)
-    expect(mail.body).toContain("Attended: 6 of 36 hours");        // not 3
+    expect(mail.body).toContain("75% refund");
+    expect(mail.body).toContain("75% of tuition");
     expect(mail.body).toContain(`$${refund.toLocaleString()}`);
   });
 });
@@ -123,17 +122,18 @@ describe("enrollClosed / cohortClosed (last day to enroll = day before start)", 
   });
 });
 
-describe("refundFor (weeks not yet held)", () => {
+describe("refundFor (flat: full before start · 75% in the first week · 0 after)", () => {
   const batch = BATCHES.find((b) => b.id === "fall-mw"); // $999
   it("is the full price before the cohort starts", () => {
     expect(refundFor(batch, false, 1)).toBe(batch.price);
   });
-  it("refunds for every session not yet held (no off-by-one)", () => {
-    // "Week 2" = 1 attended → 11 unheld; "Week 3" = 2 attended → 10 unheld.
-    expect(refundFor(batch, true, 2)).toBe(Math.round((batch.price * 11) / 12)); // $916, not $833
-    expect(refundFor(batch, true, 3)).toBe(Math.round((batch.price * 10) / 12)); // $833
+  it("is a flat 75% within the first-week window (lesson 1)", () => {
+    expect(refundFor(batch, true, 1)).toBe(Math.round(batch.price * 0.75)); // $749
   });
-  it("never refunds more than full or less than zero across the course", () => {
+  it("is non-refundable (0) once past the first week", () => {
+    for (let wk = 2; wk <= 12; wk++) expect(refundFor(batch, true, wk)).toBe(0);
+  });
+  it("never refunds more than full or less than zero", () => {
     for (let wk = 1; wk <= 12; wk++) {
       const r = refundFor(batch, true, wk);
       expect(r).toBeLessThanOrEqual(batch.price);

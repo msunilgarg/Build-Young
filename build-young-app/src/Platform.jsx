@@ -1160,11 +1160,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
   const startInfo = cohortStartInfo(batch);
   const notStarted = !s.started; // before the first session → full refund
   const canWithdraw = canWithdrawNow(s); // pre-start, or within the first REFUND_WEEKS weeks
-  // `week` increments on each advance (attending session 1 moves you to "Lesson 2"), so sessions
-  // actually held = week − 1 once started. Refund covers every session NOT yet held — matching
-  // the Terms ("the fraction of the program's hours not yet held").
-  const attended = notStarted ? 0 : s.week - 1;
-  const unheld = 12 - attended;
+  // Refund is a flat rule: full before start; a flat 75% within the first week; nothing after.
   const refund = refundFor(batch, s.started, s.week);
   // Confirm a withdrawal: email the refund/cancellation confirmation (once — a ref guards
   // against a double-click), drop it in the in-app inbox, and show the done state. The send is
@@ -1268,7 +1264,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
                 <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>
                   {notStarted
                     ? <>Your cohort hasn't started yet, so you'll receive a <b>full refund of {fmt(refund)}</b> — no questions asked. This frees up your seat for someone else.</>
-                    : <>You've attended {attended * 3} of 36 hours. You'll receive a prorated refund of <b>{fmt(refund)}</b> for the {unheld * 3} hours not yet held. Refunds are available only through the {REFUND_WINDOW}, so this can't be reversed.</>}
+                    : <>You'll receive a <b>flat 75% refund of {fmt(refund)}</b> — the rate for cancelling within the {REFUND_WINDOW}. Refunds are available only through the {REFUND_WINDOW}, so this can't be reversed.</>}
                 </p>
                 <label style={{ display: "block", marginTop: 16 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: C.ink2, display: "block", marginBottom: 5 }}>Reason for cancelling <span style={{ color: C.rust }}>*</span></span>
@@ -1290,7 +1286,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
               <div style={{ textAlign: "center" }}>
                 <div style={{ width: 56, height: 56, borderRadius: 4, background: C.emerald, display: "grid", placeItems: "center", margin: "4px auto 14px" }}><Check size={28} color="#fff" /></div>
                 <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Withdrawal complete</div>
-                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "prorated"} refund of <b>{fmt(refund)}</b> is being processed to {s.student.email} and will land on your original payment method within 5–10 business days. A confirmation email is on its way. We're sorry to see you go.</p>
+                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "flat 75%"} refund of <b>{fmt(refund)}</b> is being processed to {s.student.email} and will land on your original payment method within 5–10 business days. A confirmation email is on its way. We're sorry to see you go.</p>
                 <button className="btn" onClick={onExit} style={{ width: "100%", marginTop: 18, background: C.ink, color: C.paper2, padding: 12, borderRadius: 4, fontSize: 14 }}>Return home</button>
               </div>
             )}
@@ -1330,7 +1326,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
               <div style={{ fontSize: 13, color: C.muted, maxWidth: 560 }}>
                 {notStarted
                   ? <>Changed your mind before the first class? Cancel any time before your cohort starts on <b style={{ color: C.ink }}>{classDateLabel(batch, 1)}</b> for a <b style={{ color: C.ink }}>full refund of {fmt(refund)}</b> — no questions asked.</>
-                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>prorated refund</b> through the end of the {REFUND_WINDOW} — up until your Lesson {REFUND_WEEKS + 1} session on <b style={{ color: C.ink }}>{classDateLabel(batch, REFUND_WEEKS + 1)}</b>. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> for the {unheld * 3} hours you haven't attended.</>}
+                  : <>Changed your mind? You can withdraw for a <b style={{ color: C.ink }}>flat 75% refund</b> through the end of the {REFUND_WINDOW} — up until your Lesson {REFUND_WEEKS + 1} session on <b style={{ color: C.ink }}>{classDateLabel(batch, REFUND_WEEKS + 1)}</b>. You'd get back <b style={{ color: C.ink }}>{fmt(refund)}</b> (75% of tuition).</>}
               </div>
               <button className="btn" onClick={() => setWithdraw("confirm")} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "9px 14px", borderRadius: 4, fontSize: 13 }}>{notStarted ? "Cancel enrollment" : "Withdraw"}</button>
             </Card>
