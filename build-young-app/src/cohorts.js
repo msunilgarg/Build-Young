@@ -61,13 +61,27 @@ function titleCase(k) {
 }
 // The seasons to DISPLAY (landing tabs + enroll dropdown): the predefined SEASONS plus any season key
 // that actually appears in the live catalog but isn't predefined — so a founder-created cohort in a new
-// season (e.g. "summer") shows up instead of being orphaned. Predefined first, then extras in first-seen
-// order. Each entry is `{ key, label, note }`.
+// season (e.g. "summer") shows up instead of being orphaned. Ordered CHRONOLOGICALLY by each season's
+// earliest cohort start (so a Summer 2026 cohort precedes Fall 2026); seasons with no cohort yet
+// (winter/spring "soon") sort last, keeping their predefined order. A catalog-only season's label gets
+// the year from its earliest cohort ("summer" + 2026 → "Summer 2026"). Each entry is `{ key, label, note }`.
 export function catalogSeasons(batches) {
-  const extra = [...new Set((batches || []).map((b) => b && b.season).filter(Boolean))]
-    .filter((k) => !SEASONS.some((s) => s.key === k))
-    .map((k) => ({ key: k, label: seasonLabel(k), note: "" }));
-  return [...SEASONS, ...extra];
+  const list = batches || [];
+  const keys = [...SEASONS.map((s) => s.key), ...list.map((b) => b && b.season).filter(Boolean)];
+  const seen = new Set();
+  const out = [];
+  for (const k of keys) {
+    if (seen.has(k)) continue;
+    seen.add(k);
+    const starts = list.filter((b) => b && b.season === k).map((b) => Date.parse(b.start || "")).filter((t) => !Number.isNaN(t));
+    const earliest = starts.length ? Math.min(...starts) : Infinity;
+    const predefined = SEASONS.find((s) => s.key === k);
+    const year = starts.length ? new Date(earliest).getFullYear() : "";
+    const label = predefined ? predefined.label : `${titleCase(k)}${year ? ` ${year}` : ""}`;
+    out.push({ key: k, label, note: predefined ? predefined.note : "", _ord: earliest });
+  }
+  out.sort((a, b) => a._ord - b._ord); // chronological by earliest cohort; no-cohort seasons (∞) last, stable
+  return out.map(({ _ord, ...s }) => s);
 }
 
 // Editable cohort-card COPY — the parts of the enroll/landing card that aren't structural data.
