@@ -65,3 +65,20 @@ export const CARD_DEFAULTS = {
   format: "Live online · Zoom", // the format line (the "~N hrs/week" is appended, computed)
   blurb: "build a product you believe people would pay for, take it live, grow it with a funnel and metrics, and go to market for your first customers. In an AI world, the edge isn't a degree; it's what you can build.",
 };
+
+// Display order for cohort lists (landing cards + enroll dropdown), founder-controlled: a cohort with
+// an explicit `sortOrder` (> 0) leads, ascending; the rest fall back to START DATE ascending — so an
+// August cohort appears before a September one automatically, and the founder can pin an explicit
+// order when needed. Unparseable dates sort last. Pure (returns a new array).
+export function sortCohorts(list) {
+  const key = (b) => {
+    const so = Number(b && b.sortOrder) || 0;
+    const t = Date.parse((b && b.start) || "");
+    return [so > 0 ? 0 : 1, so, Number.isNaN(t) ? Infinity : t];
+  };
+  return [...(list || [])].sort((a, c) => {
+    const ka = key(a), kc = key(c);
+    for (let i = 0; i < ka.length; i++) if (ka[i] !== kc[i]) return ka[i] - kc[i];
+    return 0;
+  });
+}

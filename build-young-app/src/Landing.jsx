@@ -4,7 +4,7 @@ import { C, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, Pill, act } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, postJson } from "./lib.js";
 import { cohortClosed, cohortSummary } from "./courseDates.js";
-import { SEASONS, seasonLabel, CARD_DEFAULTS } from "./cohorts.js";
+import { SEASONS, seasonLabel, CARD_DEFAULTS, sortCohorts } from "./cohorts.js";
 import { ACTS } from "./course.js";
 
 // The marketing landing page + all its sub-pieces (hero preview, product teaser, testimonials,
@@ -431,7 +431,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
           </div>
         ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16, marginTop: 20 }}>
-          {BATCHES.filter((b) => b.season === season).map((b) => {
+          {sortCohorts(BATCHES.filter((b) => b.season === season)).map((b) => {
             const acc = b.id.includes("mw") ? C.emerald : C.green;
             const closed = cohortClosed(b);
             const sum = cohortSummary(b); // real duration/load for THIS cohort's pace
