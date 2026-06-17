@@ -3,7 +3,7 @@ import { GraduationCap, ArrowRight, Check, CircleDollarSign, Video, Linkedin, Do
 import { C, fmt, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, act, Stat } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, AUTH, downloadFile, HESITATION_REASONS } from "./lib.js";
-import { cohortDays, cohortTime, nextClass, dayNum, classMeetingOn, REFUND_WINDOW } from "./courseDates.js";
+import { cohortDays, cohortTime, nextClass, dayNum, classMeetingOn, REFUND_WINDOW, cohortLessons, buildLessonSchedule } from "./courseDates.js";
 import { SEASONS, seasonLabel } from "./cohorts.js";
 import { WEEKS } from "./course.js";
 import { HOMEWORK, OBJECTIVES, setHomework, setObjectives } from "./courseState.js";
@@ -1036,6 +1036,43 @@ function CohortEditor() {
     </>);
   };
 
+  // PACE — every cohort runs the same 12 lessons (3 hrs each); a cohort optionally carries a `lessons`
+  // schedule (per-lesson sitting day-offsets) so the founder can run them at ANY cadence, not just
+  // weekly. The two inputs (lessons/week + sittings/lesson) generate that schedule via
+  // buildLessonSchedule; "Use weekly default" drops `lessons` so the flagship 12-week cadence returns.
+  // `_lpw`/`_spl` are UI-only (the server's sanitizeCatalog drops unknown keys, so they never persist).
+  const genSchedule = (i) => update(i, "lessons", buildLessonSchedule({ lessonsPerWeek: Number(rows[i]._lpw || 1), sittingsPerLesson: Number(rows[i]._spl || 2) }));
+  const clearSchedule = (i) => setRows((rs) => rs.map((r, j) => { if (j !== i) return r; const { lessons, ...rest } = r; return rest; }));
+  const endDate = (b) => {
+    const start = b.start ? new Date(b.start) : null;
+    if (!start || isNaN(start.getTime())) return "";
+    const sched = cohortLessons(b), last = sched[sched.length - 1];
+    const d = new Date(start.getTime() + last[last.length - 1] * 86400000);
+    return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  };
+  const paceBlock = (i) => {
+    const b = rows[i], custom = Array.isArray(b.lessons) && b.lessons.length > 0;
+    const sittings = custom ? b.lessons.reduce((n, s) => n + s.length, 0) : null;
+    return (
+      <div style={{ marginTop: 8, padding: "8px 10px", background: C.paper2, borderRadius: 4, border: `1px dashed ${C.line}` }}>
+        <span style={lab}>Pace — 12 lessons (3 hrs each = 36 hrs); set how fast they run</span>
+        <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap", marginTop: 4 }}>
+          <label style={{ minWidth: 0 }}><span style={lab}>Lessons / week</span>
+            <input type="number" min="1" max="7" aria-label={`Lessons per week for cohort ${i + 1}`} value={b._lpw ?? 1} onChange={(e) => update(i, "_lpw", e.target.value)} style={{ ...inp, width: 92 }} /></label>
+          <label style={{ minWidth: 0 }}><span style={lab}>Sittings / lesson</span>
+            <input type="number" min="1" max="3" aria-label={`Sittings per lesson for cohort ${i + 1}`} value={b._spl ?? 2} onChange={(e) => update(i, "_spl", e.target.value)} style={{ ...inp, width: 92 }} /></label>
+          <button type="button" className="btn" onClick={() => genSchedule(i)} style={{ background: C.emerald, color: "#fff", padding: "7px 12px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>Generate schedule</button>
+          {custom && <button type="button" className="btn" onClick={() => clearSchedule(i)} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "7px 12px", borderRadius: 4, fontSize: 12.5 }}>Use weekly default</button>}
+        </div>
+        <div style={{ fontSize: 12, color: C.muted, marginTop: 6 }}>
+          {custom
+            ? <>Custom schedule · {b.lessons.length} lessons · {sittings} sittings{endDate(b) ? <> · ends <b style={{ color: C.ink }}>{endDate(b)}</b></> : <> · set a start date to preview the end</>}</>
+            : <>Weekly default — the flagship 12-week cadence (2 sittings/week){endDate(b) ? <> · ends <b style={{ color: C.ink }}>{endDate(b)}</b></> : ""}.</>}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Card style={{ padding: 16 }}>
       <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Edits go live on the public site immediately (no redeploy). Each cohort's <b>id</b> must be unique and stable; its Stripe link's metadata/redirect should use that id.</div>
@@ -1053,6 +1090,7 @@ function CohortEditor() {
             {field(i, "groupEmail", "Group email (whole cohort)")}
             {field(i, "stripeLink", "Stripe Payment Link")}
           </div>
+          {paceBlock(i)}
           <div style={{ textAlign: "right", marginTop: 8 }}>
             <span {...act(() => remove(i))} style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.rust }}>Remove cohort</span>
           </div>

@@ -33,6 +33,24 @@ export function cohortLessons(batch) {
 export function lessonsTotalFor(batch) {
   return Math.max(1, cohortLessons(batch).length);
 }
+// Build a `lessons` schedule from founder-friendly pace inputs (used by the cohort editor) — the
+// inverse of cohortLessons. Lays the 12 lessons at a fixed stride and spaces each lesson's sittings
+// `gapDays` apart; the stride is the larger of "fit `lessonsPerWeek` into 7 days" and "the span a
+// lesson's own sittings need" (so offsets stay strictly ascending — no collisions). At the defaults
+// (1 lesson/week, 2 sittings) it reproduces the flagship `[[0,2],[7,9], …, [77,79]]` exactly.
+export function buildLessonSchedule({ lessonsPerWeek = 1, sittingsPerLesson = 2, gapDays = 2 } = {}) {
+  const lpw = Math.max(1, Math.round(lessonsPerWeek));
+  const spl = Math.max(1, Math.round(sittingsPerLesson));
+  const gap = Math.max(1, Math.round(gapDays));
+  const span = (spl - 1) * gap;                       // days a lesson's sittings span
+  const stride = Math.max(Math.ceil(7 / lpw), span + 1); // days between lesson starts (no overlap)
+  const out = [];
+  for (let i = 0; i < LESSONS_TOTAL; i++) {
+    const base = i * stride;
+    out.push(Array.from({ length: spl }, (_, s) => base + s * gap));
+  }
+  return out;
+}
 // Every sitting, flattened + ascending, tagged with its lesson (1-based) and session (1-based within
 // the lesson). The single source the calendar/progression helpers iterate.
 function allSittings(batch) {
