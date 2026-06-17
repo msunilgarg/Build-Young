@@ -48,6 +48,22 @@ implement, open a PR, and pause for human review. Confirm whether manual complet
 student-visible "next class"/reminders or only the progress/done-state.
 
 ---
+## [ ] T25 — Founder controls the order cohorts appear (sort from the dashboard)  ·  risk: med
+Goal: the founder decides the sequence cohorts show in — e.g. an August cohort appears BEFORE a
+September one — managed from the dashboard, not by creation/array order.
+Acceptance criteria:
+- All cohort displays render in a deterministic, founder-controllable order: **sort by `start` date
+  ascending by default** (so August precedes September automatically), applied to the landing
+  "Upcoming batches" cards AND the enroll dropdown (within each season group).
+- Plus an **explicit manual order** the founder can set in the cohort editor — reorder ↑/↓ (or a
+  numeric `sortOrder`) — that overrides the date sort when set; persisted via the existing PUT and
+  `sanitizeCatalog`. (Pick the simpler of the two to implement cleanly; date-sort is the floor.)
+- Unparseable/var dates sort last, not crash. Existing single-season order unchanged where dates already ascend.
+- Build + tests green; a test covers the sort (out-of-order starts → chronological) + manual override. VERIFY BY RENDERING.
+Files: `src/cohorts.js` (a `sortCohorts` helper or `sortOrder` field), `src/Landing.jsx`, `src/Enroll.jsx`,
+`src/FounderDashboard.jsx`, `api/_lib/cohortStore.js`, tests
+Stop-and-ask if: founder-only + reversible → none.
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
