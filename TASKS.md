@@ -26,24 +26,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T20 — Lesson-based pace model: a lesson = 3 hrs, with FLEXIBLE sittings (don't hardcode 2/lesson)  ·  risk: high
-Goal: make the **3-hour LESSON** the unit (12 lessons = 36 hrs, invariant) and let each lesson be delivered
-as ANY number of live sittings the founder schedules — flagship = two 90-min sittings; an accelerated cohort
-may use one 3-hr slot or several short ones. Do NOT hardcode "2 sittings/lesson" (T14's interim assumption);
-the lesson (3 hrs) is the only fixed unit, sitting cadence is fully flexible per cohort.
-Acceptance criteria:
-- Represent the schedule as **lessons → their sitting day-offsets** (e.g. `lessons: [[0,2],[7,9], …]`) so
-  sittings-per-lesson varies per cohort. Absent → the flagship default (12 lessons × `[7w, 7w+2]`),
-  reproducing today's behavior EXACTLY.
-- Rename the internal unit exercise→**lesson** (`LESSONS_TOTAL`, `lessonsTotalFor`, `cohortLessons`); keep
-  back-compat re-exports if anything still imports the old names. `coursePosition` reports the current
-  LESSON; `refundFor` prorates over lessons (× 3 hrs); `classMeetingOn`/`nextClass`/`sessionDate` work
-  across all sittings of all lessons.
-- Every existing `engine.test.js` + `course-pace.test.js` invariance case stays green; add a test for a
-  cohort whose lessons have a NON-2 sitting count (e.g. one lesson = 1 sitting, another = 3).
-Files: `src/courseDates.js`, `src/cohorts.js`, `api/_lib/cohortStore.js`, `test/course-pace.test.js`
-Stop-and-ask if: foundation + behavioral — implement, open a PR, pause for human review.
-
 ## [ ] T19 — Refund proration by HOURS (not weeks); keep the 1-week window  ·  risk: high
 Goal: the prorated refund is computed from HOURS of the course delivered/remaining (the pace-independent
 quantity), not calendar weeks — and the full-refund eligibility window stays "1 week" as today.
@@ -123,6 +105,18 @@ student-visible "next class"/reminders or only the progress/done-state.
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T20 — Lesson-based pace model (3-hr lesson, flexible sittings)  ·  risk: high
+Done (human-approved the merge; PR #422). Refined T14 to the founder's spec: the unit is the **3-hour
+LESSON** (12 = 36 hrs, invariant), and each lesson is delivered as ANY number of live **sittings** (no
+hardcoded 2/lesson). A cohort optionally carries `lessons` — one entry per lesson, each a list of that
+lesson's sitting day-offsets from `start` (e.g. `[[0,2],[7,9], …]`); `cohortLessons` regenerates the
+flagship cadence when absent (byte-identical — every `engine.test.js` case green). `coursePosition` reports
+the current lesson (return key still `week` for back-compat); `classMeetingOn`/`nextClass`/`sessionDate`
+work across any sitting count; `refundFor` prorates over lessons. Renamed exercise→lesson
+(`LESSONS_TOTAL`/`lessonsTotalFor`/`cohortLessons`; old T14 names removed). `cohortStore.sanitizeLessons`
+validates the field; `CLAUDE.md` "Program shape" updated; `test/course-pace.test.js` covers a compressed
+cadence + a 1-and-3-sitting lesson. Build + 261 tests; Sonnet-verified (invariance traced).
 
 ## [x] T14 — Cohort pace as a per-cohort property (exercise as the unit)  ·  risk: high
 Done (human-approved the merge — high-risk pause honored; PR #421). The course's atomic unit is now the
