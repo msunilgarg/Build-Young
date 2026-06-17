@@ -26,24 +26,11 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T25 — Founder controls the order cohorts appear (sort from the dashboard)  ·  risk: med
-Goal: the founder decides the sequence cohorts show in — e.g. an August cohort appears BEFORE a
-September one — managed from the dashboard, not by creation/array order.
-Acceptance criteria:
-- All cohort displays render in a deterministic, founder-controllable order: **sort by `start` date
-  ascending by default** (so August precedes September automatically), applied to the landing
-  "Upcoming batches" cards AND the enroll dropdown (within each season group).
-- Plus an **explicit manual order** the founder can set in the cohort editor — reorder ↑/↓ (or a
-  numeric `sortOrder`) — that overrides the date sort when set; persisted via the existing PUT and
-  `sanitizeCatalog`. (Pick the simpler of the two to implement cleanly; date-sort is the floor.)
-- Unparseable/var dates sort last, not crash. Existing single-season order unchanged where dates already ascend.
-- Build + tests green; a test covers the sort (out-of-order starts → chronological) + manual override. VERIFY BY RENDERING.
-Files: `src/cohorts.js` (a `sortCohorts` helper or `sortOrder` field), `src/Landing.jsx`, `src/Enroll.jsx`,
-`src/FounderDashboard.jsx`, `api/_lib/cohortStore.js`, tests
-Stop-and-ask if: founder-only + reversible → none.
-
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T25 — Founder controls cohort display order (sort by start date + override)  ·  risk: med
+Done (PR #434; merged, full-auto). New pure sortCohorts(list) (cohorts.js): start-date ascending by default (August before September) + explicit per-cohort sortOrder (>0) to pin ahead; unparseable dates last. Applied to landing cards + enroll dropdown (per season). Cohort editor "Display order" field; sanitizeCatalog clamps sortOrder ≥0. test/sort-cohorts.test.js; build + 281; Sonnet-verified by rendering (reversed seed → chronological; Sep 7 before Sep 8).
 
 ## [x] T18 — Founder can manually set a cohort's progress (effectivePosition override)  ·  risk: high
 Done (PR #433; merged, full-auto). New courseDates.effectivePosition(batch) = per-cohort manualLesson override when set (1..12 on that lesson; 13 graduated) else the calendar coursePosition (unchanged). Platform position-sync uses it, so progression/cert(done)/refund(s.week) follow it; cohorts without an override are identical. Cohort editor "Progress override" select; sanitizeCatalog clamps 0..13. CLAUDE.md + cohorts.js doc. test/effective-position.test.js; build + 277; Sonnet-verified (override + cert/refund cascade + fallback deep-equals).

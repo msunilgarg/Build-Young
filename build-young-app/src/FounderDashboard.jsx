@@ -1009,6 +1009,28 @@ function CohortEditor() {
       <input aria-label={`${label} for cohort ${i + 1}`} type={type} value={rows[i][key] ?? ""} onChange={(e) => update(i, key, type === "number" ? e.target.value : e.target.value)} style={inp} /></label>
   );
 
+  // The cohort `start` is stored as a human, Date-parseable string ("Sep 7, 2026") that the card +
+  // all the date math read directly. The editor offers a native calendar PICKER instead of free text:
+  // we convert the stored string ↔ the input's ISO "yyyy-mm-dd" on the fly, and keep STORING the human
+  // form so nothing downstream changes. ISO is built from local Y/M/D (and ISO input passes through) so
+  // no timezone off-by-one. Unparseable/blank → empty picker.
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const startToISO = (s) => {
+    const t = String(s || "").trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t; // already ISO
+    const d = new Date(t);
+    return isNaN(d.getTime()) ? "" : `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+  };
+  const isoToStart = (iso) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+    return m ? `${MONTHS[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}` : ""; // e.g. "Sep 7, 2026"
+  };
+  const startField = (i) => (
+    <label style={{ gridColumn: `span 1`, minWidth: 0 }}><span style={lab}>Start date</span>
+      <input type="date" aria-label={`Start date for cohort ${i + 1}`} value={startToISO(rows[i].start)} onChange={(e) => update(i, "start", isoToStart(e.target.value))} style={inp} /></label>
+  );
+
   // The cohort `day` stores ONE full label ("Mondays & Wednesdays · 5:00–6:30 PM PT"). Here we edit
   // it as days+time TEXT + a timezone DROPDOWN, recomposing on change so `day` stays a single string
   // (nothing downstream — display, emails, cron — has to change). Picker enforces a consistent tz.
@@ -1081,7 +1103,7 @@ function CohortEditor() {
             {field(i, "id", "Cohort id")}
             {field(i, "season", "Season key")}
             {field(i, "track", "Track")}
-            {field(i, "start", "Start (e.g. Sep 7, 2026)")}
+            {startField(i)}
             {dayField(i)}
             {field(i, "price", "Price ($)", "number")}
             {field(i, "seats", "Seats", "number")}
