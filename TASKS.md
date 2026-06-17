@@ -26,22 +26,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
-## [ ] T24 — Make the WHOLE cohort card founder-editable (no code to change copy)  ·  risk: med
-Goal: the parts of the enroll/landing cohort card that are still hard-coded become per-cohort editable
-from the dashboard cohort editor, with the CURRENT text as defaults (so existing cohorts are unchanged).
-Acceptance criteria:
-- New OPTIONAL per-cohort string fields: `audience` (badge suffix after track, default "high school"),
-  `format` (the descriptor line, default "Live online · Zoom"), `blurb` (the description paragraph,
-  default the current "build a product you believe people would pay for …" text). One source of truth
-  for the defaults (a constant) so absent = today's copy.
-- Landing card + Enroll card consume them (`b.audience ?? DEFAULT`, etc.); pace-derived "~N hrs/week /
-  {weeks}-week" (T23) stays computed, not editable.
-- Cohort editor (FounderDashboard) gets inputs for each (textarea for `blurb`); saved via the existing
-  founder-gated PUT; `sanitizeCatalog` (cohortStore.js) whitelists + trims the new fields.
-- Build + tests green; a test covers an override rendering + sanitize round-trip. VERIFY BY RENDERING.
-Files: `src/cohorts.js`, `api/_lib/cohortStore.js`, `src/Landing.jsx`, `src/Enroll.jsx`, `src/FounderDashboard.jsx`, tests
-Stop-and-ask if: founder-only + reversible → none. (Defaults must keep the current card identical.)
-
 ## [ ] T18 — Make class/exercise completion manually controllable from the admin dashboard  ·  risk: high
 Goal: the founder can mark a cohort's progress (which exercises are complete) by hand from the founder
 console, instead of completion being computed *only* from the calendar — so a class that runs ahead/behind
@@ -66,6 +50,9 @@ student-visible "next class"/reminders or only the progress/done-state.
 ---
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T24 — Make the whole cohort card founder-editable (badge/format/blurb)  ·  risk: med
+Done (PR #432; merged). CARD_DEFAULTS (cohorts.js) + optional per-cohort audience/format/blurb; Landing card renders `b.field || default` (badge suffix, format line, description blurb), pace line stays computed (T23). Cohort editor gains the two inputs + a blurb textarea; sanitizeCatalog trims/whitelists. test/card-copy.test.js; build + 273; Sonnet-verified by rendering the card (defaults + overrides) + the editor inputs.
 
 ## [x] T23 — Cohort cards: pace-accurate duration/hours + "Enrollment open"  ·  risk: med
 Done (PR #431; merged). New courseDates.cohortSummary → {lessons,hours,weeks,hoursPerWeek}; Landing + Enroll cards state the cohort's real span/load (flagship still 12-week/~3 hrs/week; accelerated shows its own). Seat count → "Enrollment open"/"Enrollment full". Test + build 270; Sonnet-verified by rendering both cards.
