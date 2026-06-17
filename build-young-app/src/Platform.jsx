@@ -1286,7 +1286,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
               <div style={{ textAlign: "center" }}>
                 <div style={{ width: 56, height: 56, borderRadius: 4, background: C.emerald, display: "grid", placeItems: "center", margin: "4px auto 14px" }}><Check size={28} color="#fff" /></div>
                 <div className="disp" style={{ fontSize: 20, fontWeight: 800 }}>Withdrawal complete</div>
-                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "prorated"} refund of <b>{fmt(refund)}</b> is being processed to {s.student.email} and will land on your original payment method within 5–10 business days. A confirmation email is on its way. We're sorry to see you go.</p>
+                <p style={{ color: C.ink2, fontSize: 14, lineHeight: 1.55, marginTop: 8 }}>A {notStarted ? "full" : "flat 75%"} refund of <b>{fmt(refund)}</b> is being processed to {s.student.email} and will land on your original payment method within 5–10 business days. A confirmation email is on its way. We're sorry to see you go.</p>
                 <button className="btn" onClick={onExit} style={{ width: "100%", marginTop: 18, background: C.ink, color: C.paper2, padding: 12, borderRadius: 4, fontSize: 14 }}>Return home</button>
               </div>
             )}

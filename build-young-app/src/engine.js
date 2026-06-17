@@ -61,7 +61,7 @@ The Team`,
   };
 }
 // Refund/cancellation confirmation — sent when a student confirms a withdrawal. Full refund if
-// the cohort hasn't started; prorated (for the unattended sessions) within the first week.
+// the cohort hasn't started; otherwise a flat 75% refund within the first-week window.
 // Why a family cancels — preset options (the `value` is aggregate-safe for the funnel; the
 // optional free-text note goes only to the founder's email, never the analytics stream).
 export const CANCEL_REASONS = [

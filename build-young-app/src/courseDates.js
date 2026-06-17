@@ -233,7 +233,7 @@ export function refundFor(batch, started, week) {
   if (week <= REFUND_WEEKS) return Math.round(batch.price * REFUND_RATE);
   return 0;
 }
-// The prorated-refund window: a cancellation is only allowed during the first N weeks of class
+// The refund-eligibility window: a cancellation is only allowed during the first N weeks of class
 // (plus any time before the cohort starts). Change this one number to move the window.
 export const REFUND_WEEKS = 1;
 // Human label for the window, singular-aware ("first week" vs "first N weeks"). Copy uses this.
