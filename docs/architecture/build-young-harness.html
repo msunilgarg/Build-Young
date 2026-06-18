@@ -124,19 +124,23 @@
   <!-- STEP 1 — ① author -->
   <g class="step" data-step="1">
     <rect class="grp" x="36" y="62" width="324" height="96" rx="10"/>
-    <text class="grpt" x="52" y="83">① You author the work — a spec becomes a task</text>
-    <rect class="human" x="52" y="96" width="62" height="42" rx="10"/>
-    <text class="nlb" x="83" y="113" text-anchor="middle">You</text>
-    <text class="sm" x="83" y="127" text-anchor="middle">start here</text>
-    <text class="nlb" x="123" y="120" text-anchor="middle">→</text>
-    <rect class="state" x="132" y="96" width="100" height="42" rx="10"/>
-    <text class="nl" x="182" y="113" text-anchor="middle">📐 SPECS/</text>
-    <text class="sm" x="182" y="127" text-anchor="middle">write a spec</text>
-    <text class="nlb" x="236" y="120" text-anchor="middle">→</text>
-    <rect class="state" x="240" y="96" width="104" height="42" rx="10"/>
-    <text class="nl" x="292" y="113" text-anchor="middle">🗂 TASKS.md</text>
-    <text class="sm" x="292" y="127" text-anchor="middle">promote to a task</text>
-    <text class="sm" x="52" y="152">non-trivial → spec it first; a bug-level fix → straight to a task</text>
+    <text class="grpt" x="52" y="83">① You author the work — the spec-first gate</text>
+    <rect class="human" x="46" y="100" width="42" height="32" rx="8"/>
+    <text class="nlb" x="67" y="120" text-anchor="middle">You</text>
+    <path class="edge" d="M88,116 L97,116" marker-end="url(#arr)"/>
+    <polygon class="plain" points="128,99 160,116 128,133 96,116"/>
+    <text class="nl" x="128" y="119" text-anchor="middle">spec it?</text>
+    <path class="edge" d="M160,116 L171,116" marker-end="url(#arr)"/>
+    <text class="sm" x="165" y="95" text-anchor="middle">yes</text>
+    <rect class="state" x="172" y="100" width="74" height="32" rx="8"/>
+    <text class="nl" x="209" y="113" text-anchor="middle">📐 SPECS/</text>
+    <text class="sm" x="209" y="125" text-anchor="middle">write a spec</text>
+    <path class="edge" d="M246,116 L255,116" marker-end="url(#arr)"/>
+    <rect class="state" x="256" y="100" width="88" height="32" rx="8"/>
+    <text class="nl" x="300" y="113" text-anchor="middle">🗂 TASKS.md</text>
+    <text class="sm" x="300" y="125" text-anchor="middle">promote to a task</text>
+    <path class="edge" d="M128,133 L128,147 L300,147 L300,134" marker-end="url(#arr)"/>
+    <text class="sm" x="200" y="144" text-anchor="middle">no · bug-level fix → straight to a task</text>
   </g>
 
   <!-- STEP 2 — ② kick off -->
@@ -369,7 +373,7 @@
 <script>
   var CAPTIONS = [
     "",
-    "<b>① You author the work.</b> You write a one-page spec, then promote it to a task. Non-trivial work is specced first; a bug-level fix can go straight to a task.",
+    "<b>① You author the work — and YOU make the spec-first call.</b> Non-trivial / feature work → write a one-page 📐 spec, then promote it to a task. A bug-level fix → straight to a task (skip the spec). Borderline → you decide; an issue-triggered run just infers it conservatively.",
     "<b>② Kick off a run.</b> Two on-ramps: locally (<code>/run-loop</code> — full auto, with a Sonnet sub-agent as the verifier), or a labeled GitHub issue (a single agent that pauses on high-risk). The SessionStart hook resyncs each session.",
     "<b>③ The loop begins.</b> The Main agent (driver + doer) picks the task, reads its spec, and writes the smallest change — on the premium model, staying in the task's file lane.",
     "<b>Self-check.</b> It gates its own work first: build + tests + repo guards, fixing until green.",
