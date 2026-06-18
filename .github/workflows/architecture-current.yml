@@ -2,7 +2,7 @@ name: Architecture diagram current
 
 # Mechanically guarantees the rendered architecture exports are never stale: if a PR (or push) edits a
 # diagram source — the ```mermaid block in BUILD-YOUNG-ARCHITECTURE.md OR the interactive loop diagram
-# docs/architecture/loop.html — without regenerating docs/architecture/, this fails and blocks the merge.
+# docs/architecture/build-young-harness.html — without regenerating docs/architecture/, this fails and blocks the merge.
 # Deterministic — it only hashes those sources vs docs/architecture/.source-hash (written by
 # scripts/render-architecture.sh), so no Chromium/render is needed and there's no cross-machine flakiness.
 # This is the "enforce, don't document" backstop for diagram currency — the agent can't forget.

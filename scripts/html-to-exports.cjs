@@ -1,7 +1,7 @@
-// Render the canonical interactive loop diagram (docs/architecture/loop.html) to versioned exports.
-//   loop.png = the COLLAPSED overview (compact inline image for BUILD-YOUNG-ARCHITECTURE.md).
-//   loop.pdf = the FULLY-EXPANDED walkthrough (the zoomable/printable handout).
-// loop.html is the SINGLE SOURCE — edit it, then re-run scripts/render-architecture.sh.
+// Render the canonical interactive loop diagram (docs/architecture/build-young-harness.html) to versioned exports.
+//   build-young-harness.png = the COLLAPSED overview (compact inline image for BUILD-YOUNG-ARCHITECTURE.md).
+//   build-young-harness.pdf = the FULLY-EXPANDED walkthrough (the zoomable/printable handout).
+// build-young-harness.html is the SINGLE SOURCE — edit it, then re-run scripts/render-architecture.sh.
 // Uses puppeteer-core driving the headless Chrome the Mermaid CLI provisions (~/.cache/puppeteer).
 // Usage: node scripts/html-to-exports.cjs <input.html> <out-basename-without-ext>
 const { existsSync } = require("fs");
