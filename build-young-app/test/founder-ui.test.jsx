@@ -113,3 +113,25 @@ describe("FounderDashboard (account-gated)", () => {
     expect(await screen.findByText("Summer 2026")).toBeInTheDocument();
   });
 });
+
+describe("FounderDashboard — Students tab declutter (T34)", () => {
+  afterEach(() => { vi.restoreAllMocks(); });
+  it("splits Students into Enrolled vs Inbound sub-views (one cluster at a time)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ status: 200, ok: true, json: async () => ({ events: [] }) })));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Students"));
+    // Default = Enrolled students: enrolled sections show, inbound ones are hidden.
+    expect(screen.getByText("Partner enrollments")).toBeInTheDocument();
+    expect(screen.getByText("Reset a test account")).toBeInTheDocument();
+    expect(screen.queryByText("Tutor applications")).toBeNull();
+    expect(screen.queryByText("Partner inquiries")).toBeNull();
+    // Switch to Inbound: leads/requests show, enrolled sections hide.
+    await user.click(screen.getByText(/Inbound/i));
+    expect(screen.getByText("Tutor applications")).toBeInTheDocument();
+    expect(screen.getByText("Partner inquiries")).toBeInTheDocument();
+    expect(screen.getByText("Schedule requests")).toBeInTheDocument();
+    expect(screen.queryByText("Partner enrollments")).toBeNull();
+  });
+});
