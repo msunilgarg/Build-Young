@@ -80,6 +80,7 @@ export default function App() {
   const [verifyId, setVerifyId] = useState(""); // cert id for the public /verify/<id> page
   const [batches, setBatches] = useState(BATCHES); // live cohort catalog (hydrated from /api/cohorts)
   const [testimonials, setTestimonials] = useState([]); // public consented student showcase
+  const [partners, setPartners] = useState([]); // public featured-partner display fields (006 "where to find us")
   const [, bumpCfg] = useState(0); // bump to re-render after CONFIG hydration (settings are mutated in place)
   // Hydrate the live, founder-editable config once on mount — the cohort catalog AND the runtime
   // settings (booking link, contact email, LinkedIn) — so founder edits show without a redeploy.
@@ -94,6 +95,7 @@ export default function App() {
         if (!live) return;
         if (cat && Array.isArray(cat.batches) && cat.batches.length) setBatches(cat.batches);
         if (cat && Array.isArray(cat.testimonials)) setTestimonials(cat.testimonials);
+        if (cat && Array.isArray(cat.partners)) setPartners(cat.partners);
         if (cat && Array.isArray(cat.homework) && cat.homework.length === 12) setHomework(cat.homework);
         if (cat && Array.isArray(cat.objectives) && cat.objectives.length === 12) setObjectives(cat.objectives);
         if (cat && cat.settings && typeof cat.settings === "object") {
@@ -372,7 +374,7 @@ export default function App() {
   // a screen is one appended entry — no more editing the router in several scattered spots.
   // (`verify` keeps the /verify/<id> URL, whose id lives in the path, so it has no static `path`.)
   const ROUTES = [
-    { key: "home", path: "/", title: "Build Young — hands-on AI for high schoolers: build a real product", desc: "Build Young is a live, hands-on AI program for high schoolers: build a real product with AI, take it live, grow it, and get your first customers. The edge isn't a degree — it's what you can build. Raising builders, not consumers.", el: <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onStory={startStory} onCurriculum={startCurriculum} onFaq={startFaq} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} /> },
+    { key: "home", path: "/", title: "Build Young — hands-on AI for high schoolers: build a real product", desc: "Build Young is a live, hands-on AI program for high schoolers: build a real product with AI, take it live, grow it, and get your first customers. The edge isn't a degree — it's what you can build. Raising builders, not consumers.", el: <Landing onEnroll={startEnroll} onCall={startCall} onLegal={setLegal} onStory={startStory} onCurriculum={startCurriculum} onFaq={startFaq} onLogin={CONFIG.authEnabled ? goLogin : null} onDashboard={(isFounder || state) ? goDashboard : null} dashLabel={isFounder ? "Admin" : "My dashboard"} testimonials={testimonials} partners={partners} /> },
     { key: "enroll", path: "/enroll", title: "Enroll — Build Young", desc: "Reserve your seat in a Build Young cohort — 12 weeks, live and online, where teens build a real product with AI and learn to grow it.", el: <Enroll preselect={preselect} onDone={finishEnroll} onBack={goBack} onCall={startCall} onHome={goHome} /> },
     { key: "call", path: "/book-call", title: "Talk to us — Build Young", desc: "Book a free 15-minute call to see whether Build Young is the right fit for your teen.", el: <BookCall onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} /> },
     { key: "story", path: "/about", title: "Our story — Build Young", desc: "Why Build Young exists: a founder's note on raising builders not consumers, why AI makes starting young the edge, and what the 12-week program is really about.", el: <About onBack={goBack} onHome={goHome} onEnroll={() => startEnroll()} onCall={startCall} /> },

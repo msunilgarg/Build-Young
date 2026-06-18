@@ -256,7 +256,7 @@ function Testimonials({ items = [] }) {
   );
 }
 
-export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFaq, onLogin, onDashboard, dashLabel, testimonials = [] }) {
+export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFaq, onLogin, onDashboard, dashLabel, testimonials = [], partners = [] }) {
   const BATCHES = useCohorts(); // live catalog (hydrated from /api/cohorts; defaults to code)
   // Default to the EARLIEST OPEN season — catalogSeasons is chronological, so a Summer cohort that
   // precedes Fall is selected by default (not a hardcoded Fall). `picked` is null until the visitor
@@ -465,6 +465,27 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
         <div style={{ textAlign: "center", marginTop: 22, fontSize: 14, color: C.muted }}>
           Don't see a time that works for you? <span {...act(() => setScheduleOpen(true))} style={{ color: C.emerald, fontWeight: 700, cursor: "pointer" }}>Tell us your ideal schedule →</span>
         </div>
+
+        {/* "Where to find us" — featured partners (006-A). Compact strip; hidden entirely when none are
+            featured. Logos (text-name fallback) link to OUR listing on each platform. Only public display
+            fields ever reach here (server allowlist). */}
+        {Array.isArray(partners) && partners.length > 0 && (
+          <div style={{ marginTop: 30, paddingTop: 22, borderTop: `1px solid ${C.line}`, textAlign: "center" }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, letterSpacing: ".06em", textTransform: "uppercase" }}>Where to find us</div>
+            <div style={{ color: C.muted, fontSize: 13.5, marginTop: 6, lineHeight: 1.5 }}>You can also enroll through our partners — same program, their checkout.</div>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flexWrap: "wrap", gap: 14, marginTop: 14 }}>
+              {partners.map((p) => {
+                const name = p.displayName || p.id;
+                const inner = p.logo
+                  ? <img src={p.logo} alt={name} style={{ height: 30, maxWidth: 150, objectFit: "contain", display: "block" }} />
+                  : <span style={{ fontSize: 14, fontWeight: 700, color: C.ink2 }}>{name}</span>;
+                return p.publicUrl
+                  ? <a key={p.id} href={p.publicUrl} target="_blank" rel="noopener noreferrer" title={`Find Build Young on ${name}`} style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", border: `1px solid ${C.line}`, borderRadius: 8, background: C.card }}>{inner}</a>
+                  : <span key={p.id} style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", border: `1px solid ${C.line}`, borderRadius: 8, background: C.card }}>{inner}</span>;
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* FAQ teaser — the full Q&A + "ask a question" form live on their own page (/faq) */}

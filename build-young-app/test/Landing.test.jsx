@@ -89,3 +89,23 @@ describe("Landing", () => {
     expect(screen.getByRole("tab", { name: /^Fall 2026$/ }).getAttribute("aria-selected")).toBe("true");
   });
 });
+
+describe("Where-to-find-us partner strip (006-A)", () => {
+  const renderLanding = (partners) => render(
+    <CohortsContext.Provider value={BATCHES}>
+      <Landing onEnroll={noop} onCall={noop} onLegal={noop} onStory={noop} onCurriculum={noop} onFaq={noop} onLogin={noop} onDashboard={null} dashLabel="" testimonials={[]} partners={partners} />
+    </CohortsContext.Provider>
+  );
+  it("renders a compact strip linking OUT to featured partners; hidden when none", () => {
+    const withP = renderLanding([{ id: "outschool", displayName: "Outschool", publicUrl: "https://outschool.com/byoung", blurb: "" }]);
+    expect(withP.getByText(/Where to find us/i)).toBeInTheDocument();
+    const link = withP.getByRole("link", { name: /Outschool/i });
+    expect(link).toHaveAttribute("href", "https://outschool.com/byoung");
+    expect(link.getAttribute("target")).toBe("_blank");
+    expect(link.getAttribute("rel")).toContain("noopener"); // security: external link hygiene
+    withP.unmount();
+
+    const none = renderLanding([]);
+    expect(none.queryByText(/Where to find us/i)).toBeNull(); // no empty shell when nothing featured
+  });
+});
