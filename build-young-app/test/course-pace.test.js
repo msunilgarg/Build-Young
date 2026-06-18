@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   cohortLessons, lessonsTotalFor, coursePosition, classMeetingOn, nextClass,
   refundFor, LESSONS_TOTAL, HOURS_PER_LESSON,
+  cohortEndDate, cohortEndLabel, paceFromLessons, buildLessonSchedule,
 } from "../src/courseDates.js";
 
 // The flagship cohort (no `lessons`) must behave EXACTLY as before: 12 lessons, two 90-min sittings a
@@ -70,6 +71,38 @@ describe("classMeetingOn / nextClass follow the cohort's real schedule", () => {
   });
   it("nextClass before start is the first sitting", () => {
     expect(nextClass(INTENSIVE, new Date(2026, 6, 1))).toMatchObject({ week: 1, session: 1 });
+  });
+});
+
+describe("cohortEndDate / cohortEndLabel — the last class date, derived from start + pace", () => {
+  it("flagship ends start + 79 days (lesson 12's last sitting)", () => {
+    // Sep 7, 2026 + 79 days = Nov 25, 2026 (last sitting offset = 11*7+2).
+    expect(cohortEndLabel(FLAGSHIP)).toBe("Nov 25, 2026");
+    const d = cohortEndDate(FLAGSHIP);
+    expect([d.getFullYear(), d.getMonth() + 1, d.getDate()]).toEqual([2026, 11, 25]);
+  });
+  it("accelerated cohort ends sooner (its largest sitting offset)", () => {
+    // INTENSIVE last sitting = +26 days from Jul 6, 2026 = Aug 1, 2026.
+    expect(cohortEndLabel(INTENSIVE)).toBe("Aug 1, 2026");
+  });
+  it("unparseable start → empty label / null date", () => {
+    expect(cohortEndLabel({ start: "" })).toBe("");
+    expect(cohortEndDate({ start: "nope" })).toBe(null);
+  });
+});
+
+describe("paceFromLessons — inverse of buildLessonSchedule (shows a cohort's REAL pace in the editor)", () => {
+  it("absent/empty schedule → the flagship default (1 lesson/week, 2 sittings)", () => {
+    expect(paceFromLessons(undefined)).toEqual({ lessonsPerWeek: 1, sittingsPerLesson: 2 });
+    expect(paceFromLessons([])).toEqual({ lessonsPerWeek: 1, sittingsPerLesson: 2 });
+  });
+  it("reads back an accelerated schedule (4 lessons/week, 1 sitting) — the Summer case", () => {
+    const sched = buildLessonSchedule({ lessonsPerWeek: 4, sittingsPerLesson: 1 });
+    expect(paceFromLessons(sched)).toEqual({ lessonsPerWeek: 4, sittingsPerLesson: 1 });
+  });
+  it("round-trips other generated paces", () => {
+    expect(paceFromLessons(buildLessonSchedule({ lessonsPerWeek: 2, sittingsPerLesson: 2 }))).toEqual({ lessonsPerWeek: 2, sittingsPerLesson: 2 });
+    expect(paceFromLessons(buildLessonSchedule({ lessonsPerWeek: 3, sittingsPerLesson: 1 }))).toEqual({ lessonsPerWeek: 3, sittingsPerLesson: 1 });
   });
 });
 

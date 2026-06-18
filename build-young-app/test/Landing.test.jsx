@@ -47,6 +47,13 @@ describe("Landing", () => {
     expect(intro.parentElement.textContent).not.toMatch(/Talk to us first/);
   });
 
+  // Each cohort card shows its END date alongside the start — derived from start + pace (the seed
+  // flagship fall-mw starts Sep 7, 2026 → 12 lessons end Nov 25, 2026). Render-pinned (visible string).
+  it("shows each cohort's end date on the card", () => {
+    render(<App />);
+    expect(screen.getByText(/through Nov 25, 2026/)).toBeInTheDocument();
+  });
+
   // The default-selected season tab must be the EARLIEST OPEN season (catalogSeasons is chronological),
   // not a hardcoded Fall — so a Summer cohort that precedes Fall opens selected. Render-pinned (we assert
   // aria-selected on the actual rendered tab, not the selection logic).

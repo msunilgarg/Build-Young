@@ -41,6 +41,28 @@ describe("FounderDashboard (account-gated)", () => {
     // Students tab: certificates / build plans / reset.
     await user.click(screen.getByText("Students"));
     expect(await screen.findByText(/Reset a test account/i)).toBeInTheDocument();
+  });
+
+  it("cohort editor shows the cohort's REAL pace (derived from its saved schedule), not 1/2 defaults", async () => {
+    // An accelerated cohort: 12 lessons, 4 a week, 1 sitting each (Aug 10 + offsets 0..17 → ends Aug 27).
+    const accelerated = [[0], [1], [2], [3], [7], [8], [9], [10], [14], [15], [16], [17]];
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) {
+        return { status: 200, ok: true, json: async () => ({ batches: [{ id: "summer-1", season: "summer", track: "Builders", start: "Aug 10, 2026", day: "Weekdays · 4:00–7:00 PM PT", price: 999, seats: 10, zoom: "", stripeLink: "", lessons: accelerated }], checkins: 0 }) };
+      }
+      return { status: 200, json: async () => ({ events: [] }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel")); // leave the Today tab (its body also says "Cohorts & course")
+    await user.click(screen.getByText("Cohorts & course"));
+    await screen.findByDisplayValue("summer-1");
+    // The pace inputs reflect the REAL saved schedule (4 / 1), NOT the generator defaults (1 / 2).
+    expect(screen.getByLabelText(/Lessons per week for cohort 1/i)).toHaveValue(4);
+    expect(screen.getByLabelText(/Sittings per lesson for cohort 1/i)).toHaveValue(1);
+    // …and the derived end date is shown (start Aug 10 + offsets 0..17 → Aug 27).
+    expect(screen.getByText(/Aug 27, 2026/)).toBeInTheDocument();
 
     // Settings tab: site settings + admins + system status.
     await user.click(screen.getByText("Settings"));

@@ -45,6 +45,18 @@ export function cohortSummary(batch) {
   const weeks = Math.max(1, Math.floor(last[last.length - 1] / 7) + 1); // calendar weeks spanned
   return { lessons, hours, weeks, hoursPerWeek: Math.round(hours / weeks) };
 }
+// The INVERSE of buildLessonSchedule: read a saved `lessons` schedule back into the founder-friendly
+// pace inputs { lessonsPerWeek, sittingsPerLesson } so the cohort editor shows the cohort's REAL pace
+// (not the generator's 1/2 defaults). sittings/lesson = the first lesson's sitting count; lessons/week
+// = how many lessons start within the first 7-day window. Absent/empty schedule → the flagship default
+// (1 lesson/week, 2 sittings) — what the weekly cadence regenerates.
+export function paceFromLessons(lessons) {
+  const sched = Array.isArray(lessons) && lessons.length && lessons.every((s) => Array.isArray(s) && s.length) ? lessons : null;
+  if (!sched) return { lessonsPerWeek: 1, sittingsPerLesson: 2 };
+  const sittingsPerLesson = Math.max(1, sched[0].length);
+  const lessonsPerWeek = Math.max(1, sched.filter((s) => s[0] < 7).length);
+  return { lessonsPerWeek, sittingsPerLesson };
+}
 // Build a `lessons` schedule from founder-friendly pace inputs (used by the cohort editor) — the
 // inverse of cohortLessons. Places `lessonsPerWeek` lessons on CONSECUTIVE days within each 7-day week
 // (then jumps to the next week), spacing each lesson's own sittings `gapDays` apart — so the schedule
@@ -141,6 +153,22 @@ export function cohortStartInfo(batch, now = new Date()) {
 // 7w+2). So the whole-day offset from `start`, found among a lesson's sittings, tells us the lesson +
 // session. (`week`/`session` keep their names for back-compat: `week` = lesson number.)
 export const dayNum = (d) => Math.round(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() / 86400000);
+// The cohort's LAST class date (a Date) — the day of the final lesson's final sitting, = start +
+// the largest sitting offset. Derived from the cohort's `lessons` schedule, so it's correct at any
+// pace and auto-updates when the founder changes the start date or the pace (no separate config
+// field needed). Returns null if the start is unparseable.
+export function cohortEndDate(batch) {
+  const start = batch && batch.start ? new Date(batch.start) : null;
+  if (!start || isNaN(start.getTime())) return null;
+  const lessons = cohortLessons(batch);
+  const lastOffset = Math.max(...lessons.map((sits) => sits[sits.length - 1]));
+  return new Date(start.getTime() + lastOffset * 86400000);
+}
+// The end date as a short label matching the `start` style ("Nov 25, 2026"); "" if unparseable.
+export function cohortEndLabel(batch) {
+  const d = cohortEndDate(batch);
+  return d ? d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+}
 // Does this cohort meet on `day`? → { week, session } or null (before start / not a scheduled day).
 export function classMeetingOn(batch, day = new Date()) {
   const start = batch && batch.start ? new Date(batch.start) : null;
