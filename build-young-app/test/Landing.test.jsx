@@ -120,3 +120,14 @@ describe("Partner with us modal (006-B)", () => {
     expect(screen.getByLabelText("Your email")).toBeInTheDocument();
   });
 });
+
+describe("Cohort card description = the blurb, no auto lead-in", () => {
+  it("renders the description exactly (no 'The full N-week program (12 lessons) —' prefix)", () => {
+    render(<App />);
+    // the founder-editable description shows (one per cohort card)…
+    expect(screen.getAllByText(/Build a product you believe people would pay for/i).length).toBeGreaterThan(0);
+    // …with NO computed lead-in prepended (duration lives on other lines: ~hrs/week, start→end dates)
+    expect(screen.queryAllByText(/week program \(/i)).toHaveLength(0);
+    expect(screen.queryAllByText(/The full \d+-week program/i)).toHaveLength(0);
+  });
+});

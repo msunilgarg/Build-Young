@@ -1160,8 +1160,8 @@ function CohortEditor() {
             {field(i, "format", "Card format line")}
             {field(i, "sortOrder", "Display order (0 = by date)", "number")}
           </div>
-          <label style={{ display: "block", marginTop: 8 }}><span style={lab}>Card blurb (the sentence after “The full N-week program …”) — leave blank for the default</span>
-            <textarea aria-label={`Card blurb for cohort ${i + 1}`} value={rows[i].blurb ?? ""} onChange={(e) => update(i, "blurb", e.target.value)} rows={2} style={{ ...inp, resize: "vertical" }} placeholder="build a product you believe people would pay for, take it live, …" /></label>
+          <label style={{ display: "block", marginTop: 8 }}><span style={lab}>Card description (shown in full on the cohort card) — leave blank for the default</span>
+            <textarea aria-label={`Card description for cohort ${i + 1}`} value={rows[i].blurb ?? ""} onChange={(e) => update(i, "blurb", e.target.value)} rows={2} style={{ ...inp, resize: "vertical" }} placeholder="Build a product you believe people would pay for, take it live, …" /></label>
           {paceBlock(i)}
           <label style={{ display: "block", marginTop: 8 }}>
             <span style={lab}>Progress override — where this cohort actually is (use if class ran ahead/behind its dates)</span>
