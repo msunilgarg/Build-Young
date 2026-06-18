@@ -29,16 +29,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 005 — third-party (marketplace/reseller) enrollment. See SPECS/005-third-party-enrollment.md.
      Ordered by dependency (T26 → T31); each is independently shippable. ===== -->
 
-## [ ] T27 — Partner enrollment record + "Add partner enrollment" form (INERT save)  ·  risk: high
-Goal: Founder can manually create a PENDING partner enrollment without Stripe; saving does nothing student-facing.
-Acceptance criteria:
-- Enrollment model carries `paymentSource:"partner"`, `partner:<id>`, `externalRef`, snapshot `priceCents` + `cutPct`, `onboarded:false`.
-- Console form: name, email, cohort, partner (from T26), externalRef → creates a PENDING record. Saving sends NO email, provisions NO access, adds NOTHING to Resend, does NOT fire `enrolled`. Duplicate email blocked; cohort-full override allowed.
-- Test: saving creates a pending record and sends/fires nothing.
-Files: api/_lib/ (enrollment store + founder-only create path), api/funnel.js, src/FounderDashboard.jsx, CLAUDE.md.
-Stop-and-ask if: creating the student account/record is irreversible, or it touches the Stripe webhook path.
-Depends on: T26.
-
 ## [ ] T28 — "Start onboarding" explicit action (email + access + audience + activate)  ·  risk: high
 Goal: An explicit per-record action onboards a pending partner student EXACTLY like a direct enrollment.
 Acceptance criteria:
@@ -80,6 +70,9 @@ Depends on: T27.
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T27 — Partner enrollment record + "Add partner enrollment" form (INERT save)  ·  risk: high
+Done (PR #450; merged, full-auto). Enrollment store (api/_lib/store.js) extended: a partner seat carries `paymentSource:"partner"` + `partner` + `externalRef` + snapshotted `priceCents`/`cutPct` + `onboarded` (PENDING=false); normal Stripe records byte-identical. `listEnrollments` passes partner fields through; new `listPartnerEnrollments` aggregates across cohorts. Founder-gated `POST /api/funnel?resource=partner-enroll` creates a PENDING record (price/cut snapshotted server-side, duplicate-email blocked) and is INERT — the store only HSETs, so NO email/access/Resend audience, NOT counted as `enrolled`. `GET ?resource=partner-enrollments` lists them. Console: Students → "Partner enrollments" form + pending/onboarded list. Tests: store partner record pending+snapshot+only-HSET, list pass-through+filter, back-compat, founder-ui render. CLAUDE.md + arch table. Build + 303; Sonnet-verified (inert-save guarantee — only addEnrollment called; both endpoints founder-gated; snapshots server-side).
 
 ## [x] T26 — Partners registry + store (config: name + cut %, public display fields)  ·  risk: med
 Done (PR #448; merged, full-auto). New KV-backed `api/_lib/partnerStore.js`: each partner `{ id, name, cutPct (0..1 commission, FOUNDER-ONLY), displayName, logo, publicUrl, blurb, featureOnSite }`. `sanitizePartners` clamps cutPct, guards the logo (data:image/… or http(s), capped), trims, dedupes ids, coerces featureOnSite. Founder-gated `PUT /api/funnel?resource=partners` + `GET ?resource=partners` (full records). `publicPartners()` = a HARD allowlist of 5 display fields for FEATURED partners only, folded into `GET /api/cohorts` so cutPct/settlement can never leak (structurally — the projection enumerates only the allowlist, no spread). Console "Partners" editor under Settings (name + cut % + display fields + Feature-on-site toggle; cut % shown as %, stored as 0..1). test/partner-store.test.js (sanitize/clamp/logo + publicPartners omits money/internal) + founder-ui render assertion. CLAUDE.md + architecture table. Build + 301; Sonnet-verified (money-leak guarantee + gating + sanitization + doc currency).
