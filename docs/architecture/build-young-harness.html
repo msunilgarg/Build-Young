@@ -158,7 +158,7 @@
     <text class="sm" x="198" y="298" text-anchor="middle">drains TASKS.md · FULL AUTO · Sonnet sub-agent verifier</text>
     <rect class="tool" x="52" y="307" width="292" height="30" rx="6"/>
     <text class="nlb" x="198" y="322" text-anchor="middle">CI — a “loop-task” issue triggers the Action</text>
-    <text class="sm" x="198" y="333" text-anchor="middle">single agent · pauses on high-risk · SessionStart resyncs each session</text>
+    <text class="sm" x="198" y="333" text-anchor="middle">single agent · pauses on high-risk · SessionStart resyncs</text>
   </g>
 
   <!-- STEP 3 — kicks off → loop + Main agent -->
@@ -170,7 +170,7 @@
     <rect class="agent" x="502" y="156" width="308" height="66" rx="8"/>
     <text class="nlb" x="656" y="178" text-anchor="middle">Main agent — driver + doer</text>
     <text class="nl" x="656" y="194" text-anchor="middle">pick the task (+ read its 📐 spec) · write the smallest change</text>
-    <text class="sm" x="656" y="210" text-anchor="middle">.claude/skills/run-loop · premium model · stays in the task's file lane</text>
+    <text class="sm" x="656" y="210" text-anchor="middle">premium model · stays in the task's file lane</text>
   </g>
 
   <!-- STEP 4 — Self-check -->
@@ -187,7 +187,7 @@
     <rect class="subagent" x="502" y="346" width="308" height="66" rx="8"/>
     <text class="nlb" x="656" y="368" text-anchor="middle">Verifier — fresh, independent sub-agent</text>
     <text class="nl" x="656" y="384" text-anchor="middle">re-runs build/tests · grades the diff vs criteria + rules</text>
-    <text class="sm" x="656" y="400" text-anchor="middle">own context (inherits nothing) · model: sonnet · returns PASS / FAIL+gaps</text>
+    <text class="sm" x="656" y="400" text-anchor="middle">own context · model: sonnet · returns PASS / FAIL + gaps</text>
     <path class="edge-d" d="M810,378 C 838,356 838,200 810,184" marker-end="url(#arrd)"/>
     <text class="elabelr" x="846" y="284" text-anchor="middle" transform="rotate(90 846 284)">fail → fix</text>
   </g>
@@ -223,7 +223,7 @@
     <rect class="gh" x="36" y="316" width="324" height="244" rx="10"/>
     <text class="ght" x="52" y="337">📁 GitHub repo — single source of truth</text>
     <text class="sm" x="52" y="352">all committed here, so a fresh container resumes from it</text>
-    <text class="sm" x="52" y="368">📐 SPECS/ · 🗂 TASKS.md · .github/workflows · src/ — all versioned together</text>
+    <text class="sm" x="52" y="368">📐 SPECS/ · 🗂 TASKS.md · workflows · src/ — all versioned together</text>
     <rect class="state" x="52" y="374" width="292" height="44" rx="6"/>
     <text class="nl" x="198" y="393" text-anchor="middle">🌐 ENGINEERING-PLAYBOOK.md</text>
     <text class="sm" x="198" y="409" text-anchor="middle">common &amp; portable across repos — kept in-repo (@imported)</text>
@@ -233,7 +233,7 @@
     <rect class="state" x="202" y="426" width="142" height="44" rx="6"/>
     <text class="nl" x="273" y="445" text-anchor="middle">📦 POSITIONING.md</text>
     <text class="sm" x="273" y="459" text-anchor="middle">this project</text>
-    <text class="sm" x="52" y="488">📦 keep the rules in the repo so they travel with the code (versioned, reviewable);</text>
+    <text class="sm" x="52" y="488">📦 the rules live in the repo, so they travel with the code (versioned).</text>
     <text class="sm" x="52" y="501">these three are what the doer follows + the verifier grades against.</text>
     <path class="edge-d" d="M344,398 C 412,388 448,376 470,366" marker-end="url(#arrd)"/>
     <text class="elabel" x="406" y="384" text-anchor="middle">the backlog + the rules</text>
@@ -243,7 +243,7 @@
   <g class="step" data-step="10">
     <rect class="state" x="864" y="62" width="700" height="46" rx="8"/>
     <text class="chp" x="876" y="80">🗂 The task in play — what the verifier grades against (authored in ①)</text>
-    <text class="cb" x="876" y="97">each task = goal · acceptance criteria (the verifier grades the diff vs THESE) · risk · committed so a fresh container resumes — its 📐 SPEC holds the full decisions</text>
+    <text class="cb" x="876" y="97">each task = goal · acceptance criteria (the verifier grades the diff vs these) · risk · its 📐 SPEC holds the full decisions</text>
     <rect class="core" x="864" y="112" width="700" height="288" rx="10"/>
     <text class="ct" x="884" y="134">📋 The rules — read with the task above; the verifier grades every change against both</text>
     <text class="ch" x="884" y="158">🌐 ENGINEERING-PLAYBOOK.md — THE CORE: portable engineering practice (works in any repo)</text>
@@ -260,7 +260,7 @@
     <text class="chp" x="884" y="351">📦 POSITIONING.md — voice &amp; claims (project-specific)</text>
     <text class="cb" x="888" y="367">tagline “raising builders, not consumers” · what we DON'T claim (no income/return promises; build WITH AI, not coding)</text>
     <text class="cb" x="888" y="382">· the canonical phrasings (e.g. “Talk to us” · the First-year builder prize)</text>
-    <text class="sm" x="884" y="396">Fresh verifier inherits none of this — it is TOLD to read them: 🌐 always · 📦 CLAUDE on app/UI · 📦 POSITIONING on copy · 📐 the task's SPEC when it references one.</text>
+    <text class="sm" x="884" y="396">Fresh verifier inherits none of this — it is TOLD what to read: 🌐 always · 📦 CLAUDE on app/UI · 📦 POSITIONING on copy · 📐 the task's SPEC.</text>
   </g>
 
   <!-- STEP 11 — hard floor / pause -->
@@ -304,8 +304,8 @@
     <rect class="toollite" x="864" y="486" width="700" height="104" rx="10"/>
     <text class="mt" x="884" y="510">🛡 Always-on machinery — enforced by hooks &amp; GitHub Actions, not memory</text>
     <text class="md" x="884" y="532">on commit / push / PR → guards + CI block: internal model-ids · stale diagram (hash) · page-height · push-to-main</text>
-    <text class="md" x="884" y="552">GitHub MCP = the agent's API to GitHub (PR · issue · merge) · git worktrees = fan-out isolation · SessionStart = resync per session</text>
-    <text class="md" x="884" y="572">GitHub is the hub: the repo (state) · Issues (an on-ramp) · Actions (run-loop · weekly content agent · CI) · Pull Requests</text>
+    <text class="md" x="884" y="552">GitHub MCP = the agent's API to GitHub · git worktrees = fan-out isolation · SessionStart = resync per session</text>
+    <text class="md" x="884" y="572">GitHub is the hub: the repo (state) · Issues · Actions (run-loop · weekly content agent · CI) · Pull Requests</text>
     <path class="edge-g" d="M864,540 C 836,566 822,608 810,614" marker-end="url(#arrg)"/>
     <text class="elabel" x="846" y="600" text-anchor="middle">guards Ship</text>
   </g>
@@ -343,7 +343,7 @@
       <circle cx="1410" cy="737" r="7" fill="#ede7f6" stroke="#5e35b1"/>
       <line x1="1417" y1="737" x2="1430" y2="737"/>
       <polygon points="1442,729 1454,737 1442,745 1430,737" fill="#f5f3fb" stroke="#9b87c4"/>
-      <path d="M1442,745 C 1442,762 1410,762 1410,744" stroke="#5e35b1" stroke-dasharray="4 3" marker-end="url(#arrd)"/>
+      <path d="M1442,729 C 1442,717 1410,717 1410,730" stroke="#5e35b1" stroke-dasharray="4 3" marker-end="url(#arrd)"/>
     </g>
     <text class="cb" x="966" y="762" text-anchor="middle"><tspan class="cbk">Classify-And-Act</tspan></text>
     <text class="sm" x="966" y="775" text-anchor="middle">↳ our risk gate</text>
