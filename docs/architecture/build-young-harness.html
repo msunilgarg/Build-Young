@@ -123,48 +123,48 @@
 
   <!-- STEP 1 — ① triage: BOTH inputs (your idea + a GitHub issue) through the spec-first gate -->
   <g class="step" data-step="1">
-    <rect class="grp" x="36" y="62" width="324" height="140" rx="10"/>
-    <text class="grpt" x="52" y="80">① Triage — the spec-first gate</text>
-    <text class="sm" x="52" y="94">every piece of work — your idea OR a GitHub issue — is triaged here first</text>
-    <rect class="human" x="52" y="102" width="130" height="30" rx="6"/>
-    <text class="nlb" x="117" y="121" text-anchor="middle">You — an idea</text>
-    <rect class="tool" x="214" y="102" width="130" height="30" rx="6"/>
-    <text class="nlb" x="279" y="116" text-anchor="middle">a GitHub issue</text>
-    <text class="sm" x="279" y="127" text-anchor="middle">+ “loop-task” label</text>
-    <path class="edge" d="M117,132 L186,146" marker-end="url(#arr)"/>
-    <path class="edge" d="M279,132 L210,146" marker-end="url(#arr)"/>
-    <polygon class="plain" points="198,138 234,152 198,166 162,152"/>
-    <text class="nl" x="198" y="155" text-anchor="middle">non-trivial?</text>
-    <rect class="state" x="78" y="172" width="104" height="28" rx="6"/>
-    <text class="nl" x="130" y="184" text-anchor="middle">📐 SPECS/</text>
-    <text class="sm" x="130" y="195" text-anchor="middle">write a spec</text>
-    <rect class="state" x="226" y="172" width="110" height="28" rx="6"/>
-    <text class="nl" x="281" y="184" text-anchor="middle">🗂 TASKS.md</text>
-    <text class="sm" x="281" y="195" text-anchor="middle">promote to a task</text>
-    <path class="edge" d="M182,160 L150,172" marker-end="url(#arr)"/>
-    <text class="sm" x="150" y="167" text-anchor="middle">yes</text>
-    <path class="edge" d="M182,186 L226,186" marker-end="url(#arr)"/>
-    <path class="edge" d="M214,160 L268,172" marker-end="url(#arr)"/>
-    <text class="sm" x="256" y="167" text-anchor="middle">no · bug-level</text>
+    <rect class="grp" x="36" y="62" width="324" height="178" rx="10"/>
+    <text class="grpt" x="52" y="82">① Triage — the spec-first gate</text>
+    <text class="sm" x="52" y="98">every piece of work — your idea OR a GitHub issue — is triaged here first</text>
+    <rect class="human" x="52" y="108" width="132" height="38" rx="7"/>
+    <text class="nlb" x="118" y="131" text-anchor="middle">You — an idea</text>
+    <rect class="tool" x="212" y="108" width="132" height="38" rx="7"/>
+    <text class="nlb" x="278" y="127" text-anchor="middle">a GitHub issue</text>
+    <text class="sm" x="278" y="140" text-anchor="middle">+ “loop-task” label</text>
+    <path class="edge" d="M118,146 L186,166" marker-end="url(#arr)"/>
+    <path class="edge" d="M278,146 L210,166" marker-end="url(#arr)"/>
+    <polygon class="plain" points="198,158 248,179 198,200 148,179"/>
+    <text class="nlb" x="198" y="183" text-anchor="middle">non-trivial?</text>
+    <rect class="state" x="62" y="210" width="126" height="30" rx="7"/>
+    <text class="nl" x="125" y="224" text-anchor="middle">📐 SPECS/</text>
+    <text class="sm" x="125" y="234" text-anchor="middle">write a spec</text>
+    <rect class="state" x="230" y="210" width="126" height="30" rx="7"/>
+    <text class="nl" x="293" y="224" text-anchor="middle">🗂 TASKS.md</text>
+    <text class="sm" x="293" y="234" text-anchor="middle">promote to a task</text>
+    <path class="edge" d="M176,196 L132,210" marker-end="url(#arr)"/>
+    <text class="sm" x="146" y="205" text-anchor="middle">yes</text>
+    <path class="edge" d="M188,225 L230,225" marker-end="url(#arr)"/>
+    <path class="edge" d="M220,196 L290,210" marker-end="url(#arr)"/>
+    <text class="sm" x="268" y="205" text-anchor="middle">no · bug-level</text>
   </g>
 
   <!-- STEP 2 — ② kick off: where the (already-triaged) task runs -->
   <g class="step" data-step="2">
-    <path class="edge" d="M198,202 L198,210" marker-end="url(#arr)"/>
-    <rect class="grp" x="36" y="210" width="324" height="98" rx="10"/>
-    <text class="grpt" x="52" y="228">② Kick off a run — where the loop executes</text>
-    <rect class="human" x="52" y="234" width="292" height="32" rx="6"/>
-    <text class="nlb" x="198" y="250" text-anchor="middle">Local — you run /run-loop</text>
-    <text class="sm" x="198" y="261" text-anchor="middle">drains TASKS.md · FULL AUTO · Sonnet sub-agent verifier</text>
-    <rect class="tool" x="52" y="270" width="292" height="32" rx="6"/>
-    <text class="nlb" x="198" y="286" text-anchor="middle">CI — a “loop-task” issue triggers the Action</text>
-    <text class="sm" x="198" y="297" text-anchor="middle">single agent · pauses on high-risk · SessionStart resyncs each session</text>
+    <path class="edge" d="M198,240 L198,248" marker-end="url(#arr)"/>
+    <rect class="grp" x="36" y="248" width="324" height="96" rx="10"/>
+    <text class="grpt" x="52" y="266">② Kick off a run — where the loop executes</text>
+    <rect class="human" x="52" y="272" width="292" height="30" rx="6"/>
+    <text class="nlb" x="198" y="287" text-anchor="middle">Local — you run /run-loop</text>
+    <text class="sm" x="198" y="298" text-anchor="middle">drains TASKS.md · FULL AUTO · Sonnet sub-agent verifier</text>
+    <rect class="tool" x="52" y="307" width="292" height="30" rx="6"/>
+    <text class="nlb" x="198" y="322" text-anchor="middle">CI — a “loop-task” issue triggers the Action</text>
+    <text class="sm" x="198" y="333" text-anchor="middle">single agent · pauses on high-risk · SessionStart resyncs each session</text>
   </g>
 
   <!-- STEP 3 — kicks off → loop + Main agent -->
   <g class="step" data-step="3">
-    <path class="edge" d="M344,258 C 436,232 476,190 502,184" marker-end="url(#arr)"/>
-    <text class="elabel" x="440" y="214" text-anchor="middle">kicks off the run</text>
+    <path class="edge" d="M344,304 C 440,254 478,192 502,184" marker-end="url(#arr)"/>
+    <text class="elabel" x="448" y="246" text-anchor="middle">kicks off the run</text>
     <rect class="loopbg" x="470" y="118" width="372" height="650" rx="12"/>
     <text class="loopt" x="656" y="142" text-anchor="middle">③ The loop — driven by the /run-loop skill</text>
     <rect class="agent" x="502" y="156" width="308" height="66" rx="8"/>
@@ -219,7 +219,7 @@
   </g>
 
   <!-- STEP 9 — Repo (state) + backlog/rules feed -->
-  <g class="step" data-step="9">
+  <g class="step" data-step="9" transform="translate(0,36)">
     <rect class="gh" x="36" y="316" width="324" height="244" rx="10"/>
     <text class="ght" x="52" y="337">📁 GitHub repo — single source of truth</text>
     <text class="sm" x="52" y="352">all committed here, so a fresh container resumes from it</text>
@@ -235,8 +235,8 @@
     <text class="sm" x="273" y="459" text-anchor="middle">this project</text>
     <text class="sm" x="52" y="488">📦 keep the rules in the repo so they travel with the code (versioned, reviewable);</text>
     <text class="sm" x="52" y="501">these three are what the doer follows + the verifier grades against.</text>
-    <path class="edge-d" d="M344,398 C 412,398 448,400 470,402" marker-end="url(#arrd)"/>
-    <text class="elabel" x="406" y="388" text-anchor="middle">the backlog + the rules</text>
+    <path class="edge-d" d="M344,398 C 412,388 448,376 470,366" marker-end="url(#arrd)"/>
+    <text class="elabel" x="406" y="384" text-anchor="middle">the backlog + the rules</text>
   </g>
 
   <!-- STEP 10 — task + rules panels -->
@@ -274,7 +274,7 @@
   </g>
 
   <!-- STEP 12 — fan-out -->
-  <g class="step" data-step="12">
+  <g class="step" data-step="12" transform="translate(0,36)">
     <rect class="grp" x="36" y="568" width="324" height="116" rx="10"/>
     <text class="grpt" x="52" y="587">④ Fan-out — when to go parallel</text>
     <text class="sm" x="52" y="603">Default is SEQUENTIAL. Parallelize only if ALL:</text>
@@ -283,20 +283,20 @@
     <text class="sm" x="52" y="646">• no dependency · contract (seams) pinnable up front</text>
     <text class="sm" x="52" y="662">→ sub-agents (worktree+branch) → merge 1-by-1; else seq.</text>
     <text class="sm" x="52" y="676">disjointness ← each task's Files: hint + the module map</text>
-    <path class="edge-d" d="M502,520 C 440,556 400,580 360,592" marker-end="url(#arrd)"/>
+    <path class="edge-d" d="M502,484 C 440,520 400,560 360,592" marker-end="url(#arrd)"/>
     <text class="elabel" x="436" y="548" text-anchor="middle" transform="rotate(24 436 548)">the doer may fan out →</text>
   </g>
 
   <!-- STEP 13 — the skill that drives it -->
-  <g class="step" data-step="13">
+  <g class="step" data-step="13" transform="translate(0,36)">
     <rect class="core" x="36" y="696" width="324" height="118" rx="10"/>
     <text class="ch" x="52" y="716">🛠 /run-loop skill — the driver we built</text>
     <text class="cb" x="52" y="733">a Claude Code skill (.claude/skills/run-loop) — the loop's</text>
     <text class="cb" x="52" y="747">procedure: pick → build → self-check → verify → ship → record.</text>
     <text class="cb" x="52" y="764">Run locally (/run-loop) or the Action runs the SAME skill in CI.</text>
     <text class="cb" x="52" y="778">Companion /ship = verified merge → PR → squash-merge.</text>
-    <path class="edge-d" d="M360,742 C 418,728 448,716 470,712" marker-end="url(#arrd)"/>
-    <text class="elabel" x="416" y="724" text-anchor="middle">drives the loop</text>
+    <path class="edge-d" d="M360,742 C 418,724 448,700 470,676" marker-end="url(#arrd)"/>
+    <text class="elabel" x="416" y="726" text-anchor="middle">drives the loop</text>
   </g>
 
   <!-- STEP 14 — machinery -->
