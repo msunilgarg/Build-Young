@@ -29,16 +29,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 005 — third-party (marketplace/reseller) enrollment. See SPECS/005-third-party-enrollment.md.
      Ordered by dependency (T26 → T31); each is independently shippable. ===== -->
 
-## [ ] T28 — "Start onboarding" explicit action (email + access + audience + activate)  ·  risk: high
-Goal: An explicit per-record action onboards a pending partner student EXACTLY like a direct enrollment.
-Acceptance criteria:
-- "Start onboarding" sends the SAME welcome/set-password email text, provisions the same dashboard access, adds to the cohort Resend audience, sets `onboarded:true`, and fires `enrolled`. Re-runnable to resend the invite.
-- Student-experience parity: a render/text test asserts the partner-student email + dashboard MATCH the direct-student ones; no partner/source/settlement wording reaches the student.
-- Saving alone never onboards (guarded by T27).
-Files: src/FounderDashboard.jsx, src/engine.js, api/_lib/resendAudience.js, api/funnel.js.
-Stop-and-ask if: the onboarding email/account path would diverge from the direct flow.
-Depends on: T27.
-
 ## [ ] T29 — Funnel: net partner revenue + slice-by-source  ·  risk: med
 Goal: Partner enrollments count in funnel revenue at NET, and revenue/funnel are sliceable by source.
 Acceptance criteria:
@@ -70,6 +60,9 @@ Depends on: T27.
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T28 — "Start onboarding" explicit action (email + access + audience + activate)  ·  risk: high
+Done (PR #452; merged, full-auto). Founder-gated `POST /api/funnel?resource=partner-onboard` ACTIVATES a pending partner seat exactly like a direct (Stripe) onboarding: provisions the account (`putUser`) + sends the SAME `sendSetPasswordEmail` welcome (no partner/source wording — parity), adds to the cohort Resend audience, flips `onboarded:true` (keeps snapshotted price/cut), and fires `enrolled` at NET (price×(1−cutPct)) tagged `source:"partner:<id>"`. Re-runnable (re-sends invite until a password exists; idempotent). Console: each pending row → "Start onboarding" button (onboarded → "Resend invite"). Saving (T27) still does none of this. Email/audience key-gated → no real send on merge. Tests: welcome-email parity (same fn, asserts standard text + absence of partner/source/commission wording) + founder-ui renders the action on a pending row. CLAUDE.md + arch table. Build + 305; Sonnet-verified (all 8 dimensions: parity, net+source, gating, inert-save preserved, no real side-effect on merge).
 
 ## [x] T27 — Partner enrollment record + "Add partner enrollment" form (INERT save)  ·  risk: high
 Done (PR #450; merged, full-auto). Enrollment store (api/_lib/store.js) extended: a partner seat carries `paymentSource:"partner"` + `partner` + `externalRef` + snapshotted `priceCents`/`cutPct` + `onboarded` (PENDING=false); normal Stripe records byte-identical. `listEnrollments` passes partner fields through; new `listPartnerEnrollments` aggregates across cohorts. Founder-gated `POST /api/funnel?resource=partner-enroll` creates a PENDING record (price/cut snapshotted server-side, duplicate-email blocked) and is INERT — the store only HSETs, so NO email/access/Resend audience, NOT counted as `enrolled`. `GET ?resource=partner-enrollments` lists them. Console: Students → "Partner enrollments" form + pending/onboarded list. Tests: store partner record pending+snapshot+only-HSET, list pass-through+filter, back-compat, founder-ui render. CLAUDE.md + arch table. Build + 303; Sonnet-verified (inert-save guarantee — only addEnrollment called; both endpoints founder-gated; snapshots server-side).
