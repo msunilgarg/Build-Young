@@ -29,6 +29,30 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 005 — third-party (marketplace/reseller) enrollment. See SPECS/005-third-party-enrollment.md.
      Ordered by dependency (T26 → T31); each is independently shippable. ===== -->
 
+<!-- ===== Spec 006 — partner showcase + channel marketing (family-first). See SPECS/006-partner-showcase-and-channel-marketing.md.
+     Depends on the 005 partners registry (done). T32 (family strip) ships first; T33 (recruitment page) next. ===== -->
+
+## [ ] T32 — Family "Where to find us" partner strip (006-A)  ·  risk: med
+Goal: a compact public section on the landing showing the partners families can also find us through (e.g. Outschool), each linking to OUR listing there — borrowed trust + discoverability.
+Acceptance criteria:
+- The public `partners` (already exposed by T26 at `GET /api/cohorts` → featured display fields ONLY) are threaded to the client (extend the cohorts hydration/context; do NOT add a new endpoint) and rendered as a compact "Where to find us" strip on `Landing.jsx`.
+- Shows ONLY featured partners; each logo links to its `publicUrl` (`target="_blank" rel="noopener noreferrer"`); a missing/blank logo falls back to the partner's display name (text). The whole section is HIDDEN when no partners are featured (no empty shell).
+- Compact + subordinate to the enroll CTA; the `landing-lean` guard (`test/landing-lean.test.jsx`) still passes.
+- PUBLIC-DATA HYGIENE: the client only ever receives display fields — re-assert (test) that the `/api/cohorts` payload + the rendered strip carry NO `cutPct`/settlement.
+- Render test: the strip shows a featured partner + an out-link when one exists; absent when none.
+Files: src/Landing.jsx, src/lib.js (thread `partners` from the cohorts payload, e.g. via context/CONFIG), src/App.jsx (hydration), CLAUDE.md.
+Stop-and-ask if: featuring a partner's logo/link would violate that marketplace's ToS (founder vets per-partner via the `featureOnSite` toggle — not a code blocker).
+
+## [ ] T33 — "Partner with us" recruitment page (006-B)  ·  risk: med
+Goal: a B2B `/partners` page that pitches marketplaces / schools / youth orgs to carry Build Young (you bring students, we run the live 12-lesson cohort; simple rev-share), with a contact CTA.
+Acceptance criteria:
+- New `/partners` route added as ONE appended entry in the `ROUTES` registry (App.jsx), rendered by a new `Partners.jsx` screen (sub-page pattern like `About`/`Faq`).
+- Content: value prop + a short how-it-works (3 steps) + what students get + a clear contact CTA (book a call / email us). Linked from the footer.
+- Copy follows POSITIONING.md (us/we voice, honest, no overclaiming); links labeled + AA contrast; lean (a sub-page, not landing bulk).
+- Render test: the page renders its key sections + CTA; the footer link routes to it.
+Files: src/Partners.jsx (new), src/App.jsx (ROUTES append), src/Landing.jsx (footer link), CLAUDE.md + BUILD-YOUNG-ARCHITECTURE.md (new screen/route).
+Depends on: none (standalone marketing page).
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
