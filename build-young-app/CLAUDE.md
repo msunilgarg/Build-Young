@@ -246,7 +246,7 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
 - **Segmentation:** `segments(events)` → per-season (Fall/Winter/Spring) and per-track (one combined
   `Builders` track now). Meaningful from `enrolled` onward (top-of-funnel events carry no cohort → excluded under a
   filter).
-- **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net).
+- **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net). **`revenueBySource(events)`** slices it by channel — `direct` vs `partner:<id>` — where partner seats are counted at **net** (their `enrolled` event carries net cents + the `source` tag, fired by `partner-onboard`); the slices sum to the topline. Shown as a "Revenue by source" card in the console.
 - **Admin = founder, by account (not a URL token):** access is gated by the logged-in **session** —
   a user whose email is in the **`FOUNDER_EMAILS`** allowlist (`isFounderEmail`/`requireFounder` in
   `api/_lib/auth.js`; `/api/auth/me` returns `isFounder`). The Platform header shows an **Admin**

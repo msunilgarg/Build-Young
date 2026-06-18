@@ -122,6 +122,24 @@ export function summarize(events, filter = null) {
   };
 }
 
+// Revenue (and enrollment count) sliced by SOURCE — direct vs each partner (SPECS/005). Partner
+// `enrolled` events carry `source:"partner:<id>"` + NET cents; everything else is "direct". This lets
+// the console show the channel mix WITHOUT losing the topline (which stays `summarize().revenue`).
+// `cents` is whatever the event recorded — net for a partner seat, gross for a direct one — i.e. the
+// realized revenue attributable to each source. Sorted by revenue, biggest first.
+export function revenueBySource(events) {
+  const evs = Array.isArray(events) ? events : [];
+  const by = {};
+  for (const e of evs) {
+    if (!e || e.event !== "enrolled") continue;
+    const source = (e.props && e.props.source) || "direct";
+    if (!by[source]) by[source] = { source, count: 0, cents: 0 };
+    by[source].count += 1;
+    by[source].cents += (e.props && e.props.priceCents) || 0;
+  }
+  return Object.values(by).sort((a, b) => b.cents - a.cents);
+}
+
 // Per-season and per-track segment summaries, for side-by-side cohort comparison.
 export function segments(events) {
   return {
