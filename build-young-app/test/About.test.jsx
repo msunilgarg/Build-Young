@@ -15,6 +15,13 @@ describe("About (Our story page)", () => {
     expect(screen.getByText(/Start building young, and time does the rest\./i)).toBeInTheDocument();
   });
 
+  // The founder "Why this exists" opening must NAME AI (mirrors the landing teaser, which deep-links
+  // here) — they're the same sentence and must not drift apart. Render-pinned (visible string).
+  it("the founder 'Why this exists' opening references AI", () => {
+    render(<About onBack={() => {}} onHome={() => {}} onEnroll={() => {}} onCall={() => {}} />);
+    expect(screen.getByText(/how fast AI is changing it under them/i)).toBeInTheDocument();
+  });
+
   it("fires the navigation + conversion callbacks", () => {
     const onBack = vi.fn(), onEnroll = vi.fn(), onCall = vi.fn();
     render(<About onBack={onBack} onHome={() => {}} onEnroll={onEnroll} onCall={onCall} />);
