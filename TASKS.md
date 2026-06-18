@@ -29,16 +29,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 005 — third-party (marketplace/reseller) enrollment. See SPECS/005-third-party-enrollment.md.
      Ordered by dependency (T26 → T31); each is independently shippable. ===== -->
 
-## [ ] T30 — Per-partner settlement view + manual record-payment + accounting export  ·  risk: med
-Goal: A per-partner ledger so the founder tracks what each partner owes vs. has paid.
-Acceptance criteria:
-- Settlement view, per partner: seats (onboarded), gross (Σ price), partner cut (Σ price × cutPct), net owed, received, outstanding (net owed − received). Removed/withdrawn seats are not owed.
-- Founder records a dated payment received (date + amount + note) → outstanding updates (persisted in the partner store).
-- The settlement ledger is included in the CSV/JSON accounting export (`toCSV`/`toDataRoom`).
-- Tests for settlement math + export inclusion.
-Files: src/FounderDashboard.jsx, api/_lib/partnerStore.js, src/funnel.js (export), CLAUDE.md.
-Depends on: T26 + T28.
-
 ## [ ] T31 — Partner-aware withdrawal: hide self-withdraw + founder manual removal  ·  risk: high
 Goal: Partner students never see self-withdraw; the founder removes them manually (no Build Young refund).
 Acceptance criteria:
@@ -51,6 +41,9 @@ Depends on: T27.
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T30 — Per-partner settlement view + manual record-payment + accounting export  ·  risk: med
+Done (PR #456; merged, full-auto). Each partner record gains a founder-only `payments` ledger ({date, amountCents, note}; never public — publicPartners whitelist unchanged). New pure `funnel.settlementSummary(partners, enrollments)`: per partner — ONBOARDED seats, gross, cut, net owed (gross−cut, per the seat's snapshotted cut), received, outstanding; pending/withdrawn don't owe. Console Settings → "Partner settlement" view + per-partner "Record a payment" form (date/amount/note → appended to `payments`, saved via `PUT ?resource=partners`; bookkeeping only, preserves other ledgers). `toDataRoom(events, extra)` merges {settlement} into the funnel JSON export (back-compat). Tests: settlement math + toDataRoom extra + sanitizePayments. CLAUDE.md. Build + 312; Sonnet-verified (math, payments-never-public, record-payment save, export back-compat).
 
 ## [x] T29 — Funnel: net partner revenue + slice-by-source  ·  risk: med
 Done (PR #454; merged, full-auto). New pure `funnel.revenueBySource(events)` groups `enrolled` events by `source` (`direct` vs `partner:<id>`), summing count + cents — partner seats at NET (their event carries net cents from `partner-onboard`), direct at gross — sorted by revenue; the slices SUM to `summarize().revenue.grossCents` (topline unchanged, single source of truth). Console: a "Revenue by source" card in the funnel tab (period-scoped; Direct / Partner · <id>; hidden when empty). Tests: grouping/sort/net + slices-sum-to-topline + empty-safe. Aggregate/no-PII. CLAUDE.md revenue note. Build + 308; Sonnet-verified (topline consistency + labeling + no PII).
