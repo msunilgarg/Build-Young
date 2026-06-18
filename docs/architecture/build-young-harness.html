@@ -121,48 +121,50 @@
   <text class="title" x="800" y="32" text-anchor="middle">Build Young — Agent Harness (the loop)</text>
   <text class="sub" x="800" y="53" text-anchor="middle">You write a spec → it becomes a task; then the loop drains it one at a time: pick &amp; build → self-check → verify → risk gate → ship → record → next.</text>
 
-  <!-- STEP 1 — ① author -->
+  <!-- STEP 1 — ① triage: BOTH inputs (your idea + a GitHub issue) through the spec-first gate -->
   <g class="step" data-step="1">
-    <rect class="grp" x="36" y="62" width="324" height="96" rx="10"/>
-    <text class="grpt" x="52" y="83">① You author the work — the spec-first gate</text>
-    <rect class="human" x="46" y="100" width="42" height="32" rx="8"/>
-    <text class="nlb" x="67" y="120" text-anchor="middle">You</text>
-    <path class="edge" d="M88,116 L97,116" marker-end="url(#arr)"/>
-    <polygon class="plain" points="128,99 160,116 128,133 96,116"/>
-    <text class="nl" x="128" y="119" text-anchor="middle">spec it?</text>
-    <path class="edge" d="M160,116 L171,116" marker-end="url(#arr)"/>
-    <text class="sm" x="165" y="95" text-anchor="middle">yes</text>
-    <rect class="state" x="172" y="100" width="74" height="32" rx="8"/>
-    <text class="nl" x="209" y="113" text-anchor="middle">📐 SPECS/</text>
-    <text class="sm" x="209" y="125" text-anchor="middle">write a spec</text>
-    <path class="edge" d="M246,116 L255,116" marker-end="url(#arr)"/>
-    <rect class="state" x="256" y="100" width="88" height="32" rx="8"/>
-    <text class="nl" x="300" y="113" text-anchor="middle">🗂 TASKS.md</text>
-    <text class="sm" x="300" y="125" text-anchor="middle">promote to a task</text>
-    <path class="edge" d="M128,133 L128,147 L300,147 L300,134" marker-end="url(#arr)"/>
-    <text class="sm" x="200" y="144" text-anchor="middle">no · bug-level fix → straight to a task</text>
+    <rect class="grp" x="36" y="62" width="324" height="140" rx="10"/>
+    <text class="grpt" x="52" y="80">① Triage — the spec-first gate</text>
+    <text class="sm" x="52" y="94">every piece of work — your idea OR a GitHub issue — is triaged here first</text>
+    <rect class="human" x="52" y="102" width="130" height="30" rx="6"/>
+    <text class="nlb" x="117" y="121" text-anchor="middle">You — an idea</text>
+    <rect class="tool" x="214" y="102" width="130" height="30" rx="6"/>
+    <text class="nlb" x="279" y="116" text-anchor="middle">a GitHub issue</text>
+    <text class="sm" x="279" y="127" text-anchor="middle">+ “loop-task” label</text>
+    <path class="edge" d="M117,132 L186,146" marker-end="url(#arr)"/>
+    <path class="edge" d="M279,132 L210,146" marker-end="url(#arr)"/>
+    <polygon class="plain" points="198,138 234,152 198,166 162,152"/>
+    <text class="nl" x="198" y="155" text-anchor="middle">non-trivial?</text>
+    <rect class="state" x="78" y="172" width="104" height="28" rx="6"/>
+    <text class="nl" x="130" y="184" text-anchor="middle">📐 SPECS/</text>
+    <text class="sm" x="130" y="195" text-anchor="middle">write a spec</text>
+    <rect class="state" x="226" y="172" width="110" height="28" rx="6"/>
+    <text class="nl" x="281" y="184" text-anchor="middle">🗂 TASKS.md</text>
+    <text class="sm" x="281" y="195" text-anchor="middle">promote to a task</text>
+    <path class="edge" d="M182,160 L150,172" marker-end="url(#arr)"/>
+    <text class="sm" x="150" y="167" text-anchor="middle">yes</text>
+    <path class="edge" d="M182,186 L226,186" marker-end="url(#arr)"/>
+    <path class="edge" d="M214,160 L268,172" marker-end="url(#arr)"/>
+    <text class="sm" x="256" y="167" text-anchor="middle">no · bug-level</text>
   </g>
 
-  <!-- STEP 2 — ② kick off -->
+  <!-- STEP 2 — ② kick off: where the (already-triaged) task runs -->
   <g class="step" data-step="2">
-    <path class="edge" d="M198,158 L198,166" marker-end="url(#arr)"/>
-    <rect class="grp" x="36" y="166" width="324" height="142" rx="10"/>
-    <text class="grpt" x="52" y="186">② Kick off a run — two on-ramps (use one)</text>
-    <rect class="human" x="52" y="193" width="292" height="34" rx="6"/>
-    <text class="nlb" x="198" y="210" text-anchor="middle">You — run /run-loop locally</text>
-    <text class="sm" x="198" y="222" text-anchor="middle">drains TASKS.md · FULL AUTO · Sonnet sub-agent verifier</text>
-    <rect class="tool" x="52" y="231" width="292" height="34" rx="6"/>
-    <text class="nlb" x="198" y="248" text-anchor="middle">GitHub issue + “loop-task” label</text>
-    <text class="sm" x="198" y="260" text-anchor="middle">→ run-loop.yml · single agent · pauses on high-risk</text>
-    <rect class="toollite" x="52" y="269" width="292" height="32" rx="6"/>
-    <text class="sm" x="58" y="282" fill="#00695c" font-weight="700">⟳ then the SessionStart hook (every session):</text>
-    <text class="sm" x="58" y="294">resync to origin/main · reinstall the commit guards</text>
+    <path class="edge" d="M198,202 L198,210" marker-end="url(#arr)"/>
+    <rect class="grp" x="36" y="210" width="324" height="98" rx="10"/>
+    <text class="grpt" x="52" y="228">② Kick off a run — where the loop executes</text>
+    <rect class="human" x="52" y="234" width="292" height="32" rx="6"/>
+    <text class="nlb" x="198" y="250" text-anchor="middle">Local — you run /run-loop</text>
+    <text class="sm" x="198" y="261" text-anchor="middle">drains TASKS.md · FULL AUTO · Sonnet sub-agent verifier</text>
+    <rect class="tool" x="52" y="270" width="292" height="32" rx="6"/>
+    <text class="nlb" x="198" y="286" text-anchor="middle">CI — a “loop-task” issue triggers the Action</text>
+    <text class="sm" x="198" y="297" text-anchor="middle">single agent · pauses on high-risk · SessionStart resyncs each session</text>
   </g>
 
   <!-- STEP 3 — kicks off → loop + Main agent -->
   <g class="step" data-step="3">
-    <path class="edge" d="M344,228 C 432,214 474,188 502,184" marker-end="url(#arr)"/>
-    <text class="elabel" x="432" y="198" text-anchor="middle">kicks off the run</text>
+    <path class="edge" d="M344,258 C 436,232 476,190 502,184" marker-end="url(#arr)"/>
+    <text class="elabel" x="440" y="214" text-anchor="middle">kicks off the run</text>
     <rect class="loopbg" x="470" y="118" width="372" height="650" rx="12"/>
     <text class="loopt" x="656" y="142" text-anchor="middle">③ The loop — driven by the /run-loop skill</text>
     <rect class="agent" x="502" y="156" width="308" height="66" rx="8"/>
@@ -373,8 +375,8 @@
 <script>
   var CAPTIONS = [
     "",
-    "<b>① You author the work — and YOU make the spec-first call.</b> Non-trivial / feature work → write a one-page 📐 spec, then promote it to a task. A bug-level fix → straight to a task (skip the spec). Borderline → you decide; an issue-triggered run just infers it conservatively.",
-    "<b>② Kick off a run.</b> Two on-ramps: locally (<code>/run-loop</code> — full auto, with a Sonnet sub-agent as the verifier), or a labeled GitHub issue (a single agent that pauses on high-risk). The SessionStart hook resyncs each session.",
+    "<b>① Triage — the spec-first gate.</b> EVERY piece of work — your own idea OR an incoming GitHub issue — is triaged here first: <b>non-trivial?</b> → write a one-page 📐 spec, then a task; <b>bug-level</b> → straight to a task. You make the call on your own work; an issue-triggered run infers it conservatively. The trigger decides where work comes from, not whether it earns a spec.",
+    "<b>② Kick off a run — where it executes.</b> The already-triaged task runs either <b>locally</b> (you run <code>/run-loop</code> — full auto, with a Sonnet sub-agent verifier) or in <b>CI</b> (a <code>loop-task</code>-labeled issue triggers the Action — a single agent that pauses on high-risk). SessionStart resyncs each session.",
     "<b>③ The loop begins.</b> The Main agent (driver + doer) picks the task, reads its spec, and writes the smallest change — on the premium model, staying in the task's file lane.",
     "<b>Self-check.</b> It gates its own work first: build + tests + repo guards, fixing until green.",
     "<b>Verifier.</b> A fresh, independent sub-agent (own context, Sonnet) re-runs build/tests and grades the diff against the criteria + the rules. PASS — or FAIL → fix → re-verify.",
