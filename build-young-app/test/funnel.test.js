@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement,
+  STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement, revenueBySource,
 } from "../src/funnel.js";
 
 // Build one timestamped event.
@@ -193,5 +193,35 @@ describe("traffic & engagement aggregation", () => {
   it("is empty + safe on no/garbage input", () => {
     expect(engagement([])).toEqual({ sources: [], countries: [], usStates: [], sourceCountry: [], screens: [], exits: [], exitTotal: 0, hesitations: [] });
     expect(engagement(null).sources).toEqual([]);
+  });
+});
+
+describe("revenueBySource — channel mix (direct vs each partner); partner seats count at NET", () => {
+  it("groups enrolled events by source, sums count + cents, sorts by revenue", () => {
+    const events = [
+      ev("enrolled", { ...FALL }),                                            // direct (no source) — gross 99900
+      ev("enrolled", { ...FALL }),                                            // direct — gross 99900
+      ev("enrolled", { batchId: "fall-mw", season: "fall", track: "Builders", priceCents: 69930, source: "partner:outschool" }), // net of 30% cut
+      ev("enrolled", { batchId: "fall-mw", season: "fall", track: "Builders", priceCents: 69930, source: "partner:outschool" }),
+      ev("enrolled", { batchId: "fall-mw", season: "fall", track: "Builders", priceCents: 84915, source: "partner:varsity" }),    // net of 15% cut
+      ev("visited", { source: "google" }),                                    // not an enrolled event → ignored
+    ];
+    const out = revenueBySource(events);
+    expect(out.map((s) => s.source)).toEqual(["direct", "partner:outschool", "partner:varsity"]); // by cents desc
+    expect(out.find((s) => s.source === "direct")).toEqual({ source: "direct", count: 2, cents: 199800 });
+    expect(out.find((s) => s.source === "partner:outschool")).toEqual({ source: "partner:outschool", count: 2, cents: 139860 });
+    expect(out.find((s) => s.source === "partner:varsity")).toEqual({ source: "partner:varsity", count: 1, cents: 84915 });
+  });
+  it("the partner NET still lands in the topline summarize().revenue (single source of truth)", () => {
+    const events = [
+      ev("enrolled", { ...FALL }),                                            // 99900 gross
+      ev("enrolled", { batchId: "fall-mw", season: "fall", track: "Builders", priceCents: 69930, source: "partner:outschool" }), // 69930 net
+    ];
+    expect(summarize(events).revenue.grossCents).toBe(169830); // 99900 + 69930 (net) — partner counted at net
+    expect(revenueBySource(events).reduce((s, x) => s + x.cents, 0)).toBe(169830); // slices sum to the topline
+  });
+  it("empty / non-array → []", () => {
+    expect(revenueBySource([])).toEqual([]);
+    expect(revenueBySource(null)).toEqual([]);
   });
 });

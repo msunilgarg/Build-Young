@@ -12,7 +12,7 @@ import { buildCertSvg, CertificateView } from "./Certificate.jsx";
 import { certVerifyUrl, certDate } from "./cert.js";
 import { scenarioLabel } from "./scenarios.js";
 import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
-import { STAGES, summarize, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS } from "./funnel.js";
+import { STAGES, summarize, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS, revenueBySource } from "./funnel.js";
 import { WEEK_PREP, WEEK_OBJECTIVES } from "./marketMedia.js";
 
 const Charts = React.lazy(() => import("./Charts.jsx"));
@@ -223,6 +223,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const trendData = useMemo(() => weeklyTrend(scoped, { metric: trendMetric, filter, month: period }), [scoped, trendMetric, period, seg.kind, seg.key]);
   // Traffic & engagement is whole-site (not segmented by cohort) — it's the top-of-funnel picture.
   const eng = useMemo(() => engagement(events || []), [events]);
+  const bySource = useMemo(() => revenueBySource(scoped), [scoped]);
   const paths = useMemo(() => journeys(events || [], { limit: 12 }), [events]);
 
   const funnelData = STAGES.map((st, i) => {
@@ -332,6 +333,24 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
               <Stat label="Calls booked" value={summary.calls.booked.toLocaleString()} sub="“Talk to Sunil” assist path" icon={Video} color={C.turq} />
             </div>
           </div>
+
+          {/* Revenue by source — direct vs each partner (SPECS/005). Partner seats count at NET; the
+              topline above stays whole. Lets the founder/investors see the channel mix. */}
+          {bySource.length > 0 && (
+            <Card style={{ padding: 18, marginTop: 14 }}>
+              <b style={{ fontSize: 14 }}>Revenue by source</b>
+              <div style={{ ...muted, margin: "2px 0 10px" }}>Where enrollments came from — partner (marketplace/reseller) seats count at <b>net</b> (after their cut); direct is full tuition.</div>
+              {bySource.map((s) => {
+                const label = s.source.startsWith("partner:") ? `Partner · ${s.source.slice(8)}` : "Direct";
+                return (
+                  <div key={s.source} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, padding: "7px 0", borderTop: `1px solid ${C.line}`, fontSize: 13.5 }}>
+                    <span style={{ color: C.ink2, fontWeight: 600 }}>{label}</span>
+                    <span style={{ color: C.muted }}>{s.count} enrolled · <b style={{ color: C.ink }}>{fmt(s.cents / 100)}</b></span>
+                  </div>
+                );
+              })}
+            </Card>
+          )}
 
           {/* weekly trend — calendar weeks on the x-axis (distinct from the course-week progression further down) */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "26px 0 10px", flexWrap: "wrap", gap: 8 }}>
