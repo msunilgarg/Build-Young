@@ -76,4 +76,21 @@ describe("FounderDashboard (account-gated)", () => {
     expect(screen.getByText(/Partners \(third-party enrollment\)/i)).toBeInTheDocument();
     expect(screen.getByText(/\+ Add partner/i)).toBeInTheDocument();
   });
+
+  it("a PENDING partner enrollment shows a 'Start onboarding' action (SPECS/005 T28)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      const u = String(url);
+      if (u.includes("resource=partner-enrollments")) return { status: 200, ok: true, json: async () => ({ enrollments: [{ email: "kid@school.org", batchId: "fall-mw", partner: "outschool", onboarded: false }] }) };
+      if (u.includes("resource=partners")) return { status: 200, ok: true, json: async () => ({ partners: [{ id: "outschool", name: "Outschool", cutPct: 0.3 }] }) };
+      if (u.includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [{ id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mon & Wed", price: 999, seats: 10 }], checkins: 0 }) };
+      return { status: 200, json: async () => ({ events: [] }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Students"));
+    // The pending row exposes the explicit onboarding action (saving alone never onboards).
+    expect(await screen.findByRole("button", { name: /Start onboarding/i })).toBeInTheDocument();
+    expect(screen.getByText(/Pending/i)).toBeInTheDocument();
+  });
 });

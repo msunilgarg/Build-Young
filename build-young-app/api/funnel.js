@@ -16,6 +16,9 @@ import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
 import { saveSettings, loadOps, saveOps } from "./_lib/settingsStore.js";
 import { loadPartners, savePartners } from "./_lib/partnerStore.js";
 import { addEnrollment, listEnrollments, listPartnerEnrollments } from "./_lib/store.js";
+import { putUser, getUser } from "./_lib/auth.js";
+import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
+import { addContact } from "./_lib/resendAudience.js";
 import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest, addScheduleRequest, listScheduleRequests, notifyScheduleRequestsOfNewCohorts } from "./_lib/interestStore.js";
 import { addShowcase, listShowcase } from "./_lib/showcaseStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
@@ -312,6 +315,65 @@ async function addPartnerEnrollment(req, res) {
   res.status(result.ok ? 200 : 400).json(result.ok ? { ok: true } : { ok: false, error: result.reason || "save failed" });
 }
 
+// --- POST ?resource=partner-onboard: FOUNDER-ONLY. The explicit "Start onboarding" action (SPECS/005)
+// that ACTIVATES a pending partner enrollment — it mirrors the direct (Stripe) onboarding EXACTLY so the
+// student's experience is identical: provision the account + send the SAME welcome/set-password email,
+// add to the cohort's Resend audience, flip `onboarded:true`, and fire the `enrolled` funnel event at
+// NET (price × (1 − cut%)) tagged `source:"partner:<id>"`. Re-runnable: re-running re-sends the invite
+// (until a password exists) and re-adds the audience contact; it does NOT double-charge anything (no
+// money moves here). Saving a record (partner-enroll) never does any of this — only this action does. ---
+async function onboardPartnerEnrollment(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const body = (await readBody(req)) || {};
+  const email = normalizeEmail(body.email || "");
+  const batchId = String(body.batchId || "").trim();
+  if (!email || !batchId) { res.status(400).json({ ok: false, error: "Provide email + cohort" }); return; }
+  const rows = await listEnrollments(batchId);
+  const rec = rows.find((e) => e.email === email && e.paymentSource === "partner");
+  if (!rec) { res.status(404).json({ ok: false, error: "No partner enrollment for that email + cohort" }); return; }
+  const cohort = ((await loadCatalog()).batches || []).find((b) => b.id === batchId);
+
+  // 1) Mark the seat onboarded (idempotent — keeps the snapshotted price/cut, just flips the flag).
+  await addEnrollment({ email, name: rec.name, batchId, paymentSource: "partner", partner: rec.partner, externalRef: rec.externalRef, priceCents: rec.priceCents, cutPct: rec.cutPct, onboarded: true });
+
+  // 2) Add to the cohort's Resend audience (best-effort, key-gated — same as the Stripe webhook).
+  let audience = false;
+  try {
+    if (cohort && cohort.groupAudienceId) {
+      const first = String(rec.name || "").trim().split(" ")[0] || "";
+      const last = String(rec.name || "").trim().split(" ").slice(1).join(" ");
+      const r = await addContact(cohort.groupAudienceId, { email, firstName: first, lastName: last });
+      audience = !!(r && r.ok !== false);
+    }
+  } catch { /* best-effort */ }
+
+  // 3) Provision the account + send the SAME welcome/set-password email as a direct enrollment (parity).
+  let invited = false, inviteNote;
+  if (!kvConfigured()) {
+    inviteNote = "store not configured (KV) — cannot provision or invite";
+  } else {
+    try {
+      const existing = await getUser(email);
+      await putUser(email, { name: rec.name, batchId });
+      if (existing && existing.passwordHash) inviteNote = "already set up (password exists) — no re-invite";
+      else { const sent = await sendSetPasswordEmail({ email, name: rec.name }); invited = !!(sent && sent.ok); if (!invited) inviteNote = "email send failed (or email disabled)"; }
+    } catch (e) { inviteNote = `invite error: ${(e && e.message) || String(e)}`; }
+  }
+
+  // 4) Fire `enrolled` at NET (price × (1 − cut%)) tagged with the partner source — the activation
+  // signal that lets the funnel count partner revenue (net) + slice by source (T29). Best-effort.
+  try {
+    if (kvConfigured() && cohort) {
+      const net = Math.max(0, Math.round((rec.priceCents || 0) * (1 - (rec.cutPct || 0))));
+      const ev = JSON.stringify({ event: "enrolled", ts: Date.now(), props: { batchId, season: cohort.season || "", track: cohort.track || "", priceCents: net, source: `partner:${rec.partner}` } });
+      await kvCommand(["RPUSH", KEY, ev]);
+      await kvCommand(["LTRIM", KEY, String(-CAP), "-1"]);
+    }
+  } catch { /* best-effort */ }
+
+  res.status(200).json({ ok: true, invited, audience, inviteNote });
+}
+
 // --- POST ?resource=interest: public — capture a family's interest when a cohort is full (so we
 // can notify them about the NEXT cohort). ---
 async function saveInterest(req, res) {
@@ -354,6 +416,7 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
     if (req.query && req.query.resource === "scenarios") return makeScenarios(req, res); // public, AI-generated
     if (req.query && req.query.resource === "partner-enroll") return addPartnerEnrollment(req, res); // FOUNDER-gated inside
+    if (req.query && req.query.resource === "partner-onboard") return onboardPartnerEnrollment(req, res); // FOUNDER-gated inside
     return ingest(req, res);     // public: track an event
   }
   if (req.method === "GET") return read(req, res);        // founder: read funnel events
