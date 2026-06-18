@@ -26,6 +26,67 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 ---
 
+<!-- ===== Spec 005 — third-party (marketplace/reseller) enrollment. See SPECS/005-third-party-enrollment.md.
+     Ordered by dependency (T26 → T31); each is independently shippable. ===== -->
+
+## [ ] T26 — Partners registry + store (config: name + cut %, public display fields)  ·  risk: med
+Goal: A founder-editable partners list that backs the whole partner channel (SPECS/005 + 006).
+Acceptance criteria:
+- New KV-backed partners store (mirrors cohortStore/settingsStore): each partner `{ id, name, cutPct, displayName, logo, publicUrl, blurb, featureOnSite }`. Founder-gated save via `PUT /api/funnel?resource=partners`; sanitize clamps `cutPct` to 0..1, trims/whitelists strings, accepts `logo` only as `data:image/…`/http(s) capped like `founderPhoto`, coerces `featureOnSite` to boolean.
+- Founder console "Partners" editor: add/edit/remove a partner with **name + cut %** (display fields present for 006).
+- Read split: founder-only read returns full records; the PUBLIC read (folded into `GET /api/cohorts`) exposes ONLY display fields — **never `cutPct`/settlement**. A test asserts the public payload omits money fields.
+- Tests for sanitize + the public allowlist.
+Files: api/_lib/partnerStore.js (new), api/funnel.js, src/FounderDashboard.jsx, src/lib.js, CLAUDE.md + BUILD-YOUNG-ARCHITECTURE.md.
+
+## [ ] T27 — Partner enrollment record + "Add partner enrollment" form (INERT save)  ·  risk: high
+Goal: Founder can manually create a PENDING partner enrollment without Stripe; saving does nothing student-facing.
+Acceptance criteria:
+- Enrollment model carries `paymentSource:"partner"`, `partner:<id>`, `externalRef`, snapshot `priceCents` + `cutPct`, `onboarded:false`.
+- Console form: name, email, cohort, partner (from T26), externalRef → creates a PENDING record. Saving sends NO email, provisions NO access, adds NOTHING to Resend, does NOT fire `enrolled`. Duplicate email blocked; cohort-full override allowed.
+- Test: saving creates a pending record and sends/fires nothing.
+Files: api/_lib/ (enrollment store + founder-only create path), api/funnel.js, src/FounderDashboard.jsx, CLAUDE.md.
+Stop-and-ask if: creating the student account/record is irreversible, or it touches the Stripe webhook path.
+Depends on: T26.
+
+## [ ] T28 — "Start onboarding" explicit action (email + access + audience + activate)  ·  risk: high
+Goal: An explicit per-record action onboards a pending partner student EXACTLY like a direct enrollment.
+Acceptance criteria:
+- "Start onboarding" sends the SAME welcome/set-password email text, provisions the same dashboard access, adds to the cohort Resend audience, sets `onboarded:true`, and fires `enrolled`. Re-runnable to resend the invite.
+- Student-experience parity: a render/text test asserts the partner-student email + dashboard MATCH the direct-student ones; no partner/source/settlement wording reaches the student.
+- Saving alone never onboards (guarded by T27).
+Files: src/FounderDashboard.jsx, src/engine.js, api/_lib/resendAudience.js, api/funnel.js.
+Stop-and-ask if: the onboarding email/account path would diverge from the direct flow.
+Depends on: T27.
+
+## [ ] T29 — Funnel: net partner revenue + slice-by-source  ·  risk: med
+Goal: Partner enrollments count in funnel revenue at NET, and revenue/funnel are sliceable by source.
+Acceptance criteria:
+- Partner `enrolled` events carry `source:"partner:<id>"` + net cents (price × (1 − cutPct)); the server allowlist permits them (aggregate, no PII).
+- `summarize().revenue` counts partner net; `segments`/revenue are sliceable by source (direct vs. each partner); the console shows a by-source slice.
+- funnel.test cases for net revenue + per-source segmentation.
+Files: src/funnel.js, api/funnel.js (allowlist), src/App.jsx (track), src/FounderDashboard.jsx.
+Depends on: T28.
+
+## [ ] T30 — Per-partner settlement view + manual record-payment + accounting export  ·  risk: med
+Goal: A per-partner ledger so the founder tracks what each partner owes vs. has paid.
+Acceptance criteria:
+- Settlement view, per partner: seats (onboarded), gross (Σ price), partner cut (Σ price × cutPct), net owed, received, outstanding (net owed − received). Removed/withdrawn seats are not owed.
+- Founder records a dated payment received (date + amount + note) → outstanding updates (persisted in the partner store).
+- The settlement ledger is included in the CSV/JSON accounting export (`toCSV`/`toDataRoom`).
+- Tests for settlement math + export inclusion.
+Files: src/FounderDashboard.jsx, api/_lib/partnerStore.js, src/funnel.js (export), CLAUDE.md.
+Depends on: T26 + T28.
+
+## [ ] T31 — Partner-aware withdrawal: hide self-withdraw + founder manual removal  ·  risk: high
+Goal: Partner students never see self-withdraw; the founder removes them manually (no Build Young refund).
+Acceptance criteria:
+- The student dashboard HIDES the self-withdraw control for `paymentSource:"partner"` seats (direct self-withdraw + flat-75% flow unchanged).
+- Founder "remove student" action: drops course + Resend-audience access, issues NO Stripe refund, credits the seat back in settlement.
+- Tests: a partner seat shows no self-withdraw control; founder removal issues no refund + credits settlement.
+Files: src/Platform.jsx, src/FounderDashboard.jsx, api/_lib/resendAudience.js, public/terms.html + LEGAL (partner clause), CLAUDE.md.
+Stop-and-ask if: the Terms partner clause / refund disclaimer needs founder/attorney sign-off (it does — flag it).
+Depends on: T27.
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
