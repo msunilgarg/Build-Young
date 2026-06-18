@@ -25,18 +25,20 @@ function findChrome() {
   const page = await browser.newPage();
   await page.setViewport({ width: 1100, height: 900, deviceScaleFactor: 2 });
   await page.goto("file://" + path.resolve(htmlPath), { waitUntil: "networkidle0" });
-  // The interactive controls/hints are meaningless in a static export — hide them.
-  await page.evaluate(() => { document.querySelectorAll(".controls, .hint").forEach((c) => (c.style.display = "none")); });
+  // Static export = the WHOLE diagram: reveal every progressive-reveal step, hide the presenter chrome.
+  await page.evaluate(() => {
+    document.querySelectorAll(".bar, .caption, .lede").forEach((c) => (c.style.display = "none"));
+    document.querySelectorAll(".step").forEach((g) => g.classList.add("shown"));
+  });
+  await new Promise((r) => setTimeout(r, 200));
 
   // PNG: the VISUAL DIAGRAM only (the inline <svg>) — the image embedded in the architecture doc.
   const svg = await page.$(".diagram svg");
   await svg.screenshot({ path: outBase + ".png" });
 
-  // PDF: the diagram + EVERY detail card expanded — the full handout. break-inside:avoid keeps cards whole.
-  await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
-  await new Promise((r) => setTimeout(r, 150));
-  await page.pdf({ path: outBase + ".pdf", printBackground: true, format: "A4", margin: { top: "12mm", bottom: "12mm", left: "10mm", right: "10mm" } });
+  // PDF: the full page (the complete diagram) — the handout.
+  await page.pdf({ path: outBase + ".pdf", printBackground: true, format: "A4", landscape: true, margin: { top: "10mm", bottom: "10mm", left: "10mm", right: "10mm" } });
 
   await browser.close();
-  console.log(`rendered ${htmlPath} -> ${outBase}.{png (the diagram), pdf (diagram + all detail)}`);
+  console.log(`rendered ${htmlPath} -> ${outBase}.{png (full diagram), pdf (handout)}`);
 })().catch((e) => { console.error(e.message || e); process.exit(1); });
