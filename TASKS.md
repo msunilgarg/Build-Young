@@ -32,17 +32,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 006 — partner showcase + channel marketing (family-first). See SPECS/006-partner-showcase-and-channel-marketing.md.
      Depends on the 005 partners registry (done). T32 (family strip) ships first; T33 (recruitment page) next. ===== -->
 
-## [ ] T32 — Family "Where to find us" partner strip (006-A)  ·  risk: med
-Goal: a compact public section on the landing showing the partners families can also find us through (e.g. Outschool), each linking to OUR listing there — borrowed trust + discoverability.
-Acceptance criteria:
-- The public `partners` (already exposed by T26 at `GET /api/cohorts` → featured display fields ONLY) are threaded to the client (extend the cohorts hydration/context; do NOT add a new endpoint) and rendered as a compact "Where to find us" strip on `Landing.jsx`.
-- Shows ONLY featured partners; each logo links to its `publicUrl` (`target="_blank" rel="noopener noreferrer"`); a missing/blank logo falls back to the partner's display name (text). The whole section is HIDDEN when no partners are featured (no empty shell).
-- Compact + subordinate to the enroll CTA; the `landing-lean` guard (`test/landing-lean.test.jsx`) still passes.
-- PUBLIC-DATA HYGIENE: the client only ever receives display fields — re-assert (test) that the `/api/cohorts` payload + the rendered strip carry NO `cutPct`/settlement.
-- Render test: the strip shows a featured partner + an out-link when one exists; absent when none.
-Files: src/Landing.jsx, src/lib.js (thread `partners` from the cohorts payload, e.g. via context/CONFIG), src/App.jsx (hydration), CLAUDE.md.
-Stop-and-ask if: featuring a partner's logo/link would violate that marketplace's ToS (founder vets per-partner via the `featureOnSite` toggle — not a code blocker).
-
 ## [ ] T33 — "Partner with us" interest modal (006-B) — keep it simple, like Careers  ·  risk: med
 Goal: a lightweight "Partner with us" interest capture — a MODAL mirroring the existing Careers / "Teach with us" modal (`CareersModal`), NOT a new route or marketing sub-page.
 Acceptance criteria:
@@ -66,6 +55,9 @@ Stop-and-ask if: a section genuinely belongs on a different tab (propose the mov
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T32 — Family "Where to find us" partner strip (006-A)  ·  risk: med
+Done (PR #464; merged, full-auto). Threads the public featured-partner display fields (`GET /api/cohorts` → `partners`, T26's `publicPartners` hard allowlist) to the client (App state → `Landing` prop, mirroring `testimonials`) and renders a compact "Where to find us" strip below the batches section: logos link to each partner's `publicUrl` (`target=_blank rel=noopener noreferrer`; text-name fallback), hidden entirely when none featured. Only display fields reach the client (no cut/settlement). Render test: links out for a featured partner + absent when none. lean-landing guard intact; CLAUDE.md flipped to shipped. Build + 316; Sonnet-verified (link attrs + hidden-when-empty, no-new-endpoint threading, hygiene, lean guard).
 
 ## [x] T31 — Partner-aware withdrawal: hide self-withdraw + founder manual removal  ·  risk: high
 Done (PR #458; merged, full-auto). Completes SPECS/005. Part A: partner students don't self-withdraw — `s.paymentSource` is threaded to the dashboard (onboarding stamps `paymentSource:"partner"` on the user → `/api/auth/me` → `newState`; returning students merged in `App.hydrateFromServer`), and `Platform` hides BOTH the withdraw control AND all refund-window copy when `s.paymentSource==="partner"` (`canWithdraw = canWithdrawNow(s) && !isPartner`); direct flow unchanged. Part B: founder-gated `POST /api/funnel?resource=partner-remove` drops the enrollment (→ no longer owed in settlement), removes the Resend contact + account/state, issues NO Stripe refund; console "Remove" per row (with confirm). Render test asserts a direct not-started student CAN cancel while a partner sees NO withdraw control/refund copy. Key-gated → no real side-effect on merge. CLAUDE.md + arch table. Build + 313; Sonnet-verified (both-sides render test, paymentSource chain, no-refund removal, direct flow intact). ⚠ Terms partner clause / refund disclaimer flagged for the founder's attorney (a Terms edit was NOT made — surface for legal sign-off).
