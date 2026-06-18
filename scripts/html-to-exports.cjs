@@ -25,19 +25,18 @@ function findChrome() {
   const page = await browser.newPage();
   await page.setViewport({ width: 1100, height: 900, deviceScaleFactor: 2 });
   await page.goto("file://" + path.resolve(htmlPath), { waitUntil: "networkidle0" });
-  // The interactive controls are meaningless in a static export — hide them in both.
-  await page.evaluate(() => { const c = document.querySelector(".controls"); if (c) c.style.display = "none"; });
+  // The interactive controls/hints are meaningless in a static export — hide them.
+  await page.evaluate(() => { document.querySelectorAll(".controls, .hint").forEach((c) => (c.style.display = "none")); });
 
-  // PNG: the COLLAPSED overview (one line per section) — a compact image to embed inline in the doc.
-  await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = false)));
-  await new Promise((r) => setTimeout(r, 120));
-  await page.screenshot({ path: outBase + ".png", fullPage: true });
+  // PNG: the VISUAL DIAGRAM only (the inline <svg>) — the image embedded in the architecture doc.
+  const svg = await page.$(".diagram svg");
+  await svg.screenshot({ path: outBase + ".png" });
 
-  // PDF: EVERYTHING expanded — the full walkthrough, the handout. break-inside:avoid keeps cards whole.
+  // PDF: the diagram + EVERY detail card expanded — the full handout. break-inside:avoid keeps cards whole.
   await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
   await new Promise((r) => setTimeout(r, 150));
-  await page.pdf({ path: outBase + ".pdf", printBackground: true, format: "A4", margin: { top: "14mm", bottom: "14mm", left: "12mm", right: "12mm" } });
+  await page.pdf({ path: outBase + ".pdf", printBackground: true, format: "A4", margin: { top: "12mm", bottom: "12mm", left: "10mm", right: "10mm" } });
 
   await browser.close();
-  console.log(`rendered ${htmlPath} -> ${outBase}.{png (collapsed overview), pdf (expanded handout)}`);
+  console.log(`rendered ${htmlPath} -> ${outBase}.{png (the diagram), pdf (diagram + all detail)}`);
 })().catch((e) => { console.error(e.message || e); process.exit(1); });

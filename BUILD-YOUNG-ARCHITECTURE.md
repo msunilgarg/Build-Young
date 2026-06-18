@@ -9,7 +9,7 @@ Two systems live in this repo, and this document maps both:
 
 > Two diagrams, two sources: the **loop** is an **interactive, clickable HTML page**
 > ([`docs/architecture/loop.html`](docs/architecture/loop.html)) — collapsible progressive disclosure;
-> the PNG embedded below is its collapsed overview, auto-rendered. The **app** is a **Mermaid** block
+> the visual diagram below is rendered from it (in the HTML, click any box to expand its detail). The **app** is a **Mermaid** block
 > (plain text, auto-rendered). **Living-document rule:**
 > any PR that adds/removes/moves a module, endpoint, skill, hook, or external service — or changes how
 > the loop/ship flow works — **updates this file (and the relevant diagram source) in the same PR.**
