@@ -82,6 +82,12 @@ function TeachingSchedule() {
     else if (Math.floor(offset / 7) + 1 > 12) state = "done";
     else { state = "active"; week = Math.floor(offset / 7) + 1; }
     return { b, state, week, next: nextClass(b, day) };
+  }).sort((x, y) => {
+    // "All cohorts" — newest first: latest START DATE on top (unparseable dates sort last).
+    const tx = Date.parse(x.b.start || ""), ty = Date.parse(y.b.start || "");
+    if (Number.isNaN(tx)) return Number.isNaN(ty) ? 0 : 1;
+    if (Number.isNaN(ty)) return -1;
+    return ty - tx;
   });
 
   const muted = { fontSize: 12.5, color: C.muted };
