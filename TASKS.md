@@ -43,15 +43,15 @@ Acceptance criteria:
 Files: src/Landing.jsx, src/lib.js (thread `partners` from the cohorts payload, e.g. via context/CONFIG), src/App.jsx (hydration), CLAUDE.md.
 Stop-and-ask if: featuring a partner's logo/link would violate that marketplace's ToS (founder vets per-partner via the `featureOnSite` toggle — not a code blocker).
 
-## [ ] T33 — "Partner with us" recruitment page (006-B)  ·  risk: med
-Goal: a B2B `/partners` page that pitches marketplaces / schools / youth orgs to carry Build Young (you bring students, we run the live 12-lesson cohort; simple rev-share), with a contact CTA.
+## [ ] T33 — "Partner with us" interest modal (006-B) — keep it simple, like Careers  ·  risk: med
+Goal: a lightweight "Partner with us" interest capture — a MODAL mirroring the existing Careers / "Teach with us" modal (`CareersModal`), NOT a new route or marketing sub-page.
 Acceptance criteria:
-- New `/partners` route added as ONE appended entry in the `ROUTES` registry (App.jsx), rendered by a new `Partners.jsx` screen (sub-page pattern like `About`/`Faq`).
-- Content: value prop + a short how-it-works (3 steps) + what students get + a clear contact CTA (book a call / email us). Linked from the footer.
-- Copy follows POSITIONING.md (us/we voice, honest, no overclaiming); links labeled + AA contrast; lean (a sub-page, not landing bulk).
-- Render test: the page renders its key sections + CTA; the footer link routes to it.
-Files: src/Partners.jsx (new), src/App.jsx (ROUTES append), src/Landing.jsx (footer link), CLAUDE.md + BUILD-YOUNG-ARCHITECTURE.md (new screen/route).
-Depends on: none (standalone marketing page).
+- A nav + footer link "Partner with us" opens a modal (mirror of `CareersModal`) with a short pitch (bring us your students, we run the live 12-lesson cohort; simple rev-share) + a form: **org/name + email (required)** + an optional note.
+- Submit POSTs to `POST /api/funnel?resource=partner-lead` → new `addPartnerLead` in `api/_lib/interestStore.js` (mirror of `addTutorInterest`): stores in KV + emails the founder (best-effort, key-gated → no-op without RESEND/KV). Founder reads them via `GET /api/funnel?resource=partner-lead` as a "Partner inquiries" list in the console (mirror of `TutorInterestAdmin`).
+- NO new ROUTES entry / sub-page. Copy follows POSITIONING.md (us/we, honest, no overclaiming); modal is keyboard-closable + AA contrast; no emoji-for-content.
+- Render test: the link opens the modal + the form submits to `?resource=partner-lead`; founder-ui shows the "Partner inquiries" list.
+Files: src/Landing.jsx (link + modal, mirror CareersModal), api/_lib/interestStore.js (addPartnerLead/listPartnerLeads), api/funnel.js (GET/POST ?resource=partner-lead), src/FounderDashboard.jsx (Partner inquiries list), CLAUDE.md.
+Depends on: none.
 
 ## [ ] T34 — Declutter the founder console "Students" tab (it's a kitchen sink)  ·  risk: med
 Goal: the Students tab currently stacks ~9 unrelated sections in one long scroll (Partner enrollments, Certificates, Student plans, Tutor applications, Questions from visitors, Schedule requests, Refunds to issue, Student showcase, Reset a test account) — mixing actual students with inbound leads/requests. Reorganize it into a calm, scannable layout so the founder finds a thing fast instead of scrolling a wall.
