@@ -252,9 +252,10 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   `api/_lib/auth.js`; `/api/auth/me` returns `isFounder`). The Platform header shows an **Admin**
   entry for founders; the hidden `?founder` route renders `FounderDashboard`.
 - **One endpoint, method-routed (Hobby 12-function cap):** **`POST /api/funnel`** = public event
-  ingest (`funnel:events` KV list, capped); **`GET`** = founder-only funnel read; **`PUT`** = founder
-  saves the cohort catalog (default), the **admin allowlist** (`?resource=founders`), or the **site
-  settings** (`?resource=settings`); **`DELETE`** = founder resets a test account. All non-POST
+  ingest (`funnel:events` KV list, capped); **`GET`** = founder-only funnel read (or `?resource=partners`
+  for the full partners registry); **`PUT`** = founder saves the cohort catalog (default), the **admin
+  allowlist** (`?resource=founders`), the **site settings** (`?resource=settings`), or the **partners
+  registry** (`?resource=partners`); **`DELETE`** = founder resets a test account. All non-POST
   methods require a founder session (403 otherwise). The dashboard folds in the **funnel** +
   **traffic/engagement** + a **site-settings editor** + a **cohort editor** + an **admin editor** +
   **account reset** + a read-only **system status**. Charts reuse the lazy `Charts.jsx`
@@ -282,6 +283,7 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   (`emailEnabled`/`authEnabled`/`RESEND_API_KEY`/`AUTH_SECRET`/KV); the console shows them read-only
   in **System status**. So: every founder go-live config a web console *can* own is in the console;
   only host secrets remain on the host.
+- **Partners registry (third-party enrollment — SPECS/005 + 006):** marketplaces/resellers (e.g. Outschool) that bring students, stored in KV (`partners:list` via `api/_lib/partnerStore.js`), founder-edited in the console (Settings → Partners). Each partner has a **`cutPct`** (commission, a 0..1 fraction — **founder-only, NEVER public**) plus public display fields (`displayName`/`logo`/`publicUrl`/`blurb`) and a **`featureOnSite`** toggle. Saved via founder-gated `PUT /api/funnel?resource=partners`; the founder reads full records via `GET /api/funnel?resource=partners`. The PUBLIC read (`GET /api/cohorts` → `partners`) exposes **only `publicPartners()`** — featured partners' display fields, a hard allowlist so `cutPct`/settlement can never leak. (Enrollment/settlement mechanics + the public showcase strip land in later 005/006 tasks.)
 - **Exports:** "Download CSV/JSON" → `toCSV(events)` / `toDataRoom(events)` for an investor data room.
 - **Env to enable:** `FOUNDER_EMAILS` (comma-separated admin emails) + `AUTH_SECRET` + the KV vars
   auth already uses. Tests: `test/funnel.test.js`
