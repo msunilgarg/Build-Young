@@ -107,6 +107,9 @@ The Build Young Team`,
 
 export const newState = (student) => ({
   student,
+  // "" for a normal (direct) enrollment; "partner" for a third-party (marketplace) seat — partner
+  // students don't self-withdraw (the founder removes them; refunds are the partner's). SPECS/005 T31.
+  paymentSource: (student && student.paymentSource) || "",
   started: false, // class hasn't begun yet — full refund available until first session
   week: 1,
   phase: "course",

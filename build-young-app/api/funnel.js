@@ -15,10 +15,10 @@ import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
 import { saveSettings, loadOps, saveOps } from "./_lib/settingsStore.js";
 import { loadPartners, savePartners } from "./_lib/partnerStore.js";
-import { addEnrollment, listEnrollments, listPartnerEnrollments } from "./_lib/store.js";
+import { addEnrollment, removeEnrollment, listEnrollments, listPartnerEnrollments } from "./_lib/store.js";
 import { putUser, getUser } from "./_lib/auth.js";
 import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
-import { addContact } from "./_lib/resendAudience.js";
+import { addContact, removeContact } from "./_lib/resendAudience.js";
 import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest, addScheduleRequest, listScheduleRequests, notifyScheduleRequestsOfNewCohorts } from "./_lib/interestStore.js";
 import { addShowcase, listShowcase } from "./_lib/showcaseStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
@@ -354,7 +354,7 @@ async function onboardPartnerEnrollment(req, res) {
   } else {
     try {
       const existing = await getUser(email);
-      await putUser(email, { name: rec.name, batchId });
+      await putUser(email, { name: rec.name, batchId, paymentSource: "partner" });
       if (existing && existing.passwordHash) inviteNote = "already set up (password exists) — no re-invite";
       else { const sent = await sendSetPasswordEmail({ email, name: rec.name }); invited = !!(sent && sent.ok); if (!invited) inviteNote = "email send failed (or email disabled)"; }
     } catch (e) { inviteNote = `invite error: ${(e && e.message) || String(e)}`; }
@@ -372,6 +372,25 @@ async function onboardPartnerEnrollment(req, res) {
   } catch { /* best-effort */ }
 
   res.status(200).json({ ok: true, invited, audience, inviteNote });
+}
+
+// --- POST ?resource=partner-remove: FOUNDER-ONLY. Manually remove a partner (third-party) student
+// (they don't self-withdraw — SPECS/005 T31). Drops the enrollment (so it stops counting as owed in
+// settlement — "credits the seat back") + the Resend audience contact + the account/state (course
+// access ends). Issues NO Stripe refund — partner refunds are the partner's responsibility. ---
+async function removePartnerEnrollment(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const body = (await readBody(req)) || {};
+  const email = normalizeEmail(body.email || "");
+  const batchId = String(body.batchId || "").trim();
+  if (!email || !batchId) { res.status(400).json({ ok: false, error: "Provide email + cohort" }); return; }
+  await removeEnrollment({ email, batchId }); // drops it from listPartnerEnrollments → no longer owed
+  try {
+    const cohort = ((await loadCatalog()).batches || []).find((b) => b.id === batchId);
+    if (cohort && cohort.groupAudienceId) await removeContact(cohort.groupAudienceId, email);
+  } catch { /* best-effort */ }
+  try { if (kvConfigured()) { await kvDel(`user:${email}`); await kvDel(`state:${email}`); } } catch { /* best-effort */ }
+  res.status(200).json({ ok: true });
 }
 
 // --- POST ?resource=interest: public — capture a family's interest when a cohort is full (so we
@@ -417,6 +436,7 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "scenarios") return makeScenarios(req, res); // public, AI-generated
     if (req.query && req.query.resource === "partner-enroll") return addPartnerEnrollment(req, res); // FOUNDER-gated inside
     if (req.query && req.query.resource === "partner-onboard") return onboardPartnerEnrollment(req, res); // FOUNDER-gated inside
+    if (req.query && req.query.resource === "partner-remove") return removePartnerEnrollment(req, res); // FOUNDER-gated inside
     return ingest(req, res);     // public: track an event
   }
   if (req.method === "GET") return read(req, res);        // founder: read funnel events

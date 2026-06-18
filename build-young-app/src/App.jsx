@@ -220,9 +220,12 @@ export default function App() {
     }
     if (!srv) {
       const b = batches.find((x) => x.id === user.batchId) || batches[0];
-      srv = newState({ name: user.name || "", email: user.email, batch: b.id, track: b.track });
+      srv = newState({ name: user.name || "", email: user.email, batch: b.id, track: b.track, paymentSource: user.paymentSource });
       AUTH.putState(srv);
     }
+    // Carry the server's payment-source onto the state so the dashboard hides self-withdraw for partner
+    // seats even for a returning student whose saved state predates the flag (SPECS/005 T31).
+    if (user && user.paymentSource && srv && srv.paymentSource !== user.paymentSource) srv = { ...srv, paymentSource: user.paymentSource };
     pendingScroll.current = 0; setHistory([]); setState(srv); setRoute("app");
   };
 
