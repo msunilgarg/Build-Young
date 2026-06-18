@@ -193,6 +193,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const [error, setError] = useState(null);
   const [seg, setSeg] = useState({ kind: "all", key: null }); // all | {season} | {track}
   const [tab, setTab] = useState("today"); // today | funnel | cohorts | students | settings — keeps the console short
+  const [studentsView, setStudentsView] = useState("enrolled"); // Students tab sub-nav: enrolled | inbound — declutters the kitchen-sink (T34)
   const [resetMsg, setResetMsg] = useState("");
   const [period, setPeriod] = useState("all"); // "all" | "YYYY-MM" — scopes the funnel + trend to a month
   const [trendMetric, setTrendMetric] = useState("visited");
@@ -592,26 +593,36 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
         </>)}
 
         {!error && events !== null && tab === "students" && (<>
-          <h2 style={h2s}>Partner enrollments</h2>
-          <PartnerEnrollAdmin />
-          <h2 style={h2s}>Certificates</h2>
-          <CertificatesAdmin />
-          <h2 style={h2s}>Student plans</h2>
-          <BuildPlansAdmin />
-          <h2 style={h2s}>Tutor applications</h2>
-          <TutorInterestAdmin />
-          <h2 style={h2s}>Partner inquiries</h2>
-          <PartnerLeadsAdmin />
-          <h2 style={h2s}>Questions from visitors</h2>
-          <QuestionsAdmin />
-          <h2 style={h2s}>Schedule requests</h2>
-          <ScheduleRequestsAdmin />
-          <h2 style={h2s}>Refunds to issue</h2>
-          <RefundsAdmin />
-          <h2 style={h2s}>Student showcase</h2>
-          <ShowcaseAdmin />
-          <h2 style={h2s}>Reset a test account</h2>
-          <AccountReset />
+          {/* Sub-nav: split the (formerly 10-section) kitchen sink into two clusters so the tab opens
+              compact — actual ENROLLED students vs. INBOUND leads/requests. One cluster shows at a time. */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 4 }}>
+            <span style={{ ...muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", marginRight: 4 }}>View</span>
+            {segBtn("Enrolled students", studentsView === "enrolled", () => setStudentsView("enrolled"))}
+            {segBtn("Inbound · leads & requests", studentsView === "inbound", () => setStudentsView("inbound"))}
+          </div>
+          {studentsView === "enrolled" ? (<>
+            <h2 style={h2s}>Partner enrollments</h2>
+            <PartnerEnrollAdmin />
+            <h2 style={h2s}>Certificates</h2>
+            <CertificatesAdmin />
+            <h2 style={h2s}>Student plans</h2>
+            <BuildPlansAdmin />
+            <h2 style={h2s}>Student showcase</h2>
+            <ShowcaseAdmin />
+            <h2 style={h2s}>Refunds to issue</h2>
+            <RefundsAdmin />
+            <h2 style={h2s}>Reset a test account</h2>
+            <AccountReset />
+          </>) : (<>
+            <h2 style={h2s}>Tutor applications</h2>
+            <TutorInterestAdmin />
+            <h2 style={h2s}>Partner inquiries</h2>
+            <PartnerLeadsAdmin />
+            <h2 style={h2s}>Questions from visitors</h2>
+            <QuestionsAdmin />
+            <h2 style={h2s}>Schedule requests</h2>
+            <ScheduleRequestsAdmin />
+          </>)}
         </>)}
 
         {!error && events !== null && tab === "settings" && (<>
