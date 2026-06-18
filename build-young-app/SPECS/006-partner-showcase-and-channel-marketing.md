@@ -14,9 +14,10 @@ Two **public** marketing surfaces for the partner channel, both founder-editable
 - **(A) Family-facing "Where to find us" strip** *(ship first)* — a compact logos/links section that
   shows the marketplaces/partners where families can find + enroll in Build Young (e.g. "Also on
   Outschool"), each linking to **our listing** on that platform.
-- **(B) "Partner with us" recruitment page** *(next increment)* — a B2B page pitching marketplaces,
-  schools, and youth orgs to **carry** Build Young (you bring students, we run the live cohort; simple
-  rev-share), with a contact CTA.
+- **(B) "Partner with us" interest capture** *(next increment)* — a simple **modal** (mirroring the
+  existing **Careers / "Teach with us"** modal), opened from a nav + footer link, that captures a
+  prospective partner's **org/name + email** (+ optional note) and emails it to the founder. The short
+  pitch lives in the modal; **no dedicated marketing sub-page** — keep it lightweight like Careers.
 
 ## Why
 Two distinct funnels. **Families** already trust a marketplace's reviews + payment rails, so showing
@@ -28,8 +29,8 @@ onboarding; recruitment follows once the model is proven.
 ## Users & trigger
 - **Prospective family** — browsing the site; sees the "where to find us" strip and can choose to
   enroll via a partner they already use/trust.
-- **Prospective partner** (marketplace / school / org) — lands on **/partners**, evaluates carrying
-  Build Young, and contacts us.
+- **Prospective partner** (marketplace / school / org) — opens the **"Partner with us"** modal,
+  reads the short pitch, and leaves their org + email so we can reach out.
 - **Founder / admin** — toggles which partners are **featured** publicly + edits their display
   fields + the recruitment copy (console, `FOUNDER_EMAILS`-gated).
 
@@ -47,11 +48,14 @@ onboarding; recruitment follows once the model is proven.
    settings). **Only** display fields go public — `cut %` / settlement / `externalRef` **never** leave
    the founder-gated surface.
 
-### (B) "Partner with us" recruitment page — next increment
-5. A **/partners** route (a sub-page like `/about` / `/faq`, added to the `ROUTES` registry):
-   value prop (bring us your students, we run the live 12-lesson cohort; simple rev-share), a short
-   **how-it-works** (3 steps), what students get, and a **contact CTA** (book a call / email us).
-   Copy is founder-editable (site settings) where it makes sense. Linked from the footer.
+### (B) "Partner with us" interest modal — next increment
+5. A **"Partner with us" modal** — a direct mirror of `CareersModal` (the "Teach with us" modal):
+   a **nav + footer link** opens it; inside is a short pitch (bring us your students, we run the live
+   12-lesson cohort; simple rev-share) + a small form — **org/name + email (required)** + an optional
+   note. Submitting POSTs to **`/api/funnel?resource=partner-lead`** → `addPartnerLead` (an interestStore
+   mirror of `addTutorInterest`): stores it in KV + **emails the founder** (best-effort, key-gated). The
+   founder reads inquiries in the console as a **"Partner inquiries"** list (mirror of Tutor applications,
+   `GET ?resource=partner-lead`). **No new route / sub-page** — keep it as light as Careers.
 
 **Edge cases:** a partner with `featureOnSite` off → in 005 back-office but not shown publicly; a
 marketplace whose ToS forbids off-platform linking → leave it un-featured (founder vets each); no
@@ -65,8 +69,10 @@ featured partners → section/strip hidden; logo fails to load → text-name fal
       the `landing-lean` guard still passes.
 - [ ] **Only display fields are public** — `cut %` / settlement / `externalRef` are never in the public
       `GET /api/cohorts` payload (a test asserts the public payload omits them).
-- [ ] **(Increment B)** a **/partners** "Partner with us" page exists (ROUTES registry), with value
-      prop + how-it-works + contact CTA, founder-editable copy, linked from the footer.
+- [ ] **(Increment B)** a **"Partner with us" modal** (mirror of `CareersModal`) opens from a nav +
+      footer link, captures org/name + email (+ optional note) → `POST /api/funnel?resource=partner-lead`
+      (stored in KV + founder emailed, key-gated); the founder sees inquiries in the console
+      (`GET ?resource=partner-lead`). **No new route.**
 - [ ] Copy follows **POSITIONING.md** (us/we voice, honest, no overclaiming); **no** flag/emoji glyphs
       for content; links are labeled + AA-contrast; a render test pins the visible strings (and that the
       strip is absent when no partners are featured).
@@ -85,9 +91,11 @@ featured partners → section/strip hidden; logo fails to load → text-name fal
   appended entry in the **`ROUTES`** registry, `target="_blank"` carries `rel="noopener noreferrer"`.
 - **Touches:** the **partners registry** (005) + public display fields + `featureOnSite`; `GET
   /api/cohorts` (fold **featured-partner display fields** into the public payload, like settings — and
-  **only** those fields); a compact **partner strip** section/component on the public site; a new
-  **/partners** sub-page (increment B) + footer link; the founder console partners editor (display
-  fields + toggle). **NOT** the student dashboard; **NOT** any settlement/cut data on a public surface.
+  **only** those fields); a compact **partner strip** section/component on the public site; a **"Partner
+  with us" modal** (mirror of `CareersModal`) + a nav/footer link + `addPartnerLead`/`listPartnerLeads`
+  in `interestStore.js` + `GET`/`POST /api/funnel?resource=partner-lead` + a "Partner inquiries" console
+  list; the founder console partners editor (display fields + toggle). **NOT** the student dashboard;
+  **NOT** any settlement/cut data on a public surface; **NOT** a new route/sub-page.
 
 ## Risks / open questions
 - **Marketplace ToS.** Some platforms restrict off-platform linking or how you represent the listing —
