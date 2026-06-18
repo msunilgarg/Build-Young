@@ -53,6 +53,17 @@ Acceptance criteria:
 Files: src/Partners.jsx (new), src/App.jsx (ROUTES append), src/Landing.jsx (footer link), CLAUDE.md + BUILD-YOUNG-ARCHITECTURE.md (new screen/route).
 Depends on: none (standalone marketing page).
 
+## [ ] T34 — Declutter the founder console "Students" tab (it's a kitchen sink)  ·  risk: med
+Goal: the Students tab currently stacks ~9 unrelated sections in one long scroll (Partner enrollments, Certificates, Student plans, Tutor applications, Questions from visitors, Schedule requests, Refunds to issue, Student showcase, Reset a test account) — mixing actual students with inbound leads/requests. Reorganize it into a calm, scannable layout so the founder finds a thing fast instead of scrolling a wall.
+Acceptance criteria:
+- **Group** the sections into a few labeled clusters by what they are, e.g. **Enrolled students** (partner enrollments · certificates · student build plans · showcase · refunds to issue · reset account) vs. **Inbound (leads & requests)** (tutor applications · visitor questions · schedule requests). Final grouping is your call, but related things sit together and unrelated things don't.
+- **Collapse the long ones by default** (or put the clusters behind a lightweight sub-nav within the tab) so the tab opens compact — the founder expands what they need rather than scrolling all 9 at once. Each section shows a count/summary in its header when collapsed (e.g. "Refunds to issue (2)") so nothing important hides silently.
+- NO behavior change to any individual admin panel — this is layout/organization only; every existing panel (and its data fetch + actions) works exactly as before, just relocated/wrapped.
+- House style: calm + compact (CLAUDE.md "optimize for less scrolling"); keyboard-operable expanders (`act()`), AA contrast; no emoji-for-content.
+- A render test asserts the new grouping/section headers render and that a representative panel (e.g. Reset a test account, Partner enrollments) is still reachable (expand if collapsed).
+Files: src/FounderDashboard.jsx (the Students-tab render + a small collapsible/section wrapper), test/founder-ui.test.jsx.
+Stop-and-ask if: a section genuinely belongs on a different tab (propose the move in the PR, don't relocate across tabs without flagging) — otherwise keep it within Students.
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
