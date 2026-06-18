@@ -64,10 +64,13 @@ describe("FounderDashboard (account-gated)", () => {
     // …and the derived end date is shown (start Aug 10 + offsets 0..17 → Aug 27).
     expect(screen.getByText(/Aug 27, 2026/)).toBeInTheDocument();
 
-    // Settings tab: site settings + admins + system status.
+    // Settings tab: site settings + admins + partners + system status.
     await user.click(screen.getByText("Settings"));
     expect(await screen.findByText(/Site settings/i)).toBeInTheDocument();
     expect(screen.getByText(/System status/i)).toBeInTheDocument();
     expect(await screen.findByLabelText(/Booking link/i)).toBeInTheDocument();
+    // The partners registry editor (third-party enrollment channel — SPECS/005+006).
+    expect(screen.getByText(/Partners \(third-party enrollment\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/\+ Add partner/i)).toBeInTheDocument();
   });
 });

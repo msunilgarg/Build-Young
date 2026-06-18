@@ -17,6 +17,7 @@ import { loadObjectives } from "./_lib/objectivesStore.js";
 import { getCertById } from "./_lib/cert.js";
 import { countEnrollments } from "./_lib/store.js";
 import { listPublicTestimonials } from "./_lib/showcaseStore.js";
+import { loadPartners, publicPartners } from "./_lib/partnerStore.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") { res.status(405).json({ error: "Method not allowed" }); return; }
@@ -39,6 +40,8 @@ export default async function handler(req, res) {
   }));
   // Public testimonials (consented student showcase) — only when the founder has the feature on.
   const testimonials = settings.showcaseEnabled ? await listPublicTestimonials() : [];
+  // Partner showcase (006): ONLY featured partners' display fields — cutPct/settlement never go public.
+  const partners = publicPartners(await loadPartners());
   res.setHeader("Cache-Control", "no-store");
-  res.status(200).json({ ...catalog, batches, settings, homework, objectives, testimonials });
+  res.status(200).json({ ...catalog, batches, settings, homework, objectives, testimonials, partners });
 }

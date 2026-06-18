@@ -591,6 +591,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <ScenarioAgentEditor />
           <h2 style={h2s}>Admins</h2>
           <FoundersEditor founders={founders} />
+          <h2 style={h2s}>Partners (third-party enrollment)</h2>
+          <PartnersEditor />
           <h2 style={h2s}>System status</h2>
           <SystemStatus />
           <h2 style={h2s}>Danger zone</h2>
@@ -1184,6 +1186,67 @@ function FoundersEditor({ founders }) {
           style={{ fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, flex: 1, minWidth: 220 }} />
         <span {...act(add)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.emerald, border: `1px solid ${C.emerald}`, borderRadius: 4, padding: "9px 14px" }}>+ Add</span>
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save admins</button>
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
+      </div>
+    </Card>
+  );
+}
+
+// Partners (marketplace/reseller) editor — the third-party-enrollment channel registry (SPECS/005+006).
+// Each partner has a cut % (commission, FOUNDER-ONLY) + public display fields for the showcase. Loaded
+// via GET /api/funnel?resource=partners (full records), saved via founder-gated PUT ?resource=partners.
+// The public site only ever sees FEATURED partners' display fields (publicPartners) — cut % stays here.
+function PartnersEditor() {
+  const [rows, setRows] = useState(null);
+  const [status, setStatus] = useState("");
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=partners"); const d = r.ok ? await r.json() : {}; if (live) setRows(Array.isArray(d.partners) ? d.partners : []); }
+      catch { if (live) setRows([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  const update = (i, field, val) => setRows((rs) => rs.map((r, j) => (j === i ? { ...r, [field]: val } : r)));
+  const add = () => setRows((rs) => [...(rs || []), { id: "", name: "", cutPct: 0, displayName: "", logo: "", publicUrl: "", blurb: "", featureOnSite: false }]);
+  const remove = (i) => setRows((rs) => rs.filter((_, j) => j !== i));
+  const save = async () => {
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel?resource=partners", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ partners: rows }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setRows(d.partners); setStatus("Saved ✓"); } else setStatus(adminSaveErr(r, d, "save partners"));
+    } catch { setStatus(ADMIN_NET_ERR); }
+  };
+  if (rows === null) return <Card style={{ padding: 16 }}><div style={{ fontSize: 13, color: C.muted }}>Loading…</div></Card>;
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 3 };
+  const inp = { width: "100%", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontSize: 13.5, marginTop: 2 };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Marketplaces/resellers that bring you students (e.g. Outschool). The <b>cut %</b> is their commission — your net per seat is price × (1 − cut%). It's <b>founder-only</b> and never shown publicly. Turn on <b>Feature on site</b> to show a partner in the public "Where to find us" strip (only the display fields go public).</div>
+      {rows.map((p, i) => (
+        <div key={i} style={{ border: `1px solid ${C.line}`, borderRadius: 6, padding: 12, marginBottom: 10, background: C.paper }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }} className="enroll-grid">
+            <label><span style={lab}>Partner id</span><input aria-label={`Partner id ${i + 1}`} value={p.id} onChange={(e) => update(i, "id", e.target.value)} style={inp} /></label>
+            <label><span style={lab}>Name (internal)</span><input aria-label={`Partner name ${i + 1}`} value={p.name} onChange={(e) => update(i, "name", e.target.value)} style={inp} /></label>
+            <label><span style={lab}>Cut % (commission)</span><input type="number" min="0" max="100" aria-label={`Partner cut percent ${i + 1}`} value={Math.round((Number(p.cutPct) || 0) * 100)} onChange={(e) => update(i, "cutPct", Math.min(1, Math.max(0, (Number(e.target.value) || 0) / 100)))} style={inp} /></label>
+            <label><span style={lab}>Display name (public)</span><input aria-label={`Partner display name ${i + 1}`} value={p.displayName} onChange={(e) => update(i, "displayName", e.target.value)} style={inp} /></label>
+            <label><span style={lab}>Listing URL (public)</span><input aria-label={`Partner listing URL ${i + 1}`} value={p.publicUrl} onChange={(e) => update(i, "publicUrl", e.target.value)} style={inp} /></label>
+            <label><span style={lab}>Logo URL (public)</span><input aria-label={`Partner logo URL ${i + 1}`} value={p.logo} onChange={(e) => update(i, "logo", e.target.value)} style={inp} /></label>
+          </div>
+          <label style={{ display: "block", marginTop: 8 }}><span style={lab}>Blurb (public)</span><input aria-label={`Partner blurb ${i + 1}`} value={p.blurb} onChange={(e) => update(i, "blurb", e.target.value)} style={inp} /></label>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, color: C.ink2, fontWeight: 600 }}>
+              <input type="checkbox" aria-label={`Feature ${p.id || i + 1} on site`} checked={!!p.featureOnSite} onChange={(e) => update(i, "featureOnSite", e.target.checked)} /> Feature on site
+            </label>
+            <span {...act(() => remove(i))} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.rust }}>Remove</span>
+          </div>
+        </div>
+      ))}
+      {rows.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>No partners yet.</div>}
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 4 }}>
+        <span {...act(add)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.emerald, border: `1px solid ${C.emerald}`, borderRadius: 4, padding: "9px 14px" }}>+ Add partner</span>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save partners</button>
         {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
     </Card>
