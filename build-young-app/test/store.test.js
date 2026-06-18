@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { addEnrollment, listEnrollments, storeConfigured } from "../api/_lib/store.js";
+import { addEnrollment, listEnrollments, listPartnerEnrollments, storeConfigured } from "../api/_lib/store.js";
 
 const ENV = { KV_REST_API_URL: "https://kv.example.com", KV_REST_API_TOKEN: "tok_test" };
 
@@ -53,6 +53,36 @@ describe("enrollment store (Upstash/Vercel KV over REST)", () => {
     expect(roster).toHaveLength(2);
     expect(roster[0]).toEqual({ email: "jordan@example.com", name: "Jordan Rivera", batchId: "fall-hs-wed" });
     expect(roster[1].email).toBe("sam@example.com");
+  });
+
+  it("a PARTNER enrollment is stored PENDING (onboarded:false) with a price+cut snapshot; the store only HSETs (sends nothing)", async () => {
+    Object.assign(process.env, ENV);
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ result: 1 }) }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const res = await addEnrollment({ email: "kid@school.org", name: "Kid", batchId: "fall-mw", paymentSource: "partner", partner: "outschool", externalRef: "OS-123", priceCents: 99900, cutPct: 0.3 });
+    expect(res.ok).toBe(true);
+    // The ONLY network call is the KV HSET — no email/audience side-effect exists in the store layer.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const rec = JSON.parse(JSON.parse(fetchMock.mock.calls[0][1].body)[3]);
+    expect(rec).toMatchObject({ email: "kid@school.org", batchId: "fall-mw", paymentSource: "partner", partner: "outschool", externalRef: "OS-123", priceCents: 99900, cutPct: 0.3, onboarded: false });
+  });
+
+  it("listEnrollments passes partner fields through; listPartnerEnrollments filters to partner seats", async () => {
+    Object.assign(process.env, ENV);
+    const stored = [
+      "direct@x.com", JSON.stringify({ email: "direct@x.com", name: "Direct", batchId: "fall-mw" }),
+      "kid@school.org", JSON.stringify({ email: "kid@school.org", name: "Kid", batchId: "fall-mw", paymentSource: "partner", partner: "outschool", externalRef: "OS-1", priceCents: 99900, cutPct: 0.3, onboarded: false }),
+    ];
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ result: stored }) })));
+
+    const all = await listEnrollments("fall-mw");
+    expect(all[0]).toEqual({ email: "direct@x.com", name: "Direct", batchId: "fall-mw" }); // direct = unchanged shape
+    expect(all[1]).toMatchObject({ paymentSource: "partner", partner: "outschool", onboarded: false });
+
+    const partnerOnly = await listPartnerEnrollments(["fall-mw"]);
+    expect(partnerOnly).toHaveLength(1);
+    expect(partnerOnly[0].email).toBe("kid@school.org");
   });
 
   it("also accepts the UPSTASH_* env var names", async () => {
