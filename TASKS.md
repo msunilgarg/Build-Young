@@ -32,19 +32,11 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 006 — partner showcase + channel marketing (family-first). See SPECS/006-partner-showcase-and-channel-marketing.md.
      Depends on the 005 partners registry (done). T32 (family strip) ships first; T33 (recruitment page) next. ===== -->
 
-## [ ] T34 — Declutter the founder console "Students" tab (it's a kitchen sink)  ·  risk: med
-Goal: the Students tab currently stacks ~9 unrelated sections in one long scroll (Partner enrollments, Certificates, Student plans, Tutor applications, Questions from visitors, Schedule requests, Refunds to issue, Student showcase, Reset a test account) — mixing actual students with inbound leads/requests. Reorganize it into a calm, scannable layout so the founder finds a thing fast instead of scrolling a wall.
-Acceptance criteria:
-- **Group** the sections into a few labeled clusters by what they are, e.g. **Enrolled students** (partner enrollments · certificates · student build plans · showcase · refunds to issue · reset account) vs. **Inbound (leads & requests)** (tutor applications · visitor questions · schedule requests). Final grouping is your call, but related things sit together and unrelated things don't.
-- **Collapse the long ones by default** (or put the clusters behind a lightweight sub-nav within the tab) so the tab opens compact — the founder expands what they need rather than scrolling all 9 at once. Each section shows a count/summary in its header when collapsed (e.g. "Refunds to issue (2)") so nothing important hides silently.
-- NO behavior change to any individual admin panel — this is layout/organization only; every existing panel (and its data fetch + actions) works exactly as before, just relocated/wrapped.
-- House style: calm + compact (CLAUDE.md "optimize for less scrolling"); keyboard-operable expanders (`act()`), AA contrast; no emoji-for-content.
-- A render test asserts the new grouping/section headers render and that a representative panel (e.g. Reset a test account, Partner enrollments) is still reachable (expand if collapsed).
-Files: src/FounderDashboard.jsx (the Students-tab render + a small collapsible/section wrapper), test/founder-ui.test.jsx.
-Stop-and-ask if: a section genuinely belongs on a different tab (propose the move in the PR, don't relocate across tabs without flagging) — otherwise keep it within Students.
-
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T34 — Declutter the founder console "Students" tab (it's a kitchen sink)  ·  risk: med
+Done (PR #468; merged, full-auto). The Students tab stacked 10 unrelated sections in one scroll. Split into a lightweight in-tab **sub-nav** (the acceptance's allowed alternative): **Enrolled students** (default — partner enrollments · certificates · student plans · showcase · refunds to issue · reset account) vs **Inbound · leads & requests** (tutor applications · partner inquiries · visitor questions · schedule requests). One cluster renders at a time → the tab opens compact + related things sit together. NO behavior change to any panel — each `<Admin/>` rendered as-is, just partitioned (only the Students render block + a `studentsView` state changed). Pills reuse `segBtn` (keyboard-operable `act()`, AA). Render test asserts both directions. Build + 320; Sonnet-verified (both-directions render, all 10 panels preserved unchanged, existing tests green).
 
 ## [x] T33 — "Partner with us" interest modal (006-B) — keep it simple, like Careers  ·  risk: med
 Done (PR #466; merged, full-auto). Completes SPECS/006. Mirror of `CareersModal`: a nav + footer "Partner with us" link opens `PartnerModal` (short pitch + org + email (required) + optional note) → public `POST /api/funnel?resource=partner-lead` → new `addPartnerLead` (interestStore mirror of `addTutorInterest`: store in KV + email the team, key-gated → no real send on merge). Founder reads them in the console: Students → "Partner inquiries" (`PartnerLeadsAdmin`, founder-gated `GET ?resource=partner-lead`). NO new route (App.jsx untouched). Tests: addPartnerLead validation + a render test that the nav link opens the modal (org + email). lean guard intact; CLAUDE.md + arch table. Build + 319; Sonnet-verified (modal + no-new-route, public POST/founder GET wired + key-gated, console list, copy/voice).
