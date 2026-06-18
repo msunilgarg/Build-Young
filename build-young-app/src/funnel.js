@@ -157,10 +157,14 @@ export function settlementSummary(partners, enrollments) {
   });
 }
 
-// Per-season and per-track segment summaries, for side-by-side cohort comparison.
+// Per-season and per-track segment summaries, for side-by-side cohort comparison. Seasons = the
+// predefined SEASONS PLUS any catalog-only season that actually appears in the events (e.g. a
+// founder-created "summer" cohort) — so segmentation/exports never silently drop a real season.
 export function segments(events) {
+  const present = [...new Set((events || []).map((e) => e && e.props && e.props.season).filter(Boolean))];
+  const keys = [...SEASONS.map((s) => s.key), ...present.filter((k) => !SEASONS.some((s) => s.key === k))];
   return {
-    bySeason: SEASONS.map((s) => ({ key: s.key, label: s.label, summary: summarize(events, { season: s.key }) })),
+    bySeason: keys.map((k) => ({ key: k, label: seasonLabel(k), summary: summarize(events, { season: k }) })),
     byTrack: TRACKS.map((t) => ({ key: t, label: t, summary: summarize(events, { track: t }) })),
   };
 }

@@ -4,7 +4,7 @@ import { C, fmt, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, act, Stat } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, AUTH, downloadFile, HESITATION_REASONS } from "./lib.js";
 import { cohortDays, cohortTime, nextClass, dayNum, classMeetingOn, REFUND_WINDOW, buildLessonSchedule, cohortEndDate, paceFromLessons } from "./courseDates.js";
-import { SEASONS, seasonLabel } from "./cohorts.js";
+import { seasonLabel, catalogSeasons } from "./cohorts.js";
 import { WEEKS } from "./course.js";
 import { HOMEWORK, OBJECTIVES, setHomework, setObjectives } from "./courseState.js";
 import { cancelReasonLabel } from "./engine.js";
@@ -187,6 +187,7 @@ function NoTrackToggle() {
 }
 
 export function FounderDashboard({ onHome, onPreviewStudent }) {
+  const liveBatches = useCohorts(); // live cohort catalog → segment seasons match the public site (incl. catalog-only seasons like Summer)
   const [events, setEvents] = useState(null); // null = loading
   const [founders, setFounders] = useState([]); // admin allowlist (effective: env ∪ KV)
   const [error, setError] = useState(null);
@@ -304,7 +305,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 22 }}>
             <span style={{ ...muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", marginRight: 4 }}>Segment</span>
             {segBtn("All", seg.kind === "all", () => setSeg({ kind: "all", key: null }))}
-            {SEASONS.map((s) => segBtn(s.label, seg.kind === "season" && seg.key === s.key, () => setSeg({ kind: "season", key: s.key })))}
+            {catalogSeasons(liveBatches).map((s) => segBtn(s.label, seg.kind === "season" && seg.key === s.key, () => setSeg({ kind: "season", key: s.key })))}
             {TRACKS.length > 1 && TRACKS.map((t) => segBtn(t, seg.kind === "track" && seg.key === t, () => setSeg({ kind: "track", key: t })))}
           </div>
           {filter && <div style={{ ...muted, marginTop: 8 }}>Segmented views start at <b>Enrolled</b> — top-of-funnel events (visits, enroll-starts) aren’t tied to a cohort.</div>}
