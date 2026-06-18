@@ -305,7 +305,13 @@ a **driver** pursues them. The payoff isn't "more agents"; it's that each next s
 - **State lives in committed files so a fresh/ephemeral session resumes** — the backlog + progress, the
   project guide, this playbook: memory that survives container resets.
 - **Trigger it however suits the moment** — a human prompt, a schedule, or an event (e.g. a labeled
-  issue) — but the *procedure* is identical once started.
+  issue) — but the *procedure* is identical once started. **And so is the spec-first gate: it's
+  trigger-independent.** An event on-ramp that treats "the issue IS the task" is a convenience for
+  *bug-level* work; a **non-trivial / feature** goal still gets specced first (decisions + acceptance
+  pinned in a one-page spec) before it becomes a task, no matter how the run was triggered. *Why: the
+  trigger decides *where the task comes from*, not *whether it earns a spec* — letting a labeled issue
+  skip the spec is how a substantial change gets built from a one-line prompt with fuzzy acceptance
+  criteria, which is exactly what the spec-first gate exists to prevent.*
 - **Guardrails stay on even in full auto:** never auto-merge a destructive/irreversible/outward-facing
   action without confirming; never push the main branch directly (enforce with a deny rule); never put
   internal/model identifiers in committed artifacts (enforce with a commit guard); if the verifier fails
@@ -325,6 +331,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-18** — §9: the spec-first gate is **trigger-independent** — an event/issue on-ramp that treats "the issue IS the task" is for *bug-level* work; a non-trivial/feature goal is still specced first regardless of how the run was triggered (the trigger chooses *where the task comes from*, not *whether it earns a spec*). Surfaced in the loop diagram's issue on-ramp + the architecture doc Triggers row.
 - **2026-06-16** — §9: a UX/visual or user-facing-copy change must be verified by **rendering + viewing the actual screen** (or a deterministic render test that asserts the visible strings + absence of banned ones), not by reading the diff + grepping. Shipped "WEEK 1 · THIS WEEK" green because a grep pattern (`WEEK \{`) missed the real template (`WEEK ${...}`) and no test rendered that header — two read/grep passes share the same blind spot; a render doesn't. Generalizes §3's "VIEW the artifact" from diagrams to every rendered surface.
 - **2026-06-15** — §3: diagram labels must be short, plain-English, and name the *function*; push who/when/why detail to the table/prose, not the label. Verbose multi-line edge labels get routed as free-floating blocks by auto-layout and collide into an unreadable wall — so the verifier's PNG check now also fails overlapping/sentence-length labels.
 - **2026-06-15** — §3: when handing a diagram back to the human, deliver the **PDF** (zoomable vector), not just the PNG — it stays crisp when zoomed/printed; the PNG remains for the verifier's inline view.
