@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FounderDashboard } from "../src/App.jsx";
+import { CohortsContext } from "../src/lib.js";
 
 // The founder/admin dashboard is gated by the session cookie (server checks FOUNDER_EMAILS). These
 // cover the gating + scaffold; the funnel math itself is covered in funnel.test.js.
@@ -92,5 +93,23 @@ describe("FounderDashboard (account-gated)", () => {
     // The pending row exposes the explicit onboarding action (saving alone never onboards).
     expect(await screen.findByRole("button", { name: /Start onboarding/i })).toBeInTheDocument();
     expect(screen.getByText(/Pending/i)).toBeInTheDocument();
+  });
+
+  it("the funnel Segment selector includes a founder-created catalog season (Summer 2026)", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) {
+        return { status: 200, ok: true, json: async () => ({ batches: [{ id: "summer-1", season: "summer", track: "Builders", start: "Aug 10, 2026", day: "Weekdays", price: 999, seats: 10 }], checkins: 0 }) };
+      }
+      return { status: 200, json: async () => ({ events: [] }) };
+    }));
+    const user = userEvent.setup();
+    // The dashboard reads the live catalog from CohortsContext (App provides it); supply a Summer cohort.
+    const catalog = [{ id: "summer-1", season: "summer", track: "Builders", start: "Aug 10, 2026", day: "Weekdays", price: 999, seats: 10 }];
+    render(<CohortsContext.Provider value={catalog}><FounderDashboard onHome={() => {}} /></CohortsContext.Provider>);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
+    // The Segment row reflects the LIVE catalog (catalogSeasons), so the Summer cohort shows — not just
+    // the hardcoded Fall/Winter/Spring. Regression guard: the console matches the landing's season tabs.
+    expect(await screen.findByText("Summer 2026")).toBeInTheDocument();
   });
 });

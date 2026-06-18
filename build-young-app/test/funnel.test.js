@@ -265,3 +265,18 @@ describe("toDataRoom — accounting export carries the settlement ledger (T30)",
     expect(toDataRoom([]).settlement).toBeUndefined();
   });
 });
+
+describe("segments — includes a catalog-only season present in the events (not just predefined)", () => {
+  it("breaks out a founder-created 'summer' cohort that has enrollments", () => {
+    const events = [
+      ev("enrolled", { ...FALL }),
+      ev("enrolled", { batchId: "summer-1", season: "summer", track: "Builders", priceCents: 99900 }),
+    ];
+    const seg = segments(events);
+    const summer = seg.bySeason.find((s) => s.key === "summer");
+    expect(summer).toBeTruthy();                 // not dropped just because it isn't predefined
+    expect(summer.summary.counts.enrolled).toBe(1);
+    // predefined seasons still present + first
+    expect(seg.bySeason.slice(0, 3).map((s) => s.key)).toEqual(["fall", "winter", "spring"]);
+  });
+});
