@@ -36,6 +36,15 @@ our Stripe checkout, plus a way to count and settle what each partner owes us.
 name/email + cohort + a partner reference.
 
 ## Behavior
+
+> **Student-experience parity (hard requirement).** Once the founder enters a partner student, their
+> experience is **identical to a direct enrollment** — the **same** onboarding/welcome/set-password
+> email **text**, the same dashboard, course, class reminders, certificate, and group email. **No**
+> "partner" / source / settlement / cut wording ever reaches the student; partner attribution lives
+> **only** in the founder console + the aggregate funnel. The student can't tell how they were
+> enrolled. *(The single intentional student-facing divergence is the withdrawal/refund copy in
+> step 5 — because the refund mechanics genuinely differ — and it's flagged for sign-off below.)*
+
 Happy path (**MVP = founder-driven, manual**):
 0. **Configure partners (once each):** the founder adds a **partner** in the console —
    `{ id, name, cut % }` (cut % = the partner's commission). Editable later; the cut % at the time
@@ -46,8 +55,9 @@ Happy path (**MVP = founder-driven, manual**):
    marketplace order id), and **payment source = partner / invoice** (no Stripe).
 2. This creates the student's enrollment + account exactly like a paid enrollment, but flagged
    `paymentSource:"partner"` + `partner:<id>` + `externalRef`, and **snapshots the seat's price +
-   the partner's cut %** for settlement. The student gets the **set-password / welcome** email and
-   logs into the **normal** dashboard (same 12 lessons, cert, group email).
+   the partner's cut %** for settlement. The student gets the **same** set-password / welcome email
+   and logs into the **same** dashboard (12 lessons, cert, group email) as a direct enrollment — the
+   partner flags are **back-office only** and change nothing the student sees (see parity note above).
 3. The student is **attributed to that partner** where it matters: the funnel `enrolled` event
    carries `source:"partner:<id>"` + the seat's **net** cents (price × (1 − cut%)), aggregate/no-PII;
    the cohort roster marks partner seats. **Partner revenue is counted in the funnel `revenue`
@@ -73,8 +83,11 @@ seats by agreement); student never sets a password → resend invite.
 - [ ] Founder can create an enrollment with `paymentSource:"partner"`, a `partner` tag, and an
       optional `externalRef`, into any cohort, **without a Stripe charge** — the student's account +
       dashboard access + cert eligibility are identical to a paid student.
-- [ ] The student receives a set-password / welcome email and logs into the normal 12-lesson
-      dashboard.
+- [ ] **Student-experience parity:** a partner student's onboarding + day-to-day experience is
+      **identical** to a direct enrollment — same welcome/set-password email **text**, dashboard,
+      course, class reminders, certificate, group email; **no** partner/source/settlement wording
+      reaches the student. (A render/text test asserts the partner-student emails + dashboard match the
+      direct-student ones; the withdrawal/refund copy is the one intentional, flagged exception.)
 - [ ] Founder can **configure partners** (`id`, `name`, `cut %`); the cut % + the seat price are
       **snapshotted** on each enrollment so net-owed = `Σ price × (1 − cut%)` is stable even if the
       cohort price or the partner's cut % changes later.
@@ -132,5 +145,10 @@ seats by agreement); student never sets a password → resend invite.
   source of truth for their enrollment and avoid a double Resend add.
 - **Refund liability.** Confirm with counsel that disclaiming Build Young refunds for partner seats
   (the partner owns it) is correct in Terms.
+- **The one parity exception — withdrawal/refund copy.** A partner student can't be shown the standard
+  "flat 75% Build Young refund" wording (we don't refund them — the partner does, per its policy), so
+  that copy must differ for accuracy. Options: neutral "to cancel/refund, contact <partner> where you
+  enrolled," or hide self-withdraw for partner seats and have the founder remove them. **Confirm which**
+  — it's the only place the student sees anything different.
 - **Resolved (this increment):** manual founder entry only — no partner self-serve intake/API, no
   payout processing; we track settlement and record received payments by hand.
