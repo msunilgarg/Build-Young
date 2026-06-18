@@ -5,15 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Build Young — Agent Harness (the loop)</title>
 <!--
-  PRESENTATION COMPANION to the canonical diagram (docs/architecture/loop.svg / .pdf).
-  A self-contained, collapsible walkthrough of the agentic engineering loop — for talking through
-  the system live (progressive disclosure: open with the flow, drill into a section on demand).
-  No build step, no dependencies: open this file in any browser.
+  THE CANONICAL loop diagram — the single source. Self-contained, collapsible, clickable: open in any
+  browser to present the agentic engineering loop (progressive disclosure — start with the flow, drill
+  into a section on demand). No build step, no dependencies.
 
-  NOTE (maintenance): this is a hand-maintained SECOND view of the same system as loop.svg, so the
-  two can drift. When you change the loop's structure, update BOTH (and BUILD-YOUNG-ARCHITECTURE.md).
-  The currency guard only hashes the SVG + Mermaid blocks, not this file. (Playbook §3: prefer one
-  source — a future refactor could generate both the SVG and this page from a shared content model.)
+  This file is the SOURCE: scripts/render-architecture.sh screenshots it into docs/architecture/loop.png
+  (the collapsed overview embedded in BUILD-YOUNG-ARCHITECTURE.md) + loop.pdf (the expanded handout), and
+  the currency guard hashes THIS file — so a structural edit without re-rendering fails the check (commit
+  guard + CI). Edit here, then run: bash scripts/render-architecture.sh. (There is no longer a separate
+  hand-authored SVG — this replaced it, so the two can't drift.)
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -147,14 +147,17 @@
   <!-- ② -->
   <details class="card tool">
     <summary><span class="num">②</span>&nbsp;Kick off a run
-      <span class="one">— ONE on-ramp: run <code>/run-loop</code> locally, or a labeled GitHub issue</span></summary>
+      <span class="one">— three ways the harness runs (they differ in autonomy)</span></summary>
     <div class="body">
-      <ul>
-        <li><b>You — run <code>/run-loop</code> locally</b> <span class="tag t-human">human</span> — your Claude subscription; drains the <code>TASKS.md</code> backlog.</li>
-        <li><b>GitHub issue + “loop-task” label</b> <span class="tag t-tool">tool</span> → Actions (<code>run-loop.yml</code>). A <b>bug-level</b> issue IS the task; a <b>non-trivial</b> issue is specced first.</li>
-        <li>Use <b>one OR the other</b> for a given task, never both. Same procedure once started.</li>
-        <li><b>Then the SessionStart hook</b> (every session): resync to <code>origin/main</code> · reinstall the commit guards. <span class="one">— it's a per-session mechanic, not itself an on-ramp.</span></li>
-      </ul>
+      <details class="step"><summary>You — run <code>/run-loop</code> locally <span class="tag t-human">human</span></summary>
+        <div class="sbody">Your Claude subscription; drains the <code>TASKS.md</code> backlog. <b>FULL AUTO</b> — ships any task the moment the verifier PASSes, <b>regardless of risk</b>. Spawns a <b>separate Sonnet sub-agent</b> as the independent verifier (model tiering — premium doer, cheaper checker).</div></details>
+      <details class="step"><summary>GitHub issue + “loop-task” label <span class="tag t-tool">cloud Action</span></summary>
+        <div class="sbody">→ <code>run-loop.yml</code> (Anthropic API credits); the issue IS the task. Runs as a <b>single premium agent</b> — it can't spawn a sub-agent, so it does its <b>own</b> fresh-eyes verification — and <b>keeps the high-risk pause</b>: low/med → squash-merge + close the issue; high / architectural / destructive / ambiguous → open a PR, comment WHY, and STOP for a human. (Same spec-first gate as ①: a non-trivial issue is specced first.)</div></details>
+      <details class="step"><summary>Scheduled content agent (weekly cron) <span class="tag t-tool">cloud Action</span></summary>
+        <div class="sbody"><code>content-integrity.yml</code> — re-verifies external links/stats are primary &amp; current and drafts class materials, then opens <b>ONE PR for human review</b>. <b>Never merges</b>, never touches <code>api/</code> or app behavior — AI judgment where it's safe; the deterministic send/pay code stays untouched.</div></details>
+      <details class="step"><summary>Then the SessionStart hook (every session)</summary>
+        <div class="sbody">Resync to <code>origin/main</code> <b>only if the tree is clean</b> with no unpushed commits (so it can never clobber work) · reinstall the commit guards into <code>.git/hooks</code>. A per-session mechanic, not itself an on-ramp.</div></details>
+      <p style="font-size:13px;color:var(--sub);margin:8px 0 0;">Use the local loop OR a labeled issue for a given task, never both. Same loop procedure once started — only the <b>autonomy</b> and the <b>verifier shape</b> differ.</p>
     </div>
   </details>
 
@@ -168,11 +171,11 @@
       <details class="step"><summary>Self-check — gate your own work first</summary>
         <div class="sbody"><code>npm run build</code> · <code>npx vitest run</code> · repo guards (no internal model-id, no resurrected money-sim markers, diagram currency). Fix until green.</div></details>
       <details class="step"><summary>Verifier — fresh, independent sub-agent <span class="tag t-agent">agent · sonnet</span></summary>
-        <div class="sbody"><b>Own context, inherits nothing</b> — the doer can't grade its own homework. Re-runs build/tests and grades the diff against the acceptance criteria <b>and the standing rules it is told to read</b>. Returns <b>PASS</b> or <b>FAIL + gaps</b>; <b>fail → fix → re-verify</b> (~3 rounds, then stop and surface the blocker). Runs on the cheaper Sonnet tier — cost discipline, rigor unchanged.</div></details>
+        <div class="sbody"><b>Own context, inherits nothing</b> — the doer can't grade its own homework. Re-runs build/tests and grades the diff against the acceptance criteria <b>and the standing rules it is told to read</b>. Returns <b>PASS</b> or <b>FAIL + gaps</b>; <b>fail → fix → re-verify</b> (~3 rounds, then stop and surface the blocker). Runs on the cheaper <b>Sonnet</b> tier in the <b>local</b> loop (cost discipline, rigor unchanged); the <b>cloud issue Action self-verifies as one premium agent</b> — it can't spawn a sub-agent.</div></details>
       <details class="step"><summary>Risk gate — reads the task's <code>risk:</code></summary>
-        <div class="sbody">Everything is implemented; <b>only the merge decision differs</b>. In this project it's <b>FULL AUTO</b> — any task auto-merges once the verifier PASSes, regardless of risk (see Risk gate &amp; hard floor below).</div></details>
+        <div class="sbody">Everything is implemented; <b>only the merge decision differs — and it differs by trigger</b>: the <b>local loop is FULL AUTO</b> (any risk auto-merges once verified — it overrides the playbook's "high-risk pauses" default), while the <b>cloud issue Action keeps the high-risk pause</b>. Both stop only on a hard floor (below).</div></details>
       <details class="step"><summary>Ship — on GitHub</summary>
-        <div class="sbody">commit → push dev branch → open PR → verify the file diff is non-empty → CI → <b>squash-merge → <code>main</code></b> → sync.</div></details>
+        <div class="sbody">commit → push dev branch → open PR → <b>verify the file diff is non-empty</b> (container resets have silently dropped commits) → CI → <b>squash-merge → <code>main</code></b> → sync. The same verified path is also a standalone skill — <b>/ship</b> — so a <b>direct edit</b> merges with identical rigor (build + tests + guards + an independent verifier); verification is a property of shipping, never an unverified shortcut.</div></details>
       <details class="step"><summary>Record — mark <code>[x]</code> in <code>TASKS.md</code> → next task</summary>
         <div class="sbody">Progress lives in committed files, so an ephemeral container resumes exactly where it stopped.</div></details>
     </div>
@@ -213,19 +216,21 @@
         <div class="sbody">Tagline “raising builders, not consumers” · what we DON'T claim (no income/return promises; build WITH AI, not coding) · the canonical phrasings (e.g. “Talk to us” · the First-year builder prize).</div></details>
       <details class="step"><summary>How the fresh verifier “knows” to read these</summary>
         <div class="sbody">It inherits none of the doer's context — the spawn prompt <b>tells</b> it: 🌐 playbook <b>always</b> · 📦 CLAUDE on app/UI · 📦 POSITIONING on copy · 📐 the task's SPEC when it references one.</div></details>
+      <details class="step"><summary>♻ The rules self-improve — <code>update-playbook</code> <span class="tag t-agent">skill</span></summary>
+        <div class="sbody">When a session establishes a durable, generalizable lesson (or a rule proves wrong), the agent <b>proactively</b> invokes the <code>update-playbook</code> skill to record it as <b>principle + why</b> in the playbook — so the next change implements the learning instead of re-discovering the bug. Project-specific facts go to CLAUDE.md instead.</div></details>
     </div>
   </details>
 
   <!-- risk gate / hard floor -->
   <details class="card">
     <summary><span class="num">🛡</span>&nbsp;Risk gate &amp; hard floor
-      <span class="one">— full auto once the verifier PASSes; pause only on a hard floor</span></summary>
+      <span class="one">— autonomy differs by trigger; both stop only on a hard floor</span></summary>
     <div class="body">
       <ul>
-        <li><b>FULL AUTO:</b> any task auto squash-merges the moment the verifier PASSes — <b>regardless of risk</b>. The independent verifier is the gate, not a human.</li>
-        <li><b>Pause only on a HARD FLOOR:</b> an <b>irreversible real-world side-effect</b> → confirm first; else keep going.</li>
-        <li>Examples: <b>send a real email · charge/refund real money · delete prod data</b> · or a value only you have.</li>
-        <li>A task's “stop-and-ask” note is downgraded to <b>flag-in-report</b> (surface it in the PR/summary, don't block).</li>
+        <li><b>Local <code>/run-loop</code> = FULL AUTO:</b> any task auto squash-merges the moment the verifier PASSes, <b>regardless of risk</b> (the founder opted in — this deliberately overrides the playbook's "high-risk pauses" default). The independent verifier is the gate, not a human.</li>
+        <li><b>Cloud issue Action = pauses on high-risk:</b> low/med → auto-merge; <b>high / architectural / destructive / ambiguous → open a PR, comment why, and STOP</b> for a human to review and merge.</li>
+        <li><b>Both pause only on a HARD FLOOR:</b> a genuinely <b>irreversible real-world side-effect</b> → confirm first — e.g. <b>send a real email · charge/refund real money · delete prod data · rotate a live secret</b>. (Shipping code/copy/refund-math to the repo is reversible via another PR — not a hard floor.)</li>
+        <li>A “get a human's eyes eventually” note (e.g. Terms copy) is downgraded to <b>flag-in-report</b> in the local loop — surface it in the PR/summary, don't block.</li>
       </ul>
     </div>
   </details>
@@ -249,9 +254,11 @@
       <span class="one">— enforced by hooks &amp; GitHub Actions, not memory</span></summary>
     <div class="body">
       <ul>
-        <li>On commit / push / PR → guards + CI <b>block</b>: secrets · internal model-ids · stale diagram (hash) · page-height · push-to-main.</li>
-        <li><b>GitHub MCP</b> = the agent's API to GitHub (PR · issue · merge). <b>git worktrees</b> = fan-out isolation. <b>SessionStart</b> = resync per session.</li>
-        <li>GitHub is the hub: the repo (state) · Issues (an on-ramp) · Actions (run-loop + CI) · Pull Requests (how every change ships).</li>
+        <li><b>Commit guards</b> (installed into <code>.git/hooks</code> by SessionStart, so they run however you commit): <b>hard-block</b> an internal/bracketed model-id (in the staged diff <b>and</b> the commit message) and a <b>stale diagram</b> (a hash mismatch if you edit the arch doc/exports without re-rendering); <b>advisory</b> on a literal <code>\uXXXX</code> escape or a resurrected money-sim marker.</li>
+        <li><b>CI checks</b> (path-scoped, block the merge): <code>architecture-current</code> (diagram in sync with the source) · <code>landing-lean</code> (the marketing page can't re-inflate past its height ceiling). Build + tests are the loop's self-check + the verifier — there's no blanket build/test run on every PR.</li>
+        <li><b><code>settings.json</code></b>: an allowlist of routine-safe commands (read-only git, build/test) so they don't prompt, + a hard <b>deny on <code>git push … main</code></b>.</li>
+        <li><b>GitHub MCP</b> = the agent's API to GitHub (PR · issue · merge). <b>git worktrees</b> = fan-out isolation. <b>SessionStart</b> = resync + reinstall guards per session.</li>
+        <li>GitHub is the hub: the repo (state) · Issues (an on-ramp) · Actions (run-loop · weekly content agent · CI) · Pull Requests (how every change ships).</li>
       </ul>
     </div>
   </details>
@@ -281,8 +288,9 @@
   </details>
 
   <footer>
-    Presentation companion to the canonical diagram <code>docs/architecture/loop.svg</code> /
-    <code>loop.pdf</code>. Same system, two views — see the PDF for the full single-page layout.
+    This page is the canonical loop diagram (the single source). Static exports are generated from it —
+    <code>docs/architecture/loop.png</code> (this overview, collapsed) + <code>loop.pdf</code> (the
+    fully-expanded handout) — via <code>bash scripts/render-architecture.sh</code>.
   </footer>
 </div>
 
