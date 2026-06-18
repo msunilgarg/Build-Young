@@ -3,7 +3,7 @@ import { GraduationCap, Check, Lock, Video, Mail, Award } from "lucide-react";
 import { C } from "./theme.js";
 import { Card, Mark, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, setPendingEnroll } from "./lib.js";
-import { cohortClosed, cohortSummary } from "./courseDates.js";
+import { cohortClosed, cohortSummary, cohortEndLabel } from "./courseDates.js";
 import { SEASONS, seasonLabel, sortCohorts, catalogSeasons } from "./cohorts.js";
 import { WhyStrip, HesitationStrip } from "./WhyStrip.jsx";
 
@@ -105,7 +105,7 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                 <div style={{ padding: "16px 18px" }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: ".05em" }}>YOUR ENROLLMENT</div>
                   <div className="disp" style={{ fontWeight: 800, fontSize: 17, marginTop: 4 }}>{seasonLabel(b.season)} · {b.track}</div>
-                  <div style={{ fontSize: 13, color: C.ink2, marginTop: 2 }}>Starts {b.start}</div>
+                  <div style={{ fontSize: 13, color: C.ink2, marginTop: 2 }}>Starts {b.start}{cohortEndLabel(b) ? ` · ends ${cohortEndLabel(b)}` : ""}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 12.5, fontWeight: 600, marginTop: 6 }}><Video size={13} /> {b.day} · live on Zoom</div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderTop: `1px solid ${C.line}`, marginTop: 14, paddingTop: 12 }}>
                     <span style={{ fontSize: 13, color: C.muted }}>Tuition</span>

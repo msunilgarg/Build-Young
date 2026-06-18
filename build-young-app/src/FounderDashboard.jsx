@@ -3,7 +3,7 @@ import { GraduationCap, ArrowRight, Check, CircleDollarSign, Video, Linkedin, Do
 import { C, fmt, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, act, Stat } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, AUTH, downloadFile, HESITATION_REASONS } from "./lib.js";
-import { cohortDays, cohortTime, nextClass, dayNum, classMeetingOn, REFUND_WINDOW, cohortLessons, buildLessonSchedule } from "./courseDates.js";
+import { cohortDays, cohortTime, nextClass, dayNum, classMeetingOn, REFUND_WINDOW, buildLessonSchedule, cohortEndDate, paceFromLessons } from "./courseDates.js";
 import { SEASONS, seasonLabel } from "./cohorts.js";
 import { WEEKS } from "./course.js";
 import { HOMEWORK, OBJECTIVES, setHomework, setObjectives } from "./courseState.js";
@@ -1065,23 +1065,24 @@ function CohortEditor() {
   const genSchedule = (i) => update(i, "lessons", buildLessonSchedule({ lessonsPerWeek: Number(rows[i]._lpw || 1), sittingsPerLesson: Number(rows[i]._spl || 2) }));
   const clearSchedule = (i) => setRows((rs) => rs.map((r, j) => { if (j !== i) return r; const { lessons, ...rest } = r; return rest; }));
   const endDate = (b) => {
-    const start = b.start ? new Date(b.start) : null;
-    if (!start || isNaN(start.getTime())) return "";
-    const sched = cohortLessons(b), last = sched[sched.length - 1];
-    const d = new Date(start.getTime() + last[last.length - 1] * 86400000);
-    return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+    const d = cohortEndDate(b);
+    return d ? d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }) : "";
   };
   const paceBlock = (i) => {
     const b = rows[i], custom = Array.isArray(b.lessons) && b.lessons.length > 0;
     const sittings = custom ? b.lessons.reduce((n, s) => n + s.length, 0) : null;
+    // The inputs reflect the cohort's REAL pace — derived from its saved schedule (the inverse of
+    // Generate) — not a fixed 1/2 default, so a founder editing an accelerated cohort sees its actual
+    // lessons/week + sittings/lesson. A pending manual edit (`_lpw`/`_spl`) still wins while typing.
+    const pace = paceFromLessons(b.lessons);
     return (
       <div style={{ marginTop: 8, padding: "8px 10px", background: C.paper2, borderRadius: 4, border: `1px dashed ${C.line}` }}>
         <span style={lab}>Pace — 12 lessons (3 hrs each = 36 hrs); set how fast they run</span>
         <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap", marginTop: 4 }}>
           <label style={{ minWidth: 0 }}><span style={lab}>Lessons / week</span>
-            <input type="number" min="1" max="7" aria-label={`Lessons per week for cohort ${i + 1}`} value={b._lpw ?? 1} onChange={(e) => update(i, "_lpw", e.target.value)} style={{ ...inp, width: 92 }} /></label>
+            <input type="number" min="1" max="7" aria-label={`Lessons per week for cohort ${i + 1}`} value={b._lpw ?? pace.lessonsPerWeek} onChange={(e) => update(i, "_lpw", e.target.value)} style={{ ...inp, width: 92 }} /></label>
           <label style={{ minWidth: 0 }}><span style={lab}>Sittings / lesson</span>
-            <input type="number" min="1" max="3" aria-label={`Sittings per lesson for cohort ${i + 1}`} value={b._spl ?? 2} onChange={(e) => update(i, "_spl", e.target.value)} style={{ ...inp, width: 92 }} /></label>
+            <input type="number" min="1" max="3" aria-label={`Sittings per lesson for cohort ${i + 1}`} value={b._spl ?? pace.sittingsPerLesson} onChange={(e) => update(i, "_spl", e.target.value)} style={{ ...inp, width: 92 }} /></label>
           <button type="button" className="btn" onClick={() => genSchedule(i)} style={{ background: C.emerald, color: "#fff", padding: "7px 12px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>Generate schedule</button>
           {custom && <button type="button" className="btn" onClick={() => clearSchedule(i)} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "7px 12px", borderRadius: 4, fontSize: 12.5 }}>Use weekly default</button>}
         </div>

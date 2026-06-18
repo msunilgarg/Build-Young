@@ -3,7 +3,7 @@ import { GraduationCap, ArrowRight, Check, Lock, Sparkles, Video, Mail, Linkedin
 import { C, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, Pill, act } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, postJson } from "./lib.js";
-import { cohortClosed, cohortSummary } from "./courseDates.js";
+import { cohortClosed, cohortSummary, cohortEndLabel } from "./courseDates.js";
 import { SEASONS, seasonLabel, CARD_DEFAULTS, sortCohorts, catalogSeasons } from "./cohorts.js";
 import { ACTS } from "./course.js";
 
@@ -446,6 +446,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: acc }} />
               <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track} · {b.audience || CARD_DEFAULTS.audience}</Pill></div>
               <div className="disp" style={{ fontSize: 24, fontWeight: 800, marginTop: 12 }}>Starts {b.start}</div>
+              {cohortEndLabel(b) && <div style={{ color: C.ink2, fontSize: 13, fontWeight: 600, marginTop: 2 }}>through {cohortEndLabel(b)}</div>}
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> {b.format || CARD_DEFAULTS.format} · ~{sum.hoursPerWeek} hrs/week</div>
               <div style={{ fontSize: 13, color: C.ink2, marginTop: 10, lineHeight: 1.45 }}>
