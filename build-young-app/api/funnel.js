@@ -15,6 +15,7 @@ import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
 import { saveSettings, loadOps, saveOps } from "./_lib/settingsStore.js";
 import { loadPartners, savePartners } from "./_lib/partnerStore.js";
+import { addEnrollment, listEnrollments, listPartnerEnrollments } from "./_lib/store.js";
 import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest, addScheduleRequest, listScheduleRequests, notifyScheduleRequestsOfNewCohorts } from "./_lib/interestStore.js";
 import { addShowcase, listShowcase } from "./_lib/showcaseStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
@@ -156,6 +157,14 @@ async function read(req, res) {
     return;
   }
 
+  if (req.query && req.query.resource === "partner-enrollments") {
+    // Founder-only: every partner (third-party) enrollment across cohorts — pending + onboarded.
+    const catalog = await loadCatalog();
+    const enrollments = await listPartnerEnrollments((catalog.batches || []).map((b) => b.id));
+    res.status(200).json({ enrollments });
+    return;
+  }
+
   const founders = await loadFounderEmails();
   if (!kvConfigured()) { res.status(200).json({ events: [], founders }); return; }
 
@@ -272,6 +281,37 @@ async function clearFunnel(req, res) {
   res.status(200).json({ ok: true, cleared: KEY });
 }
 
+// --- POST ?resource=partner-enroll: FOUNDER-ONLY. Manually create a PENDING partner (third-party)
+// enrollment — NO Stripe, NO email, NO Resend audience, NOT yet counted as `enrolled`. Price + cut %
+// are SNAPSHOTTED server-side (authoritative) from the cohort + partner. An explicit "Start onboarding"
+// action (T28) later sends the email + provisions access. Saving here is deliberately inert. ---
+async function addPartnerEnrollment(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const body = (await readBody(req)) || {};
+  const email = normalizeEmail(body.email || "");
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const batchId = String(body.batchId || "").trim();
+  const partnerId = String(body.partner || "").trim();
+  const externalRef = typeof body.externalRef === "string" ? body.externalRef.trim() : "";
+  if (!email || !email.includes("@")) { res.status(400).json({ ok: false, error: "Provide a valid email" }); return; }
+  if (!batchId) { res.status(400).json({ ok: false, error: "Pick a cohort" }); return; }
+  if (!partnerId) { res.status(400).json({ ok: false, error: "Pick a partner" }); return; }
+  const [catalog, partners] = await Promise.all([loadCatalog(), loadPartners()]);
+  const cohort = (catalog.batches || []).find((b) => b.id === batchId);
+  const partner = partners.find((p) => p.id === partnerId);
+  if (!cohort) { res.status(400).json({ ok: false, error: "Unknown cohort" }); return; }
+  if (!partner) { res.status(400).json({ ok: false, error: "Unknown partner" }); return; }
+  const existing = await listEnrollments(batchId);
+  if (existing.some((e) => e.email === email)) { res.status(409).json({ ok: false, error: "That email is already enrolled in this cohort" }); return; }
+  const result = await addEnrollment({
+    email, name, batchId,
+    paymentSource: "partner", partner: partnerId, externalRef,
+    priceCents: Math.round((cohort.price || 0) * 100), cutPct: partner.cutPct || 0,
+    onboarded: false, // PENDING — inert until "Start onboarding" (T28)
+  });
+  res.status(result.ok ? 200 : 400).json(result.ok ? { ok: true } : { ok: false, error: result.reason || "save failed" });
+}
+
 // --- POST ?resource=interest: public — capture a family's interest when a cohort is full (so we
 // can notify them about the NEXT cohort). ---
 async function saveInterest(req, res) {
@@ -313,6 +353,7 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "question") return saveQuestion(req, res); // public
     if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
     if (req.query && req.query.resource === "scenarios") return makeScenarios(req, res); // public, AI-generated
+    if (req.query && req.query.resource === "partner-enroll") return addPartnerEnrollment(req, res); // FOUNDER-gated inside
     return ingest(req, res);     // public: track an event
   }
   if (req.method === "GET") return read(req, res);        // founder: read funnel events

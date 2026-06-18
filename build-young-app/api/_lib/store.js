@@ -19,11 +19,25 @@ const command = kvCommand;
 
 // Persist (or update) one enrollment. Idempotent: re-running with the same email overwrites.
 // Returns { ok } — ok:false when the store isn't configured or the write failed.
-export async function addEnrollment({ email, name, batchId }) {
+//
+// Partner (third-party) enrollments (SPECS/005) pass `paymentSource:"partner"` plus the partner id,
+// an optional external ref, and a SNAPSHOT of the seat's price + the partner's cut % (so settlement
+// is stable if either changes later). They start PENDING (`onboarded:false`) — saving the record does
+// nothing student-facing; an explicit "Start onboarding" action (T28) flips `onboarded` + provisions
+// access. A normal (Stripe) enrollment passes none of these, so its record is unchanged (back-compat).
+export async function addEnrollment({ email, name, batchId, paymentSource, partner, externalRef, priceCents, cutPct, onboarded }) {
   if (!storeConfigured()) return { ok: false, reason: "store not configured" };
   if (!email || !batchId) return { ok: false, reason: "missing email or batchId" };
-  const record = JSON.stringify({ email, name: name || "", batchId, ts: Date.now() });
-  const res = await command(["HSET", keyFor(batchId), email, record]);
+  const rec = { email, name: name || "", batchId, ts: Date.now() };
+  if (paymentSource === "partner") {
+    rec.paymentSource = "partner";
+    rec.partner = String(partner || "");
+    rec.externalRef = String(externalRef || "");
+    rec.priceCents = Math.max(0, Math.round(Number(priceCents) || 0));
+    rec.cutPct = Math.min(1, Math.max(0, Number(cutPct) || 0));
+    rec.onboarded = onboarded === true; // PENDING until "Start onboarding" (T28)
+  }
+  const res = await command(["HSET", keyFor(batchId), email, JSON.stringify(rec)]);
   return { ok: res !== null };
 }
 
@@ -59,10 +73,35 @@ export async function listEnrollments(batchId) {
   for (const v of values) {
     try {
       const rec = typeof v === "string" ? JSON.parse(v) : v;
-      if (rec && rec.email) out.push({ email: rec.email, name: rec.name || "", batchId: rec.batchId || batchId });
+      if (rec && rec.email) {
+        const row = { email: rec.email, name: rec.name || "", batchId: rec.batchId || batchId };
+        // Pass partner (third-party) fields through when present — a normal enrollment has none, so
+        // its shape is unchanged (back-compat with existing callers/tests).
+        if (rec.paymentSource === "partner") {
+          row.paymentSource = "partner";
+          row.partner = rec.partner || "";
+          row.externalRef = rec.externalRef || "";
+          row.priceCents = rec.priceCents || 0;
+          row.cutPct = rec.cutPct || 0;
+          row.onboarded = rec.onboarded === true;
+        }
+        out.push(row);
+      }
     } catch {
       /* skip malformed entry */
     }
+  }
+  return out;
+}
+
+// All PARTNER (third-party) enrollments across the given cohorts — pending + onboarded — for the
+// founder console (SPECS/005). Aggregates listEnrollments; [] when unconfigured/empty.
+export async function listPartnerEnrollments(batchIds) {
+  const ids = Array.isArray(batchIds) ? batchIds : [];
+  const out = [];
+  for (const id of ids) {
+    const rows = await listEnrollments(id);
+    for (const r of rows) if (r.paymentSource === "partner") out.push(r);
   }
   return out;
 }

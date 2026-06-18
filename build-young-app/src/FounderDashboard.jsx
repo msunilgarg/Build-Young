@@ -566,6 +566,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
         </>)}
 
         {!error && events !== null && tab === "students" && (<>
+          <h2 style={h2s}>Partner enrollments</h2>
+          <PartnerEnrollAdmin />
           <h2 style={h2s}>Certificates</h2>
           <CertificatesAdmin />
           <h2 style={h2s}>Student plans</h2>
@@ -1249,6 +1251,80 @@ function PartnersEditor() {
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save partners</button>
         {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
+    </Card>
+  );
+}
+
+// Manually create a PENDING partner (third-party) enrollment (SPECS/005). Saving is INERT — it sends
+// NO email, provisions NO access, adds NOTHING to the Resend audience, and is NOT counted as enrolled;
+// it just records the seat. The explicit "Start onboarding" step (T28) activates the student later.
+// Lists existing partner enrollments with their status (Pending / Onboarded).
+function PartnerEnrollAdmin() {
+  const BATCHES = useCohorts();
+  const [partners, setPartners] = useState([]);
+  const [list, setList] = useState(null);
+  const [form, setForm] = useState({ name: "", email: "", batchId: "", partner: "", externalRef: "" });
+  const [status, setStatus] = useState("");
+  const reload = async () => {
+    try { const r = await fetch("/api/funnel?resource=partner-enrollments"); const d = r.ok ? await r.json() : {}; setList(Array.isArray(d.enrollments) ? d.enrollments : []); }
+    catch { setList([]); }
+  };
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=partners"); const d = r.ok ? await r.json() : {}; if (live) setPartners(Array.isArray(d.partners) ? d.partners : []); } catch { /* ignore */ }
+      if (live) await reload();
+    })();
+    return () => { live = false; };
+  }, []);
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const save = async () => {
+    if (!validEmail(form.email)) { setStatus("Enter a valid email"); return; }
+    if (!form.batchId) { setStatus("Pick a cohort"); return; }
+    if (!form.partner) { setStatus("Pick a partner"); return; }
+    setStatus("Saving…");
+    try {
+      const r = await fetch("/api/funnel?resource=partner-enroll", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setStatus("Saved — pending (nothing sent). Use Start onboarding to send the welcome email."); setForm({ name: "", email: "", batchId: "", partner: "", externalRef: "" }); await reload(); }
+      else setStatus(d.error || adminSaveErr(r, d, "save enrollment"));
+    } catch { setStatus(ADMIN_NET_ERR); }
+  };
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 3 };
+  const inp = { width: "100%", padding: "8px 10px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontSize: 13.5, marginTop: 2 };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Add a student who enrolled through a <b>partner</b> (marketplace/reseller). Saving just records them — it sends <b>nothing</b>. Onboarding (the welcome email + dashboard access) is a separate <b>Start onboarding</b> step. Configure partners + their cut % under <b>Settings → Partners</b>.</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }} className="enroll-grid">
+        <label><span style={lab}>Student name</span><input aria-label="Partner student name" value={form.name} onChange={(e) => set("name", e.target.value)} style={inp} /></label>
+        <label><span style={lab}>Student email</span><input aria-label="Partner student email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} style={inp} /></label>
+        <label><span style={lab}>Cohort</span>
+          <select aria-label="Partner enrollment cohort" value={form.batchId} onChange={(e) => set("batchId", e.target.value)} style={inp}>
+            <option value="">Pick a cohort…</option>
+            {BATCHES.map((b) => <option key={b.id} value={b.id}>{b.id} — {b.season} (starts {b.start})</option>)}
+          </select></label>
+        <label><span style={lab}>Partner</span>
+          <select aria-label="Partner enrollment partner" value={form.partner} onChange={(e) => set("partner", e.target.value)} style={inp}>
+            <option value="">Pick a partner…</option>
+            {partners.map((p) => <option key={p.id} value={p.id}>{p.name || p.displayName || p.id}</option>)}
+          </select></label>
+        <label><span style={lab}>External ref (optional)</span><input aria-label="Partner external ref" value={form.externalRef} onChange={(e) => set("externalRef", e.target.value)} style={inp} /></label>
+      </div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 12 }}>
+        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Add partner enrollment</button>
+        {partners.length === 0 && <span style={{ fontSize: 12.5, color: C.muted }}>No partners yet — add one under Settings → Partners.</span>}
+        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
+      </div>
+      {Array.isArray(list) && list.length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          {list.map((e, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, padding: "8px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
+              <span style={{ color: C.ink2 }}>{e.email} · {e.batchId} · {e.partner}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: e.onboarded ? C.green : C.muted }}>{e.onboarded ? "Onboarded" : "Pending"}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </Card>
   );
 }

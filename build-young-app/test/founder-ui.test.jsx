@@ -38,9 +38,12 @@ describe("FounderDashboard (account-gated)", () => {
     expect(screen.getByText(/Class recordings/i)).toBeInTheDocument();
     expect(screen.getByText(/^Homework$/i)).toBeInTheDocument();
 
-    // Students tab: certificates / build plans / reset.
+    // Students tab: partner enrollments / certificates / build plans / reset.
     await user.click(screen.getByText("Students"));
     expect(await screen.findByText(/Reset a test account/i)).toBeInTheDocument();
+    // Manual partner-enrollment form (SPECS/005 T27) — saving is inert; onboarding is a separate step.
+    expect(screen.getByText(/Partner enrollments/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Add partner enrollment/i })).toBeInTheDocument();
   });
 
   it("cohort editor shows the cohort's REAL pace (derived from its saved schedule), not 1/2 defaults", async () => {
