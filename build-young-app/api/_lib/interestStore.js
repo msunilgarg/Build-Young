@@ -19,6 +19,7 @@ const KEY = "interest:list";
 const SCHEDULE_KEY = "interest:schedule"; // visitors requesting a different schedule / timezone
 const TUTOR_KEY = "interest:tutors"; // prospective live tutors — SEPARATE from cohort interest so
                                      // the new-cohort notification never emails applicants.
+const PARTNER_LEAD_KEY = "interest:partner-leads"; // prospective PARTNERS (marketplaces/schools/orgs) — "Partner with us"
 const BASE_URL = () => (process.env.PUBLIC_BASE_URL || "https://www.build-young.com").replace(/\/+$/, "");
 const parse = (r) => { try { return typeof r === "string" ? JSON.parse(r) : r; } catch { return null; } };
 
@@ -137,6 +138,50 @@ export async function listTutorInterest() {
   if (!kvConfigured()) return [];
   try {
     const raw = (await kvCommand(["LRANGE", TUTOR_KEY, "0", "-1"])) || [];
+    return raw.map(parse).filter(Boolean).reverse();
+  } catch { return []; }
+}
+
+// "Partner with us" lead — a prospective partner (marketplace/school/org) leaves their org + email
+// (+ optional note). Mirror of addTutorInterest: store in KV + email the team (best-effort, key-gated).
+export async function addPartnerLead({ org, email, note }) {
+  const e = normalizeEmail(email || "");
+  if (!e || !e.includes("@")) return { ok: false, error: "Please enter a valid email." };
+  const o = String(org || "").trim().slice(0, 200);
+  if (!o) return { ok: false, error: "Please tell us your organization." };
+  const n = String(note || "").trim().slice(0, 1000);
+
+  let stored = false;
+  if (kvConfigured()) {
+    const rec = JSON.stringify({ org: o, email: e, note: n, ts: Date.now() });
+    try {
+      await kvCommand(["RPUSH", PARTNER_LEAD_KEY, rec]);
+      await kvCommand(["LTRIM", PARTNER_LEAD_KEY, "-5000", "-1"]);
+      stored = true;
+    } catch { /* fall through to the email */ }
+  }
+
+  let emailed = false;
+  try {
+    const [ops, settings] = await Promise.all([loadOps(), loadSettings()]);
+    const to = (ops && ops.notifyEmail) || (settings && settings.contactEmail) || TEAM_EMAIL;
+    const sent = await sendEmail({
+      to,
+      subject: "New partner inquiry — Build Young",
+      body: `An organization is interested in carrying Build Young ("Partner with us").\n\nOrganization: ${o}\nTheir email: ${e}\nNote: ${n || "(none)"}\n\nReply to them directly to follow up.`,
+      replyTo: e, // hitting "reply" reaches the prospective partner
+    });
+    emailed = !!(sent && sent.ok);
+  } catch { /* keep going */ }
+
+  if (!stored && !emailed) return { ok: false, error: "We couldn't submit that just now — please email us instead." };
+  return { ok: true, emailed };
+}
+
+export async function listPartnerLeads() {
+  if (!kvConfigured()) return [];
+  try {
+    const raw = (await kvCommand(["LRANGE", PARTNER_LEAD_KEY, "0", "-1"])) || [];
     return raw.map(parse).filter(Boolean).reverse();
   } catch { return []; }
 }
