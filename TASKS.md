@@ -29,15 +29,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 005 — third-party (marketplace/reseller) enrollment. See SPECS/005-third-party-enrollment.md.
      Ordered by dependency (T26 → T31); each is independently shippable. ===== -->
 
-## [ ] T29 — Funnel: net partner revenue + slice-by-source  ·  risk: med
-Goal: Partner enrollments count in funnel revenue at NET, and revenue/funnel are sliceable by source.
-Acceptance criteria:
-- Partner `enrolled` events carry `source:"partner:<id>"` + net cents (price × (1 − cutPct)); the server allowlist permits them (aggregate, no PII).
-- `summarize().revenue` counts partner net; `segments`/revenue are sliceable by source (direct vs. each partner); the console shows a by-source slice.
-- funnel.test cases for net revenue + per-source segmentation.
-Files: src/funnel.js, api/funnel.js (allowlist), src/App.jsx (track), src/FounderDashboard.jsx.
-Depends on: T28.
-
 ## [ ] T30 — Per-partner settlement view + manual record-payment + accounting export  ·  risk: med
 Goal: A per-partner ledger so the founder tracks what each partner owes vs. has paid.
 Acceptance criteria:
@@ -60,6 +51,9 @@ Depends on: T27.
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T29 — Funnel: net partner revenue + slice-by-source  ·  risk: med
+Done (PR #454; merged, full-auto). New pure `funnel.revenueBySource(events)` groups `enrolled` events by `source` (`direct` vs `partner:<id>`), summing count + cents — partner seats at NET (their event carries net cents from `partner-onboard`), direct at gross — sorted by revenue; the slices SUM to `summarize().revenue.grossCents` (topline unchanged, single source of truth). Console: a "Revenue by source" card in the funnel tab (period-scoped; Direct / Partner · <id>; hidden when empty). Tests: grouping/sort/net + slices-sum-to-topline + empty-safe. Aggregate/no-PII. CLAUDE.md revenue note. Build + 308; Sonnet-verified (topline consistency + labeling + no PII).
 
 ## [x] T28 — "Start onboarding" explicit action (email + access + audience + activate)  ·  risk: high
 Done (PR #452; merged, full-auto). Founder-gated `POST /api/funnel?resource=partner-onboard` ACTIVATES a pending partner seat exactly like a direct (Stripe) onboarding: provisions the account (`putUser`) + sends the SAME `sendSetPasswordEmail` welcome (no partner/source wording — parity), adds to the cohort Resend audience, flips `onboarded:true` (keeps snapshotted price/cut), and fires `enrolled` at NET (price×(1−cutPct)) tagged `source:"partner:<id>"`. Re-runnable (re-sends invite until a password exists; idempotent). Console: each pending row → "Start onboarding" button (onboarded → "Resend invite"). Saving (T27) still does none of this. Email/audience key-gated → no real send on merge. Tests: welcome-email parity (same fn, asserts standard text + absence of partner/source/commission wording) + founder-ui renders the action on a pending row. CLAUDE.md + arch table. Build + 305; Sonnet-verified (all 8 dimensions: parity, net+source, gating, inert-save preserved, no real side-effect on merge).
