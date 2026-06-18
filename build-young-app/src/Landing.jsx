@@ -267,6 +267,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
   const season = picked || firstOpen;
   const [careers, setCareers] = useState(false); // "teach with us" interest modal
   const [scheduleOpen, setScheduleOpen] = useState(false); // "request a different schedule" modal
+  const [partnerOpen, setPartnerOpen] = useState(false); // "partner with us" interest modal (006-B)
   return (
     <div style={{ position: "relative", zIndex: 2 }}>
       {/* nav */}
@@ -277,6 +278,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <span className="nav-talk" {...act(onCall)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Talk to us</span>
           <span className="nav-talk" {...act(() => setCareers(true))} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Careers</span>
+          <span className="nav-talk" {...act(() => setPartnerOpen(true))} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Partner with us</span>
           {onDashboard
             ? <span {...act(onDashboard)} style={{ fontSize: 14, fontWeight: 700, color: C.emerald, cursor: "pointer" }}>{dashLabel || "My dashboard"} →</span>
             : (onLogin && <span {...act(onLogin)} style={{ fontSize: 14, fontWeight: 600, color: C.ink2, cursor: "pointer" }}>Log in</span>)}
@@ -504,6 +506,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
           <span {...act(() => onLegal("privacy"))} style={{ color: C.muted, cursor: "pointer" }}>Privacy</span>
           <span {...act(() => onLegal("terms"))} style={{ color: C.muted, cursor: "pointer" }}>Terms</span>
           <span {...act(() => setCareers(true))} style={{ color: C.muted, cursor: "pointer" }}>Careers</span>
+          <span {...act(() => setPartnerOpen(true))} style={{ color: C.muted, cursor: "pointer" }}>Partner with us</span>
           <a href={`mailto:${CONFIG.contactEmail}`} style={{ color: C.muted }}>{CONFIG.contactEmail}</a>
           <a href={CONFIG.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.muted, display: "inline-flex", alignItems: "center", gap: 5 }}><Linkedin size={13} /> Sunil on LinkedIn</a>
         </div>
@@ -511,7 +514,73 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
       </footer>
 
       {careers && <CareersModal onClose={() => setCareers(false)} />}
+      {partnerOpen && <PartnerModal onClose={() => setPartnerOpen(false)} />}
       {scheduleOpen && <ScheduleRequestModal onClose={() => setScheduleOpen(false)} />}
+    </div>
+  );
+}
+
+// "Partner with us" (006-B) — a simple interest modal for prospective partners (marketplaces / schools
+// / youth orgs that want to CARRY Build Young). Mirror of CareersModal: org + email (required) + an
+// optional note → POST /api/funnel?resource=partner-lead, which stores it + emails the team. No new route.
+function PartnerModal({ onClose }) {
+  const [org, setOrg] = useState("");
+  const [email, setEmail] = useState("");
+  const [note, setNote] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | sending | done
+  const [err, setErr] = useState("");
+  const canSend = org.trim() && validEmail(email) && status !== "sending";
+
+  const submit = async () => {
+    if (!canSend) return;
+    setStatus("sending"); setErr("");
+    const r = await postJson("/api/funnel?resource=partner-lead", { org: org.trim(), email: email.trim(), note: note.trim() });
+    if (r.ok) setStatus("done");
+    else { setStatus("idle"); setErr(r.error || "Couldn't submit just now — please try again."); }
+  };
+
+  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Partner with Build Young" onClick={onClose}
+      style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(36,36,36,.5)", display: "grid", placeItems: "center", padding: 20 }}>
+      <Card onClick={(e) => e.stopPropagation()} style={{ padding: 28, maxWidth: 520, width: "100%", maxHeight: "88vh", overflowY: "auto" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eaf3fb", color: C.emerald, fontSize: 11.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", padding: "5px 11px", borderRadius: 4 }}>Partner with us</div>
+        <h2 className="disp" style={{ fontSize: 24, fontWeight: 800, margin: "14px 0 0" }}>Bring Build Young to your students</h2>
+
+        {status === "done" ? (
+          <>
+            <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 12 }}>
+              <Check size={17} color={C.green} style={{ verticalAlign: "-3px", marginRight: 6 }} />
+              Thanks — we've got your details and we'll be in touch.
+            </p>
+            <button className="btn" onClick={onClose} style={{ marginTop: 16, background: C.ink, color: C.paper2, padding: "11px 20px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Close</button>
+          </>
+        ) : (
+          <>
+            <p style={{ fontSize: 15, color: C.ink2, lineHeight: 1.6, marginTop: 10 }}>
+              Are you a marketplace, school, or youth program? Bring us your students and we'll run the live 12-lesson cohort where they build a real product with AI — a simple revenue share, you keep the relationship. Tell us a little and we'll reach out.
+            </p>
+            <label style={{ display: "block", marginTop: 14, marginBottom: 12 }}>
+              <span style={labelStyle}>Organization <span style={{ color: C.pink }}>*</span></span>
+              <input aria-label="Organization" value={org} onChange={(e) => setOrg(e.target.value)} placeholder="Outschool / Lincoln High / …" style={inputStyle} />
+            </label>
+            <label style={{ display: "block", marginBottom: 12 }}>
+              <span style={labelStyle}>Your email <span style={{ color: C.pink }}>*</span></span>
+              <input type="email" aria-label="Your email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
+            </label>
+            <label style={{ display: "block", marginBottom: 6 }}>
+              <span style={labelStyle}>Anything else (optional)</span>
+              <textarea aria-label="Note" value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="How many students, timing, what you're looking for…" style={{ ...inputStyle, resize: "vertical" }} />
+            </label>
+            {err && <div style={{ fontSize: 13, color: C.pink, marginTop: 6 }}>{err}</div>}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+              <button className="btn" onClick={submit} disabled={!canSend} style={{ background: canSend ? C.emerald : C.line, color: "#fff", padding: "12px 20px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 8, cursor: canSend ? "pointer" : "not-allowed" }}><Mail size={16} /> {status === "sending" ? "Sending…" : "Get in touch"}</button>
+              <button className="btn" onClick={onClose} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "12px 18px", borderRadius: 4, fontSize: 14 }}>Maybe later</button>
+            </div>
+          </>
+        )}
+      </Card>
     </div>
   );
 }

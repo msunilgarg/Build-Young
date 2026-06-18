@@ -109,3 +109,14 @@ describe("Where-to-find-us partner strip (006-A)", () => {
     expect(none.queryByText(/Where to find us/i)).toBeNull(); // no empty shell when nothing featured
   });
 });
+
+describe("Partner with us modal (006-B)", () => {
+  it("opens a simple interest modal from the nav link (org + email)", () => {
+    render(<App />);
+    fireEvent.click(screen.getAllByText(/Partner with us/i)[0]); // nav link (also in footer)
+    const dialog = screen.getByRole("dialog", { name: /Partner with Build Young/i });
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByLabelText("Organization")).toBeInTheDocument();
+    expect(screen.getByLabelText("Your email")).toBeInTheDocument();
+  });
+});

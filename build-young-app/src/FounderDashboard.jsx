@@ -600,6 +600,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <BuildPlansAdmin />
           <h2 style={h2s}>Tutor applications</h2>
           <TutorInterestAdmin />
+          <h2 style={h2s}>Partner inquiries</h2>
+          <PartnerLeadsAdmin />
           <h2 style={h2s}>Questions from visitors</h2>
           <QuestionsAdmin />
           <h2 style={h2s}>Schedule requests</h2>
@@ -1591,6 +1593,36 @@ function InterestAdmin() {
 
 // Founder view of prospective live tutors (Careers → "Teach with us"). Read-only; they're also
 // emailed to the founder's inbox as they come in.
+// "Partner with us" inquiries (006-B) — orgs that want to carry Build Young. Mirror of TutorInterestAdmin.
+function PartnerLeadsAdmin() {
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=partner-lead"); const d = r.ok ? await r.json() : {}; if (live) setList(Array.isArray(d.leads) ? d.leads : []); }
+      catch { if (live) setList([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>Organizations that asked to carry Build Young (“Partner with us”). They're also emailed to your inbox as they come in.</div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
+      {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No partner inquiries yet.</div>}
+      {list && list.map((r, i) => (
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
+          <span style={{ minWidth: 0, display: "flex", flexWrap: "wrap", gap: "2px 8px", alignItems: "baseline" }}>
+            <b style={{ color: C.ink }}>{r.org}</b>
+            <a href={`mailto:${r.email}`} style={{ color: C.emerald, fontWeight: 700 }}>{r.email}</a>
+            {r.note && <span style={{ color: C.muted }}>· {r.note}</span>}
+          </span>
+          <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
 function TutorInterestAdmin() {
   const [list, setList] = useState(null);
   useEffect(() => {

@@ -19,7 +19,7 @@ import { addEnrollment, removeEnrollment, listEnrollments, listPartnerEnrollment
 import { putUser, getUser } from "./_lib/auth.js";
 import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
 import { addContact, removeContact } from "./_lib/resendAudience.js";
-import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest, addScheduleRequest, listScheduleRequests, notifyScheduleRequestsOfNewCohorts } from "./_lib/interestStore.js";
+import { addInterest, listInterest, notifyInterestOfNewCohorts, addTutorInterest, listTutorInterest, addPartnerLead, listPartnerLeads, addScheduleRequest, listScheduleRequests, notifyScheduleRequestsOfNewCohorts } from "./_lib/interestStore.js";
 import { addShowcase, listShowcase } from "./_lib/showcaseStore.js";
 import { saveHomework } from "./_lib/homeworkStore.js";
 import { saveObjectives } from "./_lib/objectivesStore.js";
@@ -124,6 +124,11 @@ async function read(req, res) {
 
   if (req.query && req.query.resource === "tutor") {
     res.status(200).json({ tutors: await listTutorInterest() });
+    return;
+  }
+
+  if (req.query && req.query.resource === "partner-lead") {
+    res.status(200).json({ leads: await listPartnerLeads() });
     return;
   }
 
@@ -407,6 +412,13 @@ async function saveTutorInterest(req, res) {
   res.status(result.ok ? 200 : 400).json(result);
 }
 
+// --- POST ?resource=partner-lead: public — a prospective partner (marketplace/school/org) submits
+// their org + email (+ note) via the "Partner with us" modal. Stored + emailed to the team (006-B). ---
+async function savePartnerLead(req, res) {
+  const result = await addPartnerLead((await readBody(req)) || {});
+  res.status(result.ok ? 200 : 400).json(result);
+}
+
 // --- POST ?resource=schedule: public — a visitor requests a different cohort schedule/timezone. ---
 async function saveScheduleRequest(req, res) {
   const result = await addScheduleRequest((await readBody(req)) || {});
@@ -430,6 +442,7 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     if (req.query && req.query.resource === "interest") return saveInterest(req, res); // public
     if (req.query && req.query.resource === "tutor") return saveTutorInterest(req, res); // public
+    if (req.query && req.query.resource === "partner-lead") return savePartnerLead(req, res); // public
     if (req.query && req.query.resource === "schedule") return saveScheduleRequest(req, res); // public
     if (req.query && req.query.resource === "question") return saveQuestion(req, res); // public
     if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
