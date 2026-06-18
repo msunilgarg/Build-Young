@@ -140,6 +140,23 @@ export function revenueBySource(events) {
   return Object.values(by).sort((a, b) => b.cents - a.cents);
 }
 
+// Per-partner SETTLEMENT (SPECS/005 T30): what each partner owes Build Young vs. has paid. Pure over
+// the partner records + the partner enrollments (passed in; not the event stream). Only ONBOARDED
+// partner seats are owed. Per seat: gross = snapshotted price, cut = round(price × cutPct), net owed =
+// gross − cut. received = Σ the partner's recorded payments. outstanding = net owed − received.
+export function settlementSummary(partners, enrollments) {
+  const ps = Array.isArray(partners) ? partners : [];
+  const seats = (Array.isArray(enrollments) ? enrollments : []).filter((e) => e && e.paymentSource === "partner" && e.onboarded);
+  return ps.map((p) => {
+    const mine = seats.filter((e) => e.partner === p.id);
+    const grossCents = mine.reduce((s, e) => s + (e.priceCents || 0), 0);
+    const cutCents = mine.reduce((s, e) => s + Math.round((e.priceCents || 0) * (e.cutPct || 0)), 0);
+    const netOwedCents = grossCents - cutCents;
+    const receivedCents = (Array.isArray(p.payments) ? p.payments : []).reduce((s, x) => s + (x.amountCents || 0), 0);
+    return { id: p.id, name: p.name || p.displayName || p.id, seats: mine.length, grossCents, cutCents, netOwedCents, receivedCents, outstandingCents: netOwedCents - receivedCents };
+  });
+}
+
 // Per-season and per-track segment summaries, for side-by-side cohort comparison.
 export function segments(events) {
   return {
@@ -419,7 +436,8 @@ export function toCSV(events) {
   return [CSV_COLS.join(","), ...rows].join("\n");
 }
 
-// JSON bundle for the data room: raw events + the computed summary + segments.
-export function toDataRoom(events) {
-  return { generatedAt: new Date().toISOString(), eventCount: (events || []).length, summary: summarize(events), segments: segments(events), events: events || [] };
+// JSON bundle for the data room: raw events + the computed summary + segments. `extra` is merged in
+// (e.g. the partner `settlement` ledger, T30) so the accounting export carries it alongside the funnel.
+export function toDataRoom(events, extra = {}) {
+  return { generatedAt: new Date().toISOString(), eventCount: (events || []).length, summary: summarize(events), segments: segments(events), events: events || [], ...extra };
 }

@@ -12,7 +12,7 @@ import { buildCertSvg, CertificateView } from "./Certificate.jsx";
 import { certVerifyUrl, certDate } from "./cert.js";
 import { scenarioLabel } from "./scenarios.js";
 import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
-import { STAGES, summarize, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS, revenueBySource } from "./funnel.js";
+import { STAGES, summarize, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS, revenueBySource, settlementSummary } from "./funnel.js";
 import { WEEK_PREP, WEEK_OBJECTIVES } from "./marketMedia.js";
 
 const Charts = React.lazy(() => import("./Charts.jsx"));
@@ -196,6 +196,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const [period, setPeriod] = useState("all"); // "all" | "YYYY-MM" — scopes the funnel + trend to a month
   const [trendMetric, setTrendMetric] = useState("visited");
   const [refreshing, setRefreshing] = useState(false); // a manual Refresh re-pulls the funnel without a browser reload
+  const [partners, setPartners] = useState([]); // full partner records (incl. cutPct + payments) — founder-only
+  const [partnerEnrollments, setPartnerEnrollments] = useState([]); // partner seats across cohorts (T30 settlement)
 
   // Authorized by the session cookie (sent automatically): the server admits only a logged-in
   // founder (email on the allowlist). 401/403 → not signed in as a founder. Pulled on mount and
@@ -209,6 +211,9 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
       setError(null);
       setEvents(Array.isArray(data.events) ? data.events : []);
       setFounders(Array.isArray(data.founders) ? data.founders : []);
+      // Partner registry + their enrollments — for the settlement view + the accounting export (T30).
+      try { const pr = await fetch("/api/funnel?resource=partners"); const pd = pr.ok ? await pr.json() : {}; setPartners(Array.isArray(pd.partners) ? pd.partners : []); } catch { /* best-effort */ }
+      try { const er = await fetch("/api/funnel?resource=partner-enrollments"); const ed = er.ok ? await er.json() : {}; setPartnerEnrollments(Array.isArray(ed.enrollments) ? ed.enrollments : []); } catch { /* best-effort */ }
     } catch (e) { setError("Couldn’t load analytics (network error)."); }
     finally { setRefreshing(false); }
   }, []);
@@ -224,6 +229,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   // Traffic & engagement is whole-site (not segmented by cohort) — it's the top-of-funnel picture.
   const eng = useMemo(() => engagement(events || []), [events]);
   const bySource = useMemo(() => revenueBySource(scoped), [scoped]);
+  const settlement = useMemo(() => settlementSummary(partners, partnerEnrollments), [partners, partnerEnrollments]);
   const paths = useMemo(() => journeys(events || [], { limit: 12 }), [events]);
 
   const funnelData = STAGES.map((st, i) => {
@@ -267,7 +273,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <span {...act(() => { if (!refreshing) loadFunnel(); })} aria-busy={refreshing} aria-label={refreshing ? "Refreshing" : "Refresh"} title="Re-pull the latest funnel data (no browser refresh needed)" style={{ cursor: refreshing ? "default" : "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px", opacity: refreshing ? 0.6 : 1 }}><RefreshCw size={14} style={{ animation: refreshing ? "spin 1s linear infinite" : "none", flexShrink: 0 }} /> Refresh</span>
             <span {...act(() => downloadFile("build-young-funnel.csv", toCSV(events || []), "text/csv"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> CSV</span>
-            <span {...act(() => downloadFile("build-young-funnel.json", JSON.stringify(toDataRoom(events || []), null, 2), "application/json"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> JSON</span>
+            <span {...act(() => downloadFile("build-young-funnel.json", JSON.stringify(toDataRoom(events || [], { settlement }), null, 2), "application/json"))} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: C.ink2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "8px 12px" }}><Download size={14} /> JSON</span>
             {onPreviewStudent && <span {...act(onPreviewStudent)} style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, fontWeight: 700, color: "#fff", background: C.emerald, borderRadius: 4, padding: "8px 12px" }}><GraduationCap size={14} /> Preview student dashboard</span>}
             <span {...act(onHome)} style={{ cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.muted, padding: "8px 6px" }}>← Home</span>
           </div>
@@ -614,6 +620,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <FoundersEditor founders={founders} />
           <h2 style={h2s}>Partners (third-party enrollment)</h2>
           <PartnersEditor />
+          <h2 style={h2s}>Partner settlement</h2>
+          <SettlementAdmin summary={settlement} partners={partners} onSaved={loadFunnel} />
           <h2 style={h2s}>System status</h2>
           <SystemStatus />
           <h2 style={h2s}>Danger zone</h2>
@@ -1270,6 +1278,61 @@ function PartnersEditor() {
         <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save partners</button>
         {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
       </div>
+    </Card>
+  );
+}
+
+// Per-partner SETTLEMENT (SPECS/005 T30): what each partner owes Build Young (net of their cut, over
+// their ONBOARDED seats) vs. what they've paid, with the outstanding balance. The founder records a
+// dated payment received (bookkeeping only — no money moves); it appends to that partner's `payments`
+// and saves the partners list. `summary` (settlementSummary) + `partners` (full records) are passed in
+// from the parent so the figures match the accounting export. `onSaved` re-pulls after a payment.
+function SettlementAdmin({ summary, partners, onSaved }) {
+  const [open, setOpen] = useState(""); // partner id with the record-payment form open
+  const [form, setForm] = useState({ date: "", amount: "", note: "" });
+  const [status, setStatus] = useState("");
+  const rows = Array.isArray(summary) ? summary : [];
+  const record = async (partnerId) => {
+    const amountCents = Math.round((Number(form.amount) || 0) * 100);
+    if (amountCents <= 0) { setStatus("Enter an amount"); return; }
+    setStatus("Saving…");
+    // Append the payment to the target partner's ledger, keep the rest, and save the full list.
+    const next = (partners || []).map((p) => p.id === partnerId
+      ? { ...p, payments: [...(Array.isArray(p.payments) ? p.payments : []), { date: form.date.trim() || new Date().toISOString().slice(0, 10), amountCents, note: form.note.trim() }] }
+      : p);
+    try {
+      const r = await fetch("/api/funnel?resource=partners", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ partners: next }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { setStatus("Payment recorded ✓"); setForm({ date: "", amount: "", note: "" }); setOpen(""); if (onSaved) await onSaved(); }
+      else setStatus(d.error || adminSaveErr(r, d, "record payment"));
+    } catch { setStatus(ADMIN_NET_ERR); }
+  };
+  const money = (cents) => fmt((cents || 0) / 100);
+  const inp = { padding: "7px 9px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontSize: 13 };
+  if (rows.length === 0) return <Card style={{ padding: 16 }}><div style={{ fontSize: 13, color: C.muted }}>No partners yet — add one under Partners above. Settlement appears once a partner has onboarded seats.</div></Card>;
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>What each partner owes (net of their cut, over <b>onboarded</b> seats) vs. what they've paid. Recording a payment is a <b>bookkeeping</b> entry — no money moves. The ledger is included in the funnel <b>JSON export</b>.</div>
+      {rows.map((s) => (
+        <div key={s.id} style={{ borderTop: `1px solid ${C.line}`, padding: "10px 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
+            <span style={{ fontWeight: 700, color: C.ink }}>{s.name}</span>
+            <span style={{ fontSize: 13, color: C.ink2 }}>{s.seats} seats · gross {money(s.grossCents)} · cut {money(s.cutCents)} · <b>owed {money(s.netOwedCents)}</b> · received {money(s.receivedCents)} · <b style={{ color: s.outstandingCents > 0 ? C.rust : C.green }}>outstanding {money(s.outstandingCents)}</b></span>
+          </div>
+          {open === s.id ? (
+            <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 8 }}>
+              <input aria-label={`Payment date for ${s.id}`} placeholder="2026-09-01" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))} style={{ ...inp, width: 120 }} />
+              <input aria-label={`Payment amount for ${s.id}`} type="number" min="0" step="0.01" placeholder="Amount $" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} style={{ ...inp, width: 110 }} />
+              <input aria-label={`Payment note for ${s.id}`} placeholder="Note (optional)" value={form.note} onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))} style={{ ...inp, flex: 1, minWidth: 140 }} />
+              <button className="btn" onClick={() => record(s.id)} style={{ background: C.ink, color: C.paper2, padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700 }}>Record</button>
+              <span {...act(() => { setOpen(""); setForm({ date: "", amount: "", note: "" }); })} style={{ cursor: "pointer", fontSize: 12.5, color: C.muted }}>Cancel</span>
+            </div>
+          ) : (
+            <span {...act(() => { setOpen(s.id); setStatus(""); })} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.emerald, display: "inline-block", marginTop: 6 }}>+ Record a payment</span>
+          )}
+        </div>
+      ))}
+      {status && <div style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status), marginTop: 10 }}>{status}</div>}
     </Card>
   );
 }

@@ -27,6 +27,18 @@ describe("sanitizePartners", () => {
     expect(sanitizePartners(null)).toEqual([]);
     expect(sanitizePartners(undefined)).toEqual([]);
   });
+  it("sanitizes the settlement payments ledger (T30) — clamps amount, trims, drops empties", () => {
+    const out = sanitizePartners([{ id: "p", payments: [
+      { date: " 2026-09-01 ", amountCents: 50000.7, note: " wire " },
+      { amountCents: -5 },        // no date + non-positive → dropped
+      { date: "2026-10-01", amountCents: 0 }, // kept (has a date), amount clamped to 0
+      "junk",
+    ] }]);
+    expect(out[0].payments).toEqual([
+      { date: "2026-09-01", amountCents: 50001, note: "wire" },
+      { date: "2026-10-01", amountCents: 0, note: "" },
+    ]);
+  });
 });
 
 describe("publicPartners — only FEATURED partners, only DISPLAY fields (never money/internal)", () => {
