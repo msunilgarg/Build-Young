@@ -30,6 +30,14 @@ describe("Landing", () => {
     await expectNoSeriousA11y(container);
   });
 
+  // The "Why this exists" founder teaser must name AI — the core framing (AI is what's reshaping the
+  // world our kids graduate into). Render-pinned (assert the visible string, per playbook §9).
+  it("the 'Why this exists' teaser references AI", () => {
+    render(<App />);
+    const teaser = screen.getByText("Why this exists").nextElementSibling; // the <p> right after the heading
+    expect(teaser.textContent).toMatch(/\bAI\b/);
+  });
+
   // The "Upcoming batches" intro must NOT hardcode the flagship cadence/day-pairs — cohort pace is now
   // per-cohort (an accelerated Summer cohort isn't "twice a week" on Mon/Wed or Tue/Thu), so the blanket
   // claim was wrong. It states the invariant (12 lessons / 36 hrs) and defers schedule to the per-cohort
