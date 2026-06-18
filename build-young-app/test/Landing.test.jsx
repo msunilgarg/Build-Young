@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
 import { Landing } from "../src/Landing.jsx";
@@ -62,5 +62,23 @@ describe("Landing", () => {
     );
     expect(screen.getByRole("tab", { name: /Summer 2026/i }).getAttribute("aria-selected")).toBe("true");
     expect(screen.getByRole("tab", { name: /^Fall 2026$/ }).getAttribute("aria-selected")).toBe("false");
+  });
+
+  // Tapping an unscheduled season (Winter, no cohorts) shows the "not yet scheduled" panel; its
+  // "See Fall 2026 →" button must switch the selection without throwing. Guards against a stale state
+  // setter in that branch (the panel renders in no other test, so a bad ref would slip through silently).
+  it("the 'not yet scheduled' panel switches to Fall without crashing", () => {
+    const catalog = [
+      { id: "summer-1", season: "summer", track: "Builders", start: "Aug 10, 2026", day: "Weekdays · 4:00–7:00 PM PT", seats: 10, price: 999, zoom: "", stripeLink: "" },
+      { id: "fall-mw", season: "fall", track: "Builders", start: "Sep 7, 2026", day: "Mondays & Wednesdays · 5:00–6:30 PM PT", seats: 10, price: 999, zoom: "", stripeLink: "" },
+    ];
+    render(
+      <CohortsContext.Provider value={catalog}>
+        <Landing onEnroll={noop} onCall={noop} onLegal={noop} onStory={noop} onCurriculum={noop} onFaq={noop} onLogin={noop} onDashboard={null} dashLabel="" testimonials={[]} />
+      </CohortsContext.Provider>
+    );
+    fireEvent.click(screen.getByRole("tab", { name: /Winter 2027/i }));
+    fireEvent.click(screen.getByRole("button", { name: /See Fall 2026/i }));
+    expect(screen.getByRole("tab", { name: /^Fall 2026$/ }).getAttribute("aria-selected")).toBe("true");
   });
 });

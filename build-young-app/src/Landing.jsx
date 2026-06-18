@@ -431,7 +431,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
             <div className="disp" style={{ fontSize: 20, fontWeight: 800, marginTop: 8 }}>{seasonLabel(season)} — not yet scheduled</div>
             <p style={{ color: C.ink2, fontSize: 14.5, marginTop: 8, lineHeight: 1.55 }}>We haven't set dates for this season yet. <b>Fall 2026 is enrolling now</b> — or leave it to us: book a free call and we'll let you know the moment {seasonLabel(season)} opens.</p>
             <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 16 }}>
-              <button className="btn" onClick={() => setSeason("fall")} style={{ background: C.emerald, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700 }}>See Fall 2026 →</button>
+              <button className="btn" onClick={() => setPicked("fall")} style={{ background: C.emerald, color: "#fff", padding: "11px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700 }}>See Fall 2026 →</button>
               <button className="btn" onClick={onCall} style={{ background: C.card, color: C.ink, padding: "11px 18px", borderRadius: 4, fontSize: 14.5, fontWeight: 700, border: `1.5px solid ${C.line}` }}>Talk to us →</button>
             </div>
           </div>
