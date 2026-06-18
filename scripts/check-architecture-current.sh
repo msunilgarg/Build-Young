@@ -4,7 +4,7 @@
 # remembering to run the renderer: a stale diagram fails the check (and the commit guard + CI that call it).
 #
 # How: hash BOTH diagram sources — the ```mermaid block(s) in BUILD-YOUNG-ARCHITECTURE.md AND the
-# interactive docs/architecture/loop.html (the single source) — and compare to docs/architecture/.source-hash,
+# interactive docs/architecture/build-young-harness.html (the single source) — and compare to docs/architecture/.source-hash,
 # which the renderer (scripts/render-architecture.sh) writes every time it renders. Deterministic + environment-
 # independent (just hashes text — no Chromium, no cross-machine byte differences). If they differ, a
 # source was edited without re-rendering. One command:  bash scripts/check-architecture-current.sh
@@ -12,7 +12,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."   # repo root
 
 SRC="BUILD-YOUNG-ARCHITECTURE.md"
-HTML="docs/architecture/loop.html"
+HTML="docs/architecture/build-young-harness.html"
 HASHFILE="docs/architecture/.source-hash"
 
 cur=$(python3 - "$SRC" "$HTML" <<'PY'

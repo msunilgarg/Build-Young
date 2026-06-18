@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Render the architecture diagrams in BUILD-YOUNG-ARCHITECTURE.md to versioned exports (docs/architecture/).
 # Two diagrams, two sources:
-#   • the LOOP  — the INTERACTIVE, CLICKABLE docs/architecture/loop.html (the single source). This script
-#                 screenshots it: loop.png = the collapsed overview (embedded inline in the doc),
-#                 loop.pdf = the fully-expanded walkthrough (handout). Edit the HTML, then re-run this.
+#   • the LOOP  — the INTERACTIVE, CLICKABLE docs/architecture/build-young-harness.html (the single source). This script
+#                 screenshots it: build-young-harness.png = the collapsed overview (embedded inline in the doc),
+#                 build-young-harness.pdf = the fully-expanded walkthrough (handout). Edit the HTML, then re-run this.
 #   • the APP   — a ```mermaid block in BUILD-YOUNG-ARCHITECTURE.md, rendered with the Mermaid CLI.
-# Run this in the SAME change whenever you edit the ```mermaid block OR loop.html, so the exports never
+# Run this in the SAME change whenever you edit the ```mermaid block OR build-young-harness.html, so the exports never
 # drift from source. One command:  bash scripts/render-architecture.sh
 #
 # Outputs per diagram: <name>.png (preview) + <name>.pdf (zoomable vector — what we hand to humans).
@@ -43,17 +43,17 @@ for f in "$TMP"/block*.mmd; do
 done
 
 # ── 2. LOOP diagram — render the canonical interactive HTML to PNG (overview) + PDF (handout) ─────────
-# loop.html is the SINGLE SOURCE (clickable). Screenshot it via the Chrome the Mermaid step provisioned
+# build-young-harness.html is the SINGLE SOURCE (clickable). Screenshot it via the Chrome the Mermaid step provisioned
 # (puppeteer cache); puppeteer-core into a throwaway prefix so this doesn't touch the repo's deps.
-echo "rendering $OUT/loop.html -> $OUT/loop.{png,pdf}"
+echo "rendering $OUT/build-young-harness.html -> $OUT/build-young-harness.{png,pdf}"
 npm i --prefix "$TMP/pp" puppeteer-core@latest >/dev/null 2>&1
 CHROME="${PUPPETEER_EXECUTABLE_PATH:-$(ls -d "$HOME"/.cache/puppeteer/chrome/*/chrome-linux64/chrome 2>/dev/null | head -1)}"
-NODE_PATH="$TMP/pp/node_modules" PUPPETEER_EXECUTABLE_PATH="$CHROME" node scripts/html-to-exports.cjs "$OUT/loop.html" "$OUT/loop"
+NODE_PATH="$TMP/pp/node_modules" PUPPETEER_EXECUTABLE_PATH="$CHROME" node scripts/html-to-exports.cjs "$OUT/build-young-harness.html" "$OUT/build-young-harness"
 echo "Done. Wrote PNG + PDF to $OUT/"
 
-# ── 3. Currency hash — covers BOTH sources (mermaid blocks + loop.html) so the check (commit guard + CI)
+# ── 3. Currency hash — covers BOTH sources (mermaid blocks + build-young-harness.html) so the check (commit guard + CI)
 #       blocks a commit/merge that edited a diagram source without regenerating the exports. ────────────
-python3 - "$SRC" "$OUT/loop.html" "$OUT/.source-hash" <<'PY'
+python3 - "$SRC" "$OUT/build-young-harness.html" "$OUT/.source-hash" <<'PY'
 import re, sys, hashlib
 blocks = re.findall(r"```mermaid\n(.*?)```", open(sys.argv[1]).read(), re.S)
 html = open(sys.argv[2]).read()
