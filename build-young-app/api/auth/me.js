@@ -14,5 +14,5 @@ export default async function handler(req, res) {
     res.status(401).json({ error: "Not signed in" });
     return;
   }
-  res.status(200).json({ user: { email: user.email, name: user.name || "", batchId: user.batchId || "", isFounder: await isFounder(user.email) } });
+  res.status(200).json({ user: { email: user.email, name: user.name || "", batchId: user.batchId || "", paymentSource: user.paymentSource || "", isFounder: await isFounder(user.email) } });
 }

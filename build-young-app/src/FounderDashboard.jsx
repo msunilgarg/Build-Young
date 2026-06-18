@@ -1372,6 +1372,18 @@ function PartnerEnrollAdmin() {
     } catch { setStatus(ADMIN_NET_ERR); }
     setBusy("");
   };
+  const remove = async (e) => {
+    if (!window.confirm(`Remove ${e.email} from ${e.batchId}? They lose course access and the seat stops counting in settlement. No Build Young refund is issued (partner refunds are the partner's policy).`)) return;
+    const key = `${e.email}|${e.batchId}`;
+    setBusy(key);
+    try {
+      const r = await fetch("/api/funnel?resource=partner-remove", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: e.email, batchId: e.batchId }) });
+      const d = await r.json().catch(() => ({}));
+      setStatus(r.ok && d.ok ? "Removed ✓ (no refund issued)" : (d.error || adminSaveErr(r, d, "remove")));
+      await reload();
+    } catch { setStatus(ADMIN_NET_ERR); }
+    setBusy("");
+  };
   const save = async () => {
     if (!validEmail(form.email)) { setStatus("Enter a valid email"); return; }
     if (!form.batchId) { setStatus("Pick a cohort"); return; }
@@ -1419,6 +1431,7 @@ function PartnerEnrollAdmin() {
                 <button className="btn" disabled={busy === `${e.email}|${e.batchId}`} onClick={() => onboard(e)} style={{ background: e.onboarded ? "transparent" : C.emerald, color: e.onboarded ? C.muted : "#fff", border: e.onboarded ? `1px solid ${C.line}` : "none", padding: "6px 12px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>
                   {busy === `${e.email}|${e.batchId}` ? "Working…" : (e.onboarded ? "Resend invite" : "Start onboarding")}
                 </button>
+                <span {...act(() => remove(e))} aria-label={`Remove ${e.email}`} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.rust }}>Remove</span>
               </span>
             </div>
           ))}

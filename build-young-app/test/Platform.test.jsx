@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
+import { Platform } from "../src/Platform.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
 // AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production catalog.
@@ -78,5 +79,22 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await user.click(await screen.findByRole("button", { name: "Course progress" }));
     await screen.findByText(/Your course, lesson by lesson/i);
     await expectNoSeriousA11y(container);
+  });
+});
+
+describe("partner students don't self-withdraw (SPECS/005 T31)", () => {
+  const baseStudent = { name: "Kid", email: "kid@school.org", batch: "fall-mw", track: "Builders" };
+  const mk = (paymentSource) => ({ student: baseStudent, paymentSource, started: false, week: 1, phase: "course", checkin: 0, done: false, emails: [] });
+  const noop = () => {};
+
+  it("a direct (not-started) student CAN cancel; a partner student sees NO withdraw control or refund copy", () => {
+    const direct = render(<Platform state={mk("")} setState={noop} onExit={noop} onHome={noop} />);
+    expect(direct.getByRole("button", { name: /Cancel enrollment/i })).toBeInTheDocument();
+    direct.unmount();
+
+    const partner = render(<Platform state={mk("partner")} setState={noop} onExit={noop} onHome={noop} />);
+    expect(partner.queryByRole("button", { name: /Cancel enrollment|Withdraw/i })).toBeNull();
+    // none of the refund/cancel copy reaches a partner student
+    expect(partner.queryByText(/full refund|75% refund|refund window/i)).toBeNull();
   });
 });
