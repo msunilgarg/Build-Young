@@ -164,6 +164,7 @@ export default function App() {
   }, [route, loaded]);
   // remember scroll position per route so Back lands where you left off
   const pendingScroll = useRef(null); // px to restore after next render (null = scroll to top)
+  const pendingAnchor = useRef(null); // element id to scroll INTO VIEW after next render (deep-link); wins over pendingScroll
   const scrollTo = (y) => { try { window.scrollTo(0, y); } catch (e) {} };
   // single-flight lock: a route transition takes one frame; ignore re-fires within it
   // (prevents double-click races — history desync, double-enroll, duplicate emails).
@@ -201,13 +202,19 @@ export default function App() {
     setState(newState({ name: (me && me.name) || "Sample Student", email: (me && me.email) || "preview@build-young.com", batch: b.id, track: b.track }));
     setRoute("app");
   });
-  // apply the pending scroll after the route's content has rendered
+  // apply the pending scroll (or deep-link anchor) after the route's content has rendered
   useLayoutEffect(() => {
-    if (pendingScroll.current == null) return;
+    if (pendingScroll.current == null && !pendingAnchor.current) return;
     const y = pendingScroll.current;
+    const anchor = pendingAnchor.current;
     pendingScroll.current = null;
-    // one rAF lets the (taller) page lay out before we restore position
-    requestAnimationFrame(() => requestAnimationFrame(() => scrollTo(y)));
+    pendingAnchor.current = null;
+    // one rAF lets the (taller) page lay out before we restore position / find the anchor
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const el = anchor && (typeof document !== "undefined") ? document.getElementById(anchor) : null;
+      if (el) { try { el.scrollIntoView({ block: "start" }); return; } catch (e) {} }
+      scrollTo(y || 0);
+    }));
   }, [route]);
 
   // Sign-in succeeded (login or set-password): pull the student's server state (or seed a fresh
@@ -331,7 +338,9 @@ export default function App() {
     setPreselect(id); nav("enroll");
   };
   const startCall = () => nav("call");
-  const startStory = () => nav("story"); // /about — the founder essay + "more than money" narrative
+  // /about — the founder essay + "more than money" narrative. The teaser is the "Why this exists"
+  // founder note, so deep-link straight to that section (it sits below the hero) instead of the page top.
+  const startStory = () => { pendingAnchor.current = "story-founder"; nav("story"); };
   const startCurriculum = () => nav("curriculum"); // /curriculum — the 3-act journey + where-the-work detail
   const startFaq = () => nav("faq"); // /faq — the full Q&A + ask-a-question form
   const finishEnroll = (student) => guard(() => {
