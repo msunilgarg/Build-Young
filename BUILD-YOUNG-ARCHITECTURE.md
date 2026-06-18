@@ -29,7 +29,7 @@ Two systems live in this repo, and this document maps both:
 How work gets done here: you write a **goal** (a task), and the loop drives it to the live site —
 implement → verify (independently) → ship — pausing only on the conditions noted below.
 
-![Build Young — Agent Harness: the loop, repeated per task. Follow ▶ START → 1 Main agent → 2 Self-check → 3 Verifier → 4 risk gate → 5 Ship → 6 Mark done → back to 1. Side panels feed it (① inputs · ② rules, split global vs project) or wrap/extend it (⑤ guards · ④ fan-out); the top-right callout lists what each rule-doc covers; the live site is Vercel.](docs/architecture/loop.svg)
+![Build Young — Agent Harness: the loop, repeated per task. Follow ▶ START → 1 Main agent → 2 Self-check → 3 Verifier → 4 risk gate → 5 Ship → 6 Mark done → back to 1. Side panels feed it (① inputs · the GitHub repo state incl. 📐 SPECS/ → 🗂 TASKS.md · ② rules, split global vs project) or wrap/extend it (⑤ guards · ④ fan-out); the top-right callout lists what each rule-doc covers + how a spec becomes a task; the live site is Vercel.](docs/architecture/loop.svg)
 
 > **This diagram is a hand-authored SVG** (`docs/architecture/loop.svg`) — chosen over Mermaid for full
 > layout control (numbered flow, the callout pinned top-right). **Edit the SVG by hand, then run
@@ -39,7 +39,8 @@ implement → verify (independently) → ship — pausing only on the conditions
 | Node | What it is / its responsibility |
 |---|---|
 | **Triggers** | Two on-ramps to the same driver — **use one OR the other for a given task, never both.** **Local `/run-loop`** (runs in your Claude Code on your subscription; drains the `TASKS.md` backlog) **or** the **issue-triggered GitHub Action** (`.github/workflows/run-loop.yml`, gated by the `loop-task` label, billed to Anthropic API credits; the **issue itself is the task** — it doesn't read `TASKS.md`). Same procedure once started. |
-| **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `TASKS.md` (queue + done log), `CLAUDE.md` (project rules/module map), `POSITIONING.md` (copy & voice source of truth), `ENGINEERING-PLAYBOOK.md` (portable rules + §9 loop engineering). |
+| **Specs → tasks** | Non-trivial work is **spec-first**: a one-page spec in `build-young-app/SPECS/` (`NNN-name.md` — what/why/behavior/**acceptance**/out-of-scope/risks) settles the decisions with a human, then is **promoted into `TASKS.md`** as task(s) referencing it. Small changes skip to a task directly; `BACKLOG.md` is the someday parking lot. *The spec is where the task's acceptance criteria are made sharp — see decision A.* |
+| **Durable state** | Committed files the loop reads/writes so a fresh container resumes where it stopped: `SPECS/` (feature decisions) + `TASKS.md` (queue + done log) + `BACKLOG.md` (parking lot), `CLAUDE.md` (project rules/module map), `POSITIONING.md` (copy & voice source of truth), `ENGINEERING-PLAYBOOK.md` (portable rules + §9 loop engineering). |
 | **Driver + Doer** (`.claude/skills/run-loop`) | **The same agent, one context, two hats.** As *driver* it picks the first unchecked task and never guesses the next step — it comes from a **signal** (failing build/test, verifier gap, or the next backlog item); as *doer* it writes the smallest change that meets the acceptance criteria, staying in the task's file lane. (The doer *may* fan out to a **worktree**-isolated sub-agent for parallel work — the exception, not the default.) Runs on the **premium tier** — it's the planning/reasoning seat (and high-risk tasks live here); the cheaper tier is for the verifier + low-risk mechanical passes. |
 | **Risk gate** | Reads the task's `risk:`. Everything is implemented; only the **merge** decision differs (see ship gate). |
 | **Self-check** | `npm run build` + `npx vitest run` + repo guards (no `\uXXXX`, no internal model id, no resurrected money-sim markers). Fix until green. |
@@ -203,6 +204,14 @@ quality bars, navigation/perf invariants) and [`ENGINEERING-PLAYBOOK.md`](./ENGI
 The decisions worth defending — each is a deliberate trade-off, not an accident.
 
 ### A. The agentic engineering system
+- **Specs come first for anything non-trivial.** A substantive feature starts as a one-page **spec** in
+  `build-young-app/SPECS/` (`NNN-name.md` from `_TEMPLATE.md`: what · why · behavior · **acceptance** ·
+  out-of-scope · risks) — the *decisions* are settled there, with a human, before code. The spec is then
+  **promoted into `TASKS.md`** as one or more tasks (goal + acceptance + risk) that reference it; the loop
+  drives those. *Why:* the loop is only as good as its done-condition — pinning the decisions in a spec is
+  what makes the task's acceptance criteria sharp (and keeps the human in the design loop, not the typing
+  loop). Small/obvious changes can skip straight to a `TASKS.md` entry; `BACKLOG.md` is the someday parking
+  lot the loop ignores until promoted.
 - **A custom `/run-loop` skill is the driver.** The autonomous loop isn't ad-hoc prompting — it's a
   committed Claude Code skill (`.claude/skills/run-loop`) that *defines the procedure* (pick → implement
   → self-check → spawn verifier → ship → record → next). *Why:* the next step comes from a **feedback

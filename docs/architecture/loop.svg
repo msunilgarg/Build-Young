@@ -72,8 +72,13 @@
   <rect class="gh" x="36" y="304" width="324" height="256" rx="10"/>
   <text class="ght" x="52" y="326">📁 GitHub repo — single source of truth</text>
   <text class="sm" x="52" y="341">all committed here, so a fresh container resumes from it</text>
-  <rect class="state" x="52" y="348" width="292" height="38" rx="10"/>
-  <text class="nl" x="198" y="372" text-anchor="middle">TASKS.md — backlog + done log</text>
+  <rect class="state" x="52" y="348" width="138" height="38" rx="10"/>
+  <text class="nl" x="121" y="367" text-anchor="middle">📐 SPECS/</text>
+  <text class="sm" x="121" y="381" text-anchor="middle">feature specs</text>
+  <text class="nlb" x="198" y="372" text-anchor="middle">→</text>
+  <rect class="state" x="206" y="348" width="138" height="38" rx="10"/>
+  <text class="nl" x="275" y="367" text-anchor="middle">🗂 TASKS.md</text>
+  <text class="sm" x="275" y="381" text-anchor="middle">the backlog</text>
   <rect class="state" x="52" y="392" width="292" height="46" rx="6"/>
   <text class="nl" x="198" y="411" text-anchor="middle">🌐 ENGINEERING-PLAYBOOK.md</text>
   <text class="sm" x="198" y="427" text-anchor="middle">common &amp; portable across repos — kept in-repo (@imported)</text>
@@ -154,8 +159,8 @@
 
   <!-- RIGHT: TASKS.md (the backlog) — the task is ALSO what the verifier grades against -->
   <rect class="state" x="864" y="62" width="700" height="46" rx="8"/>
-  <text class="chp" x="876" y="80">🗂 TASKS.md — the backlog (the agent writes each task from your intent; you approve)</text>
-  <text class="cb" x="876" y="97">each task = goal · acceptance criteria (the verifier grades the diff vs THESE) · risk: (drives autonomy) · Files: hint · committed → resumes</text>
+  <text class="chp" x="876" y="80">🗂 TASKS.md — the backlog (you write a task from your intent, or promote a 📐 SPEC; you approve)</text>
+  <text class="cb" x="876" y="97">📐 SPECS/ = a feature's decisions (what/why/acceptance), one page; promote it into a task. each task = goal · acceptance criteria (verifier grades the diff vs THESE) · risk: · committed → resumes</text>
 
   <!-- RIGHT: the rules — ENGINEERING-PLAYBOOK as the meaty core -->
   <rect class="core" x="864" y="112" width="700" height="288" rx="10"/>
