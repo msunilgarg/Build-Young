@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build Young — Agent Harness (the loop)</title>
+<!--
+  PRESENTATION COMPANION to the canonical diagram (docs/architecture/loop.svg / .pdf).
+  A self-contained, collapsible walkthrough of the agentic engineering loop — for talking through
+  the system live (progressive disclosure: open with the flow, drill into a section on demand).
+  No build step, no dependencies: open this file in any browser.
+
+  NOTE (maintenance): this is a hand-maintained SECOND view of the same system as loop.svg, so the
+  two can drift. When you change the loop's structure, update BOTH (and BUILD-YOUNG-ARCHITECTURE.md).
+  The currency guard only hashes the SVG + Mermaid blocks, not this file. (Playbook §3: prefer one
+  source — a future refactor could generate both the SVG and this page from a shared content model.)
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --agent:#5e35b1; --agent-bg:#ede7f6;
+    --state:#f9a825; --state-bg:#fff8e1;
+    --human:#d81b60; --human-bg:#fce4ec;
+    --tool:#00897b;  --tool-bg:#e0f2f1;
+    --ext:#1e88e5;   --ext-bg:#e3f2fd;
+    --grp:#8a6d00;   --grp-bg:#fcfce8;
+    --ink:#222; --sub:#5a5f6b; --line:#e3e4ea;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:#f6f7f9; color:var(--ink);
+    font-family:'Inter','Segoe UI',Helvetica,Arial,sans-serif; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:28px 22px 80px;}
+  h1{font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; font-size:30px; margin:0 0 6px;}
+  h1 .grad{background:linear-gradient(90deg,#0067b8,#0a7d85,#178045); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .lede{color:var(--sub); font-size:15px; max-width:760px; margin:0 0 18px;}
+  .lede b{color:var(--ink);}
+
+  .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:0 0 16px;}
+  .btn{
+    font:inherit; font-size:13px; font-weight:700; cursor:pointer;
+    border:1.5px solid var(--agent); color:var(--agent); background:#fff;
+    border-radius:8px; padding:7px 14px;
+  }
+  .btn:hover{background:var(--agent-bg);}
+  .btn.sec{border-color:#aab; color:#556;}
+  .btn.sec:hover{background:#eef;}
+
+  .legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--sub); margin:0 0 22px;}
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:12px; height:12px; border-radius:3px; border:2px solid;}
+  .d-human{background:var(--human-bg); border-color:var(--human);}
+  .d-state{background:var(--state-bg); border-color:var(--state);}
+  .d-agent{background:var(--agent-bg); border-color:var(--agent);}
+  .d-tool{background:var(--tool-bg); border-color:var(--tool);}
+  .d-ext{background:var(--ext-bg); border-color:var(--ext);}
+
+  details.card{
+    background:#fff; border:1px solid var(--line); border-left:5px solid #bbb;
+    border-radius:11px; margin:0 0 12px; padding:0; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  details.card>summary{
+    cursor:pointer; list-style:none; padding:15px 18px; display:flex; gap:10px; align-items:baseline;
+    font-size:17px; font-weight:700; font-family:'Space Grotesk','Inter',sans-serif;
+  }
+  details.card>summary::-webkit-details-marker{display:none;}
+  details.card>summary::before{
+    content:"▸"; color:var(--agent); font-size:13px; transform:translateY(-1px); transition:transform .15s;
+  }
+  details.card[open]>summary::before{transform:rotate(90deg) translateX(-1px);}
+  details.card>summary:hover{background:#fafafe;}
+  .num{font-weight:800; color:var(--agent);}
+  .one{font-weight:400; font-size:14px; color:var(--sub); font-family:'Inter',sans-serif;}
+  .body{padding:2px 20px 18px 34px;}
+  .body ul{margin:6px 0 0; padding-left:18px;}
+  .body li{margin:5px 0; font-size:14px;}
+  .body li b{font-weight:700;}
+  .tag{font-size:11px; font-weight:700; padding:1px 7px; border-radius:20px; vertical-align:middle; margin-left:2px;}
+  .t-human{background:var(--human-bg); color:var(--human);}
+  .t-state{background:var(--state-bg); color:#8a6d00;}
+  .t-agent{background:var(--agent-bg); color:var(--agent);}
+  .t-tool{background:var(--tool-bg); color:#00695c;}
+  .t-ext{background:var(--ext-bg); color:#1565c0;}
+  code{font-family:'SF Mono',Menlo,Consolas,monospace; font-size:12.5px; background:#f1f1f6; padding:1px 5px; border-radius:4px;}
+
+  /* color the card spine + number by node type */
+  .card.human{border-left-color:var(--human);} .card.human .num,.card.human summary::before{color:var(--human);}
+  .card.state{border-left-color:var(--state);} .card.state .num,.card.state summary::before{color:#c98a00;}
+  .card.agent{border-left-color:var(--agent);}
+  .card.tool{border-left-color:var(--tool);}  .card.tool .num,.card.tool summary::before{color:var(--tool);}
+  .card.ext{border-left-color:var(--ext);}    .card.ext .num,.card.ext summary::before{color:var(--ext);}
+  .card.grp{border-left-color:var(--grp);}    .card.grp .num,.card.grp summary::before{color:var(--grp);}
+
+  /* nested step list (the loop / the rules) */
+  details.step{border:1px solid var(--line); border-radius:8px; margin:8px 0; background:#fcfcfe;}
+  details.step>summary{cursor:pointer; list-style:none; padding:9px 13px; font-size:14px; font-weight:700; display:flex; gap:8px; align-items:baseline;}
+  details.step>summary::-webkit-details-marker{display:none;}
+  details.step>summary::before{content:"+"; color:var(--agent); font-weight:800; font-size:13px;}
+  details.step[open]>summary::before{content:"–";}
+  details.step .sbody{padding:0 14px 11px 26px; font-size:13.5px; color:#333;}
+  .arrow{color:#aaa; padding:0 2px;}
+  footer{margin-top:26px; color:var(--sub); font-size:12.5px; border-top:1px solid var(--line); padding-top:14px;}
+  @media print{ details{break-inside:avoid;} .controls{display:none;} body{background:#fff;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Build Young — Agent Harness <span class="grad">(the loop)</span></h1>
+  <p class="lede"><b>You write a spec → it becomes a task; then the loop drains it one at a time</b> —
+    implement → self-check → verify → risk gate → ship → record → next. Everything is committed in the
+    repo (a fresh container resumes); a portable engineering playbook is the core; always-on machinery
+    guards every step. <b>Click any section to drill in.</b></p>
+
+  <div class="controls">
+    <button class="btn" onclick="setAll(true)">Expand all</button>
+    <button class="btn sec" onclick="setAll(false)">Collapse all</button>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot d-human"></i> human (You)</span>
+    <span><i class="dot d-state"></i> committed state (files)</span>
+    <span><i class="dot d-agent"></i> AI agent</span>
+    <span><i class="dot d-tool"></i> tooling (local / GitHub)</span>
+    <span><i class="dot d-ext"></i> external (live site)</span>
+  </div>
+
+  <!-- ① -->
+  <details class="card human">
+    <summary><span class="num">①</span>&nbsp;You author the work
+      <span class="one">— You → 📐 SPECS/ → 🗂 TASKS.md · the whole process starts here</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>You are the originator</b> <span class="tag t-human">human</span> — you write a one-page spec, then promote it to a task.</li>
+        <li><b>The spec-first gate:</b> non-trivial work → <b>write a 📐 spec first</b>; a bug-level fix → straight to a task.</li>
+        <li><b>A spec</b> (<code>SPECS/NNN-name.md</code>) pins <b>what / why / behavior / acceptance / out-of-scope / risks</b> — one page, decisions settled with a human.</li>
+        <li>It's <b>promoted into</b> <code>TASKS.md</code> as task(s) that reference it. <code>BACKLOG.md</code> is the someday parking lot.</li>
+        <li>All <b>committed in the repo</b> <span class="tag t-state">state</span>, so the loop — and a fresh container — resume from it.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- ② -->
+  <details class="card tool">
+    <summary><span class="num">②</span>&nbsp;Kick off a run
+      <span class="one">— ONE on-ramp: run <code>/run-loop</code> locally, or a labeled GitHub issue</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>You — run <code>/run-loop</code> locally</b> <span class="tag t-human">human</span> — your Claude subscription; drains the <code>TASKS.md</code> backlog.</li>
+        <li><b>GitHub issue + “loop-task” label</b> <span class="tag t-tool">tool</span> → Actions (<code>run-loop.yml</code>). A <b>bug-level</b> issue IS the task; a <b>non-trivial</b> issue is specced first.</li>
+        <li>Use <b>one OR the other</b> for a given task, never both. Same procedure once started.</li>
+        <li><b>Then the SessionStart hook</b> (every session): resync to <code>origin/main</code> · reinstall the commit guards. <span class="one">— it's a per-session mechanic, not itself an on-ramp.</span></li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- ③ -->
+  <details class="card agent">
+    <summary><span class="num">③</span>&nbsp;The loop
+      <span class="one">— pick → self-check → verify → risk gate → ship → record → next</span></summary>
+    <div class="body">
+      <details class="step"><summary>Main agent — driver + doer <span class="tag t-agent">agent · premium</span></summary>
+        <div class="sbody">Picks the first unchecked task and <b>reads its 📐 spec</b>, then writes the <b>smallest change</b> that meets the acceptance criteria. Never guesses the next step — it comes from a <b>signal</b> (a failing test, the verifier's gap report, the next backlog item). Stays in the task's file lane.</div></details>
+      <details class="step"><summary>Self-check — gate your own work first</summary>
+        <div class="sbody"><code>npm run build</code> · <code>npx vitest run</code> · repo guards (no internal model-id, no resurrected money-sim markers, diagram currency). Fix until green.</div></details>
+      <details class="step"><summary>Verifier — fresh, independent sub-agent <span class="tag t-agent">agent · sonnet</span></summary>
+        <div class="sbody"><b>Own context, inherits nothing</b> — the doer can't grade its own homework. Re-runs build/tests and grades the diff against the acceptance criteria <b>and the standing rules it is told to read</b>. Returns <b>PASS</b> or <b>FAIL + gaps</b>; <b>fail → fix → re-verify</b> (~3 rounds, then stop and surface the blocker). Runs on the cheaper Sonnet tier — cost discipline, rigor unchanged.</div></details>
+      <details class="step"><summary>Risk gate — reads the task's <code>risk:</code></summary>
+        <div class="sbody">Everything is implemented; <b>only the merge decision differs</b>. In this project it's <b>FULL AUTO</b> — any task auto-merges once the verifier PASSes, regardless of risk (see Risk gate &amp; hard floor below).</div></details>
+      <details class="step"><summary>Ship — on GitHub</summary>
+        <div class="sbody">commit → push dev branch → open PR → verify the file diff is non-empty → CI → <b>squash-merge → <code>main</code></b> → sync.</div></details>
+      <details class="step"><summary>Record — mark <code>[x]</code> in <code>TASKS.md</code> → next task</summary>
+        <div class="sbody">Progress lives in committed files, so an ephemeral container resumes exactly where it stopped.</div></details>
+    </div>
+  </details>
+
+  <!-- repo -->
+  <details class="card state">
+    <summary><span class="num">📁</span>&nbsp;The repo — single source of truth
+      <span class="one">— everything committed, so a fresh container resumes</span></summary>
+    <div class="body">
+      <ul>
+        <li><code>SPECS/</code> · <code>TASKS.md</code> · <code>.github/workflows</code> · <code>src/</code> (the app) — all versioned together.</li>
+        <li>The standing <b>rules</b> live here too (next section), so they travel with the code — versioned, reviewable.</li>
+        <li>This is what makes the loop resumable: state survives container resets.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- rules -->
+  <details class="card agent">
+    <summary><span class="num">📋</span>&nbsp;The rules
+      <span class="one">— the verifier grades every change against these</span></summary>
+    <div class="body">
+      <details class="step"><summary>🌐 ENGINEERING-PLAYBOOK.md — THE CORE (portable, any repo)</summary>
+        <div class="sbody">
+          <ul>
+            <li><b>Modularity</b> — one feature = one file · foundation vs features · single source of truth · thin, data-driven router.</li>
+            <li><b>Parallel agents</b> — 4 anti-collision rules: disjoint files · freeze the foundation · contract-first · merge one-at-a-time.</li>
+            <li><b>Docs as code</b> — CLAUDE.md is the coordination layer · fix stale docs in the same change · every patterned bug becomes a standing rule.</li>
+            <li><b>Shipping</b> — small verifiable increments · never push to main · build + test + guards before every commit · enforce via hooks/CI.</li>
+            <li><b>Loop engineering (§9)</b> — goal + acceptance criteria · doer ⇄ verifier split (fresh context) · <b>model tiering</b> (premium doer · Sonnet verifier) · risk drives autonomy · spec-first gate is trigger-independent · all state committed.</li>
+            <li><b>Living architecture (§3)</b> — the architecture is a committed, auto-regenerated doc with a currency guard (CI blocks a stale one).</li>
+          </ul>
+        </div></details>
+      <details class="step"><summary>📦 CLAUDE.md — THIS repo's law (project-specific)</summary>
+        <div class="sbody">House style (optimize-for-less-scrolling · no flag/emoji glyphs in data · statistics integrity) · the module/endpoint map · quality bars (WCAG-AA · ~120 KB JS budget · <code>navLock</code> · <code>act()</code> on clickables). <code>@imports</code> the playbook so the doer auto-loads both.</div></details>
+      <details class="step"><summary>📦 POSITIONING.md — voice &amp; claims (project-specific)</summary>
+        <div class="sbody">Tagline “raising builders, not consumers” · what we DON'T claim (no income/return promises; build WITH AI, not coding) · the canonical phrasings (e.g. “Talk to us” · the First-year builder prize).</div></details>
+      <details class="step"><summary>How the fresh verifier “knows” to read these</summary>
+        <div class="sbody">It inherits none of the doer's context — the spawn prompt <b>tells</b> it: 🌐 playbook <b>always</b> · 📦 CLAUDE on app/UI · 📦 POSITIONING on copy · 📐 the task's SPEC when it references one.</div></details>
+    </div>
+  </details>
+
+  <!-- risk gate / hard floor -->
+  <details class="card">
+    <summary><span class="num">🛡</span>&nbsp;Risk gate &amp; hard floor
+      <span class="one">— full auto once the verifier PASSes; pause only on a hard floor</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>FULL AUTO:</b> any task auto squash-merges the moment the verifier PASSes — <b>regardless of risk</b>. The independent verifier is the gate, not a human.</li>
+        <li><b>Pause only on a HARD FLOOR:</b> an <b>irreversible real-world side-effect</b> → confirm first; else keep going.</li>
+        <li>Examples: <b>send a real email · charge/refund real money · delete prod data</b> · or a value only you have.</li>
+        <li>A task's “stop-and-ask” note is downgraded to <b>flag-in-report</b> (surface it in the PR/summary, don't block).</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- fan-out -->
+  <details class="card grp">
+    <summary><span class="num">④</span>&nbsp;Fan-out
+      <span class="one">— default sequential; parallelize only when provably safe</span></summary>
+    <div class="body">
+      <ul>
+        <li>Go parallel only if <b>ALL</b> hold: ≥2 tasks on <b>disjoint files</b> · <b>no foundation change</b> mid-flight · no dependency · the <b>contract (seams) is pinnable</b> up front.</li>
+        <li>Then: worktree-isolated sub-agents → <b>merge one-by-one</b>; after each merge the next rebases.</li>
+        <li><b>Parallelize the work, not the rigor</b> — each parallel agent runs the <b>full loop</b> (its own verify) on its slice.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- machinery -->
+  <details class="card tool">
+    <summary><span class="num">⚙</span>&nbsp;Always-on machinery
+      <span class="one">— enforced by hooks &amp; GitHub Actions, not memory</span></summary>
+    <div class="body">
+      <ul>
+        <li>On commit / push / PR → guards + CI <b>block</b>: secrets · internal model-ids · stale diagram (hash) · page-height · push-to-main.</li>
+        <li><b>GitHub MCP</b> = the agent's API to GitHub (PR · issue · merge). <b>git worktrees</b> = fan-out isolation. <b>SessionStart</b> = resync per session.</li>
+        <li>GitHub is the hub: the repo (state) · Issues (an on-ramp) · Actions (run-loop + CI) · Pull Requests (how every change ships).</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- live site -->
+  <details class="card ext">
+    <summary><span class="num">🌐</span>&nbsp;Live site — Vercel
+      <span class="one">— auto-deploys on squash-merge to main</span></summary>
+    <div class="body">
+      <ul><li>A <b>verified</b> change (any risk) → squash-merge → <b>deploy</b>. No manual release step.</li></ul>
+    </div>
+  </details>
+
+  <!-- coordination patterns -->
+  <details class="card">
+    <summary><span class="num">🧩</span>&nbsp;Coordination patterns
+      <span class="one">— the standard multi-agent catalog, mapped to our components</span></summary>
+    <div class="body">
+      <ul>
+        <li><b>Classify-And-Act</b> <span class="arrow">→</span> our risk gate.</li>
+        <li><b>Fanout-And-Synthesize</b> <span class="arrow">→</span> fan-out → merge.</li>
+        <li><b>Adversarial Verification</b> <span class="arrow">→</span> doer ⇄ verifier.</li>
+        <li><b>Loop Until Done</b> <span class="arrow">→</span> the loop itself.</li>
+        <li><b>Not used (yet):</b> Generate-And-Filter · Tournament — one doer per task; quality comes from the verifier + guards, not candidate diversity.</li>
+      </ul>
+    </div>
+  </details>
+
+  <footer>
+    Presentation companion to the canonical diagram <code>docs/architecture/loop.svg</code> /
+    <code>loop.pdf</code>. Same system, two views — see the PDF for the full single-page layout.
+  </footer>
+</div>
+
+<script>
+  function setAll(open){ document.querySelectorAll('details').forEach(function(d){ d.open = open; }); }
+  // Print/export with everything open.
+  window.addEventListener('beforeprint', function(){ setAll(true); });
+</script>
+</body>
+</html>
