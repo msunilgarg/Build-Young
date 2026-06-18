@@ -113,7 +113,7 @@ describe("FounderDashboard (account-gated)", () => {
     expect(await screen.findByText("Summer 2026")).toBeInTheDocument();
   });
 
-  it("the 'All cohorts' list is ordered latest-first (newest start date on top)", async () => {
+  it("the 'All cohorts' list is ordered soonest-start-first (next cohort on top)", async () => {
     vi.stubGlobal("fetch", vi.fn(async (url) => {
       if (String(url).includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [], checkins: 0 }) };
       return { status: 200, json: async () => ({ events: [] }) };
@@ -127,10 +127,10 @@ describe("FounderDashboard (account-gated)", () => {
     await screen.findByText("All cohorts"); // default "Today" tab shows the roster
     const t = document.body.textContent || "";
     const iW = t.indexOf("winter-1"), iF = t.indexOf("fall-mw"), iS = t.indexOf("summer-1");
-    // latest start first: winter-1 (Jan 2027) → fall-mw (Sep 2026) → summer-1 (Aug 2026)
-    expect(iW).toBeGreaterThanOrEqual(0);
-    expect(iF).toBeGreaterThan(iW);
-    expect(iS).toBeGreaterThan(iF);
+    // soonest start first: summer-1 (Aug 2026) → fall-mw (Sep 2026) → winter-1 (Jan 2027)
+    expect(iS).toBeGreaterThanOrEqual(0);
+    expect(iF).toBeGreaterThan(iS);
+    expect(iW).toBeGreaterThan(iF);
   });
 });
 
