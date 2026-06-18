@@ -29,15 +29,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 005 — third-party (marketplace/reseller) enrollment. See SPECS/005-third-party-enrollment.md.
      Ordered by dependency (T26 → T31); each is independently shippable. ===== -->
 
-## [ ] T26 — Partners registry + store (config: name + cut %, public display fields)  ·  risk: med
-Goal: A founder-editable partners list that backs the whole partner channel (SPECS/005 + 006).
-Acceptance criteria:
-- New KV-backed partners store (mirrors cohortStore/settingsStore): each partner `{ id, name, cutPct, displayName, logo, publicUrl, blurb, featureOnSite }`. Founder-gated save via `PUT /api/funnel?resource=partners`; sanitize clamps `cutPct` to 0..1, trims/whitelists strings, accepts `logo` only as `data:image/…`/http(s) capped like `founderPhoto`, coerces `featureOnSite` to boolean.
-- Founder console "Partners" editor: add/edit/remove a partner with **name + cut %** (display fields present for 006).
-- Read split: founder-only read returns full records; the PUBLIC read (folded into `GET /api/cohorts`) exposes ONLY display fields — **never `cutPct`/settlement**. A test asserts the public payload omits money fields.
-- Tests for sanitize + the public allowlist.
-Files: api/_lib/partnerStore.js (new), api/funnel.js, src/FounderDashboard.jsx, src/lib.js, CLAUDE.md + BUILD-YOUNG-ARCHITECTURE.md.
-
 ## [ ] T27 — Partner enrollment record + "Add partner enrollment" form (INERT save)  ·  risk: high
 Goal: Founder can manually create a PENDING partner enrollment without Stripe; saving does nothing student-facing.
 Acceptance criteria:
@@ -89,6 +80,9 @@ Depends on: T27.
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T26 — Partners registry + store (config: name + cut %, public display fields)  ·  risk: med
+Done (PR #448; merged, full-auto). New KV-backed `api/_lib/partnerStore.js`: each partner `{ id, name, cutPct (0..1 commission, FOUNDER-ONLY), displayName, logo, publicUrl, blurb, featureOnSite }`. `sanitizePartners` clamps cutPct, guards the logo (data:image/… or http(s), capped), trims, dedupes ids, coerces featureOnSite. Founder-gated `PUT /api/funnel?resource=partners` + `GET ?resource=partners` (full records). `publicPartners()` = a HARD allowlist of 5 display fields for FEATURED partners only, folded into `GET /api/cohorts` so cutPct/settlement can never leak (structurally — the projection enumerates only the allowlist, no spread). Console "Partners" editor under Settings (name + cut % + display fields + Feature-on-site toggle; cut % shown as %, stored as 0..1). test/partner-store.test.js (sanitize/clamp/logo + publicPartners omits money/internal) + founder-ui render assertion. CLAUDE.md + architecture table. Build + 301; Sonnet-verified (money-leak guarantee + gating + sanitization + doc currency).
 
 ## [x] T25 — Founder controls cohort display order (sort by start date + override)  ·  risk: med
 Done (PR #434; merged, full-auto). New pure sortCohorts(list) (cohorts.js): start-date ascending by default (August before September) + explicit per-cohort sortOrder (>0) to pin ahead; unparseable dates last. Applied to landing cards + enroll dropdown (per season). Cohort editor "Display order" field; sanitizeCatalog clamps sortOrder ≥0. test/sort-cohorts.test.js; build + 281; Sonnet-verified by rendering (reversed seed → chronological; Sep 7 before Sep 8).
