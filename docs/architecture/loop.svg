@@ -72,13 +72,17 @@
   <rect class="gh" x="36" y="304" width="324" height="256" rx="10"/>
   <text class="ght" x="52" y="326">📁 GitHub repo — single source of truth</text>
   <text class="sm" x="52" y="341">all committed here, so a fresh container resumes from it</text>
-  <rect class="state" x="52" y="348" width="138" height="38" rx="10"/>
-  <text class="nl" x="121" y="367" text-anchor="middle">📐 SPECS/</text>
-  <text class="sm" x="121" y="381" text-anchor="middle">feature specs</text>
-  <text class="nlb" x="198" y="372" text-anchor="middle">→</text>
-  <rect class="state" x="206" y="348" width="138" height="38" rx="10"/>
-  <text class="nl" x="275" y="367" text-anchor="middle">🗂 TASKS.md</text>
-  <text class="sm" x="275" y="381" text-anchor="middle">the backlog</text>
+  <rect class="human" x="52" y="348" width="62" height="38" rx="10"/>
+  <text class="nlb" x="83" y="365" text-anchor="middle">You</text>
+  <text class="sm" x="83" y="379" text-anchor="middle">start here</text>
+  <text class="nlb" x="123" y="372" text-anchor="middle">→</text>
+  <rect class="state" x="132" y="348" width="100" height="38" rx="10"/>
+  <text class="nl" x="182" y="365" text-anchor="middle">📐 SPECS/</text>
+  <text class="sm" x="182" y="379" text-anchor="middle">write a spec</text>
+  <text class="nlb" x="236" y="372" text-anchor="middle">→</text>
+  <rect class="state" x="240" y="348" width="104" height="38" rx="10"/>
+  <text class="nl" x="292" y="365" text-anchor="middle">🗂 TASKS.md</text>
+  <text class="sm" x="292" y="379" text-anchor="middle">promote to a task</text>
   <rect class="state" x="52" y="392" width="292" height="46" rx="6"/>
   <text class="nl" x="198" y="411" text-anchor="middle">🌐 ENGINEERING-PLAYBOOK.md</text>
   <text class="sm" x="198" y="427" text-anchor="middle">common &amp; portable across repos — kept in-repo (@imported)</text>
@@ -117,7 +121,7 @@
   <text class="loopt" x="656" y="142" text-anchor="middle">③ The loop — driven by the /run-loop skill (we built it)</text>
   <rect class="agent" x="502" y="156" width="308" height="66" rx="8"/>
   <text class="nlb" x="656" y="178" text-anchor="middle">Main agent — driver + doer</text>
-  <text class="nl" x="656" y="194" text-anchor="middle">pick the task · write the smallest change</text>
+  <text class="nl" x="656" y="194" text-anchor="middle">pick the task (+ read its 📐 spec) · write the smallest change</text>
   <text class="sm" x="656" y="210" text-anchor="middle">.claude/skills/run-loop · premium model · stays in the task's file lane</text>
   <rect class="plain" x="502" y="258" width="308" height="52" rx="8"/>
   <text class="nlb" x="656" y="280" text-anchor="middle">Self-check — gate your own work first</text>
@@ -179,7 +183,7 @@
   <text class="chp" x="884" y="351">📦 POSITIONING.md — voice &amp; claims (project-specific)</text>
   <text class="cb" x="888" y="367">tagline “raising builders, not consumers” · what we DON'T claim (no income/return promises; build WITH AI, not coding)</text>
   <text class="cb" x="888" y="382">· the canonical phrasings (e.g. “Talk to us” · the First-year builder prize)</text>
-  <text class="sm" x="884" y="396">Fresh verifier inherits none of this — it is TOLD to read them: 🌐 always · 📦 CLAUDE on app/UI · 📦 POSITIONING on copy.</text>
+  <text class="sm" x="884" y="396">Fresh verifier inherits none of this — it is TOLD to read them: 🌐 always · 📦 CLAUDE on app/UI · 📦 POSITIONING on copy · 📐 the task's SPEC when it references one.</text>
 
   <!-- RIGHT: pause -->
   <rect class="plain" x="864" y="414" width="356" height="56" rx="8"/>
