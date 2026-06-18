@@ -29,18 +29,11 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 005 — third-party (marketplace/reseller) enrollment. See SPECS/005-third-party-enrollment.md.
      Ordered by dependency (T26 → T31); each is independently shippable. ===== -->
 
-## [ ] T31 — Partner-aware withdrawal: hide self-withdraw + founder manual removal  ·  risk: high
-Goal: Partner students never see self-withdraw; the founder removes them manually (no Build Young refund).
-Acceptance criteria:
-- The student dashboard HIDES the self-withdraw control for `paymentSource:"partner"` seats (direct self-withdraw + flat-75% flow unchanged).
-- Founder "remove student" action: drops course + Resend-audience access, issues NO Stripe refund, credits the seat back in settlement.
-- Tests: a partner seat shows no self-withdraw control; founder removal issues no refund + credits settlement.
-Files: src/Platform.jsx, src/FounderDashboard.jsx, api/_lib/resendAudience.js, public/terms.html + LEGAL (partner clause), CLAUDE.md.
-Stop-and-ask if: the Terms partner clause / refund disclaimer needs founder/attorney sign-off (it does — flag it).
-Depends on: T27.
-
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T31 — Partner-aware withdrawal: hide self-withdraw + founder manual removal  ·  risk: high
+Done (PR #458; merged, full-auto). Completes SPECS/005. Part A: partner students don't self-withdraw — `s.paymentSource` is threaded to the dashboard (onboarding stamps `paymentSource:"partner"` on the user → `/api/auth/me` → `newState`; returning students merged in `App.hydrateFromServer`), and `Platform` hides BOTH the withdraw control AND all refund-window copy when `s.paymentSource==="partner"` (`canWithdraw = canWithdrawNow(s) && !isPartner`); direct flow unchanged. Part B: founder-gated `POST /api/funnel?resource=partner-remove` drops the enrollment (→ no longer owed in settlement), removes the Resend contact + account/state, issues NO Stripe refund; console "Remove" per row (with confirm). Render test asserts a direct not-started student CAN cancel while a partner sees NO withdraw control/refund copy. Key-gated → no real side-effect on merge. CLAUDE.md + arch table. Build + 313; Sonnet-verified (both-sides render test, paymentSource chain, no-refund removal, direct flow intact). ⚠ Terms partner clause / refund disclaimer flagged for the founder's attorney (a Terms edit was NOT made — surface for legal sign-off).
 
 ## [x] T30 — Per-partner settlement view + manual record-payment + accounting export  ·  risk: med
 Done (PR #456; merged, full-auto). Each partner record gains a founder-only `payments` ledger ({date, amountCents, note}; never public — publicPartners whitelist unchanged). New pure `funnel.settlementSummary(partners, enrollments)`: per partner — ONBOARDED seats, gross, cut, net owed (gross−cut, per the seat's snapshotted cut), received, outstanding; pending/withdrawn don't owe. Console Settings → "Partner settlement" view + per-partner "Record a payment" form (date/amount/note → appended to `payments`, saved via `PUT ?resource=partners`; bookkeeping only, preserves other ledgers). `toDataRoom(events, extra)` merges {settlement} into the funnel JSON export (back-compat). Tests: settlement math + toDataRoom extra + sanitizePayments. CLAUDE.md. Build + 312; Sonnet-verified (math, payments-never-public, record-payment save, export back-compat).
