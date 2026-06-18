@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement, revenueBySource,
+  STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement, revenueBySource, settlementSummary,
 } from "../src/funnel.js";
 
 // Build one timestamped event.
@@ -223,5 +223,45 @@ describe("revenueBySource — channel mix (direct vs each partner); partner seat
   it("empty / non-array → []", () => {
     expect(revenueBySource([])).toEqual([]);
     expect(revenueBySource(null)).toEqual([]);
+  });
+});
+
+describe("settlementSummary — per-partner owed vs paid (T30)", () => {
+  const partners = [
+    { id: "outschool", name: "Outschool", cutPct: 0.3, payments: [{ date: "2026-09-01", amountCents: 50000, note: "wire" }] },
+    { id: "varsity", name: "Varsity", cutPct: 0.15, payments: [] },
+  ];
+  const enrollments = [
+    { paymentSource: "partner", partner: "outschool", priceCents: 99900, cutPct: 0.3, onboarded: true },
+    { paymentSource: "partner", partner: "outschool", priceCents: 99900, cutPct: 0.3, onboarded: true },
+    { paymentSource: "partner", partner: "outschool", priceCents: 99900, cutPct: 0.3, onboarded: false }, // PENDING → not owed
+    { paymentSource: "partner", partner: "varsity", priceCents: 99900, cutPct: 0.15, onboarded: true },
+  ];
+  it("counts only onboarded seats; nets the cut; subtracts recorded payments", () => {
+    const out = settlementSummary(partners, enrollments);
+    const os = out.find((s) => s.id === "outschool");
+    expect(os.seats).toBe(2); // pending seat excluded
+    expect(os.grossCents).toBe(199800);
+    expect(os.cutCents).toBe(2 * Math.round(99900 * 0.3)); // 2 × 29970 = 59940
+    expect(os.netOwedCents).toBe(199800 - 59940); // 139860
+    expect(os.receivedCents).toBe(50000);
+    expect(os.outstandingCents).toBe(139860 - 50000); // 89860
+    const v = out.find((s) => s.id === "varsity");
+    expect(v).toMatchObject({ seats: 1, grossCents: 99900, receivedCents: 0, outstandingCents: 99900 - Math.round(99900 * 0.15) });
+  });
+  it("empty/garbage → safe", () => {
+    expect(settlementSummary([], [])).toEqual([]);
+    expect(settlementSummary(null, null)).toEqual([]);
+  });
+});
+
+describe("toDataRoom — accounting export carries the settlement ledger (T30)", () => {
+  it("merges an `extra` (e.g. settlement) into the bundle without breaking the base shape", () => {
+    const room = toDataRoom([ev("enrolled", { ...FALL })], { settlement: [{ id: "outschool", outstandingCents: 89860 }] });
+    expect(room.eventCount).toBe(1);
+    expect(room.summary.counts.enrolled).toBe(1);
+    expect(room.settlement).toEqual([{ id: "outschool", outstandingCents: 89860 }]);
+    // back-compat: no extra → no settlement key
+    expect(toDataRoom([]).settlement).toBeUndefined();
   });
 });

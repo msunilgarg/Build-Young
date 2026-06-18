@@ -27,8 +27,17 @@ function sanitizeLogo(v) {
 }
 
 // The PUBLIC display fields a featured partner shows on the site (006). NOTHING money-related here —
-// this is a hard allowlist, so cutPct (and any future settlement data) can never reach a public read.
+// this is a hard allowlist, so cutPct + the settlement ledger can never reach a public read.
 const PUBLIC_FIELDS = ["id", "displayName", "logo", "publicUrl", "blurb"];
+
+// Settlement ledger (FOUNDER-ONLY, T30): the dated payments a partner has remitted to Build Young.
+// Each is { date (free text, e.g. "2026-09-01"), amountCents (≥0 int), note }. Bookkeeping only — we
+// never move money; recording a payment just lowers the partner's outstanding balance.
+function sanitizePayments(v) {
+  return (Array.isArray(v) ? v : [])
+    .map((p) => ({ date: str(p && p.date).trim(), amountCents: Math.max(0, Math.round(num(p && p.amountCents, 0))), note: str(p && p.note).trim() }))
+    .filter((p) => p.amountCents > 0 || p.date);
+}
 
 // Validate + normalize an incoming partners list: enforce fields/types, drop junk, dedupe ids,
 // clamp cutPct to a 0..1 fraction.
@@ -46,6 +55,7 @@ export function sanitizePartners(input) {
         publicUrl: str(p && p.publicUrl).trim(),     // our listing on the partner's platform
         blurb: str(p && p.blurb).trim(),
         featureOnSite: bool(p && p.featureOnSite),
+        payments: sanitizePayments(p && p.payments), // FOUNDER-ONLY settlement ledger (never public)
       };
     })
     .filter((p) => p.id && !seen.has(p.id) && (seen.add(p.id), true));
