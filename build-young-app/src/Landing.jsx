@@ -452,7 +452,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 13, fontWeight: 600, marginTop: 6 }}><Video size={14} /> {b.format || CARD_DEFAULTS.format} · ~{sum.hoursPerWeek} hrs/week</div>
               <div style={{ fontSize: 13, color: C.ink2, marginTop: 10, lineHeight: 1.45 }}>
-                The full {sum.weeks}-week program ({sum.lessons} lessons) — {b.blurb || CARD_DEFAULTS.blurb}
+                {b.blurb || CARD_DEFAULTS.blurb}
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
