@@ -32,16 +32,6 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 006 — partner showcase + channel marketing (family-first). See SPECS/006-partner-showcase-and-channel-marketing.md.
      Depends on the 005 partners registry (done). T32 (family strip) ships first; T33 (recruitment page) next. ===== -->
 
-## [ ] T33 — "Partner with us" interest modal (006-B) — keep it simple, like Careers  ·  risk: med
-Goal: a lightweight "Partner with us" interest capture — a MODAL mirroring the existing Careers / "Teach with us" modal (`CareersModal`), NOT a new route or marketing sub-page.
-Acceptance criteria:
-- A nav + footer link "Partner with us" opens a modal (mirror of `CareersModal`) with a short pitch (bring us your students, we run the live 12-lesson cohort; simple rev-share) + a form: **org/name + email (required)** + an optional note.
-- Submit POSTs to `POST /api/funnel?resource=partner-lead` → new `addPartnerLead` in `api/_lib/interestStore.js` (mirror of `addTutorInterest`): stores in KV + emails the founder (best-effort, key-gated → no-op without RESEND/KV). Founder reads them via `GET /api/funnel?resource=partner-lead` as a "Partner inquiries" list in the console (mirror of `TutorInterestAdmin`).
-- NO new ROUTES entry / sub-page. Copy follows POSITIONING.md (us/we, honest, no overclaiming); modal is keyboard-closable + AA contrast; no emoji-for-content.
-- Render test: the link opens the modal + the form submits to `?resource=partner-lead`; founder-ui shows the "Partner inquiries" list.
-Files: src/Landing.jsx (link + modal, mirror CareersModal), api/_lib/interestStore.js (addPartnerLead/listPartnerLeads), api/funnel.js (GET/POST ?resource=partner-lead), src/FounderDashboard.jsx (Partner inquiries list), CLAUDE.md.
-Depends on: none.
-
 ## [ ] T34 — Declutter the founder console "Students" tab (it's a kitchen sink)  ·  risk: med
 Goal: the Students tab currently stacks ~9 unrelated sections in one long scroll (Partner enrollments, Certificates, Student plans, Tutor applications, Questions from visitors, Schedule requests, Refunds to issue, Student showcase, Reset a test account) — mixing actual students with inbound leads/requests. Reorganize it into a calm, scannable layout so the founder finds a thing fast instead of scrolling a wall.
 Acceptance criteria:
@@ -55,6 +45,9 @@ Stop-and-ask if: a section genuinely belongs on a different tab (propose the mov
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T33 — "Partner with us" interest modal (006-B) — keep it simple, like Careers  ·  risk: med
+Done (PR #466; merged, full-auto). Completes SPECS/006. Mirror of `CareersModal`: a nav + footer "Partner with us" link opens `PartnerModal` (short pitch + org + email (required) + optional note) → public `POST /api/funnel?resource=partner-lead` → new `addPartnerLead` (interestStore mirror of `addTutorInterest`: store in KV + email the team, key-gated → no real send on merge). Founder reads them in the console: Students → "Partner inquiries" (`PartnerLeadsAdmin`, founder-gated `GET ?resource=partner-lead`). NO new route (App.jsx untouched). Tests: addPartnerLead validation + a render test that the nav link opens the modal (org + email). lean guard intact; CLAUDE.md + arch table. Build + 319; Sonnet-verified (modal + no-new-route, public POST/founder GET wired + key-gated, console list, copy/voice).
 
 ## [x] T32 — Family "Where to find us" partner strip (006-A)  ·  risk: med
 Done (PR #464; merged, full-auto). Threads the public featured-partner display fields (`GET /api/cohorts` → `partners`, T26's `publicPartners` hard allowlist) to the client (App state → `Landing` prop, mirroring `testimonials`) and renders a compact "Where to find us" strip below the batches section: logos link to each partner's `publicUrl` (`target=_blank rel=noopener noreferrer`; text-name fallback), hidden entirely when none featured. Only display fields reach the client (no cut/settlement). Render test: links out for a featured partner + absent when none. lean-landing guard intact; CLAUDE.md flipped to shipped. Build + 316; Sonnet-verified (link attrs + hidden-when-empty, no-new-endpoint threading, hygiene, lean guard).
