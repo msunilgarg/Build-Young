@@ -108,7 +108,8 @@ export function About({ onBack, onHome, onEnroll, onCall }) {
             </p>
           </div>
 
-          {/* founder */}
+          {/* founder — deep-link target for the landing "Why this exists → Read our story" teaser */}
+          <div id="story-founder" style={{ scrollMarginTop: 16 }} />
           <Card style={{ padding: 28, marginTop: 24, display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
             <img src={CONFIG.founderPhoto || SUNIL_PHOTO} alt="Sunil Garg" style={{ width: 128, height: 128, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />
             <div style={{ flex: 1, minWidth: 260 }}>
