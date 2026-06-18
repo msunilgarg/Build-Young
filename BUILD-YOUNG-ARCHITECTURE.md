@@ -35,6 +35,13 @@ implement → verify (independently) → ship — pausing only on the conditions
 > layout control (numbered flow, the callout pinned top-right). **Edit the SVG by hand, then run
 > `bash scripts/render-architecture.sh`** to regenerate `loop.png`/`loop.pdf` (the currency guard hashes
 > the SVG, so a stale export fails the check). The **app** diagram below stays Mermaid.
+>
+> **Presenting it live?** There's an **interactive, collapsible companion** at
+> [`docs/architecture/loop.html`](docs/architecture/loop.html) — open it in a browser for
+> progressive disclosure (each section collapses to a one-line summary and expands on click). It's a
+> hand-maintained *second view* of the same system, so keep it in sync with the SVG when the loop's
+> structure changes (the currency guard only hashes the SVG; a future refactor could generate both
+> from one content model — playbook §3 "prefer one source").
 
 | Node | What it is / its responsibility |
 |---|---|
