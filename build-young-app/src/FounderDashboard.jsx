@@ -1278,6 +1278,18 @@ function PartnerEnrollAdmin() {
     return () => { live = false; };
   }, []);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const [busy, setBusy] = useState("");
+  const onboard = async (e) => {
+    const key = `${e.email}|${e.batchId}`;
+    setBusy(key);
+    try {
+      const r = await fetch("/api/funnel?resource=partner-onboard", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: e.email, batchId: e.batchId }) });
+      const d = await r.json().catch(() => ({}));
+      setStatus(r.ok && d.ok ? (e.onboarded ? "Invite re-sent ✓" : "Onboarding started ✓ (welcome email sent)") : (d.error || adminSaveErr(r, d, "start onboarding")));
+      await reload();
+    } catch { setStatus(ADMIN_NET_ERR); }
+    setBusy("");
+  };
   const save = async () => {
     if (!validEmail(form.email)) { setStatus("Enter a valid email"); return; }
     if (!form.batchId) { setStatus("Pick a cohort"); return; }
@@ -1320,7 +1332,12 @@ function PartnerEnrollAdmin() {
           {list.map((e, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, padding: "8px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
               <span style={{ color: C.ink2 }}>{e.email} · {e.batchId} · {e.partner}</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: e.onboarded ? C.green : C.muted }}>{e.onboarded ? "Onboarded" : "Pending"}</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: e.onboarded ? C.green : C.muted }}>{e.onboarded ? "Onboarded" : "Pending"}</span>
+                <button className="btn" disabled={busy === `${e.email}|${e.batchId}`} onClick={() => onboard(e)} style={{ background: e.onboarded ? "transparent" : C.emerald, color: e.onboarded ? C.muted : "#fff", border: e.onboarded ? `1px solid ${C.line}` : "none", padding: "6px 12px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>
+                  {busy === `${e.email}|${e.batchId}` ? "Working…" : (e.onboarded ? "Resend invite" : "Start onboarding")}
+                </button>
+              </span>
             </div>
           ))}
         </div>
