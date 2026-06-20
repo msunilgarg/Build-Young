@@ -32,34 +32,16 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 006 — partner showcase + channel marketing (family-first). See SPECS/006-partner-showcase-and-channel-marketing.md.
      Depends on the 005 partners registry (done). T32 (family strip) ships first; T33 (recruitment page) next. ===== -->
 
-<!-- ===== Spec 007 — payment-failure visibility. See SPECS/007-payment-failure-visibility.md.
-     T35 (detect + store + founder email) ships first; T36 (console card) builds on it. ===== -->
-
-## [ ] T35 — Detect failed Stripe payments + notify the founder  ·  risk: med
-Goal: a failed enrollment payment is recorded and emailed to the founder (today it's invisible — the webhook only handles success/refund).
-Acceptance criteria:
-- `api/stripe-webhook.js` handles `payment_intent.payment_failed`, `charge.failed`, and `checkout.session.async_payment_failed` — each verifies the signature (existing path), returns 200 (never makes Stripe retry), and records the failure once.
-- New `api/_lib/paymentIssueStore.js` (mirror `refundStore.js`): `addPaymentFailure({ email, name, batchId, amountCents, reason, code, ref, at })` — idempotent per `ref` (PaymentIntent id, charge id fallback) via `SET … NX`; appends to KV list `payments:failed` (capped/trimmed); emails the founder (`ops.notifyEmail` → site `contactEmail` → `team@build-young.com`). All KV + Resend calls key-gated/best-effort (no store/no key ⇒ clean no-op, webhook still 200s).
-- Extracts email (billing/receipt/customer details), amount, decline reason/code (`last_payment_error`/`failure_message`), and `batchId` when present; missing email/`batchId` still records with what's available.
-- `listPaymentFailures()` returns the list newest-first.
-- Tests: store (validation, idempotency per `ref`, email-recipient resolution) + webhook (a `payment_intent.payment_failed` records once; a duplicate `ref` no-ops) — build + tests stay green.
-- `CLAUDE.md` (handled-events note) + `BUILD-YOUNG-ARCHITECTURE.md` (new module + handled events) updated in the same PR.
-Files: api/stripe-webhook.js, api/_lib/paymentIssueStore.js (new), test/payment-issue-store.test.js (new), test/stripe-webhook.test.js, CLAUDE.md, BUILD-YOUNG-ARCHITECTURE.md
-Stop-and-ask if: the design would mutate enrollment state, issue any refund, or send a student-facing email — those are out of scope (founder-notification only).
-
-## [ ] T36 — Founder console: "Failed payments" card  ·  risk: med
-Goal: the founder sees failed payments at a glance, next to "Refunds to issue".
-Acceptance criteria:
-- `GET /api/funnel?resource=payment-failures` (founder-gated, mirrors the `refunds` branch) returns `{ failures: listPaymentFailures() }`.
-- `src/FounderDashboard.jsx` adds a `PaymentFailuresAdmin` card (mirror of `RefundsAdmin`) in the Students → Enrolled students cluster, beside "Refunds to issue": each row shows name/email, amount, decline reason, cohort (or "—"), date; empty + loading states read cleanly.
-- No PII reaches any public read (only the founder-gated GET exposes it).
-- Tests: a founder-ui render assertion that the card renders rows from a mocked fetch — build + tests stay green.
-- `BUILD-YOUNG-ARCHITECTURE.md` GET-resource list updated in the same PR.
-Files: api/funnel.js, src/FounderDashboard.jsx, test/founder-ui.test.jsx, BUILD-YOUNG-ARCHITECTURE.md
-Stop-and-ask if: (none expected — read-only console view)
+<!-- ===== Spec 007 — payment-failure visibility. See SPECS/007-payment-failure-visibility.md. Both shipped. ===== -->
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T36 — Founder console: "Failed payments" card  ·  risk: med
+Done (PR #491; merged, full-auto). Completes SPECS/007. Founder-gated `GET /api/funnel?resource=payment-failures` (mirrors the `refunds` branch) → `{ failures: listPaymentFailures() }`. `FounderDashboard` gains a `PaymentFailuresAdmin` card (mirror of `RefundsAdmin`) in Students → Enrolled students, right beside "Refunds to issue": each row shows name/email, amount, decline reason+code, cohort (or "—"), date; loading + empty states read cleanly. Only the founder-gated GET exposes it (no public read). Render test asserts the card + a mocked failure row render next to "Refunds to issue". BUILD-YOUNG-ARCHITECTURE.md GET-resource list updated. Build + tests green; Sonnet-verified.
+
+## [x] T35 — Detect failed Stripe payments + notify the founder  ·  risk: med
+Done (PR #490; merged, full-auto). The keyless-Payment-Links webhook only handled success/refund, so a declined payment was invisible in-app. `api/stripe-webhook.js` now handles `payment_intent.payment_failed`, `charge.failed`, and `checkout.session.async_payment_failed` (existing signature path; always 200 so Stripe never retries) → new `api/_lib/paymentIssueStore.js` records to KV `payments:failed` + emails the founder (`notifyEmail` → `contactEmail` → `team@build-young.com`). Idempotent per attempt (PaymentIntent/charge id) so the dual events alert once; key-gated/best-effort. VISIBILITY ONLY — no charge, refund, or enrollment/audience change. Tests: payment-issue-store (record/notify, idempotency, recipient resolution, no-store fallback) + stripe-webhook (records once; dedup no-op). CLAUDE.md handled-events note + BUILD-YOUNG-ARCHITECTURE.md table updated. Build + 332; Sonnet-verified. ⚠ Founder go-live step: subscribe those three events on the Stripe webhook endpoint (code handles them, Stripe won't send until added).
 
 ## [x] T34 — Declutter the founder console "Students" tab (it's a kitchen sink)  ·  risk: med
 Done (PR #468; merged, full-auto). The Students tab stacked 10 unrelated sections in one scroll. Split into a lightweight in-tab **sub-nav** (the acceptance's allowed alternative): **Enrolled students** (default — partner enrollments · certificates · student plans · showcase · refunds to issue · reset account) vs **Inbound · leads & requests** (tutor applications · partner inquiries · visitor questions · schedule requests). One cluster renders at a time → the tab opens compact + related things sit together. NO behavior change to any panel — each `<Admin/>` rendered as-is, just partitioned (only the Students render block + a `studentsView` state changed). Pills reuse `segBtn` (keyboard-operable `act()`, AA). Render test asserts both directions. Build + 320; Sonnet-verified (both-directions render, all 10 panels preserved unchanged, existing tests green).
