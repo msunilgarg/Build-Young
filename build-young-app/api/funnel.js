@@ -26,6 +26,7 @@ import { saveObjectives } from "./_lib/objectivesStore.js";
 import { listCerts } from "./_lib/cert.js";
 import { listBuildPlans } from "./_lib/buildPlans.js";
 import { listRefundRequests } from "./_lib/refundStore.js";
+import { listPaymentFailures } from "./_lib/paymentIssueStore.js";
 import { addQuestion, listQuestions } from "./_lib/questionStore.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 import { generateScenarios } from "./_lib/scenarioAgent.js";
@@ -139,6 +140,11 @@ async function read(req, res) {
 
   if (req.query && req.query.resource === "refunds") {
     res.status(200).json({ refunds: await listRefundRequests() });
+    return;
+  }
+
+  if (req.query && req.query.resource === "payment-failures") {
+    res.status(200).json({ failures: await listPaymentFailures() });
     return;
   }
 

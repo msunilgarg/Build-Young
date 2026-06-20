@@ -155,3 +155,26 @@ describe("FounderDashboard — Students tab declutter (T34)", () => {
     expect(screen.queryByText("Partner enrollments")).toBeNull();
   });
 });
+
+describe("FounderDashboard — Failed payments card (T36)", () => {
+  afterEach(() => { vi.restoreAllMocks(); });
+  it("renders failed-payment rows from the founder-gated read, beside Refunds to issue", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("resource=payment-failures")) {
+        return { status: 200, ok: true, json: async () => ({ failures: [
+          { name: "Pat Payer", email: "pat@example.com", amountCents: 99900, batchId: "fall-mw", reason: "Your card was declined.", code: "card_declined", ts: 1718000000000 },
+        ] }) };
+      }
+      return { status: 200, ok: true, json: async () => ({ events: [] }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Students")); // default = Enrolled students cluster
+    // The card heading sits next to "Refunds to issue", and the mocked failure row renders.
+    expect(await screen.findByText("Failed payments")).toBeInTheDocument();
+    expect(screen.getByText("Refunds to issue")).toBeInTheDocument();
+    expect(await screen.findByText("Pat Payer")).toBeInTheDocument();
+    expect(screen.getByText(/Your card was declined\./)).toBeInTheDocument();
+  });
+});

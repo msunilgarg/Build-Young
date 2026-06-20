@@ -617,6 +617,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             <ShowcaseAdmin />
             <h2 style={h2s}>Refunds to issue</h2>
             <RefundsAdmin />
+            <h2 style={h2s}>Failed payments</h2>
+            <PaymentFailuresAdmin />
             <h2 style={h2s}>Reset a test account</h2>
             <AccountReset />
           </>) : (<>
@@ -1750,6 +1752,39 @@ function RefundsAdmin() {
             <b style={{ color: C.ink }}>{r.name || r.email}</b>
             <span style={{ color: C.ink2 }}> — {fmt((Number(r.refundCents) || 0) / 100)} ({r.tier}) · {r.batchId}{r.week ? ` · wk ${r.week}` : ""}</span>
             {r.reason && <span style={{ display: "block", color: C.muted }}>{r.reason}</span>}
+          </span>
+          <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+// Founder view of FAILED Stripe payments (T36). The keyless webhook records each decline + emails you;
+// this lists them so a bounced family is visible in-app (not just the Stripe dashboard). Visibility
+// only — nothing was charged, there's nothing to refund; follow up by re-sending the payment link.
+function PaymentFailuresAdmin() {
+  const [list, setList] = useState(null);
+  useEffect(() => {
+    let live = true;
+    (async () => {
+      try { const r = await fetch("/api/funnel?resource=payment-failures"); const d = r.ok ? await r.json() : {}; if (live) setList(Array.isArray(d.failures) ? d.failures : []); }
+      catch { if (live) setList([]); }
+    })();
+    return () => { live = false; };
+  }, []);
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, maxWidth: 640 }}>Enrollment payments that <b>failed</b> (declined/expired card), so the student did NOT enroll. Nothing was charged and there's nothing to refund — but you may want to reach out and re-send their payment link. Full details are in the <b>Stripe dashboard</b> (Payments → filter by Failed). You're emailed each one as it comes in.</div>
+      {list === null && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>Loading…</div>}
+      {list && list.length === 0 && <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>No failed payments. 🎉</div>}
+      {list && list.map((r, i) => (
+        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none", fontSize: 13 }}>
+          <span style={{ minWidth: 0 }}>
+            <b style={{ color: C.ink }}>{r.name || r.email || "(unknown)"}</b>
+            <span style={{ color: C.ink2 }}> — {r.amountCents ? fmt((Number(r.amountCents) || 0) / 100) : "—"} · {r.batchId || "—"}</span>
+            {r.email && r.name && <span style={{ display: "block", color: C.muted }}>{r.email}</span>}
+            {r.reason && <span style={{ display: "block", color: C.muted }}>{r.reason}{r.code ? ` [${r.code}]` : ""}</span>}
           </span>
           <span style={{ color: C.muted, whiteSpace: "nowrap" }}>{r.ts ? new Date(r.ts).toLocaleDateString() : ""}</span>
         </div>
