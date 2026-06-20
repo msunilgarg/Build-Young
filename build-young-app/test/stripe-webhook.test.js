@@ -91,6 +91,39 @@ describe("/api/stripe-webhook", () => {
     expect(res.payload).toMatchObject({ stored: true, batchId: "winter-ms-mon" });
   });
 
+  it("records a failed payment (payment_intent.payment_failed) and acknowledges 200", async () => {
+    // KV is configured (ENV) + fetch stubbed, so addPaymentFailure runs: a SET NX marker then an RPUSH
+    // to payments:failed. Assert the wiring records it and the webhook never asks Stripe to retry.
+    const calls = [];
+    vi.stubGlobal("fetch", vi.fn(async (_url, opts) => { calls.push(JSON.parse(opts.body)); return { ok: true, json: async () => ({ result: "OK" }) }; }));
+    const evt = JSON.stringify({
+      type: "payment_intent.payment_failed",
+      data: { object: { id: "pi_123", receipt_email: "declined@example.com", amount: 99900, last_payment_error: { message: "Your card was declined.", code: "card_declined" } } },
+    });
+    const res = makeRes();
+    await handler(makeReq({ raw: evt, sig: sign(evt) }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload).toMatchObject({ received: true, paymentFailed: true });
+    // It recorded the failure: a SET NX idempotency marker keyed on the PaymentIntent id + an RPUSH.
+    expect(calls.some((c) => c[0] === "SET" && String(c[1]).includes("pi_123"))).toBe(true);
+    const push = calls.find((c) => c[0] === "RPUSH" && c[1] === "payments:failed");
+    expect(push).toBeTruthy();
+    expect(JSON.parse(push[2])).toMatchObject({ email: "declined@example.com", amountCents: 99900, ref: "pi_123" });
+  });
+
+  it("dedupes the failed payment when the idempotency marker already exists (no second record)", async () => {
+    // Simulate the SET NX returning null (marker already set) → addPaymentFailure no-ops; no RPUSH fires.
+    vi.stubGlobal("fetch", vi.fn(async (_url, opts) => {
+      const cmd = JSON.parse(opts.body);
+      return { ok: true, json: async () => ({ result: cmd[0] === "SET" ? null : "OK" }) };
+    }));
+    const evt = JSON.stringify({ type: "charge.failed", data: { object: { id: "ch_1", payment_intent: "pi_123", billing_details: { email: "a@b.com" }, amount: 99900, failure_message: "declined" } } });
+    const res = makeRes();
+    await handler(makeReq({ raw: evt, sig: sign(evt) }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.payload).toMatchObject({ paymentFailed: true });
+  });
+
   it("acknowledges unrelated events without storing", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);

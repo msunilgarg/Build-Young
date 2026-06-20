@@ -25,6 +25,37 @@ import { putUser, getUser } from "./_lib/auth.js";
 import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
 import { loadCatalog } from "./_lib/cohortStore.js";
 import { addContact, removeContact } from "./_lib/resendAudience.js";
+import { addPaymentFailure } from "./_lib/paymentIssueStore.js";
+
+// A FAILED payment (declined/expired card, or a delayed-payment method that didn't clear) never produces
+// a `checkout.session.completed`, so the student isn't enrolled and nothing is charged. We record the
+// failure + email the founder (paymentIssueStore) so a bounced family can be followed up — visibility
+// only, NO money movement or enrollment change. Idempotent per attempt (PaymentIntent/charge id), so the
+// dual `payment_intent.payment_failed` + `charge.failed` events alert once. The object Stripe sends is a
+// PaymentIntent, a Charge, or a Checkout Session depending on the event — pull fields from whichever shape.
+async function handlePaymentFailure(obj, type, res) {
+  const o = obj || {};
+  // Email: PaymentIntent/Session carry customer/receipt details; a Charge carries billing_details.
+  const email =
+    (o.customer_details && o.customer_details.email) ||
+    (o.billing_details && o.billing_details.email) ||
+    o.receipt_email || o.customer_email || "";
+  // Name where present (Checkout Session packs the student name into client_reference_id).
+  const name = studentNameFromRef(o) || (o.customer_details && o.customer_details.name) || (o.billing_details && o.billing_details.name) || "";
+  // Cohort id is on a Session (metadata/client_reference_id/return URL) but usually NOT on a bare PI/Charge.
+  const batchId = batchIdFromSession(o) || (o.metadata && o.metadata.batchId) || "";
+  const amountCents = Number(o.amount || o.amount_failed || (o.amount_total)) || 0;
+  // Decline reason/code: PaymentIntent → last_payment_error; Charge → failure_message/failure_code.
+  const lpe = o.last_payment_error || {};
+  const reason = lpe.message || o.failure_message || (type === "checkout.session.async_payment_failed" ? "Delayed payment did not clear" : "Payment failed");
+  const code = lpe.code || lpe.decline_code || o.failure_code || "";
+  // Idempotency ref: the PaymentIntent id (shared across the PI + its Charge), else the object id.
+  const ref = (typeof o.payment_intent === "string" && o.payment_intent) || o.id || "";
+
+  try { await addPaymentFailure({ email, name, batchId, amountCents, reason, code, ref }); }
+  catch { /* best-effort — never make Stripe retry on our storage/email hiccup */ }
+  res.status(200).json({ received: true, paymentFailed: true });
+}
 
 // A refund = a cancellation: pull the student out of the cohort's enrollment store AND its Resend
 // audience (group). Best-effort; never makes Stripe retry. The cohort id comes from the user record
@@ -157,6 +188,11 @@ export default async function handler(req, res) {
   // A refund cancels the enrollment → remove the student from the cohort group + store.
   if (event.type === "charge.refunded") {
     return handleCancellation((event.data && event.data.object) || {}, res);
+  }
+
+  // A FAILED payment → record + email the founder (visibility only; no enrollment/charge change).
+  if (event.type === "payment_intent.payment_failed" || event.type === "charge.failed" || event.type === "checkout.session.async_payment_failed") {
+    return handlePaymentFailure((event.data && event.data.object) || {}, event.type, res);
   }
 
   // Beyond that, only enrollment completions matter; acknowledge everything else so Stripe stops retrying.
