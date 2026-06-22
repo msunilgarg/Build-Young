@@ -65,6 +65,20 @@ describe("Course hub (per-week resources & catch-up)", () => {
     expect(await screen.findByText(/Unlocks when you reach Lesson 12/i)).toBeInTheDocument();
   });
 
+  it("shows the named 'Agentic Engineering Process' (Spec → Build → Check → Ship) primer in Lesson 1", async () => {
+    const user = userEvent.setup();
+    await enrollToDashboard(user);
+    await user.click(await screen.findByRole("button", { name: "Course progress" }));
+    await user.click(await screen.findByRole("button", { name: "Your exercise" }));
+    // The named method + each of its four steps (asserted via each step's distinctive line — Spec /
+    // Build / Check / Ship — so the test pins the rendered content, not a bare label that might recur).
+    expect(screen.getByText(/The Agentic Engineering Process/)).toBeInTheDocument();
+    expect(screen.getByText(/decide what "done" looks like before you build/)).toBeInTheDocument(); // Spec
+    expect(screen.getByText(/build the next small slice/)).toBeInTheDocument();                      // Build
+    expect(screen.getByText(/you can't grade your own homework/)).toBeInTheDocument();               // Check
+    expect(screen.getByText(/put the working slice live/)).toBeInTheDocument();                      // Ship
+  });
+
   it("has no serious/critical accessibility violations on the Course hub", async () => {
     const user = userEvent.setup();
     const { container } = render(<App />);
