@@ -3,9 +3,15 @@
 > One feature = one short spec. Keep it to a page (this one runs longer because it spans the course —
 > the week-by-week change map is the point). Decisions go here; PRs implement them.
 
-**Status:** draft
+**Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-06-22
+
+> **Approved 2026-06-22** (founder sign-off). Decisions captured: (1) named **"The Agentic Engineering
+> Process"** (steps Spec → Build → Check → Ship); (2) the Check agent uses **Build Young's own
+> `ANTHROPIC_API_KEY`** — students bring none; (3) the project-brief doc + dogfooding showcase are
+> **deferred** to their own specs; (4) the Check step is a **non-gating optional button**; and the Check
+> step gets its **own `reviewModel`** setting (separate from `scenarioModel`) for independent cost control.
 
 ## What
 Make the **engineering method Build Young is itself built with** an explicit, named, taught through-line
@@ -96,4 +102,4 @@ existing arc — we are **adding a teaching layer + one new step, not restructur
 - **Per-student AI cost is borne by Build Young** (the founder's `ANTHROPIC_API_KEY`, not the student's) — the Check step adds student-initiated Claude calls across 5 build weeks. Mitigate: cheap family-named default model (Haiku), founder on/off toggle, local fallback, and (open) a soft per-student rate limit if volume warrants.
 - **Kids reading an AI "verdict"** — keep it encouraging/constructive (strengths first, gaps as next steps), never a harsh grade; `sanitizeReview` enforces shape, copy enforces tone (POSITIONING review).
 - **Don't overload Act 1** — the Check step must stay one calm optional button, not a gate on progression (progression logic is untouched).
-- Open: reuse the single `scenarioModel` setting vs. a separate `reviewModel`? (Spec assumes separate, to tune cost independently — confirm at T39.)
+- **Resolved (approved):** the Check step gets its **own `reviewModel`** ops setting, separate from `scenarioModel`, so its cost can be tuned independently.
