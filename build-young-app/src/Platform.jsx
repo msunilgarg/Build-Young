@@ -177,6 +177,14 @@ Product success: real teens use it weekly and keep coming back through the whole
 • Retention = they come back week after week, not just once.
 • Referral = they tell a friend who enrolls (the "magic moment" is sharing a link to their live product).
 Financial success: it earns more than it costs to run, and most new families come from word of mouth — so we spend little to find them, with enough left over to keep going and make it bigger.`,
+  acceptance: `"Done when…" — the checks that tell you each piece actually works (you'll use these in the Check step):
+• A new visitor can read what the program is, the price, and the cohorts — on a phone and a computer.
+• Someone can pick a cohort, enter a student name + email, and reach a confirmation — no dead ends, no crash.
+• The dashboard opens to the right week, shows that week's activity + Zoom link, and still has your notes after a refresh.
+• Clicking "advance" moves to the next lesson and unlocks it; future weeks stay locked.
+• Empty fields or weird input show a friendly message, never a code error.
+
+Write yours as a short list of "Done when…" lines — plain, and testable by looking. If you can't tell whether it's true just by checking, make it sharper.`,
   funnel: `Build Young's funnel — the stages a family moves through (the find → try → come back journey), measured as ONE connected funnel:
 1. Visited — landed on the site (FIND IT).
 2. Enroll started — opened the enroll flow, or booked a free "Talk to Sunil" call (TRY IT).
@@ -382,6 +390,7 @@ function weekExample(week) {
     ["Payments", SHAPE_EXAMPLE.payments],
     ["Production-ready", SHAPE_EXAMPLE.production],
     ["What success looks like", SHAPE_EXAMPLE.success],
+    ["“Done when…” (acceptance criteria)", SHAPE_EXAMPLE.acceptance],
   ]} />;
   // Lesson 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
   // Lesson 8 (build the funnel) needs BOTH glossaries: the funnel concept AND the metrics it'll be
@@ -990,7 +999,7 @@ Why people love it: [the payoff].
 
 // Lesson 2 student activity — "Shape the Idea": envision the product, its capabilities, and the
 // experience of using it. Persists in s.shape.
-function ShapePlan({ s, setS, bare }) {
+export function ShapePlan({ s, setS, bare }) {
   const shape = s.shape || {};
   const setField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
   const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
@@ -1010,6 +1019,9 @@ function ShapePlan({ s, setS, bare }) {
       {field("payments", "Payments", "What do people pay for, and how much? What's free vs. paid, and what do they get when they pay?", 4)}
       {field("production", "Production-ready", "The finishing layer: what emails go out (welcome, reminders?), how people find and share it, and how you keep users' data safe.", 4)}
       {field("success", "What success looks like", "Make success measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run.", 5)}
+      {/* "Done when…" — the checkable done-conditions (sharper than the success vision above). This is what
+          the Check step (Lessons 3–6/8) grades your build against. Stored at s.shape.acceptance. */}
+      {field("acceptance", "“Done when…” — your acceptance criteria", "Your checkable done-conditions: a short list of “Done when…” lines you can verify just by looking — sharper than the vision above. This is what you'll check your build against in the Check step. e.g. “Done when a new user can sign up, log in, and still see their saved notes after a refresh.”", 5)}
       {/* Tools setup now lives in this lesson's "Pre-req" tab (weekPrereqs), not inline here. */}
     </>
   );

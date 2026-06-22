@@ -418,8 +418,10 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   thought-provoking topics, NO prompt — `ReflectionPanel` from `REFLECT_WEEKS[10]`, saved to
   `s.reflect[10]`); **Act 3 · Manage (Week 11, ONE combined money week) + Capstone (Week 12)**.
   **The build spec** is the spine of Act 1: the **Week 2 spec is AI-agnostic** (no "prompt"/Claude —
-  those appear from Week 3 on) and `s.shape` has four fields — `product`/`accounts`/`payments`/
-  `production`, one per build week (3–6), plus `funnel` (Wk8). `BUILD_LAYERS` (keyed by weeks **3, 4, 5,
+  those appear from Week 3 on) and `s.shape` has four build fields — `product`/`accounts`/`payments`/
+  `production`, one per build week (3–6), plus `funnel` (Wk8) — and `success` (the vision) + **`acceptance`**
+  (the sharper, checkable **"Done when…"** criteria the Lesson-3–6/8 "Check my work" step grades against,
+  SPECS/008 T38). `BUILD_LAYERS` (keyed by weeks **3, 4, 5,
   6, 8**) drives the per-week build activity `BuildLayer`, which shows ONLY that week's spec field +
   copy-to-Claude box. **The whole build-week plan is ONE object — `s.shape`**: every build week reads +
   writes its own `s.shape[key]` (single source of truth). All build layers are now **`fromSpec`** (no

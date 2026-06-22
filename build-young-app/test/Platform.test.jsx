@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
-import { Platform } from "../src/Platform.jsx";
+import { Platform, ShapePlan } from "../src/Platform.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
 // AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production catalog.
@@ -93,6 +94,27 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await user.click(await screen.findByRole("button", { name: "Course progress" }));
     await screen.findByText(/Your course, lesson by lesson/i);
     await expectNoSeriousA11y(container);
+  });
+});
+
+describe("Lesson 2 spec — 'Done when…' acceptance criteria (SPECS/008 T38)", () => {
+  // Render ShapePlan directly with a stateful harness so the controlled field round-trips through s.shape
+  // (avoids the course calendar deciding which lesson is current/unlocked).
+  function ShapeHarness() {
+    const [st, setSt] = useState({ shape: {} });
+    return <ShapePlan s={st} setS={setSt} bare />;
+  }
+
+  it("has a 'Done when…' acceptance field, distinct from 'What success looks like', that round-trips into s.shape", async () => {
+    const user = userEvent.setup();
+    render(<ShapeHarness />);
+    // Both fields exist and are distinct (the vision line AND the sharper checkable criteria).
+    expect(screen.getByLabelText(/What success looks like/i)).toBeInTheDocument();
+    const field = screen.getByLabelText(/Done when.*acceptance criteria/i);
+    expect(field).toHaveValue(""); // starts empty
+    await user.type(field, "Done when a user signs up, logs in, and sees saved notes after a refresh.");
+    // Round-trips through s.shape.acceptance (controlled value persists via the harness's setState).
+    expect(field).toHaveValue("Done when a user signs up, logs in, and sees saved notes after a refresh.");
   });
 });
 
