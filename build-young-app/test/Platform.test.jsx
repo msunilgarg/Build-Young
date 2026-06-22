@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
-import { Platform, ShapePlan, BuildLayer } from "../src/Platform.jsx";
+import { Platform, ShapePlan, BuildLayer, GoLiveChecklist } from "../src/Platform.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
 // AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production catalog.
@@ -147,6 +147,19 @@ describe("Check my work — the Check step (SPECS/008 T40)", () => {
     await user.click(screen.getByRole("button", { name: /Check my work/i }));
     // localReview flags the unmet criterion as a self-check next step (no crash, a result still renders).
     expect(await screen.findByText(/Done when login works/)).toBeInTheDocument();
+  });
+});
+
+describe("Lesson 7 Go Live = the 'Ship' step (SPECS/008 T41)", () => {
+  it("names Go Live as the Ship step of the Agentic Engineering Process", () => {
+    function GoLiveHarness() {
+      const [st, setSt] = useState({ golive: [] });
+      return <GoLiveChecklist s={st} setS={setSt} bare />;
+    }
+    render(<GoLiveHarness />);
+    // The launch checklist is explicitly named the loop's "Ship" step (copy only — mechanics unchanged).
+    expect(screen.getByText(/Ship/)).toBeInTheDocument();
+    expect(screen.getByText(/Agentic Engineering Process/)).toBeInTheDocument();
   });
 });
 
