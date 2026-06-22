@@ -76,6 +76,9 @@ describe("FounderDashboard (account-gated)", () => {
     // The partners registry editor (third-party enrollment channel — SPECS/005+006).
     expect(screen.getByText(/Partners \(third-party enrollment\)/i)).toBeInTheDocument();
     expect(screen.getByText(/\+ Add partner/i)).toBeInTheDocument();
+    // The "Check my work" review-agent control (SPECS/008 T39) — its own model select, separate from the scenario agent.
+    expect(await screen.findByLabelText(/Review model/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Scenario model/i)).toBeInTheDocument();
   });
 
   it("a PENDING partner enrollment shows a 'Start onboarding' action (SPECS/005 T28)", async () => {
