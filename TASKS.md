@@ -34,6 +34,63 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 <!-- ===== Spec 007 — payment-failure visibility. See SPECS/007-payment-failure-visibility.md. Both shipped. ===== -->
 
+<!-- ===== Spec 008 — teach the build loop (Spec → Build → Check → Ship). See SPECS/008-teach-the-build-loop.md.
+     Week callouts: W1 name the loop · W2 acceptance criteria · W3–6/8 the "Check my work" agent (headline) ·
+     W7 Ship framing · W11 capstone framing. Order T37 → T41 (T40 depends on T38+T39); each independently shippable. ===== -->
+
+## [ ] T37 — Name the loop: Week 1 "How builders actually work" primer (Spec → Build → Check → Ship)  ·  risk: low
+Goal: students see the build method named + framed early, reused at each act head (not a one-off).
+Acceptance criteria:
+- A single shared primer component (e.g. `BuildLoopPrimer`) names the four steps **Spec → Build → Check → Ship** in plain, encouraging language; shown in Week 1 (`BuildPlan`) and referenced at the head of each act.
+- Copy passes POSITIONING.md (us/we voice; "build with AI, not coding"); calm/compact (House style "less scrolling").
+- Render test asserts the four step names appear in Week 1; CLAUDE.md curriculum note updated.
+- build + tests stay green.
+Files: src/Platform.jsx, test/Platform.test.jsx, build-young-app/CLAUDE.md
+Stop-and-ask if: (none — copy/UI)
+
+## [ ] T38 — Week 2 spec gains explicit "Done when…" acceptance criteria (s.shape.acceptance)  ·  risk: med
+Goal: the spec step captures checkable done-conditions (what the Check step later grades against).
+Acceptance criteria:
+- Week 2 (`ShapePlan`) adds an **acceptance-criteria** field stored at `s.shape.acceptance` (a short "Done when…" checklist/text), with a worked `SHAPE_EXAMPLE.acceptance` sample; persists in course state.
+- Distinct from the existing `success` ("what success looks like") vision line — sharper + checkable.
+- Render test asserts the field renders + round-trips into `s.shape`; CLAUDE.md `s.shape` note updated.
+- build + tests stay green.
+Files: src/Platform.jsx, src/engine.js (state default if needed), test/Platform.test.jsx, build-young-app/CLAUDE.md
+Stop-and-ask if: (none expected)
+
+## [ ] T39 — "Check my work" review agent (server: reviewAgent.js + POST ?resource=review + ops toggle + local fallback)  ·  risk: med
+Goal: an INDEPENDENT AI review pass, mirroring the repo's verifier + the Week-9 scenario agent.
+Acceptance criteria:
+- New `api/_lib/reviewAgent.js` (mirror `scenarioAgent.js`): pure helpers (build prompt, `sanitizeReview`, local fallback) + `generateReview({ spec, acceptance, built, apiKey, model })`. Output clamped to `{ verdict: "pass"|"gaps", strengths: string[], gaps: string[] }` (capped counts/lengths) so a bad model reply can't reach the UI. `ANTHROPIC_API_KEY` stays server-side.
+- `POST /api/funnel?resource=review` (student-initiated, unauthenticated like `?resource=scenarios`): `{ week, spec, acceptance, built }` → `{ configured, review }`. No PII stored server-side beyond the existing patterns.
+- Private ops `reviewAgentEnabled` (default true) + `reviewModel` (family-named default `claude-haiku-4-5`; Haiku/Sonnet/Opus) added to `settingsStore` (`saveOps` MERGE preserves notifyEmail + scenario settings). Disabled / no key ⇒ **local deterministic fallback** ("every acceptance item addressed?"), never a thrown error.
+- Founder console: a review-agent on/off + model control (sibling of `ScenarioAgentEditor`).
+- Tests: `reviewAgent` pure helpers (prompt, sanitizeReview clamps, local fallback) + `settings-store` case for the new ops fields. build + tests green.
+- `CLAUDE.md` (curriculum + ops) + `BUILD-YOUNG-ARCHITECTURE.md` (new POST resource + `reviewAgent` module) updated in the same PR.
+Files: api/_lib/reviewAgent.js (new), api/funnel.js, api/_lib/settingsStore.js, src/FounderDashboard.jsx, test/reviewAgent.test.js (new), test/settings-store.test.js, build-young-app/CLAUDE.md, BUILD-YOUNG-ARCHITECTURE.md
+Stop-and-ask if: the design would send student PII to the model or expose the API key client-side (must not).
+
+## [ ] T40 — Wire the "Check my work" step into BuildLayer (Weeks 3–6, 8) + s.review + render  ·  risk: med
+Goal: the Check step is one calm optional button in each build week; result is shown + saved.
+Acceptance criteria:
+- `BuildLayer` (Weeks 3,4,5,6,8) gains a "Check my work" button → `POST ?resource=review` with that week's `s.shape` field + `s.shape.acceptance` + a student-pasted "what I built" box; renders strengths/gaps + verdict as a calm, encouraging card (strengths first), saved to `s.review[week]`.
+- NOT a gate on progression (progression/cert logic untouched); offline/disabled → the local fallback result renders, never an error.
+- Render test (deterministic): the Check step renders a verdict + a gap from a MOCKED agent reply (per playbook §9 — verify UI by rendering the visible strings).
+- POSITIONING tone (constructive, never a harsh grade); CLAUDE.md note.
+- build + tests stay green.
+Files: src/Platform.jsx, src/engine.js (s.review default if needed), test/Platform.test.jsx, build-young-app/CLAUDE.md
+Stop-and-ask if: (depends on T38 + T39 being merged first)
+
+## [ ] T41 — Ship/loop framing copy: Week 7 Go Live = "Ship"; Week 11 capstone tells the loop story  ·  risk: low
+Goal: close the named loop — Go Live is the "Ship" step; the capstone narrates Spec → Build → Check → Ship.
+Acceptance criteria:
+- Week 7 (`GoLiveChecklist`) copy names it the **"Ship"** step of the loop (no mechanics change to the checklist).
+- Week 11 (Prepare Your Capstone) copy frames the build story around the four steps.
+- POSITIONING voice; render test asserts the "Ship" naming in Week 7; CLAUDE.md note.
+- build + tests stay green.
+Files: src/Platform.jsx, test/Platform.test.jsx, build-young-app/CLAUDE.md
+Stop-and-ask if: (none — copy)
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
