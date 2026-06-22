@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { TrendingUp, LineChart as LineIcon, GraduationCap, Check, Lock, Newspaper, Sparkles, Video, Mail, BookOpen, Users, Activity, Award, Calendar, Flag } from "lucide-react";
+import { TrendingUp, LineChart as LineIcon, GraduationCap, Check, Lock, Newspaper, Sparkles, Video, Mail, BookOpen, Users, Activity, Award, Calendar, Flag, Repeat } from "lucide-react";
 import { C, fmt } from "./theme.js";
 import { Card, Mark, Pill, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH } from "./lib.js";
@@ -416,6 +416,36 @@ function GlossaryCard({ title, items }) {
     </div>
   );
 }
+// The Agentic Engineering Process (SPECS/008) — the method Build Young is itself built with, named and
+// taught as a through-line. Four steps the student repeats every build week. `compact` renders a one-line
+// reminder strip (used at the head of Acts 2 & 3); the full card is shown in Lesson 1.
+const AGENTIC_STEPS = [
+  { n: "Spec", d: "decide what \"done\" looks like before you build — write it down so you (and the AI) don't drift." },
+  { n: "Build", d: "hand the AI your spec and build the next small slice — one working piece at a time." },
+  { n: "Check", d: "get an independent check before you call it done — you can't grade your own homework." },
+  { n: "Ship", d: "put the working slice live. Small, finished, real — then loop back to Spec for the next piece." },
+];
+function AgenticProcessPrimer({ compact }) {
+  if (compact) {
+    return (
+      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "8px 12px", marginBottom: 12, fontSize: 12.5, color: C.ink2, lineHeight: 1.5 }}>
+        <Repeat size={12} style={{ verticalAlign: "-2px", marginRight: 5, color: C.emerald }} />
+        <b style={{ color: C.emerald }}>The Agentic Engineering Process</b> — the same loop, every build: <b style={{ color: C.ink }}>Spec → Build → Check → Ship</b>.
+      </div>
+    );
+  }
+  return (
+    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px", marginBottom: 16 }}>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.emerald }}><Repeat size={12} style={{ verticalAlign: "-2px", marginRight: 5 }} />The Agentic Engineering Process</div>
+      <p style={{ fontSize: 13, color: C.ink2, lineHeight: 1.5, margin: "8px 0 10px" }}>This is how real builders work with AI — and how we built Build Young itself. You'll repeat these four steps every time you build something:</p>
+      <ol style={{ margin: 0, paddingLeft: 20, display: "grid", gap: 8 }}>
+        {AGENTIC_STEPS.map((st, i) => (
+          <li key={i} style={{ fontSize: 13, lineHeight: 1.5 }}><b style={{ color: C.ink }}>{st.n}</b> <span style={{ color: C.ink2 }}>— {st.d}</span></li>
+        ))}
+      </ol>
+    </div>
+  );
+}
 const METRICS_PRIMER = [
   { t: "Active users (DAU / MAU)", d: "how many different people actually use your product — DAU is in a day, MAU in a month. Signing up once doesn't count; coming back and using it does." },
   { t: "Retention", d: "of the people who try it, how many come back later (the next day, a week on). Low retention means it isn't useful enough yet — the number that matters most." },
@@ -709,9 +739,11 @@ function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
   if (week === 2) return <ShapePlan s={s} setS={setState} bare={bare} />;
   if (week === 7) return <GoLiveChecklist s={s} setS={setState} bare={bare} />; // Go Live = an editable checklist, not a prompt
-  // Lesson 8 = build the funnel (BuildLayer) PLUS list the steps you'll track (FunnelStages, used in wk 9).
-  if (week === 8) return <>{<BuildLayer week={8} s={s} setS={setState} bare={bare} />}{<FunnelStages s={s} setS={setState} bare={bare} />}</>;
+  // Lesson 8 = head of Act 2 + build the funnel (BuildLayer) PLUS list the steps you'll track (FunnelStages, used in wk 9).
+  if (week === 8) return <>{<AgenticProcessPrimer compact />}{<BuildLayer week={8} s={s} setS={setState} bare={bare} />}{<FunnelStages s={s} setS={setState} bare={bare} />}</>;
   if (week === 9) return <FunnelScenarios s={s} setS={setState} bare={bare} />; // read practice funnels built from the student's stages
+  // Lesson 11 = head of Act 3 (capstone prep): a compact reminder of the loop before the reflection.
+  if (week === 11) return <>{<AgenticProcessPrimer compact />}{<ReflectionPanel week={11} s={s} setS={setState} bare={bare} />}</>;
   if (REFLECT_WEEKS[week]) return <ReflectionPanel week={week} s={s} setS={setState} bare={bare} />; // wk 10 (discuss) — no prompt
   if (BUILD_LAYERS[week]) return <BuildLayer week={week} s={s} setS={setState} bare={bare} />;
   return null;
@@ -896,6 +928,8 @@ Why people love it: [the payoff].
 
   const inner = (
     <>
+      {/* Lesson 1 = the head of the course: introduce the named method students repeat all term. */}
+      <AgenticProcessPrimer />
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your product — start from the customer 🧭</h3>
       <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 14px" }}>Fill these in as you shape your product. Saved automatically.</p>
 
