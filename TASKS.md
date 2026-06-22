@@ -34,65 +34,26 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 <!-- ===== Spec 007 — payment-failure visibility. See SPECS/007-payment-failure-visibility.md. Both shipped. ===== -->
 
-<!-- ===== Spec 008 — teach the build loop (Spec → Build → Check → Ship). See SPECS/008-teach-the-build-loop.md.
-     Week callouts: W1 name the loop · W2 acceptance criteria · W3–6/8 the "Check my work" agent (headline) ·
-     W7 Ship framing · W11 capstone framing. Order T37 → T41 (T40 depends on T38+T39); each independently shippable. ===== -->
-
-## [ ] T37 — Name the process: Week 1 "The Agentic Engineering Process" primer (Spec → Build → Check → Ship)  ·  risk: low
-Goal: students see the build method named + framed early, reused at each act head (not a one-off).
-Acceptance criteria:
-- A single shared primer component (e.g. `AgenticProcessPrimer`) titled **"The Agentic Engineering Process"** names its four steps **Spec → Build → Check → Ship** in plain, encouraging language; shown in Week 1 (`BuildPlan`) and referenced at the head of each act.
-- Copy passes POSITIONING.md (us/we voice; "build with AI, not coding"); calm/compact (House style "less scrolling").
-- Render test asserts the four step names appear in Week 1; CLAUDE.md curriculum note updated.
-- build + tests stay green.
-Files: src/Platform.jsx, test/Platform.test.jsx, build-young-app/CLAUDE.md
-Stop-and-ask if: (none — copy/UI)
-
-## [ ] T38 — Week 2 spec gains explicit "Done when…" acceptance criteria (s.shape.acceptance)  ·  risk: med
-Goal: the spec step captures checkable done-conditions (what the Check step later grades against).
-Acceptance criteria:
-- Week 2 (`ShapePlan`) adds an **acceptance-criteria** field stored at `s.shape.acceptance` (a short "Done when…" checklist/text), with a worked `SHAPE_EXAMPLE.acceptance` sample; persists in course state.
-- Distinct from the existing `success` ("what success looks like") vision line — sharper + checkable.
-- Render test asserts the field renders + round-trips into `s.shape`; CLAUDE.md `s.shape` note updated.
-- build + tests stay green.
-Files: src/Platform.jsx, src/engine.js (state default if needed), test/Platform.test.jsx, build-young-app/CLAUDE.md
-Stop-and-ask if: (none expected)
-
-## [ ] T39 — "Check my work" review agent (server: reviewAgent.js + POST ?resource=review + ops toggle + local fallback)  ·  risk: med
-Goal: an INDEPENDENT AI review pass, mirroring the repo's verifier + the Week-9 scenario agent.
-Acceptance criteria:
-- New `api/_lib/reviewAgent.js` (mirror `scenarioAgent.js`): pure helpers (build prompt, `sanitizeReview`, local fallback) + `generateReview({ spec, acceptance, built, apiKey, model })`. Output clamped to `{ verdict: "pass"|"gaps", strengths: string[], gaps: string[] }` (capped counts/lengths) so a bad model reply can't reach the UI. Uses **Build Young's own `ANTHROPIC_API_KEY`** (the SAME host env var as the scenario agent), **server-side only — students never bring or enter a key**.
-- `POST /api/funnel?resource=review` (student-initiated, unauthenticated like `?resource=scenarios`): `{ week, spec, acceptance, built }` → `{ configured, review }`. No PII stored server-side beyond the existing patterns.
-- Private ops `reviewAgentEnabled` (default true) + `reviewModel` (family-named default `claude-haiku-4-5`; Haiku/Sonnet/Opus) added to `settingsStore` (`saveOps` MERGE preserves notifyEmail + scenario settings). Disabled / no key ⇒ **local deterministic fallback** ("every acceptance item addressed?"), never a thrown error.
-- Founder console: a review-agent on/off + model control (sibling of `ScenarioAgentEditor`).
-- Tests: `reviewAgent` pure helpers (prompt, sanitizeReview clamps, local fallback) + `settings-store` case for the new ops fields. build + tests green.
-- `CLAUDE.md` (curriculum + ops) + `BUILD-YOUNG-ARCHITECTURE.md` (new POST resource + `reviewAgent` module) updated in the same PR.
-Files: api/_lib/reviewAgent.js (new), api/funnel.js, api/_lib/settingsStore.js, src/FounderDashboard.jsx, test/reviewAgent.test.js (new), test/settings-store.test.js, build-young-app/CLAUDE.md, BUILD-YOUNG-ARCHITECTURE.md
-Stop-and-ask if: the design would send student PII to the model or expose the API key client-side (must not).
-
-## [ ] T40 — Wire the "Check my work" step into BuildLayer (Weeks 3–6, 8) + s.review + render  ·  risk: med
-Goal: the Check step is one calm optional button in each build week; result is shown + saved.
-Acceptance criteria:
-- `BuildLayer` (Weeks 3,4,5,6,8) gains a "Check my work" button → `POST ?resource=review` with that week's `s.shape` field + `s.shape.acceptance` + a student-pasted "what I built" box; renders strengths/gaps + verdict as a calm, encouraging card (strengths first), saved to `s.review[week]`.
-- NOT a gate on progression (progression/cert logic untouched); offline/disabled → the local fallback result renders, never an error.
-- Render test (deterministic): the Check step renders a verdict + a gap from a MOCKED agent reply (per playbook §9 — verify UI by rendering the visible strings).
-- POSITIONING tone (constructive, never a harsh grade); CLAUDE.md note.
-- build + tests stay green.
-Files: src/Platform.jsx, src/engine.js (s.review default if needed), test/Platform.test.jsx, build-young-app/CLAUDE.md
-Stop-and-ask if: (depends on T38 + T39 being merged first)
-
-## [ ] T41 — Ship/loop framing copy: Week 7 Go Live = "Ship"; Week 11 capstone tells the loop story  ·  risk: low
-Goal: close the named loop — Go Live is the "Ship" step; the capstone narrates Spec → Build → Check → Ship.
-Acceptance criteria:
-- Week 7 (`GoLiveChecklist`) copy names it the **"Ship"** step of the loop (no mechanics change to the checklist).
-- Week 11 (Prepare Your Capstone) copy frames the build story around the four steps.
-- POSITIONING voice; render test asserts the "Ship" naming in Week 7; CLAUDE.md note.
-- build + tests stay green.
-Files: src/Platform.jsx, test/Platform.test.jsx, build-young-app/CLAUDE.md
-Stop-and-ask if: (none — copy)
+<!-- ===== Spec 008 — teach the build loop "The Agentic Engineering Process" (Spec → Build → Check → Ship).
+     See SPECS/008-teach-the-build-loop.md. All shipped (T37→T41). ===== -->
 
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T41 — Ship/loop framing copy: Lesson 7 Go Live = "Ship"; Lesson 11 capstone tells the loop story  ·  risk: low
+Done (PR #501; merged, full-auto). Completes SPECS/008. Lesson 7 `GoLiveChecklist` intro now names itself the **"Ship"** step of the Agentic Engineering Process ("you specced it, built it, and checked it; now you put it in front of real people") — copy only, checklist mechanics unchanged. Lesson 11 capstone-prep (`REFLECT_WEEKS[11].intro`) frames the story as Spec → Build → Check → Ship. `GoLiveChecklist` exported for a deterministic render test asserting the "Ship" + "Agentic Engineering Process" naming. POSITIONING voice; CLAUDE.md note. Build + 355; Sonnet-verified.
+
+## [x] T40 — Wire the "Check my work" step into BuildLayer (Lessons 3–6, 8) + s.review  ·  risk: med
+Done (PR #500; merged, full-auto). `BuildLayer` gains the Check card: a "What I built" box + "Check my work" button → `POST /api/funnel?resource=review` with that lesson's spec slice + `s.shape.acceptance`; renders verdict + strengths-first + gaps as a calm, encouraging card, saved to `s.review[week]`. Optional — **never gates progression** (cert/lock logic untouched); a full outage falls back to the pure `localReview` client-side, so it never errors. Two deterministic render tests (mocked agent reply verdict+strengths+gaps; offline self-check). `BuildLayer` exported as the test seam. CLAUDE.md note. Build + 354; Sonnet-verified (no progression touch, offline-safe, strengths-first, tone).
+
+## [x] T39 — "Check my work" review agent (server: reviewAgent.js + POST ?resource=review + ops toggle + local fallback)  ·  risk: med
+Done (PR #499; merged, full-auto). New `api/_lib/reviewAgent.js` (mirrors `scenarioAgent.js`): grades a build against `s.shape.acceptance` → `{verdict:"pass"|"gaps", strengths[], gaps[]}` via `sanitizeReview` (verdict bounded, arrays/strings capped, junk dropped). Public `POST /api/funnel?resource=review` → `{configured, review}` using **Build Young's own server-side `ANTHROPIC_API_KEY`** (students bring none; key never reaches the client); `generateReview` never throws; off / no key / any failure ⇒ deterministic `localReview`, never an error. Separate ops `reviewAgentEnabled` + `reviewModel` (`ReviewAgentEditor` console editor; `saveOps` merges). Tests: reviewAgent helpers (16) + settings-store independence + founder-ui render. CLAUDE.md + arch table. Build + 352; Sonnet-verified (key server-side, sanitization, fallback-never-throws, ops merge).
+
+## [x] T38 — Lesson 2 spec gains "Done when…" acceptance criteria (s.shape.acceptance)  ·  risk: med
+Done (PR #498; merged, full-auto). `ShapePlan` adds an `acceptance` field (`s.shape.acceptance`) — the sharper, checkable "Done when…" criteria the Check step grades against, distinct from the existing `success` vision line; worked `SHAPE_EXAMPLE.acceptance` sample added to the Lesson-2 class example. `ShapePlan` exported for a deterministic round-trip render test (both fields present + distinct; types into the field, asserts it persists via `s.shape`). CLAUDE.md `s.shape` note. Build + 335; Sonnet-verified.
+
+## [x] T37 — Name the process: Lesson 1 "The Agentic Engineering Process" primer  ·  risk: low
+Done (PR #497; merged, full-auto). New `AgenticProcessPrimer` (one shared component) names the through-line **Spec → Build → Check → Ship**: full card at the head of Lesson 1 (`BuildPlan`), compact reminder strip at the head of Act 2 (Lesson 8) + Act 3 (Lesson 11). POSITIONING-voiced (us/we; "how we built Build Young itself"; build with AI not coding); lucide `Repeat` icon (no content emoji); a11y clean. Render test asserts the named method + all four steps in Lesson 1. CLAUDE.md curriculum note. Build + 334; Sonnet-verified.
 
 ## [x] T36 — Founder console: "Failed payments" card  ·  risk: med
 Done (PR #491; merged, full-auto). Completes SPECS/007. Founder-gated `GET /api/funnel?resource=payment-failures` (mirrors the `refunds` branch) → `{ failures: listPaymentFailures() }`. `FounderDashboard` gains a `PaymentFailuresAdmin` card (mirror of `RefundsAdmin`) in Students → Enrolled students, right beside "Refunds to issue": each row shows name/email, amount, decline reason+code, cohort (or "—"), date; loading + empty states read cleanly. Only the founder-gated GET exposes it (no public read). Render test asserts the card + a mocked failure row render next to "Refunds to issue". BUILD-YOUNG-ARCHITECTURE.md GET-resource list updated. Build + tests green; Sonnet-verified.

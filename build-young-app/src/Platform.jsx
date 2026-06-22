@@ -497,7 +497,7 @@ const REFLECT_WEEKS = {
     ],
   },
   11: {
-    intro: "No building this lesson — get ready for your capstone. Next lesson you present what you built to family and friends, so use this lesson to pull the story together and practice it.",
+    intro: "No building this lesson — get ready for your capstone. Next lesson you present what you built to family and friends, so use this lesson to pull the story together and practice it. Tell it the way you built it — Spec → Build → Check → Ship: the problem you specced, what you built, how you checked it against your own “Done when…”, and shipping it live.",
     fields: [
       { key: "whatBuilt", label: "What you built — in one line", ph: "If you had ten seconds: what is it, and who is it for?" },
       { key: "proud", label: "What you're proudest of", ph: "The part of the build, the journey, or what people did with it that you most want to show off." },
@@ -781,7 +781,7 @@ const GO_LIVE_DEFAULT = [
   { s: "Go / no-go", t: "A friend can sign up + use it with zero help", h: "Hand it to someone who's never seen it. If they get stuck, fix that before you call it live." },
 ];
 
-function GoLiveChecklist({ s, setS, bare }) {
+export function GoLiveChecklist({ s, setS, bare }) {
   const list = (s.golive && s.golive.length) ? s.golive : GO_LIVE_DEFAULT.map((x) => ({ ...x, done: false }));
   const write = (next) => setS((p) => ({ ...p, golive: next }));
   const update = (i, patch) => write(list.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
@@ -796,7 +796,7 @@ function GoLiveChecklist({ s, setS, bare }) {
     <>
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Go live — your launch checklist 🚀</h3>
       <p style={{ fontSize: 13.5, color: C.ink2, lineHeight: 1.55, margin: "6px 0 14px" }}>
-        Going live is a handful of real-world steps, not code. Work down the list and tick each off — and <b>add, edit, or remove</b> anything specific to your product (every app's a little different). <b>{done} of {list.length} done.</b> <span style={{ color: C.muted }}>Saved automatically.</span>
+        This is the <b>Ship</b> step of the Agentic Engineering Process — you specced it, built it, and checked it; now you put it in front of real people. Going live is a handful of real-world steps, not code. Work down the list and tick each off — and <b>add, edit, or remove</b> anything specific to your product (every app's a little different). <b>{done} of {list.length} done.</b> <span style={{ color: C.muted }}>Saved automatically.</span>
       </p>
       <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "8px 12px 12px" }}>
         {list.map((it, i) => {
