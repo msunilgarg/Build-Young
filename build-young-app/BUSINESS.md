@@ -10,6 +10,11 @@
 Founder is in WA (Sammamish area); recommended entity is an **LLC** (shields personal assets — matters
 here because of payments, refunds, and minors).
 
+> **Progress (June 2026):** ✅ **Certificate of Formation submitted** to WA SOS (single-member LLC,
+> *Build Young, Sunil Garg Sole Mbr*) — pending approval. ✅ **EIN obtained** from the IRS (the CP575
+> notice is kept private; the number is **not** stored in this repo). **Next: DOR Business License (BLS)**
+> for the UBI + B&O registration, then the business bank account (which gates real Stripe).
+
 ---
 
 ## 0. Do this first
@@ -23,11 +28,14 @@ here because of payments, refunds, and minors).
 - [ ] **Registered agent** — a person/service with a *physical* WA street address for legal mail.
       You can be your own (your WA address) or pay a commercial agent (~$100–150/yr) to keep your
       address private.
-- [ ] **File the Certificate of Formation** online in CCFS — this *creates* the LLC. Fee **$200 online** ($180 base + a $20 online fee; paper filing is $180) *(WA SOS/CCFS)*. Approval is usually quick.
+- [x] **File the Certificate of Formation** online in CCFS — this *creates* the LLC. Fee **$200 online** ($180 base + a $20 online fee; paper filing is $180) *(WA SOS/CCFS)*. Approval is usually quick. — **Submitted June 2026; awaiting the stamped Certificate + UBI.**
 
 ## 2. Federal — EIN (IRS)
-- [ ] **Get an EIN** — free, online, instant (IRS "EIN Assistant"). It's your business tax ID; needed
-      for the bank account and taxes.
+- [x] **Get an EIN** — free, online, instant (IRS "EIN Assistant"). It's your business tax ID; needed
+      for the bank account and taxes. — **Obtained June 2026.** Use the business name/address *exactly*
+      as on the CP575 notice on tax filings. Default single-member taxation (Schedule C) is fine; only
+      file Form 8832/2553 if you + the CPA choose corporate/S-corp treatment. Keep the CP575 private —
+      the EIN is a sensitive ID and is **not** recorded in this repo.
 
 ## 3. State tax & licensing — WA Dept. of Revenue (DOR)
 - [ ] **File the Business License Application** via DOR's **Business Licensing Service (BLS)** →
