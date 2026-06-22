@@ -3,6 +3,7 @@ import { TrendingUp, LineChart as LineIcon, GraduationCap, Check, Lock, Newspape
 import { C, fmt } from "./theme.js";
 import { Card, Mark, Pill, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH } from "./lib.js";
+import { localReview } from "../api/_lib/reviewAgent.js"; // pure helper (no key/server) — the fully-offline Check fallback
 import { cohortStartInfo, classDateLabel, effectivePosition, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
 import { WEEKS } from "./course.js";
 import { OBJECTIVES } from "./courseState.js";
@@ -1033,12 +1034,29 @@ export function ShapePlan({ s, setS, bare }) {
 // here updates Lesson 2 too; no separate copy, single source of truth.
 // One build week (3–6). Shows ONLY that week's layer prompt, pulled live from the student's Lesson 2
 // spec (s.shape[cfg.key]) so edits here sync back to Lesson 2. Lesson 3 also shows the build pre-reqs.
-function BuildLayer({ week, s, setS, bare }) {
+export function BuildLayer({ week, s, setS, bare }) {
   const cfg = BUILD_LAYERS[week];
   const setShapeField = (k, v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [k]: v } }));
 
   const shape = s.shape || {};
   const [copied, setCopied] = useState(false);
+  // The Check step (SPECS/008 T40): paste what you built → an independent review vs your acceptance
+  // criteria. The result persists in s.review[week]; offline/demo falls back to localReview (never errors).
+  const [built, setBuilt] = useState("");
+  const [checking, setChecking] = useState(false);
+  const review = (s.review && s.review[week]) || null;
+  const runCheck = async () => {
+    setChecking(true);
+    let rev = null;
+    try {
+      const r = await fetch("/api/funnel?resource=review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ week, spec: shape[cfg.key] || "", acceptance: shape.acceptance || "", built }) });
+      const d = r.ok ? await r.json() : {};
+      rev = d.review && typeof d.review === "object" ? d.review : null;
+    } catch { rev = null; }
+    if (!rev) rev = localReview({ acceptance: shape.acceptance || "", built }); // fully-offline (e.g. demo) — never an error
+    setS((p) => ({ ...p, review: { ...(p.review || {}), [week]: rev } }));
+    setChecking(false);
+  };
   const has = (v) => v && v.trim();
   // The WHOLE 12-week plan is ONE object — s.shape. Every build week (3–10) reads + writes its own
   // s.shape[key], so it's a single source of truth. Lessons 3–6 are filled from the Lesson 2 product
@@ -1107,6 +1125,36 @@ function BuildLayer({ week, s, setS, bare }) {
           <textarea readOnly aria-label="Full prompt preview" value={generatedPrompt} rows={8} onFocus={(e) => e.target.select()}
             style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 12, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.5 }} />
         </details>}
+      </div>
+
+      {/* The CHECK step (SPECS/008) — an INDEPENDENT review of your build against your "Done when…"
+          criteria. Optional; never blocks moving on. The endpoint always returns a result (AI when on,
+          a free local self-check when off/no key); a full outage falls back to localReview client-side. */}
+      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px" }}>
+        <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}><Repeat size={13} style={{ verticalAlign: "-2px", marginRight: 5, color: C.emerald }} />Check my work — the “Check” step</div>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Built this layer? Paste what you made (or what you see when you use it) and get an independent check against your <b>“Done when…”</b> criteria from Lesson 2. You can't grade your own homework — this is the check builders do before they ship.</p>
+        <label style={{ display: "block" }}>
+          <span style={lab}>What I built</span>
+          <textarea aria-label="What I built" value={built} onChange={(e) => setBuilt(e.target.value)} rows={4} placeholder="Paste what you built, the link, or what happens when you use it — e.g. “I added login; you can sign up, log in, and your notes save and come back after a refresh.”" style={fieldS} />
+        </label>
+        <button type="button" className="btn" onClick={runCheck} disabled={checking} style={{ marginTop: 10, background: C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700, opacity: checking ? 0.7 : 1 }}>{checking ? "Checking…" : "Check my work"}</button>
+        {review && (
+          <div style={{ marginTop: 12, border: `1px solid ${review.verdict === "pass" ? C.green : C.gold}`, borderRadius: 6, background: C.paper2, padding: "11px 13px" }}>
+            <div style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: review.verdict === "pass" ? C.green : C.gold }}>{review.verdict === "pass" ? "Looks done ✓" : "A few things to check"}</div>
+            {Array.isArray(review.strengths) && review.strengths.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginBottom: 4 }}>What's working</div>
+                <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 4 }}>{review.strengths.map((t, i) => <li key={i} style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.45 }}>{t}</li>)}</ul>
+              </div>
+            )}
+            {Array.isArray(review.gaps) && review.gaps.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: C.gold, marginBottom: 4 }}>Next steps</div>
+                <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 4 }}>{review.gaps.map((t, i) => <li key={i} style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.45 }}>{t}</li>)}</ul>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

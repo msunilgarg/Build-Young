@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
-import { Platform, ShapePlan } from "../src/Platform.jsx";
+import { Platform, ShapePlan, BuildLayer } from "../src/Platform.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
 // AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production catalog.
@@ -115,6 +115,38 @@ describe("Lesson 2 spec — 'Done when…' acceptance criteria (SPECS/008 T38)",
     await user.type(field, "Done when a user signs up, logs in, and sees saved notes after a refresh.");
     // Round-trips through s.shape.acceptance (controlled value persists via the harness's setState).
     expect(field).toHaveValue("Done when a user signs up, logs in, and sees saved notes after a refresh.");
+  });
+});
+
+describe("Check my work — the Check step (SPECS/008 T40)", () => {
+  afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+
+  // Render a build week's BuildLayer directly with a stateful harness (avoids the course calendar lock).
+  function CheckHarness() {
+    const [st, setSt] = useState({ shape: { product: "a notes app", acceptance: "Done when login works" }, review: {} });
+    return <BuildLayer week={3} s={st} setS={setSt} bare />;
+  }
+
+  it("runs an independent check and renders the verdict + strengths/gaps from the agent reply", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ configured: true, review: { verdict: "gaps", strengths: ["Login works nicely"], gaps: ["Add password reset"] } }) })));
+    const user = userEvent.setup();
+    render(<CheckHarness />);
+    await user.type(screen.getByLabelText(/What I built/i), "I added login");
+    await user.click(screen.getByRole("button", { name: /Check my work/i }));
+    // The returned review renders: verdict (gaps), a strength first, then a gap (as a "next step").
+    expect(await screen.findByText(/A few things to check/i)).toBeInTheDocument();
+    expect(screen.getByText(/Login works nicely/)).toBeInTheDocument();
+    expect(screen.getByText(/Add password reset/)).toBeInTheDocument();
+  });
+
+  it("never errors offline — falls back to a local self-check from the acceptance criteria", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("offline"); }));
+    const user = userEvent.setup();
+    render(<CheckHarness />);
+    await user.type(screen.getByLabelText(/What I built/i), "nothing relevant here");
+    await user.click(screen.getByRole("button", { name: /Check my work/i }));
+    // localReview flags the unmet criterion as a self-check next step (no crash, a result still renders).
+    expect(await screen.findByText(/Done when login works/)).toBeInTheDocument();
   });
 });
 
