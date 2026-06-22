@@ -38,10 +38,10 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
      Week callouts: W1 name the loop · W2 acceptance criteria · W3–6/8 the "Check my work" agent (headline) ·
      W7 Ship framing · W11 capstone framing. Order T37 → T41 (T40 depends on T38+T39); each independently shippable. ===== -->
 
-## [ ] T37 — Name the loop: Week 1 "How builders actually work" primer (Spec → Build → Check → Ship)  ·  risk: low
+## [ ] T37 — Name the process: Week 1 "The Agentic Engineering Process" primer (Spec → Build → Check → Ship)  ·  risk: low
 Goal: students see the build method named + framed early, reused at each act head (not a one-off).
 Acceptance criteria:
-- A single shared primer component (e.g. `BuildLoopPrimer`) names the four steps **Spec → Build → Check → Ship** in plain, encouraging language; shown in Week 1 (`BuildPlan`) and referenced at the head of each act.
+- A single shared primer component (e.g. `AgenticProcessPrimer`) titled **"The Agentic Engineering Process"** names its four steps **Spec → Build → Check → Ship** in plain, encouraging language; shown in Week 1 (`BuildPlan`) and referenced at the head of each act.
 - Copy passes POSITIONING.md (us/we voice; "build with AI, not coding"); calm/compact (House style "less scrolling").
 - Render test asserts the four step names appear in Week 1; CLAUDE.md curriculum note updated.
 - build + tests stay green.
@@ -61,7 +61,7 @@ Stop-and-ask if: (none expected)
 ## [ ] T39 — "Check my work" review agent (server: reviewAgent.js + POST ?resource=review + ops toggle + local fallback)  ·  risk: med
 Goal: an INDEPENDENT AI review pass, mirroring the repo's verifier + the Week-9 scenario agent.
 Acceptance criteria:
-- New `api/_lib/reviewAgent.js` (mirror `scenarioAgent.js`): pure helpers (build prompt, `sanitizeReview`, local fallback) + `generateReview({ spec, acceptance, built, apiKey, model })`. Output clamped to `{ verdict: "pass"|"gaps", strengths: string[], gaps: string[] }` (capped counts/lengths) so a bad model reply can't reach the UI. `ANTHROPIC_API_KEY` stays server-side.
+- New `api/_lib/reviewAgent.js` (mirror `scenarioAgent.js`): pure helpers (build prompt, `sanitizeReview`, local fallback) + `generateReview({ spec, acceptance, built, apiKey, model })`. Output clamped to `{ verdict: "pass"|"gaps", strengths: string[], gaps: string[] }` (capped counts/lengths) so a bad model reply can't reach the UI. Uses **Build Young's own `ANTHROPIC_API_KEY`** (the SAME host env var as the scenario agent), **server-side only — students never bring or enter a key**.
 - `POST /api/funnel?resource=review` (student-initiated, unauthenticated like `?resource=scenarios`): `{ week, spec, acceptance, built }` → `{ configured, review }`. No PII stored server-side beyond the existing patterns.
 - Private ops `reviewAgentEnabled` (default true) + `reviewModel` (family-named default `claude-haiku-4-5`; Haiku/Sonnet/Opus) added to `settingsStore` (`saveOps` MERGE preserves notifyEmail + scenario settings). Disabled / no key ⇒ **local deterministic fallback** ("every acceptance item addressed?"), never a thrown error.
 - Founder console: a review-agent on/off + model control (sibling of `ScenarioAgentEditor`).

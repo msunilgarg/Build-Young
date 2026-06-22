@@ -9,11 +9,15 @@
 
 ## What
 Make the **engineering method Build Young is itself built with** an explicit, named, taught through-line
-of the course: **Spec → Build → Check → Ship.** Two core additions — (1) name the loop and teach it as a
-reflex across the existing weeks, and (2) give students a real **"Check my work"** AI step (an *independent*
-review pass) that mirrors the independent verifier that gates every change in this repo. Plus a sharpened
-**"Done when…" acceptance-criteria** field at the spec step. Project-brief doc + a "how this program is
-built" dogfooding showcase are named follow-ons (out of scope here).
+of the course — **The Agentic Engineering Process**, taught as its four steps **Spec → Build → Check →
+Ship.** Two core additions — (1) name the process and teach it as a reflex across the existing weeks, and
+(2) give students a real **"Check my work"** AI step (an *independent* review pass) that mirrors the
+independent verifier that gates every change in this repo. Plus a sharpened **"Done when…"
+acceptance-criteria** field at the spec step. Project-brief doc + a "how this program is built" dogfooding
+showcase are named follow-ons (out of scope here).
+
+**Naming:** the method is **"The Agentic Engineering Process"** everywhere it's named (the primer title,
+act heads, capstone framing); **Spec → Build → Check → Ship** are its four steps.
 
 ## Why
 The product already has students build with AI; what it doesn't yet teach is the *discipline* pros use to
@@ -36,7 +40,7 @@ existing arc — we are **adding a teaching layer + one new step, not restructur
 
 | Loop step | Week(s) | Existing surface (today) | Change we make |
 |---|---|---|---|
-| **(frame)** Name the loop | **Week 1** — *Find a Problem Worth Solving* (`BuildPlan`) | week-1 plan + `ExampleCard` | Add a short **"How builders actually work"** primer naming **Spec → Build → Check → Ship**, reused (one shared component) and referenced at the head of each act. |
+| **(frame)** Name the process | **Week 1** — *Find a Problem Worth Solving* (`BuildPlan`) | week-1 plan + `ExampleCard` | Add a short **"The Agentic Engineering Process"** primer naming its four steps **Spec → Build → Check → Ship**, reused (one shared component) and referenced at the head of each act. |
 | **Spec** (write the done-condition) | **Week 2** — *Shape the Idea — write your spec* (`ShapePlan`, `s.shape`) | spec fields incl. `success` ("What success looks like") | Add an explicit **"Done when…" acceptance-criteria** field (`s.shape.acceptance`, a short checklist) — sharper and more checkable than the `success` vision line; this is what the Check step grades against. |
 | **Build** (make the slice) | **Weeks 3–6** (`BuildLayer` 3·4·5·6) **+ Week 8** (`BuildLayer` 8, the funnel) | per-week copy-to-Claude build prompt | No behavior change to building itself — these weeks gain the **Check step below**. |
 | **Check** (independent review) ⭐ | **Weeks 3–6 + Week 8** (inside `BuildLayer`) | — (new) | Add a **"Check my work"** step: the student pastes what they built; an **independent** Claude pass grades it against *their* Week-2 acceptance criteria and returns **strengths + gaps + a pass/needs-work verdict**. Result saved to `s.review[week]`. Mirrors the repo's verifier. |
@@ -49,8 +53,10 @@ existing arc — we are **adding a teaching layer + one new step, not restructur
 ## Behavior — the "Check my work" step
 - A button in `BuildLayer` (Weeks 3,4,5,6,8). On click: `POST /api/funnel?resource=review` with
   `{ week, spec (that week's `s.shape` field), acceptance (`s.shape.acceptance`), built (student-pasted) }`.
-- Server (`api/_lib/reviewAgent.js`, mirroring `scenarioAgent.js`): calls Claude with `ANTHROPIC_API_KEY`
-  **server-side only**; output is run through a `sanitizeReview` allowlist → `{ verdict: "pass"|"gaps",
+- Server (`api/_lib/reviewAgent.js`, mirroring `scenarioAgent.js`): calls Claude with **Build Young's own
+  `ANTHROPIC_API_KEY`** — the **same** host env var the Week-9 scenario agent already uses, kept
+  **server-side only**. **Students never bring or enter an API key**; the founder sets it once and both
+  student agents work. Output is run through a `sanitizeReview` allowlist → `{ verdict: "pass"|"gaps",
   strengths: string[], gaps: string[] }` (capped counts/lengths) so a bad model reply can't reach the UI.
 - **Founder-controlled + key-gated**, same as scenarios: private ops `reviewAgentEnabled` (default true) +
   `reviewModel` (family-named default `claude-haiku-4-5`; options Haiku/Sonnet/Opus); no key or disabled ⇒
@@ -80,14 +86,14 @@ existing arc — we are **adding a teaching layer + one new step, not restructur
 - Touches: `src/course.js` (none — same weeks), `src/Platform.jsx` (`BuildLayer`, `ShapePlan`, a new loop primer + Check card), `src/engine.js` (`s.shape.acceptance`, `s.review`), `api/funnel.js` (POST `?resource=review`), new `api/_lib/reviewAgent.js`, `api/_lib/settingsStore.js` (`reviewAgentEnabled`/`reviewModel`), `src/FounderDashboard.jsx` (toggle), tests, `CLAUDE.md`, `BUILD-YOUNG-ARCHITECTURE.md`.
 
 ## Proposed task breakdown (phased; each independently shippable)
-- **T37 · Name the loop (Week 1 primer + shared framing)** — copy/UI. risk: low.
+- **T37 · Name the process — "The Agentic Engineering Process" (Week 1 primer + shared framing)** — copy/UI. risk: low.
 - **T38 · Week 2 spec gains "Done when…" acceptance criteria (`s.shape.acceptance`)** — UI + state. risk: med.
-- **T39 · "Check my work" review agent (server: `reviewAgent.js` + POST `?resource=review` + ops toggle + local fallback)** — agent/API, mirrors scenarios. risk: med.
+- **T39 · "Check my work" review agent (server: `reviewAgent.js` + POST `?resource=review` + ops toggle + local fallback; uses Build Young's own `ANTHROPIC_API_KEY` — the same one as the scenario agent; students bring nothing)** — agent/API, mirrors scenarios. risk: med.
 - **T40 · Wire the Check step into `BuildLayer` (Weeks 3–6, 8) + `s.review` + render** — UI. risk: med. (depends on T38/T39)
 - **T41 · Ship/loop framing copy (Week 7 Go Live + Week 11 capstone prep)** — copy. risk: low.
 
 ## Risks / open questions
-- **Per-student AI cost** — the Check step adds student-initiated Claude calls across 5 build weeks. Mitigate: cheap family-named default model (Haiku), founder on/off toggle, local fallback, and (open) a soft per-student rate limit if volume warrants.
+- **Per-student AI cost is borne by Build Young** (the founder's `ANTHROPIC_API_KEY`, not the student's) — the Check step adds student-initiated Claude calls across 5 build weeks. Mitigate: cheap family-named default model (Haiku), founder on/off toggle, local fallback, and (open) a soft per-student rate limit if volume warrants.
 - **Kids reading an AI "verdict"** — keep it encouraging/constructive (strengths first, gaps as next steps), never a harsh grade; `sanitizeReview` enforces shape, copy enforces tone (POSITIONING review).
 - **Don't overload Act 1** — the Check step must stay one calm optional button, not a gate on progression (progression logic is untouched).
 - Open: reuse the single `scenarioModel` setting vs. a separate `reviewModel`? (Spec assumes separate, to tune cost independently — confirm at T39.)
