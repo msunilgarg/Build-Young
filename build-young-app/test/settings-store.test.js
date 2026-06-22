@@ -53,22 +53,34 @@ describe("site settings store", () => {
   });
 });
 
-describe("private ops settings store (notifications email + scenario agent)", () => {
-  it("defaults: empty notifyEmail, agent on, Haiku model", () => {
-    expect(defaultOps()).toEqual({ notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5" });
+describe("private ops settings store (notifications email + scenario & review agents)", () => {
+  const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5", reviewAgentEnabled: true, reviewModel: "claude-haiku-4-5" };
+
+  it("defaults: empty notifyEmail, both agents on, Haiku models", () => {
+    expect(defaultOps()).toEqual(OPS_DEFAULTS);
   });
 
-  it("sanitizeOps trims the email, coerces the toggle, validates the model, drops junk", () => {
+  it("sanitizeOps trims the email, coerces the toggles, validates the models, drops junk", () => {
     expect(sanitizeOps({ notifyEmail: "  founder@x.com  ", junk: "x" }))
-      .toEqual({ notifyEmail: "founder@x.com", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5" });
+      .toEqual({ ...OPS_DEFAULTS, notifyEmail: "founder@x.com" });
     // "off" string → false; a known model is kept; an unknown model falls back to the default
     expect(sanitizeOps({ scenarioAgentEnabled: "off", scenarioModel: "claude-opus-4-8" }))
       .toMatchObject({ scenarioAgentEnabled: false, scenarioModel: "claude-opus-4-8" });
     expect(sanitizeOps({ scenarioModel: "gpt-4o" }).scenarioModel).toBe("claude-haiku-4-5");
   });
 
+  it("review-agent fields: separate toggle + model, validated independently of the scenario agent", () => {
+    // The review agent has its OWN toggle + model (a separate cost lever) — SPECS/008.
+    expect(sanitizeOps({ reviewAgentEnabled: "off", reviewModel: "claude-sonnet-4-6" }))
+      .toMatchObject({ reviewAgentEnabled: false, reviewModel: "claude-sonnet-4-6" });
+    expect(sanitizeOps({ reviewModel: "gpt-4o" }).reviewModel).toBe("claude-haiku-4-5"); // unknown → default
+    // tuning the review agent doesn't disturb the scenario agent's defaults
+    expect(sanitizeOps({ reviewAgentEnabled: false }))
+      .toMatchObject({ scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5", reviewAgentEnabled: false });
+  });
+
   it("loadOps falls back to defaults + saveOps refuses an unconfigured store", async () => {
-    expect(await loadOps()).toEqual({ notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5" });
+    expect(await loadOps()).toEqual(OPS_DEFAULTS);
     const res = await saveOps({ notifyEmail: "a@b.com" });
     expect(res.ok).toBe(false);
     expect(res.error).toMatch(/store not configured/);

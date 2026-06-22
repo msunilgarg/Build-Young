@@ -8,6 +8,7 @@
 import { SITE_DEFAULTS, SETTINGS_KEYS } from "../../src/site.js";
 import { kvConfigured, kvGet, kvSet } from "./kv.js";
 import { SCENARIO_MODEL, SCENARIO_MODELS } from "./scenarioAgent.js";
+import { REVIEW_MODEL, REVIEW_MODELS } from "./reviewAgent.js";
 
 const KEY = "settings:site";
 
@@ -73,9 +74,10 @@ export async function saveSettings(input) {
 // alerts (e.g. new tutor applications) are sent. Empty = fall back to the code default at the use
 // site. Kept out of SITE_DEFAULTS on purpose so it can't leak via /api/cohorts or the bundle.
 const OPS_KEY = "settings:ops";
-// notifyEmail = where founder alerts go. scenarioAgentEnabled/scenarioModel = the Week-9 funnel
-// agent (the API KEY itself stays a host env var — never stored here). All server-only.
-const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: SCENARIO_MODEL };
+// notifyEmail = where founder alerts go. scenarioAgentEnabled/scenarioModel = the Week-9 funnel agent;
+// reviewAgentEnabled/reviewModel = the "Check my work" agent (SPECS/008) — separate cost lever. The API
+// KEY itself stays a host env var (never stored here). All server-only.
+const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: SCENARIO_MODEL, reviewAgentEnabled: true, reviewModel: REVIEW_MODEL };
 
 export function defaultOps() {
   return { ...OPS_DEFAULTS };
@@ -88,6 +90,8 @@ export function sanitizeOps(input) {
     notifyEmail: typeof i.notifyEmail === "string" ? i.notifyEmail.trim() : OPS_DEFAULTS.notifyEmail,
     scenarioAgentEnabled: bool(i.scenarioAgentEnabled, OPS_DEFAULTS.scenarioAgentEnabled),
     scenarioModel: SCENARIO_MODELS.includes(i.scenarioModel) ? i.scenarioModel : OPS_DEFAULTS.scenarioModel,
+    reviewAgentEnabled: bool(i.reviewAgentEnabled, OPS_DEFAULTS.reviewAgentEnabled),
+    reviewModel: REVIEW_MODELS.includes(i.reviewModel) ? i.reviewModel : OPS_DEFAULTS.reviewModel,
   };
 }
 

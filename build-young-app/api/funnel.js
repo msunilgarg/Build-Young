@@ -30,6 +30,7 @@ import { listPaymentFailures } from "./_lib/paymentIssueStore.js";
 import { addQuestion, listQuestions } from "./_lib/questionStore.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 import { generateScenarios } from "./_lib/scenarioAgent.js";
+import { generateReview, localReview } from "./_lib/reviewAgent.js";
 
 const KEY = "funnel:events";
 const CAP = 100000; // keep only the most recent N events (LTRIM after each push)
@@ -210,6 +211,26 @@ async function makeScenarios(req, res) {
   let scenarios = [];
   try { scenarios = await generateScenarios({ stages, level, apiKey, model: ops.scenarioModel }); } catch { scenarios = []; }
   res.status(200).json({ configured: true, scenarios });
+}
+
+// --- POST ?resource=review: the "Check my work" agent (SPECS/008). Grades a student's build against
+// THEIR acceptance criteria → { configured, review }. Public (the student calls it). Uses Build Young's
+// own ANTHROPIC_API_KEY server-side; when off / no key / any failure, falls back to a deterministic
+// localReview so the Check step always returns a useful result (never an error). ---
+async function makeReview(req, res) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const ops = await loadOps(); // founder dashboard: on/off + model
+  const body = (await readBody(req)) || {};
+  const spec = typeof body.spec === "string" ? body.spec : "";
+  const acceptance = typeof body.acceptance === "string" ? body.acceptance : "";
+  const built = typeof body.built === "string" ? body.built : "";
+  let review = null;
+  if (apiKey && ops.reviewAgentEnabled !== false) {
+    try { review = await generateReview({ spec, acceptance, built, apiKey, model: ops.reviewModel }); } catch { review = null; }
+  }
+  const configured = !!review;            // true only when the AI agent actually produced the review
+  if (!review) review = localReview({ acceptance, built });
+  res.status(200).json({ configured, review });
 }
 
 // --- PUT (default): founder saves the cohort catalog. If this introduces a NEW cohort, everyone
@@ -453,6 +474,7 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "question") return saveQuestion(req, res); // public
     if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
     if (req.query && req.query.resource === "scenarios") return makeScenarios(req, res); // public, AI-generated
+    if (req.query && req.query.resource === "review") return makeReview(req, res); // public, AI "Check my work"
     if (req.query && req.query.resource === "partner-enroll") return addPartnerEnrollment(req, res); // FOUNDER-gated inside
     if (req.query && req.query.resource === "partner-onboard") return onboardPartnerEnrollment(req, res); // FOUNDER-gated inside
     if (req.query && req.query.resource === "partner-remove") return removePartnerEnrollment(req, res); // FOUNDER-gated inside
