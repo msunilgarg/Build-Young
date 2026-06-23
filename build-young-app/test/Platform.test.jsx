@@ -136,6 +136,18 @@ describe("Check my work — the Check step (SPECS/008 T40)", () => {
     expect(screen.getByText(/Add password reset/)).toBeInTheDocument();
   });
 
+  it("lets the student refine the 'Done when…' criteria in the build week (syncs to s.shape.acceptance)", async () => {
+    const user = userEvent.setup();
+    render(<CheckHarness />);
+    // The criteria field is editable here, pre-filled from the Lesson-2 spec (single source of truth).
+    const crit = screen.getByLabelText(/Your Done-when criteria/i);
+    expect(crit).toHaveValue("Done when login works");
+    await user.clear(crit);
+    await user.type(crit, "Done when login works AND notes persist after refresh.");
+    // Round-trips through the same s.shape.acceptance Lesson 2 reads/writes.
+    expect(crit).toHaveValue("Done when login works AND notes persist after refresh.");
+  });
+
   it("never errors offline — falls back to a local self-check from the acceptance criteria", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("offline"); }));
     const user = userEvent.setup();
@@ -143,7 +155,9 @@ describe("Check my work — the Check step (SPECS/008 T40)", () => {
     await user.type(screen.getByLabelText(/What I built/i), "nothing relevant here");
     await user.click(screen.getByRole("button", { name: /Check my work/i }));
     // localReview flags the unmet criterion as a self-check next step (no crash, a result still renders).
-    expect(await screen.findByText(/Done when login works/)).toBeInTheDocument();
+    // Assert via the fallback's distinctive phrasing — the criterion text itself now also appears in the
+    // editable criteria field, so match the localReview-only prefix to stay unambiguous.
+    expect(await screen.findByText(/Check this one yourself/)).toBeInTheDocument();
   });
 });
 

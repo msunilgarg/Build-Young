@@ -1132,7 +1132,13 @@ export function BuildLayer({ week, s, setS, bare }) {
           a free local self-check when off/no key); a full outage falls back to localReview client-side. */}
       <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px" }}>
         <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}><Repeat size={13} style={{ verticalAlign: "-2px", marginRight: 5, color: C.emerald }} />Check my work — the “Check” step</div>
-        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Built this layer? Paste what you made (or what you see when you use it) and get an independent check against your <b>“Done when…”</b> criteria from Lesson 2. You can't grade your own homework — this is the check builders do before they ship.</p>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Built this layer? Paste what you made (or what you see when you use it) and get an independent check against your <b>“Done when…”</b> criteria. You can't grade your own homework — this is the check builders do before they ship.</p>
+        {/* The criteria are editable RIGHT HERE — as you build you learn what "done" really means, so refine
+            them per layer. Same s.shape.acceptance as Lesson 2 (single source of truth) — edits sync back. */}
+        <label style={{ display: "block", marginBottom: 12 }}>
+          <span style={lab}>Your “Done when…” criteria <span style={{ textTransform: "none", letterSpacing: 0, fontWeight: 600, color: C.muted }}>— refine as you build; saved to your Lesson 2 spec</span></span>
+          <textarea aria-label="Your Done-when criteria" value={shape.acceptance || ""} onChange={(e) => setShapeField("acceptance", e.target.value)} rows={3} placeholder="What does “done” look like for this layer? e.g. “Done when a user can sign up, log in, and see their saved notes after a refresh.” Sharpen it as you learn." style={fieldS} />
+        </label>
         <label style={{ display: "block" }}>
           <span style={lab}>What I built</span>
           <textarea aria-label="What I built" value={built} onChange={(e) => setBuilt(e.target.value)} rows={4} placeholder="Paste what you built, the link, or what happens when you use it — e.g. “I added login; you can sign up, log in, and your notes save and come back after a refresh.”" style={fieldS} />
