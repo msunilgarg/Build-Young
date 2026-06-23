@@ -66,6 +66,24 @@ describe("Course hub (per-week resources & catch-up)", () => {
     expect(await screen.findByText(/Unlocks when you reach Lesson 12/i)).toBeInTheDocument();
   });
 
+  it("the 'create your repo' pre-req explains what a repo is + links the starter template when set (SPECS/009 T44)", async () => {
+    CONFIG.starterRepoUrl = "https://github.com/build-young/starter";
+    const user = userEvent.setup();
+    await enrollToDashboard(user);
+    expect(await screen.findByText(/Get set up before you build/i)).toBeInTheDocument();
+    expect(screen.getByText(/is just your project's folder/i)).toBeInTheDocument();           // what's a repo
+    expect(screen.getByRole("link", { name: /Use this template/i })).toBeInTheDocument();      // one-click template
+    CONFIG.starterRepoUrl = "";
+  });
+
+  it("hides the 'Use this template' link when no starter repo URL is set — the explainer still shows", async () => {
+    CONFIG.starterRepoUrl = "";
+    const user = userEvent.setup();
+    await enrollToDashboard(user);
+    expect(screen.getByText(/is just your project's folder/i)).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Use this template/i })).toBeNull();
+  });
+
   it("has no serious/critical accessibility violations on the Course hub", async () => {
     const user = userEvent.setup();
     const { container } = render(<App />);

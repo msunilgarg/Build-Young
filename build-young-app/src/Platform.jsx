@@ -19,6 +19,7 @@ import { SCENARIO_GROUPS } from "./scenarios.js";
 const PREREQS = [
   { id: "computer", title: "A laptop or desktop", when: "Day one", why: "You'll be writing, building, and checking your app — much easier on a real keyboard and screen than a phone or tablet. A modern web browser and a steady internet connection too.", },
   { id: "github", title: "A free GitHub account", when: "Lesson 3", build: true, why: "Sign up for this one first — it's how you'll sign in to the other tools below, so they're one click instead of a new account each time. It's also where your code lives, with every version saved, so nothing ever gets lost.", link: "https://github.com" },
+  { id: "repo", title: "Your project — create your repo", when: "Lesson 3", build: true, why: "A “repo” is just your project's folder, saved online, that keeps every version so nothing's ever lost. The easiest way to make yours: open our starter template and click “Use this template” → name it → Create. That gives you a repo (with your playbook already inside) in one click — no setup needed. (No template link yet? Your instructor will share it — or on GitHub, click New → Create repository.)", configLink: { key: "starterRepoUrl", label: "Use this template" } },
   { id: "claude", title: "A Claude account with Claude Pro, for Claude Code", when: "Lesson 3", build: true, why: "Claude Code is your AI build partner — the coding agent that writes and edits your whole app as you describe what you want (it's how this very site was built). It runs right in your browser at claude.ai/code — you sign in with your Claude account. You'll need Claude Pro (about $20/month) for real building — a free account won't keep up with a full project. A parent can set this up.", link: "https://claude.ai/code" },
   { id: "vercel", title: "A free Vercel account", when: "Lesson 3", build: true, why: "Sign in with GitHub. This is how you put your app on the internet for real people to use — it builds and hosts it for you (no installs on your computer), and gives you a free web address (like your-app.vercel.app).", link: "https://vercel.com" },
   { id: "stripe", title: "A Stripe account — a parent sets this up", when: "Lesson 5", why: "When you add payments in Lesson 5, Stripe is how your product takes real money safely — you never handle card details yourself. A parent must set it up since you're under 18 (free to start; Stripe takes a small fee per sale).", link: "https://stripe.com" },
@@ -100,6 +101,8 @@ function OverviewPanel({ s, batch, onTab, setS }) {
                   {p.why}
                   {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
                   {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
+                  {/* A config-driven link (e.g. the founder's starter template repo, SPECS/009) — shown only once the URL is set. */}
+                  {p.configLink && CONFIG[p.configLink.key] && <> <a href={CONFIG[p.configLink.key]} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{p.configLink.label} ↗</a></>}
                 </div>
               </div>
             </div>
@@ -263,6 +266,7 @@ function PrereqChecklist({ s, setS, items, title, blurb }) {
               <b {...act(() => togglePrereq(p.id))} style={{ cursor: "pointer", color: checked ? C.muted : C.ink, textDecoration: checked ? "line-through" : "none" }}>{p.title}</b>
               {p.link && <> <a href={p.link} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>Open ↗</a></>}
               {p.links && p.links.map((l) => <span key={l.url}> <a href={l.url} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{l.label} ↗</a></span>)}
+              {p.configLink && CONFIG[p.configLink.key] && <> <a href={CONFIG[p.configLink.key]} target="_blank" rel="noopener noreferrer" style={{ color: C.emerald, fontWeight: 700, whiteSpace: "nowrap" }}>{p.configLink.label} ↗</a></>}
               {p.why && <span style={{ display: "block", color: C.muted, marginTop: 2 }}>{p.why}</span>}
             </span>
           </div>
