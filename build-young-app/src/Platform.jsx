@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { TrendingUp, LineChart as LineIcon, GraduationCap, Check, Lock, Newspaper, Sparkles, Video, Mail, BookOpen, Users, Activity, Award, Calendar, Flag, Repeat } from "lucide-react";
 import { C, fmt } from "./theme.js";
 import { Card, Mark, Pill, act, PageBackdrop } from "./ui.jsx";
-import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH } from "./lib.js";
+import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH, downloadFile } from "./lib.js";
 import { localReview } from "../api/_lib/reviewAgent.js"; // pure helper (no key/server) — the fully-offline Check fallback
-import { AGENTIC_STEPS } from "./projectKit.js"; // single source of truth for the Spec→Build→Check→Ship steps
+import { AGENTIC_STEPS, buildProjectKit, KIT_FILES } from "./projectKit.js"; // SoT for the steps + the kit generator
 import { cohortStartInfo, classDateLabel, effectivePosition, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
 import { WEEKS } from "./course.js";
 import { OBJECTIVES } from "./courseState.js";
@@ -1019,10 +1019,55 @@ export function ShapePlan({ s, setS, bare }) {
       {/* "Done when…" — the checkable done-conditions (sharper than the success vision above). This is what
           the Check step (Lessons 3–6/8) grades your build against. Stored at s.shape.acceptance. */}
       {field("acceptance", "“Done when…” — your acceptance criteria", "Your checkable done-conditions: a short list of “Done when…” lines you can verify just by looking — sharper than the vision above. This is what you'll check your build against in the Check step. e.g. “Done when a new user can sign up, log in, and still see their saved notes after a refresh.”", 5)}
+      {/* The project kit (SPECS/009): compile this spec into the docs the student's AI reads. */}
+      <ProjectKitPanel s={s} />
       {/* Tools setup now lives in this lesson's "Pre-req" tab (weekPrereqs), not inline here. */}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
+}
+
+// Lesson-2 project kit (SPECS/009 T43): compile the spec into the four docs the student's AI reads, and
+// hand them over with zero friction — "Set up with Claude Code" (one prompt their OWN agent runs to write
+// the files) + per-file download. Always reflects the LIVE spec (re-generatable); buildProjectKit is the
+// deterministic base. A readonly preview doubles as a copy-fallback when the clipboard is blocked.
+function ProjectKitPanel({ s }) {
+  const kit = buildProjectKit({ build: s.build, shape: s.shape });
+  const [copied, setCopied] = useState(false);
+  const setupPrompt = [
+    "Set up my project's guide files. Create each of these files in my project with EXACTLY the content below, then commit them. From now on, read them every time we build — they're your guide (CLAUDE.md), my spec + “Done when…” (SPEC.md), my voice (POSITIONING.md), and how we work (PLAYBOOK.md).",
+    "",
+    ...KIT_FILES.map((f) => `===== ${f} =====\n${kit[f]}`),
+  ].join("\n");
+  const copySetup = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(setupPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    } catch { /* clipboard blocked — the preview textarea below is selectable as a fallback */ }
+  };
+  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
+  return (
+    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px", marginTop: 16 }}>
+      <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📦 Your project kit — the docs your AI reads</div>
+      <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Your spec becomes four files your AI build partner reads <i>every</i> session — <b>CLAUDE.md</b> (the guide), <b>SPEC.md</b> (this spec + your “Done when…”), <b>POSITIONING.md</b> (your voice), and <b>PLAYBOOK.md</b> (how we build). They're what keep your AI on track instead of drifting. Always reflects your latest spec — re-do this any time you change things.</p>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+        <button type="button" className="btn" onClick={copySetup} style={{ background: copied ? C.green : C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700 }}>{copied ? "Copied — paste into Claude Code ✓" : "Set up with Claude Code"}</button>
+        <span style={{ fontSize: 12, color: C.muted }}>Paste it into Claude Code — it writes all four files for you.</span>
+      </div>
+      <div style={{ marginTop: 10 }}>
+        <span style={lab}>Or download each file</span>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {KIT_FILES.map((f) => (
+            <button key={f} type="button" className="btn" onClick={() => downloadFile(f, kit[f], "text/markdown")} style={{ background: "transparent", border: `1px solid ${C.turq}`, color: C.turq, padding: "6px 12px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>{f}</button>
+          ))}
+        </div>
+      </div>
+      <details style={{ marginTop: 10 }}>
+        <summary style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>Preview the setup prompt →</summary>
+        <textarea readOnly aria-label="Project kit setup prompt" value={setupPrompt} rows={8} onFocus={(e) => e.target.select()}
+          style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 11.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.45 }} />
+      </details>
+    </div>
+  );
 }
 
 // Lesson 3 student activity — "Make It (with AI)": hand your Lesson 2 spec to AI and run the
