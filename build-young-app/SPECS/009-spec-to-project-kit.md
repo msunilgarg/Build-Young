@@ -2,9 +2,15 @@
 
 > One feature = one short spec. Decisions go here; PRs implement them.
 
-**Status:** draft
+**Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-06-23
+
+> **Approved 2026-06-23** (founder sign-off). Decisions: v1 delivery = **"Set up with Claude Code" + download**
+> (Path A+B); repo creation via a **starter template repo**; **generation = BOTH** — a deterministic
+> template (always-on base) **+** an optional AI expand/polish layer (founder-toggleable, key-gated, falls
+> back to the deterministic output); kit is **re-generatable** (keep-in-sync). GitHub auto-commit for minors
+> (Path C) **deferred** to a consent/auth phase. Phase 1 tasks T42–T45 queued.
 
 ## What
 Compile the student's Week-1 bet (`s.build`) + Week-2 spec (`s.shape`) into a **project kit** —
@@ -72,7 +78,6 @@ Net flow for a true beginner: *make a GitHub account (pre-req) → "Use this tem
 
 ## Out of scope (for Phase 1)
 - **GitHub commit / auth (Path C)** — separate, consent-gated phase; not built until approved.
-- AI "expand/polish" of the docs (deterministic template only for v1).
 - The live-URL-into-`CLAUDE.md` idea (fast follow-on once v1 lands).
 
 ## Surfaces & sources of truth
@@ -81,8 +86,8 @@ Net flow for a true beginner: *make a GitHub account (pre-req) → "Use this tem
 
 ## Decisions & open questions
 - ✅ **v1 delivery = Path A ("Set up with Claude Code") + B (download)** — founder chose A; C deferred.
-- ✅ **Build environment is already settled** by the existing pre-reqs: **browser Claude Code (claude.ai/code) + GitHub + Vercel** — no local install. The kit + repo-creation steps target that.
+- ✅ **Build environment** settled by the existing pre-reqs: **browser Claude Code (claude.ai/code) + GitHub + Vercel** — no local install.
 - ✅ **Repo creation = the Build Young starter template repo** ("Use this template", one click) + a plain-English "what's a repo" — folded into the existing pre-req surface.
-- **Open — generation:** deterministic template (recommended) vs. AI-expanded (cost + nondeterminism)?
-- **Open — keep-in-sync:** re-generatable kit (recommended yes) so docs follow the evolving spec?
+- ✅ **Generation = BOTH** — a deterministic template is the always-on base (predictable, offline-safe, free); an **optional AI expand/polish layer** sharpens the docs when configured (founder-toggleable + key-gated, mirroring the scenario/review agents; **off / no key ⇒ the deterministic output**, never an error).
+- ✅ **Keep-in-sync = yes** — the kit is re-generatable so the docs follow the evolving spec.
 - **Deferred (decision needed later, with counsel):** GitHub write for minors (Path C) — OAuth tokens for under-18s, write scope, parental consent; narrow GitHub App + PR-only if pursued.
