@@ -4,6 +4,7 @@ import { C, fmt } from "./theme.js";
 import { Card, Mark, Pill, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH } from "./lib.js";
 import { localReview } from "../api/_lib/reviewAgent.js"; // pure helper (no key/server) — the fully-offline Check fallback
+import { AGENTIC_STEPS } from "./projectKit.js"; // single source of truth for the Spec→Build→Check→Ship steps
 import { cohortStartInfo, classDateLabel, effectivePosition, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
 import { WEEKS } from "./course.js";
 import { OBJECTIVES } from "./courseState.js";
@@ -428,13 +429,8 @@ function GlossaryCard({ title, items }) {
 }
 // The Agentic Engineering Process (SPECS/008) — the method Build Young is itself built with, named and
 // taught as a through-line. Four steps the student repeats every build week. `compact` renders a one-line
-// reminder strip (used at the head of Acts 2 & 3); the full card is shown in Lesson 1.
-const AGENTIC_STEPS = [
-  { n: "Spec", d: "decide what \"done\" looks like before you build — write it down so you (and the AI) don't drift." },
-  { n: "Build", d: "hand the AI your spec and build the next small slice — one working piece at a time." },
-  { n: "Check", d: "get an independent check before you call it done — you can't grade your own homework." },
-  { n: "Ship", d: "put the working slice live. Small, finished, real — then loop back to Spec for the next piece." },
-];
+// reminder strip (used at the head of Acts 2 & 3); the full card is shown at the head of Lesson 2.
+// AGENTIC_STEPS is the single source of truth (foundation: src/projectKit.js) — shared with the kit's PLAYBOOK.md.
 function AgenticProcessPrimer({ compact }) {
   if (compact) {
     return (
