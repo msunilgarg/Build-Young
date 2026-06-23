@@ -938,8 +938,6 @@ Why people love it: [the payoff].
 
   const inner = (
     <>
-      {/* Lesson 1 = the head of the course: introduce the named method students repeat all term. */}
-      <AgenticProcessPrimer />
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your product — start from the customer 🧭</h3>
       <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 14px" }}>Fill these in as you shape your product. Saved automatically.</p>
 
@@ -1013,6 +1011,8 @@ export function ShapePlan({ s, setS, bare }) {
   );
   const inner = (
     <>
+      {/* Lesson 2 = where the method kicks in (you write the spec) — introduce the named loop here. */}
+      <AgenticProcessPrimer />
       <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Shape your idea — write the spec ✏️</h3>
       <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 14px" }}>Write your spec, one section at a time. Saved automatically.</p>
       {field("product", "The core product", "The main thing your product does, who it's for, and the one 'wow' moment. Describe what it is, the key screens and features, and what it's like to use — enough to build the core product you can ship live. (Just the core — no accounts or payments yet.)", 6)}
