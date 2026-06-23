@@ -37,6 +37,53 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 008 — teach the build loop "The Agentic Engineering Process" (Spec → Build → Check → Ship).
      See SPECS/008-teach-the-build-loop.md. All shipped (T37→T41). ===== -->
 
+<!-- ===== Spec 009 — Spec → Project Kit (the docs the student's AI reads). See SPECS/009-spec-to-project-kit.md (APPROVED).
+     Phase 1: T42 generator → T43 Lesson-2 kit UI (Set up with Claude Code + download) → T44 "create your repo" beginner
+     step (+ starter template) → T45 optional AI expand/polish. T43/T45 depend on T42. Path C (GitHub commit) deferred. ===== -->
+
+## [ ] T42 — Project-kit generator (pure module: spec → CLAUDE.md / SPEC.md / POSITIONING.md / PLAYBOOK.md)  ·  risk: med
+Goal: a dependency-free function that compiles the student's spec into the four kit files (deterministic base).
+Acceptance criteria:
+- New foundation module `src/projectKit.js` (dependency-light, like `funnel.js`): `buildProjectKit({ build, shape })` → `{ "CLAUDE.md", "SPEC.md", "POSITIONING.md", "PLAYBOOK.md" }` (string contents) via a deterministic template — no AI, offline-safe.
+- Field→file mapping per SPECS/009: CLAUDE.md ← product/pain/accounts(+guardrail)/payments(+guardrail)/production; SPEC.md ← the four layers + success + the `acceptance` "Done when…" contract; POSITIONING.md ← promise/pr/pain/trueVsGoal (claims make-vs-avoid); PLAYBOOK.md ← the SHARED agentic rules, sourced from the existing `MAKE_PRINCIPLES` + `GO_LIVE_DEFAULT` (imported, NOT duplicated).
+- Empty fields degrade gracefully (placeholder guidance, never "undefined").
+- Unit tests: each field lands in the right file/section; both guardrails present; PLAYBOOK derives from the shared source. build + tests green.
+Files: src/projectKit.js (new), test/project-kit.test.js (new), build-young-app/CLAUDE.md, BUILD-YOUNG-ARCHITECTURE.md
+Stop-and-ask if: (none — pure logic + tests)
+
+## [ ] T43 — Lesson-2 "Generate my project kit" action (Set up with Claude Code + download)  ·  risk: med
+Goal: at the end of Lesson 2 the student generates the kit and gets it into their project frictionlessly.
+Acceptance criteria:
+- A **"Generate my project kit"** action in the Lesson-2 area (ShapePlan), **re-generatable** (reflects later edits, e.g. refined acceptance criteria), using `buildProjectKit` (T42).
+- **Path A — "Set up with Claude Code":** a button copies a single prompt that embeds the four files' contents and instructs Claude Code to write them into the student's project (the on-brand, zero-auth path).
+- **Path B — download:** download each file (reuse `downloadFile` from lib.js — per-file is fine, no new zip dependency).
+- Calm, POSITIONING-voiced copy; never gates progression.
+- Deterministic render test: the action renders; clicking "Set up with Claude Code" produces a prompt containing the file names + the student's spec content (assert visible/extracted strings). build + tests green; CLAUDE.md note.
+Files: src/Platform.jsx, src/lib.js (only if a download helper tweak is needed), test/Platform.test.jsx, build-young-app/CLAUDE.md
+Stop-and-ask if: (depends on T42)
+
+## [ ] T44 — "Create your repo" beginner step (+ Build Young starter template repo)  ·  risk: med
+Goal: a true beginner (doesn't know what a repo is) can create their project in one click.
+Acceptance criteria:
+- On the existing pre-req surface (`PREREQS` / "Get set up" / Lesson-3 Pre-req tab — extend, don't duplicate), add a plain-English **"what's a repo"** one-liner + a one-click **"Use this template"** link to the Build Young **starter template repo**.
+- The template-repo URL is a **founder-editable site setting** (like the Stripe links / booking link in `src/site.js` + the console Site-settings editor), not hardcoded — defaults blank/safe.
+- Copy is beginner-friendly + POSITIONING-voiced; a11y (`act()` / real links with rel="noopener noreferrer").
+- Render test: the explainer + template link render (link hidden/disabled cleanly when the URL isn't set). build + tests green; CLAUDE.md + BUILD-YOUNG-ARCHITECTURE.md (new setting) updated.
+Files: src/Platform.jsx, src/site.js, api/_lib/settingsStore.js (if the field needs sanitizing), src/FounderDashboard.jsx (settings field), test/Platform.test.jsx, build-young-app/CLAUDE.md, BUILD-YOUNG-ARCHITECTURE.md
+Stop-and-ask if: (none — UI + a setting)
+Note (founder asset, not code): the actual template repo must be created on GitHub (Settings → Template repository), pre-loaded with PLAYBOOK.md + placeholder docs, and its URL pasted into the new setting.
+
+## [ ] T45 — Optional AI expand/polish layer for the kit (toggleable, key-gated, deterministic fallback)  ·  risk: med
+Goal: when configured, an AI pass sharpens the generated docs; otherwise the deterministic kit is used unchanged.
+Acceptance criteria:
+- New `api/_lib/kitAgent.js` (mirror `reviewAgent.js`): takes the deterministic kit + spec, returns a sanitized, polished version (same file set + shape; `sanitizeKit` clamps to the known files + length caps so a bad model reply can't inject junk). Uses Build Young's own server-side `ANTHROPIC_API_KEY`; never throws.
+- `POST /api/funnel?resource=kit` (student-initiated, like `?resource=review`): `{ build, shape }` → `{ configured, kit }`; off / no key / any failure ⇒ returns the **deterministic** `buildProjectKit` output (never an error).
+- Founder ops toggle `kitAgentEnabled` (default true) + `kitModel` (separate cost lever; `saveOps` merges); console editor (sibling of ReviewAgentEditor).
+- Client uses the AI kit when `configured`, else the local deterministic kit.
+- Tests: kitAgent pure helpers (sanitizeKit clamps + fallback) + settings-store ops-field case. build + tests green; CLAUDE.md + BUILD-YOUNG-ARCHITECTURE.md updated.
+Files: api/_lib/kitAgent.js (new), api/funnel.js, api/_lib/settingsStore.js, src/FounderDashboard.jsx, src/Platform.jsx, test/kit-agent.test.js (new), test/settings-store.test.js, build-young-app/CLAUDE.md, BUILD-YOUNG-ARCHITECTURE.md
+Stop-and-ask if: the design would expose the API key client-side or send PII beyond the existing agent patterns (must not). (depends on T42/T43)
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
