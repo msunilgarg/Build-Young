@@ -33,16 +33,29 @@ Re-generatable any time (the spec keeps evolving — acceptance criteria are edi
 
 Generation is a **deterministic template** (drops the student's own words into the right sections — predictable, offline-safe, no PII to a model). Optional later: an AI "expand/polish" pass reusing the existing agent plumbing.
 
+## Create the repo from zero — they don't know what a repo is (the missing first step)
+The existing onboarding (`PREREQS` + the "Get set up before you build" / per-week "Pre-req" tab) already
+walks the student to **make** a GitHub account, a Claude account (Claude Code in the browser at
+claude.ai/code), and Vercel — but it never has them **create a repo**, and never says what one *is*. A
+beginner can't "put the kit in their repo" if they've never made one. So Phase 1 must include a
+**beginner "create your project" step**, built ON the existing pre-req surface (don't duplicate it):
+
+- **Plain-English explainer (one line):** *"A repo is your project's folder, saved online, that keeps every version so nothing's ever lost."* No git jargon.
+- **One-click repo creation via a Build Young starter template repo (promoted into Phase 1).** Build Young publishes a public GitHub **template repo** pre-loaded with `PLAYBOOK.md` + placeholder `CLAUDE.md`/`SPEC.md`/`POSITIONING.md`. The student clicks **"Use this template" → name it → Create** — a repo exists in one click, **no git knowledge required**, and the shared playbook is already in place. Then path A (or download) fills in the placeholders with their spec.
+- **Connect their tools to it:** brief steps to open the repo in **Claude Code (claude.ai/code)** and link it to **Vercel** — folding into the existing Lesson-3 pre-reqs, which already point at those tools.
+
+Net flow for a true beginner: *make a GitHub account (pre-req) → "Use this template" to create the repo (one click) → "Set up with Claude Code" fills in your kit → build.*
+
 ## Delivery — make it as easy as possible (phased)
 **Phase 1 — zero auth, ships first (works for everyone):**
-- **A. "Set up with Claude Code" (recommended easiest + most on-brand).** One button copies a single prompt that instructs the student's *own* Claude Code to **write all four files into their project**. No GitHub integration, no tokens, no account linking — and it teaches the exact workflow. This is the lowest-friction path and sidesteps every auth/minor risk.
+- **A. "Set up with Claude Code" (chosen — easiest + most on-brand).** One button copies a single prompt that instructs the student's *own* Claude Code to **write all four files into their project**. No GitHub integration, no tokens, no account linking — and it teaches the exact workflow. Lowest-friction, sidesteps every auth/minor risk.
 - **B. Download.** Download the kit as a `.zip` (or individual files) to drag into their repo. Universal fallback.
+- **Repo creation** via the **starter template repo** (above) — the beginner's "create a repo" path.
 
 **Phase 2 — convenience, gated (the "commit to their repo for them" idea):**
-- **C. Connect GitHub → commit for them.** Student pastes/picks a repo; we open a **PR** adding the four files. ⚠️ This is the **highest-risk** piece — write-access to a **minor's** GitHub: needs a narrow-scoped **GitHub App** (contents-write on the one repo they pick, PR-only — never force-push), an OAuth/consent flow, token handling, and **parental-consent** review (per BUSINESS.md "working with minors"). Specced here but **built only after the consent/auth design is approved** — and only if A/B prove insufficient.
+- **C. Connect GitHub → commit for them.** Student pastes/picks a repo; we open a **PR** adding the four files. ⚠️ The **highest-risk** piece — write-access to a **minor's** GitHub: needs a narrow-scoped **GitHub App** (contents-write on the one repo they pick, PR-only — never force-push), an OAuth/consent flow, token handling, and **parental-consent** review (per BUSINESS.md "working with minors"). **Deferred** — built only after the consent/auth design is approved with counsel, and only if A/B prove insufficient.
 
-## Other ideas to reduce friction (candidates, not all in v1)
-- **Starter template repo.** Build Young publishes a GitHub **template repo** pre-loaded with `PLAYBOOK.md` + placeholder docs; "Use this template" gives the student a repo in one click, then they paste their generated docs (or run path A). Cuts first-time setup to near-zero.
+## Other ideas to reduce friction
 - **Keep-in-sync.** Because the spec evolves (editable acceptance through build weeks), make the kit **re-generatable** with one click so `SPEC.md`/`CLAUDE.md` never go stale.
 - **Connect the live URL.** Capture the student's deployed URL (Week 7) into `CLAUDE.md` so the AI/Check know where "live" is.
 
@@ -50,21 +63,26 @@ Generation is a **deterministic template** (drops the student's own words into t
 - [ ] A **"Generate my project kit"** action (end of Lesson 2, re-runnable) produces the four files from `s.build` + `s.shape` via a deterministic template (pure function, unit-tested).
 - [ ] **Path A:** a "Set up with Claude Code" button copies a prompt that, pasted into Claude Code, writes all four files into the student's project (the prompt embeds the generated file contents).
 - [ ] **Path B:** the student can **download** the kit (zip or per-file).
+- [ ] **Create-your-repo step:** a beginner-friendly "what's a repo" line + a one-click link to **"Use this template"** (the Build Young starter template repo), surfaced on the existing pre-req surface (not duplicated). The template repo ships pre-loaded with `PLAYBOOK.md` + placeholder docs.
 - [ ] `PLAYBOOK.md` content comes from the existing shared source (`MAKE_PRINCIPLES`/`GO_LIVE_DEFAULT`), not duplicated.
 - [ ] Re-generating reflects edits made since (e.g. refined acceptance criteria).
-- [ ] Pure generator unit tests (each field lands in the right file/section; guardrails present) + a render test (the action + copy/download controls render). Build + tests green; POSITIONING-voiced copy; `CLAUDE.md` + `BUILD-YOUNG-ARCHITECTURE.md` updated.
+- [ ] Pure generator unit tests (each field lands in the right file/section; guardrails present) + a render test (the action + copy/download/create-repo controls render). Build + tests green; POSITIONING-voiced copy; `CLAUDE.md` + `BUILD-YOUNG-ARCHITECTURE.md` updated.
+
+> **Founder asset (not code):** the starter **template repo** must be created on GitHub (`Settings → Template repository`) and its URL wired into the app — a go-live setup item, like the Stripe links.
 
 ## Out of scope (for Phase 1)
 - **GitHub commit / auth (Path C)** — separate, consent-gated phase; not built until approved.
 - AI "expand/polish" of the docs (deterministic template only for v1).
-- The template-repo + live-URL ideas (fast follow-ons once v1 lands).
+- The live-URL-into-`CLAUDE.md` idea (fast follow-on once v1 lands).
 
 ## Surfaces & sources of truth
 - Copy/voice → **POSITIONING.md**. Curriculum mechanics (`s.shape`, the build layers) → **CLAUDE.md**.
 - Touches: `src/Platform.jsx` (the Lesson-2 kit action/UI), a new pure generator module (e.g. `src/projectKit.js`, foundation — dependency-free, shared/testable), tests, `CLAUDE.md`, `BUILD-YOUNG-ARCHITECTURE.md`. Phase 2 would add an `api/` GitHub integration + auth (separate).
 
-## Risks / open questions
-1. **GitHub write for minors (Path C)** — the program's highest-stakes area. Storing/using OAuth tokens for under-18s, write scope, parental consent. Recommend: **defer**; if pursued, narrow GitHub App + PR-only + consent flow + counsel review. **Decision needed.**
-2. **v1 delivery set** — is **A (Claude Code prompt) + B (download)** the right Phase-1 scope, with C deferred? (Recommended.)
-3. **Generation** — deterministic template (recommended) vs. AI-expanded (cost + nondeterminism). 
-4. **Keep-in-sync** — re-generatable kit (recommended) so the docs follow the evolving spec.
+## Decisions & open questions
+- ✅ **v1 delivery = Path A ("Set up with Claude Code") + B (download)** — founder chose A; C deferred.
+- ✅ **Build environment is already settled** by the existing pre-reqs: **browser Claude Code (claude.ai/code) + GitHub + Vercel** — no local install. The kit + repo-creation steps target that.
+- ✅ **Repo creation = the Build Young starter template repo** ("Use this template", one click) + a plain-English "what's a repo" — folded into the existing pre-req surface.
+- **Open — generation:** deterministic template (recommended) vs. AI-expanded (cost + nondeterminism)?
+- **Open — keep-in-sync:** re-generatable kit (recommended yes) so docs follow the evolving spec?
+- **Deferred (decision needed later, with counsel):** GitHub write for minors (Path C) — OAuth tokens for under-18s, write scope, parental consent; narrow GitHub App + PR-only if pursued.
