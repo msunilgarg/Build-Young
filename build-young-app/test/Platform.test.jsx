@@ -103,15 +103,39 @@ describe("Lesson 2 spec — 'Done when…' acceptance criteria (SPECS/008 T38)",
     expect(field).toHaveValue("Done when a user signs up, logs in, and sees saved notes after a refresh.");
   });
 
-  it("shows the named 'Agentic Engineering Process' (Spec → Build → Check → Ship) primer in Lesson 2 (not Lesson 1)", () => {
+  it("shows the named 'Agentic Engineering Process' primer in Lesson 2 (not Lesson 1)", () => {
     render(<ShapeHarness />);
-    // The method primer lives at the head of the SPEC lesson (Lesson 2), asserted via each step's
-    // distinctive line — Spec / Build / Check / Ship — so the test pins the rendered content.
-    expect(screen.getByText(/The Agentic Engineering Process/)).toBeInTheDocument();
-    expect(screen.getByText(/decide what "done" looks like before you build/)).toBeInTheDocument(); // Spec
-    expect(screen.getByText(/build the next small slice/)).toBeInTheDocument();                      // Build
-    expect(screen.getByText(/you can't grade your own homework/)).toBeInTheDocument();               // Check
-    expect(screen.getByText(/put the working slice live/)).toBeInTheDocument();                      // Ship
+    // Assert the primer card via its UNIQUE intro line — the kit's PLAYBOOK.md preview (also on this
+    // lesson now) embeds the same step descriptions, so match a phrase only the primer card uses.
+    expect(screen.getByText(/You'll repeat these four steps every time you build something/)).toBeInTheDocument();
+    expect(screen.getAllByText(/The Agentic Engineering Process/).length).toBeGreaterThan(0);
+  });
+});
+
+describe("Lesson 2 project kit (SPECS/009 T43)", () => {
+  // Render ShapePlan directly (it gets the kit from s.build + s.shape).
+  function KitHarness() {
+    const [st, setSt] = useState({
+      build: { promise: "Quiz yourself from your own notes in 2 minutes." },
+      shape: { product: "A notes-to-quiz web app for students.", acceptance: "Done when notes become a quiz." },
+    });
+    return <ShapePlan s={st} setS={setSt} bare />;
+  }
+
+  it("offers 'Set up with Claude Code' + per-file download, and the setup prompt embeds the four files built from the spec", () => {
+    render(<KitHarness />);
+    expect(screen.getByText(/Your project kit/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Set up with Claude Code/i })).toBeInTheDocument();
+    // a download button per kit file
+    expect(screen.getByRole("button", { name: /^CLAUDE\.md$/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^PLAYBOOK\.md$/ })).toBeInTheDocument();
+    // the setup prompt (readonly preview = the exact text "Set up with Claude Code" copies) embeds all
+    // four files, built from the live spec — so pasting it into Claude Code writes the real kit.
+    const prompt = screen.getByLabelText(/Project kit setup prompt/i).value;
+    for (const f of ["CLAUDE.md", "SPEC.md", "POSITIONING.md", "PLAYBOOK.md"]) expect(prompt).toContain(`===== ${f} =====`);
+    expect(prompt).toContain("A notes-to-quiz web app for students.");      // spec product → kit
+    expect(prompt).toContain("Quiz yourself from your own notes");          // promise → POSITIONING
+    expect(prompt).toContain("Done when notes become a quiz.");             // acceptance → SPEC.md
   });
 });
 
