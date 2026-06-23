@@ -31,6 +31,8 @@ import { addQuestion, listQuestions } from "./_lib/questionStore.js";
 import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 import { generateScenarios } from "./_lib/scenarioAgent.js";
 import { generateReview, localReview } from "./_lib/reviewAgent.js";
+import { generateKit } from "./_lib/kitAgent.js";
+import { buildProjectKit } from "../src/projectKit.js";
 
 const KEY = "funnel:events";
 const CAP = 100000; // keep only the most recent N events (LTRIM after each push)
@@ -231,6 +233,24 @@ async function makeReview(req, res) {
   const configured = !!review;            // true only when the AI agent actually produced the review
   if (!review) review = localReview({ acceptance, built });
   res.status(200).json({ configured, review });
+}
+
+// --- POST ?resource=kit: the OPTIONAL project-kit polish agent (SPECS/009 T45). Returns { configured,
+// kit } — the AI-polished four files when the agent is on + keyed, else the deterministic buildProjectKit
+// output. Public (the student calls it); Build Young's own ANTHROPIC_API_KEY stays server-side. ---
+async function makeKit(req, res) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const ops = await loadOps();
+  const body = (await readBody(req)) || {};
+  const build = body.build && typeof body.build === "object" ? body.build : {};
+  const shape = body.shape && typeof body.shape === "object" ? body.shape : {};
+  let kit = null;
+  if (apiKey && ops.kitAgentEnabled !== false) {
+    try { kit = await generateKit({ build, shape, apiKey, model: ops.kitModel }); } catch { kit = null; }
+  }
+  const configured = !!kit;               // true only when the AI agent actually polished the kit
+  if (!kit) kit = buildProjectKit({ build, shape });  // deterministic fallback — always a complete kit
+  res.status(200).json({ configured, kit });
 }
 
 // --- PUT (default): founder saves the cohort catalog. If this introduces a NEW cohort, everyone
@@ -475,6 +495,7 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "showcase") return saveShowcase(req, res); // public
     if (req.query && req.query.resource === "scenarios") return makeScenarios(req, res); // public, AI-generated
     if (req.query && req.query.resource === "review") return makeReview(req, res); // public, AI "Check my work"
+    if (req.query && req.query.resource === "kit") return makeKit(req, res); // public, AI project-kit polish
     if (req.query && req.query.resource === "partner-enroll") return addPartnerEnrollment(req, res); // FOUNDER-gated inside
     if (req.query && req.query.resource === "partner-onboard") return onboardPartnerEnrollment(req, res); // FOUNDER-gated inside
     if (req.query && req.query.resource === "partner-remove") return removePartnerEnrollment(req, res); // FOUNDER-gated inside
