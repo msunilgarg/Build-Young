@@ -268,7 +268,7 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   three cards under the drop-off. Explains the Visited → Enroll-started leak.
 - **Founder-editable site settings (NEW):** the runtime, non-secret public values — **booking link
   (Calendly), contact email, LinkedIn URL, the shared Stripe link, the showcase toggle, the
-  founder photo, and the **`starterRepoUrl`** (the student starter template repo, SPECS/009)** — are now editable live from the console (no redeploy),
+  founder photo, and the `starterRepoUrl` (the student starter template repo, SPECS/009)** — are now editable live from the console (no redeploy),
   alongside cohorts/Stripe links. Defaults are single-sourced in **`src/site.js`** (`SITE_DEFAULTS`,
   imported by `CONFIG` and the server store); stored in KV (`settings:site` via
   `api/_lib/settingsStore.js`); read publicly folded into **`GET /api/cohorts`** (`{batches, checkins,
