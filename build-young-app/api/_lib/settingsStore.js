@@ -9,6 +9,7 @@ import { SITE_DEFAULTS, SETTINGS_KEYS } from "../../src/site.js";
 import { kvConfigured, kvGet, kvSet } from "./kv.js";
 import { SCENARIO_MODEL, SCENARIO_MODELS } from "./scenarioAgent.js";
 import { REVIEW_MODEL, REVIEW_MODELS } from "./reviewAgent.js";
+import { KIT_MODEL, KIT_MODELS } from "./kitAgent.js";
 
 const KEY = "settings:site";
 
@@ -77,7 +78,7 @@ const OPS_KEY = "settings:ops";
 // notifyEmail = where founder alerts go. scenarioAgentEnabled/scenarioModel = the Week-9 funnel agent;
 // reviewAgentEnabled/reviewModel = the "Check my work" agent (SPECS/008) — separate cost lever. The API
 // KEY itself stays a host env var (never stored here). All server-only.
-const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: SCENARIO_MODEL, reviewAgentEnabled: true, reviewModel: REVIEW_MODEL };
+const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: SCENARIO_MODEL, reviewAgentEnabled: true, reviewModel: REVIEW_MODEL, kitAgentEnabled: true, kitModel: KIT_MODEL };
 
 export function defaultOps() {
   return { ...OPS_DEFAULTS };
@@ -92,6 +93,8 @@ export function sanitizeOps(input) {
     scenarioModel: SCENARIO_MODELS.includes(i.scenarioModel) ? i.scenarioModel : OPS_DEFAULTS.scenarioModel,
     reviewAgentEnabled: bool(i.reviewAgentEnabled, OPS_DEFAULTS.reviewAgentEnabled),
     reviewModel: REVIEW_MODELS.includes(i.reviewModel) ? i.reviewModel : OPS_DEFAULTS.reviewModel,
+    kitAgentEnabled: bool(i.kitAgentEnabled, OPS_DEFAULTS.kitAgentEnabled),
+    kitModel: KIT_MODELS.includes(i.kitModel) ? i.kitModel : OPS_DEFAULTS.kitModel,
   };
 }
 

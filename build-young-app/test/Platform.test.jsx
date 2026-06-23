@@ -144,6 +144,7 @@ describe("Lesson 2 project kit (SPECS/009 T43)", () => {
     render(<KitHarness />);
     expect(screen.getByText(/Your project kit/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Set up with Claude Code/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Polish with AI/i })).toBeInTheDocument(); // optional AI polish (T45)
     // a download button per kit file
     expect(screen.getByRole("button", { name: /^CLAUDE\.md$/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^PLAYBOOK\.md$/ })).toBeInTheDocument();

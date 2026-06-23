@@ -1036,8 +1036,26 @@ export function ShapePlan({ s, setS, bare }) {
 // the files) + per-file download. Always reflects the LIVE spec (re-generatable); buildProjectKit is the
 // deterministic base. A readonly preview doubles as a copy-fallback when the clipboard is blocked.
 function ProjectKitPanel({ s }) {
-  const kit = buildProjectKit({ build: s.build, shape: s.shape });
   const [copied, setCopied] = useState(false);
+  // Optional AI polish (SPECS/009 T45): default is the instant deterministic kit; "Polish with AI" swaps
+  // in the sharpened version when the founder's agent is on. A spec edit invalidates a prior polish, so
+  // the kit always reflects the LIVE spec (re-generatable).
+  const [aiKit, setAiKit] = useState(null);
+  const [polishing, setPolishing] = useState(false);
+  const [polishNote, setPolishNote] = useState("");
+  const specKey = JSON.stringify([s.build, s.shape]);
+  useEffect(() => { setAiKit(null); setPolishNote(""); }, [specKey]);
+  const kit = aiKit || buildProjectKit({ build: s.build, shape: s.shape });
+  const polish = async () => {
+    setPolishing(true); setPolishNote("");
+    try {
+      const r = await fetch("/api/funnel?resource=kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ build: s.build, shape: s.shape }) });
+      const d = r.ok ? await r.json() : {};
+      if (d.configured && d.kit && typeof d.kit === "object") { setAiKit(d.kit); setPolishNote("Polished ✨"); }
+      else setPolishNote("AI polish isn't on — your standard kit is ready.");
+    } catch { setPolishNote("Couldn't reach the polisher — your standard kit is ready."); }
+    setPolishing(false);
+  };
   const setupPrompt = [
     "Set up my project's guide files. Create each of these files in my project with EXACTLY the content below, then commit them. From now on, read them every time we build — they're your guide (CLAUDE.md), my spec + “Done when…” (SPEC.md), my voice (POSITIONING.md), and how we work (PLAYBOOK.md).",
     "",
@@ -1055,8 +1073,10 @@ function ProjectKitPanel({ s }) {
       <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Your spec becomes four files your AI build partner reads <i>every</i> session — <b>CLAUDE.md</b> (the guide), <b>SPEC.md</b> (this spec + your “Done when…”), <b>POSITIONING.md</b> (your voice), and <b>PLAYBOOK.md</b> (how we build). They're what keep your AI on track instead of drifting. Always reflects your latest spec — re-do this any time you change things.</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <button type="button" className="btn" onClick={copySetup} style={{ background: copied ? C.green : C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700 }}>{copied ? "Copied — paste into Claude Code ✓" : "Set up with Claude Code"}</button>
-        <span style={{ fontSize: 12, color: C.muted }}>Paste it into Claude Code — it writes all four files for you.</span>
+        <button type="button" className="btn" onClick={polish} disabled={polishing} style={{ background: "transparent", border: `1px solid ${C.turq}`, color: C.turq, padding: "7px 14px", borderRadius: 4, fontSize: 12.5, fontWeight: 700, opacity: polishing ? 0.7 : 1 }}>{polishing ? "Polishing…" : "Polish with AI (optional)"}</button>
+        {polishNote && <span style={{ fontSize: 12, fontWeight: 700, color: polishNote.startsWith("Polished") ? C.green : C.muted }}>{polishNote}</span>}
       </div>
+      <p style={{ fontSize: 12, color: C.muted, margin: "6px 0 0" }}>Paste the setup into Claude Code — it writes all four files for you.</p>
       <div style={{ marginTop: 10 }}>
         <span style={lab}>Or download each file</span>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

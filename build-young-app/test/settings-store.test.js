@@ -54,7 +54,7 @@ describe("site settings store", () => {
 });
 
 describe("private ops settings store (notifications email + scenario & review agents)", () => {
-  const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5", reviewAgentEnabled: true, reviewModel: "claude-haiku-4-5" };
+  const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5", reviewAgentEnabled: true, reviewModel: "claude-haiku-4-5", kitAgentEnabled: true, kitModel: "claude-haiku-4-5" };
 
   it("defaults: empty notifyEmail, both agents on, Haiku models", () => {
     expect(defaultOps()).toEqual(OPS_DEFAULTS);
@@ -77,6 +77,15 @@ describe("private ops settings store (notifications email + scenario & review ag
     // tuning the review agent doesn't disturb the scenario agent's defaults
     expect(sanitizeOps({ reviewAgentEnabled: false }))
       .toMatchObject({ scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5", reviewAgentEnabled: false });
+  });
+
+  it("kit-agent fields: separate toggle + model, validated independently (SPECS/009 T45)", () => {
+    expect(sanitizeOps({ kitAgentEnabled: "off", kitModel: "claude-opus-4-8" }))
+      .toMatchObject({ kitAgentEnabled: false, kitModel: "claude-opus-4-8" });
+    expect(sanitizeOps({ kitModel: "gpt-4o" }).kitModel).toBe("claude-haiku-4-5"); // unknown → default
+    // tuning the kit agent leaves the other two agents' defaults intact
+    expect(sanitizeOps({ kitAgentEnabled: false }))
+      .toMatchObject({ scenarioAgentEnabled: true, reviewAgentEnabled: true, kitAgentEnabled: false });
   });
 
   it("loadOps falls back to defaults + saveOps refuses an unconfigured store", async () => {
