@@ -23,6 +23,7 @@ Build a real product with AI, learn to grow it, and present it at a capstone —
 - **Build with AI — we don't teach coding** (AI handles the how).
 - **Affordable: $999.** Full refund before start; prorated through the first week.
 - **Builder prize:** first in a cohort to land a real paying customer **within a year** → tuition back (payment proof + parent-approved video).
+- **A real thing to show for it** — a live product + a founder's story they can point to (college essays, activities list, interviews, a portfolio). **Evidence and a story, never an admissions promise.**
 
 ## Claims we avoid (the guardrails that caused the rework)
 - ❌ Customers / income / scale **achieved in the 12 weeks.** Real traction is the long game — the prize is *"within a year."*
@@ -30,6 +31,14 @@ Build a real product with AI, learn to grow it, and present it at a capstone —
 - ❌ "ex-Microsoft founder" (he's the founder of **Build Young**; **20 years in product** at Microsoft).
 - ❌ Teaching/claiming **coding** → it's **building with AI.**
 - ❌ Unsourced stats. Every number is primary-sourced, dated, current.
+- ❌ College **admissions outcomes** ("gets you in" / "boosts your chances") or **résumé-padding** framing → ✅ a real product + an authentic founder story to point to; building for its own sake is what colleges (and the world) reward.
+
+## College & the founder mindset (secondary angle — parent-facing)
+A powerful angle for the **parent** (the buyer), layered on top of the build-led core — never replacing it.
+- **What's true:** they finish with a **real, live product** (often with users) and a **founder's story** — concrete material for college essays, the activities list, interviews, and a portfolio. Selective admissions rewards demonstrated **initiative and real-world impact**; a shipped product with a problem → customers narrative is differentiated and memorable.
+- **Frame it as evidence + a story, NOT an outcome.** Never promise admission or "boosts your chances"; never frame it as résumé-padding. (Both are unprovable, off-brand, and — for a packaged activity — actually *weaker* in an essay.)
+- **It reinforces the soul:** the application benefit is a *consequence* of genuine building, not the goal. "Building real things is what colleges and the world reward" keeps us **build-led** ("raising builders, not consumers") while giving the parent a concrete "why now."
+- **Subordinate, not the headline.** The thesis stays the build; college is a proof point + motivator, never the lead.
 
 ## Voice
 - **Warm, confident, forward** — never fearful, never boastful.
