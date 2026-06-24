@@ -3,7 +3,6 @@ import { TrendingUp, LineChart as LineIcon, GraduationCap, Check, Lock, Newspape
 import { C, fmt } from "./theme.js";
 import { Card, Mark, Pill, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH, downloadFile } from "./lib.js";
-import { localReview } from "../api/_lib/reviewAgent.js"; // pure helper (no key/server) — the fully-offline Check fallback
 import { AGENTIC_STEPS, buildProjectKit, KIT_FILES, specFileFor } from "./projectKit.js"; // SoT for the steps + the kit generator
 import { buildFounderStory, FOUNDER_STORY_EXAMPLE } from "./founderStory.js"; // capstone founder-story generator + sample
 import { cohortStartInfo, classDateLabel, effectivePosition, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
@@ -751,10 +750,10 @@ function PrinciplesCard({ title, items }) {
 // The student's activity component for a build week (null if none yet).
 function weekActivity(week, s, setState, bare) {
   if (week === 1) return <BuildPlan s={s} setS={setState} bare={bare} />;
-  // Lesson 2 = the method kicks in (SPECS/011 build-per-week + 012): the Agentic-Process primer, then the
-  // core-product BuildLayer's loop — ① spec → ② acceptance → REQUIRED project-file setup (ProjectKitPanel,
-  // passed as beforeCheck so it sits after the spec, before the check) → ③ check. No product-vision panel.
-  if (week === 2) return <>{<AgenticProcessPrimer />}{<BuildLayer week={2} s={s} setS={setState} bare={bare} beforeCheck={<ProjectKitPanel s={s} />} />}</>;
+  // Lesson 2 = the method kicks in (SPECS/011 → 013): the Agentic-Process primer, then the core-product
+  // BuildLayer's loop — ① spec → ② acceptance → ③ build (the kit, rendered inside BuildLayer on every
+  // build week) → ④ verify (independent agent). No product-vision panel.
+  if (week === 2) return <>{<AgenticProcessPrimer />}{<BuildLayer week={2} s={s} setS={setState} bare={bare} />}</>;
   if (week === 7) return <GoLiveChecklist s={s} setS={setState} bare={bare} />; // Go Live = an editable checklist, not a prompt
   // Lesson 8 = head of Act 2 + build the funnel (BuildLayer) PLUS list the steps you'll track (FunnelStages, used in wk 9).
   if (week === 8) return <>{<AgenticProcessPrimer compact />}{<BuildLayer week={8} s={s} setS={setState} bare={bare} />}{<FunnelStages s={s} setS={setState} bare={bare} />}</>;
@@ -1018,7 +1017,7 @@ Why people love it: [the payoff].
 // hand them over with zero friction — "Set up with Claude Code" (one prompt their OWN agent runs to write
 // the files) + per-file download. Always reflects the LIVE spec (re-generatable); buildProjectKit is the
 // deterministic base. A readonly preview doubles as a copy-fallback when the clipboard is blocked.
-export function ProjectKitPanel({ s }) {
+export function ProjectKitPanel({ s, week }) {
   const [copied, setCopied] = useState(false);
   // Optional AI polish (SPECS/009 T45): default is the instant deterministic kit; "Polish with AI" swaps
   // in the sharpened version when the founder's agent is on. A spec edit invalidates a prior polish, so
@@ -1039,49 +1038,37 @@ export function ProjectKitPanel({ s }) {
     } catch { setPolishNote("Couldn't reach the polisher — your standard kit is ready."); }
     setPolishing(false);
   };
+  // ③ BUILD handoff (SPECS/013): ONE prompt that (1) writes/refreshes all the project docs and (2) builds
+  // THIS lesson's feature from its spec. The single "into your Claude" path, shown on every build week.
+  const cfg = (week != null) ? BUILD_LAYERS[week] : null;
+  const specPath = cfg ? specFileFor(cfg.key) : null;
+  const buildStep = cfg ? ["",
+    `Now build this lesson's feature. Read ${specPath} (the spec and its acceptance criteria) and build it on top of what's already there, then commit. ${cfg.instruction || ""}`.trim(),
+  ] : [];
   const setupPrompt = [
-    "Set up my project's guide files. Create each of these files in my project (including the SPECS/ folder) with EXACTLY the content below, then commit them. From now on, read them every time we build — they're your guide (CLAUDE.md), my specs (the SPECS/ folder — one per feature, plus an overview with my “Done when…”), my voice (POSITIONING.md), and how we work (PLAYBOOK.md).",
+    "Set up (or refresh) my project files, then build this lesson's feature.",
+    "",
+    "First, create/update each of these files in my project (including the SPECS/ folder) with EXACTLY the content below, and commit them. Read them every time we build — they're your guide (CLAUDE.md), my specs (the SPECS/ folder, one per feature with its acceptance criteria), my voice (POSITIONING.md), and how we work (PLAYBOOK.md).",
     "",
     ...KIT_FILES.map((f) => `===== ${f} =====\n${kit[f]}`),
+    ...buildStep,
   ].join("\n");
   const copySetup = async () => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(setupPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }
-    } catch { /* clipboard blocked — the preview textarea below is selectable as a fallback */ }
+    } catch { /* clipboard blocked — the single-file download below is a fallback */ }
   };
-  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
-  // The kit body (everything under the heading). At Lesson 2 it's a REQUIRED step rendered AFTER the spec +
-  // acceptance, BEFORE the check (SPECS/012), so the generated files reflect the spec the student just wrote.
-  const body = (
-    <>
-      <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Your specs become the files your AI build partner reads <i>every</i> session — <b>CLAUDE.md</b> (the guide), a <b>SPECS/</b> folder (one spec per feature — each with its own “Done when…” — plus an overview), <b>POSITIONING.md</b> (your voice), and <b>PLAYBOOK.md</b> (how we build). They're what keep your AI on track instead of drifting. Always reflects your latest specs — re-do this any time you change things.</p>
+  return (
+    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px", marginBottom: 16 }}>
+      <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📦 ③ Build it with Claude Code</div>
+      <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Paste this into Claude Code — it writes (or refreshes) your project files (the docs your AI reads every session — CLAUDE.md, your <b>SPECS/</b>, POSITIONING, PLAYBOOK) and <b>builds this feature</b>. Always reflects your latest spec.</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-        <button type="button" className="btn" onClick={copySetup} style={{ background: copied ? C.green : C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700 }}>{copied ? "Copied — paste into Claude Code ✓" : "Set up with Claude Code"}</button>
+        <button type="button" className="btn" onClick={copySetup} style={{ background: copied ? C.green : C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700 }}>{copied ? "Copied — paste into Claude Code ✓" : "Set up & build with Claude Code"}</button>
+        <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none", whiteSpace: "nowrap" }}>Open Claude Code ↗</a>
         <button type="button" className="btn" onClick={polish} disabled={polishing} style={{ background: "transparent", border: `1px solid ${C.turq}`, color: C.turq, padding: "7px 14px", borderRadius: 4, fontSize: 12.5, fontWeight: 700, opacity: polishing ? 0.7 : 1 }}>{polishing ? "Polishing…" : "Polish with AI (optional)"}</button>
         {polishNote && <span style={{ fontSize: 12, fontWeight: 700, color: polishNote.startsWith("Polished") ? C.green : C.muted }}>{polishNote}</span>}
       </div>
-      <p style={{ fontSize: 12, color: C.muted, margin: "6px 0 0" }}>Paste the setup into Claude Code — it writes all the files (and the SPECS/ folder) for you.</p>
-      <div style={{ marginTop: 10 }}>
-        <span style={lab}>Or download each file</span>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {KIT_FILES.map((f) => (
-            <button key={f} type="button" className="btn" onClick={() => downloadFile(f.split("/").pop(), kit[f], "text/markdown")} style={{ background: "transparent", border: `1px solid ${C.turq}`, color: C.turq, padding: "6px 12px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>{f}</button>
-          ))}
-        </div>
-      </div>
-      <details style={{ marginTop: 10 }}>
-        <summary style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>Preview the setup prompt →</summary>
-        <textarea readOnly aria-label="Project kit setup prompt" value={setupPrompt} rows={8} onFocus={(e) => e.target.select()}
-          style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 11.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.45 }} />
-      </details>
-    </>
-  );
-  // A REQUIRED, prominent step (SPECS/012) — Lesson 2 only, between the spec/acceptance and the check:
-  // set up the project files so your Claude builds with all your docs. Not optional, not collapsed.
-  return (
-    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px", marginBottom: 16 }}>
-      <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📦 Set up your project files — do this once</div>
-      {body}
+      {cfg && <p style={{ fontSize: 12, color: C.muted, margin: "8px 0 0" }}>Can't paste? <button type="button" onClick={() => downloadFile(specPath.split("/").pop(), kit[specPath], "text/markdown")} style={{ background: "none", border: "none", padding: 0, color: C.turq, fontWeight: 700, fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>Download this lesson's file ({specPath})</button> and add it by hand.</p>}
     </div>
   );
 }
@@ -1124,59 +1111,32 @@ export function FounderStoryPanel({ s, final }) {
   );
 }
 
-// A build week's activity (SPECS/011 build-per-week): the student WRITES that week's feature spec, then
-// Copy hands their AI the "commit & build this spec" handoff (write SPECS/<feature>.md → commit → build).
-// Each build week owns ONE s.shape[cfg.key] (the feature's spec). Used at Lessons 2–6 (and 8, the funnel).
-export function BuildLayer({ week, s, setS, bare, beforeCheck }) {
+// A build week's activity (SPECS/011 → 013): four steps the student runs in THEIR own Claude —
+// ① write the spec → ② write its acceptance criteria → ③ build it (the project kit handoff) →
+// ④ verify it (an independent verifier agent). Each build week owns ONE s.shape[cfg.key]. Lessons 2–6, 8.
+export function BuildLayer({ week, s, setS, bare }) {
   const cfg = BUILD_LAYERS[week];
   const shape = s.shape || {};
-  // This feature's OWN "Done when…" acceptance (SPECS/012) — per-feature, stored in s.shape.accept[key],
-  // folded into the same SPECS/<feature>.md as the spec, and the bar step ③ checks the build against.
+  // ① the feature's spec (s.shape[cfg.key]); ② its acceptance criteria (s.shape.accept[key], per-feature,
+  // SPECS/012). Both fold into the same SPECS/<feature>.md — written, built, and verified in the student's Claude.
+  const value = shape[cfg.key] !== undefined ? shape[cfg.key] : "";
+  const onChangeLayer = (v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [cfg.key]: v } }));
   const acceptObj = (shape.accept && typeof shape.accept === "object") ? shape.accept : {};
   const acceptVal = acceptObj[cfg.key] || "";
   const setAccept = (v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), accept: { ...(((p.shape || {}).accept) || {}), [cfg.key]: v } } }));
-  const [copied, setCopied] = useState(false);
-  // The Check step (SPECS/008 T40): paste what you built → an independent review vs THIS feature's acceptance
-  // criteria. The result persists in s.review[week]; offline/demo falls back to localReview (never errors).
-  const [built, setBuilt] = useState("");
-  const [checking, setChecking] = useState(false);
-  const review = (s.review && s.review[week]) || null;
-  const runCheck = async () => {
-    setChecking(true);
-    let rev = null;
-    try {
-      const r = await fetch("/api/funnel?resource=review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ week, spec: shape[cfg.key] || "", acceptance: acceptVal, built }) });
-      const d = r.ok ? await r.json() : {};
-      rev = d.review && typeof d.review === "object" ? d.review : null;
-    } catch { rev = null; }
-    if (!rev) rev = localReview({ acceptance: acceptVal, built }); // fully-offline (e.g. demo) — never an error
-    setS((p) => ({ ...p, review: { ...(p.review || {}), [week]: rev } }));
-    setChecking(false);
-  };
-  const has = (v) => v && v.trim();
-  // The WHOLE build plan is ONE object — s.shape. Every build week (2–6, 8) reads + writes its OWN
-  // s.shape[key] — one spec per feature (SPECS/011), written THAT week. (No Lesson-2 mega-spec.)
-  const seeded = !!cfg.seed;        // (legacy) seeded weeks come with a starter prompt
-  const fromSpec = !seeded;         // build weeks: the student writes this feature's spec
-  const stored = shape[cfg.key];
-  const value = stored !== undefined ? stored : (cfg.seed || "");
-  const hasLayer = has(value);
-  const onChangeLayer = (v) => setS((p) => ({ ...p, shape: { ...(p.shape || {}), [cfg.key]: v } }));
-  // The "commit & build this spec" handoff (SPECS/011 + 012): the prompt tells the student's OWN Claude to
-  // (1) write this feature's spec AND its "Done when…" acceptance to its file in SPECS/, (2) commit it,
-  // then (3) build it — so the file the student commits carries both the spec and the bar it's checked against.
   const specPath = specFileFor(cfg.key);
-  const generatedPrompt = fromSpec
-    ? [cfg.intro, "",
-        `First, save this spec so we both work from it: create the file ${specPath} with the spec below (including the "Done when…" acceptance), commit it to my repo, then build it.`, "",
-        cfg.promptLabel, hasLayer ? value.trim() : cfg.placeholder, "",
-        `Done when… (how we'll know it's built right):`, has(acceptVal) ? acceptVal.trim() : "(I'll add my “Done when…” checks.)", "",
-        cfg.instruction].join("\n")
-    : (value || "").trim();
-  const copyPrompt = async () => {
+  // ④ Verify handoff (SPECS/013): the student's OWN Claude runs an INDEPENDENT verifier agent — the real
+  // "Check" step (you can't grade your own homework), mirroring how Build Young itself is verified.
+  const [copiedV, setCopiedV] = useState(false);
+  const verifyPrompt = [
+    "Now check my work the way real engineers do — with an independent reviewer. I can't grade my own homework, so I want a fresh, unbiased check.",
+    "",
+    `In a NEW context, act as an independent verifier agent: read ${specPath} (my spec and its acceptance criteria) and my actual build — the code and the running app. Go through each acceptance criterion and tell me honestly whether it's met — PASS or GAPS — with specifics. Don't change any code; just report what's done and what's missing.`,
+  ].join("\n");
+  const copyVerify = async () => {
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(generatedPrompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }
-    } catch { /* clipboard blocked — the textarea is selectable as a fallback */ }
+      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(verifyPrompt); setCopiedV(true); setTimeout(() => setCopiedV(false), 2000); }
+    } catch { /* clipboard blocked — the readonly preview is selectable as a fallback */ }
   };
   const fieldS = { width: "100%", boxSizing: "border-box", fontSize: 13, padding: "9px 11px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink, resize: "vertical", lineHeight: 1.5 };
   // The file-mapping pill (SPECS/012): every step shows, in plain sight, the file it writes — so "spec" and
@@ -1192,65 +1152,42 @@ export function BuildLayer({ week, s, setS, bare, beforeCheck }) {
 
   const inner = (
     <>
-      {/* Clean, consistent build-week loop (SPECS/012): each box is just heading + file badge + field.
-          ① spec → ② acceptance → [Lesson 2: the required project-kit setup] → ③ check. */}
+      {/* The build-week loop (SPECS/013): two inputs the student types, two handoffs into their own Claude.
+          ① write spec → ② write acceptance criteria → ③ build it (the kit) → ④ verify it (independent agent).
+          Each box = heading + file badge + its one control. Same on every build week. */}
 
-      {/* STEP ① — this lesson's spec (s.shape[cfg.key]). Copy hands Claude the "create SPECS/<feature>.md
-          (spec + Done-when) → commit → build" handoff. */}
+      {/* ① — this lesson's spec (s.shape[cfg.key]) → SPECS/<feature>.md. Just a field. */}
       <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>① Write your spec — {cfg.fieldLabel}</div>
+        {mapPill("saves to")}
+        <textarea aria-label={cfg.fieldLabel} value={value || ""} onChange={(e) => onChangeLayer(e.target.value)} rows={6} placeholder={cfg.placeholder || "Adapt the sample above to your own product…"} style={{ ...fieldS, marginTop: 12 }} />
+      </div>
+
+      {/* ② — this feature's acceptance criteria (s.shape.accept[key], per-feature, SPECS/012) → same file. */}
+      <div style={{ border: `1px solid ${C.gold}`, borderRadius: 6, background: "#fbf3e3", padding: "12px 14px", marginBottom: 16 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>② Write your acceptance criteria</div>
+        {mapPill("saved into the same")}
+        <textarea aria-label="Your acceptance criteria" value={acceptVal} onChange={(e) => setAccept(e.target.value)} rows={4} placeholder="How you'll know it's built right — short, checkable lines. e.g. “A user can sign up, log in, and see their saved notes after a refresh.”" style={{ ...fieldS, marginTop: 12 }} />
+      </div>
+
+      {/* ③ — BUILD IT: the project kit is the single handoff into the student's Claude (sets up/refreshes all
+          the docs AND builds this feature). Shown on EVERY build week (SPECS/013). */}
+      <ProjectKitPanel s={s} week={week} />
+
+      {/* ④ — VERIFY IT: the student's OWN Claude runs an independent verifier agent (SPECS/013) — the real
+          "Check" step, the way Build Young itself is verified. A handoff, not an in-app review. */}
+      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>① Write your spec — {cfg.fieldLabel}</span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}><Repeat size={13} style={{ verticalAlign: "-2px", marginRight: 5, color: C.emerald }} />④ Check your work — with an independent agent</span>
           <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
-            <button type="button" className="btn" onClick={copyPrompt} style={{ background: copied ? C.green : C.turq, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
-              {copied ? <><Check size={14} /> Copied!</> : "Copy"}
+            <button type="button" className="btn" onClick={copyVerify} style={{ background: copiedV ? C.green : C.emerald, color: "#fff", padding: "7px 14px", borderRadius: 4, fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}>
+              {copiedV ? <><Check size={14} /> Copied!</> : "Copy"}
             </button>
             <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none", whiteSpace: "nowrap" }}>Open Claude Code ↗</a>
           </span>
         </div>
-        {mapPill("saves to")}
-        <textarea aria-label={cfg.fieldLabel} value={value || ""} onChange={(e) => onChangeLayer(e.target.value)} rows={6} placeholder={cfg.placeholder || "Adapt the sample above to your own product…"} style={{ ...fieldS, marginTop: 12 }} />
-        {fromSpec && <details style={{ marginTop: 10 }}>
-          <summary style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>Preview the full prompt Copy sends →</summary>
-          <textarea readOnly aria-label="Full prompt preview" value={generatedPrompt} rows={8} onFocus={(e) => e.target.select()}
-            style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 12, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.5 }} />
-        </details>}
-      </div>
-
-      {/* STEP ② — this feature's OWN "Done when…" acceptance (s.shape.accept[key], SPECS/012) → same file. */}
-      <div style={{ border: `1px solid ${C.gold}`, borderRadius: 6, background: "#fbf3e3", padding: "12px 14px", marginBottom: 16 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>② Write your acceptance criteria — your “Done when…”</div>
-        {mapPill("saved into the same")}
-        <textarea aria-label="Your Done-when criteria" value={acceptVal} onChange={(e) => setAccept(e.target.value)} rows={4} placeholder="What does “done” look like for this feature? e.g. “Done when a user can sign up, log in, and see their saved notes after a refresh.”" style={{ ...fieldS, marginTop: 12 }} />
-      </div>
-
-      {/* Lesson 2 only: the REQUIRED project-file setup sits here — AFTER spec/acceptance, BEFORE the check
-          (SPECS/012). Passed in by weekActivity so the shared BuildLayer stays generic. */}
-      {beforeCheck}
-
-      {/* STEP ③ — the verifier (SPECS/008): an INDEPENDENT check of your build against THIS feature's
-          "Done when…". Optional; never blocks moving on. Endpoint always returns a result; offline → localReview. */}
-      <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px" }}>
-        <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}><Repeat size={13} style={{ verticalAlign: "-2px", marginRight: 5, color: C.emerald }} />③ Check my work — the verifier</div>
         {mapPill("checks your build against")}
-        <textarea aria-label="What I built" value={built} onChange={(e) => setBuilt(e.target.value)} rows={4} placeholder="Once you've built it, paste what you made — the link, or what happens when you use it. e.g. “I added login; you can sign up, log in, and your notes come back after a refresh.”" style={{ ...fieldS, marginTop: 12 }} />
-        <button type="button" className="btn" onClick={runCheck} disabled={checking} style={{ marginTop: 10, background: C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700, opacity: checking ? 0.7 : 1 }}>{checking ? "Checking…" : "Check my work"}</button>
-        {review && (
-          <div style={{ marginTop: 12, border: `1px solid ${review.verdict === "pass" ? C.green : C.gold}`, borderRadius: 6, background: C.paper2, padding: "11px 13px" }}>
-            <div style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".04em", color: review.verdict === "pass" ? C.green : C.gold }}>{review.verdict === "pass" ? "Looks done ✓" : "A few things to check"}</div>
-            {Array.isArray(review.strengths) && review.strengths.length > 0 && (
-              <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginBottom: 4 }}>What's working</div>
-                <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 4 }}>{review.strengths.map((t, i) => <li key={i} style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.45 }}>{t}</li>)}</ul>
-              </div>
-            )}
-            {Array.isArray(review.gaps) && review.gaps.length > 0 && (
-              <div style={{ marginTop: 8 }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: C.gold, marginBottom: 4 }}>Next steps</div>
-                <ul style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 4 }}>{review.gaps.map((t, i) => <li key={i} style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.45 }}>{t}</li>)}</ul>
-              </div>
-            )}
-          </div>
-        )}
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 0" }}>You can't grade your own homework — so have a <b>fresh, independent agent</b> read your spec's acceptance criteria and your build, and tell you what's done and what's missing. (Same way Build Young itself is checked.)</p>
       </div>
     </>
   );

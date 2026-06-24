@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { useState } from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
@@ -111,22 +111,26 @@ describe("Course hub (per-week resources & catch-up)", () => {
   });
 });
 
-describe("Lesson 2 — 'Done when…' acceptance + the method primer (SPECS/008 T38 / 012)", () => {
-  // SPECS/012: Lesson 2 has NO product-vision panel anymore — it opens straight into the core-product
-  // BuildLayer (the 3-step loop), where this feature's "Done when…" is written (step ②).
-  it("the 'Done when…' acceptance is written in the build week (BuildLayer step ②)", async () => {
+// Clipboard spy: capture what a "Copy"/"Set up & build" button writes, without userEvent's own clipboard.
+function spyClipboard() {
+  const writeText = vi.fn(() => Promise.resolve());
+  Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+  return writeText;
+}
+
+describe("Lesson 2 — acceptance criteria + the method primer (SPECS/012 + 013)", () => {
+  it("the acceptance-criteria field is written in the build week (step ②)", async () => {
     const user = userEvent.setup();
     function BuildHarness() { const [st, setSt] = useState({ shape: {} }); return <BuildLayer week={2} s={st} setS={setSt} bare />; }
     render(<BuildHarness />);
-    const field = screen.getByLabelText(/Done.when.criteria/i);
+    const field = screen.getByLabelText(/Your acceptance criteria/i);
     expect(field).toHaveValue(""); // starts empty
-    await user.type(field, "Done when a user signs up, logs in, and sees saved notes after a refresh.");
-    expect(field).toHaveValue("Done when a user signs up, logs in, and sees saved notes after a refresh.");
+    await user.type(field, "A user signs up, logs in, and sees saved notes after a refresh.");
+    expect(field).toHaveValue("A user signs up, logs in, and sees saved notes after a refresh.");
   });
 
   it("shows the named 'Agentic Engineering Process' primer (rendered at the head of Lesson 2)", () => {
     render(<AgenticProcessPrimer />);
-    // Assert the primer card via its UNIQUE intro line — match a phrase only the primer card uses.
     expect(screen.getByText(/You'll repeat these four steps every time you build something/)).toBeInTheDocument();
     expect(screen.getAllByText(/The Agentic Engineering Process/).length).toBeGreaterThan(0);
   });
@@ -138,148 +142,108 @@ describe("Lesson 2 — 'Done when…' acceptance + the method primer (SPECS/008 
   });
 });
 
-describe("Lesson 2 project kit (SPECS/009 T43 + 012)", () => {
-  // The kit renders standalone as a REQUIRED step (Lesson 2, between acceptance and the check, SPECS/012).
-  function KitHarness() {
+describe("③ Build it with Claude Code — the kit handoff (SPECS/009 + 013)", () => {
+  function KitHarness({ week = 2 }) {
     const [st] = useState({
       build: { promise: "Quiz yourself from your own notes in 2 minutes." },
-      shape: { product: "A notes-to-quiz web app for students.", accept: { product: "Done when notes become a quiz." } },
+      shape: { product: "A notes-to-quiz web app for students.", accept: { product: "A user can paste notes and get a quiz." } },
     });
-    return <ProjectKitPanel s={st} />;
+    return <ProjectKitPanel s={st} week={week} />;
   }
 
-  it("offers 'Set up with Claude Code' + per-file download, and the setup prompt embeds the kit files built from the spec", () => {
+  it("is the ③ Build step: one 'Set up & build' action, no per-file grid, no preview", () => {
     render(<KitHarness />);
-    expect(screen.getByText(/Set up your project files/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Set up with Claude Code/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Polish with AI/i })).toBeInTheDocument(); // optional AI polish (T45)
-    // a download button per kit file
-    expect(screen.getByRole("button", { name: /^CLAUDE\.md$/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^PLAYBOOK\.md$/ })).toBeInTheDocument();
-    // the setup prompt (readonly preview = the exact text "Set up with Claude Code" copies) embeds the kit
-    // files — incl. the SPECS/ folder — built from the live spec, so pasting it into Claude Code writes the real kit.
-    const prompt = screen.getByLabelText(/Project kit setup prompt/i).value;
-    for (const f of ["CLAUDE.md", "SPECS/000-overview.md", "SPECS/core-product.md", "POSITIONING.md", "PLAYBOOK.md"]) expect(prompt).toContain(`===== ${f} =====`);
-    expect(prompt).toContain("A notes-to-quiz web app for students.");      // spec product → kit
-    expect(prompt).toContain("Quiz yourself from your own notes");          // promise → POSITIONING
-    expect(prompt).toContain("Done when notes become a quiz.");             // per-feature acceptance → SPECS/core-product.md
+    expect(screen.getByText(/③ Build it with Claude Code/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Set up & build with Claude Code/i })).toBeInTheDocument();
+    // the bulk per-file download grid is GONE (no standalone CLAUDE.md / PLAYBOOK.md download buttons)
+    expect(screen.queryByRole("button", { name: /^CLAUDE\.md$/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^PLAYBOOK\.md$/ })).toBeNull();
+    // the setup-prompt preview is GONE
+    expect(screen.queryByLabelText(/setup prompt/i)).toBeNull();
+    // only THIS lesson's file is offered as a fallback download
+    expect(screen.getByText(/Download this lesson's file/i)).toBeInTheDocument();
   });
 
-  it("is a REQUIRED, prominent step (not a collapsed/optional <details>) — SPECS/012", () => {
-    function Kit() { const [st] = useState({ shape: {} }); return <ProjectKitPanel s={st} />; }
-    const { container } = render(<Kit />);
-    // The heading is a plain prominent heading, NOT a <summary> the student has to expand.
-    expect(container.querySelector("details > summary")?.textContent || "").not.toMatch(/Set up your project files/i);
-    expect(screen.getByText(/Set up your project files — do this once/i)).toBeInTheDocument();
+  it("the 'Set up & build' prompt writes all kit files AND builds this lesson's feature", () => {
+    const writeText = spyClipboard();
+    render(<KitHarness week={2} />);
+    fireEvent.click(screen.getByRole("button", { name: /Set up & build with Claude Code/i }));
+    expect(writeText).toHaveBeenCalled();
+    const prompt = writeText.mock.calls[0][0];
+    for (const f of ["CLAUDE.md", "SPECS/000-overview.md", "SPECS/core-product.md", "POSITIONING.md", "PLAYBOOK.md"]) expect(prompt).toContain(`===== ${f} =====`);
+    expect(prompt).toContain("A notes-to-quiz web app for students.");   // spec → kit
+    expect(prompt).toContain("Quiz yourself from your own notes");       // promise → POSITIONING
+    expect(prompt).toContain("A user can paste notes and get a quiz.");  // acceptance → SPECS/core-product.md
+    expect(prompt).toMatch(/Now build this lesson's feature/);           // it BUILDS, not just sets up
+    expect(prompt).toContain("SPECS/core-product.md");                   // names this week's spec file
   });
 });
 
-describe("Build-per-week — commit & build this spec (SPECS/011)", () => {
-  // Lesson 2 is now the FIRST build week (core product): its BuildLayer writes the spec AND its Copy
-  // hands Claude a "create SPECS/<feature>.md → commit → build" handoff. Lesson 6 = polish & iterate.
+describe("Build week loop — four steps, every week (SPECS/013)", () => {
   function BuildHarness({ week }) {
-    const [st, setSt] = useState({ shape: { product: "a notes-to-quiz app", accept: { product: "Done when notes paste in and a quiz comes out." } } });
+    const [st, setSt] = useState({ shape: { product: "a notes-to-quiz app", accept: { product: "Notes paste in and a quiz comes out." } } });
     return <BuildLayer week={week} s={st} setS={setSt} bare />;
   }
 
-  it("the Lesson-2 core-product prompt tells Claude to write the spec to SPECS/core-product.md, commit, then build", () => {
-    render(<BuildHarness week={2} />);
-    const prompt = screen.getByLabelText(/Full prompt preview/i).value;
-    expect(prompt).toMatch(/create the file SPECS\/core-product\.md/);
-    expect(prompt).toMatch(/commit it to my repo, then build it/);
-    expect(prompt).toContain("a notes-to-quiz app"); // the student's spec is embedded
-    // SPECS/012: the handoff also embeds this feature's "Done when…" acceptance into the file.
-    expect(prompt).toMatch(/Done when…/);
-    expect(prompt).toContain("Done when notes paste in and a quiz comes out.");
-  });
-
-  it("Lesson 6 is the polish-&-iterate build week, writing to SPECS/polish-and-iterate.md", () => {
-    render(<BuildHarness week={6} />);
-    expect(screen.getAllByText(/Polish & iterate/i).length).toBeGreaterThan(0);
-    const prompt = screen.getByLabelText(/Full prompt preview/i).value;
-    expect(prompt).toMatch(/create the file SPECS\/polish-and-iterate\.md/);
-  });
-
-  // SPECS/012: every build week shows the SAME three labeled steps, each mapping to its feature's spec file.
-  it("shows the consistent three steps (① spec → ② acceptance → ③ verifier), each mapped to SPECS/<feature>.md", () => {
-    render(<BuildHarness week={2} />);
-    expect(screen.getByText(/① Write your spec/)).toBeInTheDocument();
-    expect(screen.getByText(/② Write your acceptance criteria/)).toBeInTheDocument();
-    expect(screen.getByText(/③ Check my work — the verifier/)).toBeInTheDocument();
-    // the file-mapping is shown in plain sight (the SPECS/core-product.md path appears in the step pills)
+  it("shows the four steps in order: ① spec → ② acceptance → ③ build → ④ verify", () => {
+    const { container } = render(<BuildHarness week={2} />);
+    const t = container.textContent;
+    const i1 = t.indexOf("① Write your spec");
+    const i2 = t.indexOf("② Write your acceptance criteria");
+    const i3 = t.indexOf("③ Build it with Claude Code");
+    const i4 = t.indexOf("④ Check your work");
+    expect(i1).toBeGreaterThan(-1);
+    expect(i2).toBeGreaterThan(i1);
+    expect(i3).toBeGreaterThan(i2);
+    expect(i4).toBeGreaterThan(i3);
+    // the file badge appears on the steps
     expect(screen.getAllByText("SPECS/core-product.md").length).toBeGreaterThan(0);
   });
 
-  // SPECS/012: at Lesson 2 the REQUIRED project-file setup (beforeCheck) renders AFTER ② acceptance and
-  // BEFORE ③ check — the spec → acceptance → set-up-files → check order.
-  it("renders the beforeCheck slot (project-file setup) between ② acceptance and ③ check", () => {
-    function L2() { const [st, setSt] = useState({ shape: {} }); return <BuildLayer week={2} s={st} setS={setSt} bare beforeCheck={<div data-testid="kit-slot">SET UP FILES</div>} />; }
-    const { container } = render(<L2 />);
-    const text = container.textContent;
-    const iAcc = text.indexOf("Write your acceptance criteria");
-    const iKit = text.indexOf("SET UP FILES");
-    const iChk = text.indexOf("Check my work — the verifier");
-    expect(iAcc).toBeGreaterThan(-1);
-    expect(iKit).toBeGreaterThan(iAcc);   // kit comes after acceptance
-    expect(iChk).toBeGreaterThan(iKit);   // check comes after the kit
+  it("Lesson 6 (polish & iterate) builds SPECS/polish-and-iterate.md via the kit", () => {
+    const writeText = spyClipboard();
+    function L6() { const [st, setSt] = useState({ shape: { polish: "smooth the rough edges" } }); return <BuildLayer week={6} s={st} setS={setSt} bare />; }
+    render(<L6 />);
+    expect(screen.getAllByText(/Polish & iterate/i).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("button", { name: /Set up & build with Claude Code/i }));
+    const prompt = writeText.mock.calls[0][0];
+    expect(prompt).toContain("SPECS/polish-and-iterate.md");
+    expect(prompt).toMatch(/Now build this lesson's feature/);
   });
 
   it("acceptance is PER-FEATURE — each week reads/writes its own s.shape.accept[key]", async () => {
     const user = userEvent.setup();
-    // week 3 = accounts: starts empty even though week 2 (product) has its own criteria, proving isolation.
     function AccountsHarness() { const [st, setSt] = useState({ shape: { accept: { product: "product criteria" } } }); return <BuildLayer week={3} s={st} setS={setSt} bare />; }
     render(<AccountsHarness />);
-    const crit = screen.getByLabelText(/Your Done-when criteria/i);
+    const crit = screen.getByLabelText(/Your acceptance criteria/i);
     expect(crit).toHaveValue("");                                  // accounts has no criteria yet
-    await user.type(crit, "Done when login works on any device.");
-    expect(crit).toHaveValue("Done when login works on any device.");
+    await user.type(crit, "Login works on any device.");
+    expect(crit).toHaveValue("Login works on any device.");
   });
 });
 
-describe("Check my work — the Check step (SPECS/008 T40)", () => {
-  afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
-
-  // Render a build week's BuildLayer directly with a stateful harness (avoids the course calendar lock).
-  // Week 3 = accounts, so its "Done when…" lives in s.shape.accept.accounts (per-feature, SPECS/012).
-  function CheckHarness() {
-    const [st, setSt] = useState({ shape: { accounts: "a notes app", accept: { accounts: "Done when login works" } }, review: {} });
-    return <BuildLayer week={3} s={st} setS={setSt} bare />;
+describe("④ Check your work — the student's own independent verifier agent (SPECS/013)", () => {
+  function VerifyHarness({ week = 3 }) {
+    const [st, setSt] = useState({ shape: { accounts: "a notes app", accept: { accounts: "Login works" } } });
+    return <BuildLayer week={week} s={st} setS={setSt} bare />;
   }
 
-  it("runs an independent check and renders the verdict + strengths/gaps from the agent reply", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ configured: true, review: { verdict: "gaps", strengths: ["Login works nicely"], gaps: ["Add password reset"] } }) })));
-    const user = userEvent.setup();
-    render(<CheckHarness />);
-    await user.type(screen.getByLabelText(/What I built/i), "I added login");
-    await user.click(screen.getByRole("button", { name: /Check my work/i }));
-    // The returned review renders: verdict (gaps), a strength first, then a gap (as a "next step").
-    expect(await screen.findByText(/A few things to check/i)).toBeInTheDocument();
-    expect(screen.getByText(/Login works nicely/)).toBeInTheDocument();
-    expect(screen.getByText(/Add password reset/)).toBeInTheDocument();
+  it("is a handoff to the student's Claude — no in-app 'what I built' / 'Check my work' button", () => {
+    render(<VerifyHarness />);
+    expect(screen.getByText(/④ Check your work — with an independent agent/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/What I built/i)).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Check my work$/i })).toBeNull();
   });
 
-  it("lets the student refine this feature's 'Done when…' criteria (syncs to s.shape.accept[key])", async () => {
-    const user = userEvent.setup();
-    render(<CheckHarness />);
-    // The criteria field (step ②) is editable here, pre-filled from this feature's accept entry.
-    const crit = screen.getByLabelText(/Your Done-when criteria/i);
-    expect(crit).toHaveValue("Done when login works");
-    await user.clear(crit);
-    await user.type(crit, "Done when login works AND notes persist after refresh.");
-    // Round-trips through this feature's own s.shape.accept.accounts.
-    expect(crit).toHaveValue("Done when login works AND notes persist after refresh.");
-  });
-
-  it("never errors offline — falls back to a local self-check from the acceptance criteria", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("offline"); }));
-    const user = userEvent.setup();
-    render(<CheckHarness />);
-    await user.type(screen.getByLabelText(/What I built/i), "nothing relevant here");
-    await user.click(screen.getByRole("button", { name: /Check my work/i }));
-    // localReview flags the unmet criterion as a self-check next step (no crash, a result still renders).
-    // Assert via the fallback's distinctive phrasing — the criterion text itself now also appears in the
-    // editable criteria field, so match the localReview-only prefix to stay unambiguous.
-    expect(await screen.findByText(/Check this one yourself/)).toBeInTheDocument();
+  it("copies a verifier handoff naming this feature's spec file + an independent agent", () => {
+    const writeText = spyClipboard();
+    render(<VerifyHarness week={3} />);
+    // The ④ box has the only button literally named "Copy" (③ uses "Set up & build…").
+    fireEvent.click(screen.getByRole("button", { name: /^Copy$/ }));
+    const prompt = writeText.mock.calls[0][0];
+    expect(prompt).toMatch(/independent verifier/i);
+    expect(prompt).toContain("SPECS/accounts.md");
+    expect(prompt).toMatch(/PASS or GAPS/);
   });
 });
 
