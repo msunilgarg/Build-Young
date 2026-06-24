@@ -5,6 +5,7 @@ import { Card, Mark, Pill, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH, downloadFile } from "./lib.js";
 import { localReview } from "../api/_lib/reviewAgent.js"; // pure helper (no key/server) — the fully-offline Check fallback
 import { AGENTIC_STEPS, buildProjectKit, KIT_FILES } from "./projectKit.js"; // SoT for the steps + the kit generator
+import { buildFounderStory, FOUNDER_STORY_EXAMPLE } from "./founderStory.js"; // capstone founder-story generator + sample
 import { cohortStartInfo, classDateLabel, effectivePosition, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
 import { WEEKS } from "./course.js";
 import { OBJECTIVES } from "./courseState.js";
@@ -753,7 +754,8 @@ function weekActivity(week, s, setState, bare) {
   if (week === 8) return <>{<AgenticProcessPrimer compact />}{<BuildLayer week={8} s={s} setS={setState} bare={bare} />}{<FunnelStages s={s} setS={setState} bare={bare} />}</>;
   if (week === 9) return <FunnelScenarios s={s} setS={setState} bare={bare} />; // read practice funnels built from the student's stages
   // Lesson 11 = head of Act 3 (capstone prep): a compact reminder of the loop before the reflection.
-  if (week === 11) return <>{<AgenticProcessPrimer compact />}{<ReflectionPanel week={11} s={s} setS={setState} bare={bare} />}</>;
+  // Lesson 11 = head of Act 3 (capstone prep): the loop reminder, the reflection, then DRAFT the founder story.
+  if (week === 11) return <>{<AgenticProcessPrimer compact />}{<ReflectionPanel week={11} s={s} setS={setState} bare={bare} />}{<FounderStoryPanel s={s} />}</>;
   if (REFLECT_WEEKS[week]) return <ReflectionPanel week={week} s={s} setS={setState} bare={bare} />; // wk 10 (discuss) — no prompt
   if (BUILD_LAYERS[week]) return <BuildLayer week={week} s={s} setS={setState} bare={bare} />;
   return null;
@@ -1090,6 +1092,44 @@ function ProjectKitPanel({ s }) {
         <textarea readOnly aria-label="Project kit setup prompt" value={setupPrompt} rows={8} onFocus={(e) => e.target.select()}
           style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 11.5, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.45 }} />
       </details>
+    </div>
+  );
+}
+
+// Capstone "Your founder story" (SPECS/010 T47): compile the student's reflection (s.reflect[11]) + build
+// into an honest, application-ready one-pager — copy/download, re-generatable from live state. `final`
+// switches Lesson-11 (DRAFT, alongside the reflection) ↔ Lesson-12 (FINAL, for the presentation). Honest,
+// no admissions claims (POSITIONING) — it's evidence + a real story. The deterministic generator is the base.
+export function FounderStoryPanel({ s, final }) {
+  const story = buildFounderStory({ build: s.build, shape: s.shape, reflect: s.reflect });
+  const [copied, setCopied] = useState(false);
+  const copyStory = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(story); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    } catch { /* clipboard blocked — the preview below is selectable as a fallback */ }
+  };
+  return (
+    <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px", marginTop: 16 }}>
+      <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>{final ? "🎤 Your founder story — for your presentation" : "📝 Draft your founder story"}</div>
+      <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>
+        {final
+          ? "Here's your founder story, built from your capstone notes above. Use it in your presentation — and keep it for college essays, applications, and interviews. It's a real product and a real story; honest is what makes it strong."
+          : "Turn your notes above into a story you can actually use — for college essays, the activities list, interviews, and a portfolio. It updates as you fill in your notes. It's evidence and a story to point to, not a sales pitch."}
+      </p>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+        <button type="button" className="btn" onClick={copyStory} style={{ background: copied ? C.green : C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700 }}>{copied ? "Copied ✓" : "Copy my founder story"}</button>
+        <button type="button" className="btn" onClick={() => downloadFile("founder-story.md", story, "text/markdown")} style={{ background: "transparent", border: `1px solid ${C.turq}`, color: C.turq, padding: "7px 14px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>Download</button>
+      </div>
+      <details style={{ marginTop: 10 }} open={final}>
+        <summary style={{ fontSize: 12, fontWeight: 700, color: C.turq, cursor: "pointer" }}>{final ? "Your story" : "Preview your story →"}</summary>
+        <textarea readOnly aria-label="Your founder story" value={story} rows={12} onFocus={(e) => e.target.select()}
+          style={{ width: "100%", boxSizing: "border-box", marginTop: 8, fontSize: 12, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", color: C.ink2, resize: "vertical", lineHeight: 1.5 }} />
+      </details>
+      {!final && (
+        <div style={{ marginTop: 12 }}>
+          <ExampleCard subtitle="A worked founder story — how we'd write it for Build Young" fields={[["A model founder story", buildFounderStory(FOUNDER_STORY_EXAMPLE)]]} />
+        </div>
+      )}
     </div>
   );
 }
@@ -1727,6 +1767,9 @@ function WeekPanel({ s, setState, batch, cert, preview }) {
           {!s.done && <div style={{ fontSize: 14, color: C.ink2, marginTop: 4 }}>This is your last class — you'll present what you built to family and friends. <b>Parents are welcome to join this call</b> to watch (share the Zoom link).{!cert && <> <b>Finish the course</b> to unlock your certificate.</>}</div>}
           {/* Capture the build + a testimonial at the finale (gated by the founder showcase toggle). */}
           {CONFIG.showcaseEnabled && <ShowcaseCapture s={s} />}
+          {/* The FINAL founder story for the presentation (built from the Lesson-11 capstone notes). SPECS/010 T47. */}
+          <FounderStoryPanel s={s} final />
+
         </Wrap>
       </>)}
 

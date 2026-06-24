@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
-import { Platform, ShapePlan, BuildLayer, GoLiveChecklist } from "../src/Platform.jsx";
+import { Platform, ShapePlan, BuildLayer, GoLiveChecklist, FounderStoryPanel } from "../src/Platform.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
 // AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production catalog.
@@ -224,6 +224,34 @@ describe("Lesson 7 Go Live = the 'Ship' step (SPECS/008 T41)", () => {
     // The launch checklist is explicitly named the loop's "Ship" step (copy only — mechanics unchanged).
     expect(screen.getByText(/Ship/)).toBeInTheDocument();
     expect(screen.getByText(/Agentic Engineering Process/)).toBeInTheDocument();
+  });
+});
+
+describe("Capstone founder story (SPECS/010 T47)", () => {
+  function StoryHarness({ final }) {
+    const [st] = useState({
+      build: { promise: "Quiz yourself from your notes in 2 min." },
+      shape: { product: "A notes-to-quiz app." },
+      reflect: { 11: { whatBuilt: "NoteQuiz — turns notes into a quiz.", whoUses: "my classmates and two study groups", proud: "a friend used it for a real test", next: "spaced repetition" } },
+    });
+    return <FounderStoryPanel s={st} final={final} />;
+  }
+
+  it("Lesson 11 drafts the founder story from the reflection + shows the worked sample", () => {
+    render(<StoryHarness />);
+    expect(screen.getByText(/Draft your founder story/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Copy my founder story/i })).toBeInTheDocument();
+    const story = screen.getByLabelText(/Your founder story/i).value;
+    expect(story).toContain("NoteQuiz — turns notes into a quiz."); // reflection → the generated story
+    expect(story).toContain("my classmates and two study groups");  // whoUses → story
+    // the worked sample (a model story for Build Young) renders so students see what good looks like
+    expect(screen.getByText(/A worked founder story/i)).toBeInTheDocument();
+    expect(screen.getByText(/Build Young — a 12-week program/)).toBeInTheDocument();
+  });
+
+  it("Lesson 12 frames the same story as the final version for the presentation", () => {
+    render(<StoryHarness final />);
+    expect(screen.getByText(/for your presentation/i)).toBeInTheDocument();
   });
 });
 
