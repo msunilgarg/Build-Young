@@ -6,6 +6,9 @@ import { CONFIG, track, validEmail, markCallBooked } from "./lib.js";
 import { WhyStrip } from "./WhyStrip.jsx";
 
 // Free 15-min intro call booking; sets the session call-booked flag for the funnel branch.
+// Both paths fire `call_booked` + markCallBooked(): the in-app slot picker on "Book my call", and
+// the external Calendly link on click-through (else a real Calendly link would track nothing and the
+// "Calls booked" stat + call→enroll attribution would be stuck at 0).
 
 const CALL_SLOTS = ["Mon · 5:00 PM PT", "Tue · 5:00 PM PT", "Wed · 5:00 PM PT", "Thu · 5:00 PM PT", "Fri · 5:00 PM PT", "Sat · 5:00 PM PT"];
 
@@ -41,7 +44,7 @@ export function BookCall({ onBack, onHome, onEnroll }) {
               {/* scheduler column */}
               <div>
                 {CONFIG.calendlyUrl ? (
-                  <a className="btn" href={CONFIG.calendlyUrl} target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", textDecoration: "none", background: A, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, fontWeight: 600 }}>Pick a time on our calendar →</a>
+                  <a className="btn" href={CONFIG.calendlyUrl} target="_blank" rel="noopener noreferrer" onClick={() => { markCallBooked(); track("call_booked", {}); }} style={{ display: "block", textAlign: "center", textDecoration: "none", background: A, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, fontWeight: 600 }}>Pick a time on our calendar →</a>
                 ) : (
                   <>
                     <div style={label}>Pick a time <span style={{ color: C.muted, fontWeight: 500 }}>(Pacific)</span></div>
