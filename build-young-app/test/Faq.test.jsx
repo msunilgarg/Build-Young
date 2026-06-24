@@ -14,6 +14,16 @@ describe("Faq page", () => {
     expect(screen.getByRole("button", { name: /Send my question/i })).toBeInTheDocument();
   });
 
+  it("the college-applications FAQ is honest — evidence/story, never an admissions promise (POSITIONING guardrail)", () => {
+    render(<Faq onBack={() => {}} onHome={() => {}} onCall={() => {}} />);
+    expect(screen.getByText(/Will this help with college applications/i)).toBeInTheDocument();
+    const a = ((FAQ_ITEMS.find((f) => /college applications/i.test(f.q)) || {}).a || "").toLowerCase();
+    expect(a).toContain("not a guarantee of admission"); // honest disclaimer present (no outcome promise)
+    expect(a).toMatch(/story|founder/);                  // framed as a founder story
+    expect(a).not.toContain("boost");                    // no "boosts your chances"
+    expect(a).not.toContain("get you in");               // no admissions-outcome promise
+  });
+
   it("fires the Back callback", () => {
     const onBack = vi.fn();
     render(<Faq onBack={onBack} onHome={() => {}} onCall={() => {}} />);
