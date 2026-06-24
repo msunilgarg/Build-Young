@@ -24,13 +24,13 @@ describe("buildKitPrompt", () => {
 });
 
 describe("sanitizeKit", () => {
-  it("returns EXACTLY the four files as strings, falling back to base for missing/non-string ones", () => {
-    const raw = { "CLAUDE.md": "  polished claude  ", "SPEC.md": 42 /* non-string */ /* POSITIONING + PLAYBOOK missing */ };
+  it("returns EXACTLY the kit files as strings, falling back to base for missing/non-string ones", () => {
+    const raw = { "CLAUDE.md": "  polished claude  ", "POSITIONING.md": 42 /* non-string */ /* SPECS + PLAYBOOK missing */ };
     const out = sanitizeKit(raw, BASE);
     expect(Object.keys(out).sort()).toEqual([...KIT_FILES].sort());
     expect(out["CLAUDE.md"]).toBe("polished claude");       // trimmed, kept
-    expect(out["SPEC.md"]).toBe(BASE["SPEC.md"]);            // non-string → base
-    expect(out["POSITIONING.md"]).toBe(BASE["POSITIONING.md"]); // missing → base
+    expect(out["POSITIONING.md"]).toBe(BASE["POSITIONING.md"]); // non-string → base
+    expect(out["SPECS/core-product.md"]).toBe(BASE["SPECS/core-product.md"]); // missing → base
     expect(out["PLAYBOOK.md"]).toBe(BASE["PLAYBOOK.md"]);    // missing → base
   });
   it("caps each file's length and is safe on junk/null", () => {
@@ -47,7 +47,7 @@ describe("generateKit (key-gated)", () => {
     expect(await generateKit(input)).toBeNull();
   });
   it("calls the model and sanitizes a valid JSON reply into a complete kit", async () => {
-    const reply = { "CLAUDE.md": "AI claude", "SPEC.md": "AI spec", "POSITIONING.md": "AI pos", "PLAYBOOK.md": "AI play" };
+    const reply = {}; KIT_FILES.forEach((f, i) => { reply[f] = `AI ${i}`; });
     const fetchImpl = async () => ({ ok: true, json: async () => ({ content: [{ type: "text", text: JSON.stringify(reply) }] }) });
     const out = await generateKit({ ...input, apiKey: "sk-test", model: KIT_MODEL, fetchImpl });
     expect(out).toEqual(reply);

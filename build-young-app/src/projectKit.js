@@ -1,9 +1,10 @@
-// ============================ PROJECT KIT GENERATOR (SPECS/009) ============================
+// ============================ PROJECT KIT GENERATOR (SPECS/009 + 011) ============================
 //
-// Compiles a student's Week-1 bet (`s.build`) + Week-2 spec (`s.shape`) into the four files their
-// building-AI reads every session — CLAUDE.md, SPEC.md, POSITIONING.md, PLAYBOOK.md. This is the
-// connective tissue: the spec stops dead-ending as one prompt and becomes the durable docs that steer
-// the build AND ground the "Check my work" step (the same way CLAUDE.md/SPECS/POSITIONING steer ours).
+// Compiles a student's Week-1 bet (`s.build`) + per-feature specs (`s.shape`) into the files their
+// building-AI reads every session — CLAUDE.md, a SPECS/ folder (one file per feature, SPECS/011),
+// POSITIONING.md, PLAYBOOK.md. This is the connective tissue: each feature's spec stops dead-ending as
+// one prompt and becomes a durable doc that steers the build AND grounds the "Check my work" step (the
+// same way CLAUDE.md/SPECS/POSITIONING steer ours).
 //
 // Pure + dependency-free (foundation): deterministic, no AI, offline-safe. The optional AI expand/polish
 // layer (SPECS/009 T45) sits on top server-side; THIS is the always-on base and its fallback.
@@ -17,8 +18,32 @@ export const AGENTIC_STEPS = [
   { n: "Ship", d: "put the working slice live. Small, finished, real — then loop back to Spec for the next piece." },
 ];
 
-// The four files the kit produces (the student's repo gets these).
-export const KIT_FILES = ["CLAUDE.md", "SPEC.md", "POSITIONING.md", "PLAYBOOK.md"];
+// One spec per feature (SPECS/011) — the build weeks, in order. `key` is the s.shape field; `file` is
+// the spec's filename (spec name = feature name); `title` heads the file + the in-app example. The
+// student writes each in its build week and has their AI commit + implement it.
+export const FEATURE_SPECS = [
+  { key: "product", file: "core-product", title: "Core product", lesson: 2 },
+  { key: "accounts", file: "accounts", title: "Accounts & saved data", lesson: 3 },
+  { key: "payments", file: "payments", title: "Payments", lesson: 4 },
+  { key: "production", file: "production-ready", title: "Production-ready", lesson: 5 },
+  { key: "harden", file: "finish-and-harden", title: "Finish & harden", lesson: 6 },
+  { key: "funnel", file: "funnel", title: "The funnel", lesson: 8 },
+];
+// The repo path for a feature's spec file (e.g. "product" → "SPECS/core-product.md").
+export const specFileFor = (key) => {
+  const f = FEATURE_SPECS.find((x) => x.key === key);
+  return `SPECS/${f ? f.file : "feature"}.md`;
+};
+
+// The files the kit produces (the student's repo gets these). The SPECS/ folder is one file per feature
+// plus an overview (the product-level vision + acceptance), mirroring our own repo.
+export const KIT_FILES = [
+  "CLAUDE.md",
+  "SPECS/000-overview.md",
+  ...FEATURE_SPECS.map((f) => specFileFor(f.key)),
+  "POSITIONING.md",
+  "PLAYBOOK.md",
+];
 
 // A spec field, or a gentle placeholder when empty — never "undefined" in the student's repo.
 const val = (v, placeholder) => {
@@ -57,34 +82,42 @@ ${val(sh.payments, "what people pay for and what they get")}
 ${val(sh.production, "emails, being findable, keeping data safe")}
 - Guardrail: keep secret keys **off the browser** (use environment variables); protect users' data — they may be minors.
 
+## How we spec
+One feature = one short spec in the **\`SPECS/\` folder** (\`SPECS/core-product.md\`, \`SPECS/accounts.md\`, …).
+Each build week, write that feature's spec, commit it, then build it. \`SPECS/000-overview.md\` holds the
+product vision + the **"Done when…"** acceptance a slice is checked against.
+
 ## Definition of done
-Build against the **"Done when…"** acceptance criteria in **SPEC.md**. A slice isn't done until it meets them.
+A slice isn't done until it meets the **"Done when…"** acceptance in **SPECS/000-overview.md** (and the
+feature's own spec). Get an independent check before calling it done.
 
 ## How we build
 Follow **PLAYBOOK.md** — the Agentic Engineering Process (Spec → Build → Check → Ship), one small slice at a time.
 `;
 
-  // SPEC.md — the structured spec + the acceptance contract the build AND the check work against.
-  const spec = `# Spec
-
-## The core product
-${val(sh.product, "the main thing your product does")}
-
-## Accounts & saved data
-${val(sh.accounts, "sign-in + what's saved per user")}
-
-## Payments
-${val(sh.payments, "what's free vs. paid, and what paying unlocks")}
-
-## Production-ready
-${val(sh.production, "emails, findability, data safety")}
+  // SPECS/000-overview.md — the product-level vision + the acceptance contract the build + check work against.
+  const overview = `# Overview
 
 ## What success looks like
-${val(sh.success, "how you'll know it's working — active use, retention, referrals")}
+${val(sh.success, "how you'll know it's working — active use, retention, referrals, earning more than it costs")}
 
 ## Done when… (acceptance criteria)
 ${val(sh.acceptance, "a short list of checkable \"Done when…\" lines you can verify by looking")}
+
+## The features (one spec each, in SPECS/)
+${FEATURE_SPECS.map((f) => `- **${f.title}** — \`${specFileFor(f.key)}\` (Lesson ${f.lesson})`).join("\n")}
 `;
+
+  // SPECS/<feature>.md — one short spec per feature (SPECS/011). Written + committed + built per week.
+  const featureSpecs = {};
+  for (const f of FEATURE_SPECS) {
+    featureSpecs[specFileFor(f.key)] = `# ${f.title}
+
+> One feature = one short spec (Lesson ${f.lesson}). Write it, commit it, then have your AI build it.
+
+${val(sh[f.key], `the ${f.title.toLowerCase()} — what it is and what "done" looks like`)}
+`;
+  }
 
   // POSITIONING.md — voice + the honest claims line.
   const positioning = `# Positioning
@@ -112,11 +145,18 @@ This is how real builders work with AI — and how Build Young itself was built.
 ${AGENTIC_STEPS.map((st, i) => `${i + 1}. **${st.n}** — ${st.d}`).join("\n")}
 
 A few rules that make the loop work:
+- **One feature = one short spec** — write it in \`SPECS/\`, commit it, then build it.
 - **One small slice at a time** — don't try to build everything at once.
 - **Ship early** — put it live before it's perfect; real users surface the real problems.
 - **You can't grade your own homework** — get an independent check before you call it done.
 - **Keep secrets safe** — API keys live in environment variables, never in your code or the browser.
 `;
 
-  return { "CLAUDE.md": claude, "SPEC.md": spec, "POSITIONING.md": positioning, "PLAYBOOK.md": playbook };
+  return {
+    "CLAUDE.md": claude,
+    "SPECS/000-overview.md": overview,
+    ...featureSpecs,
+    "POSITIONING.md": positioning,
+    "PLAYBOOK.md": playbook,
+  };
 }

@@ -38,7 +38,7 @@ const HeroBackdrop = () => (
 // users), and Capstone (Act 3 — present what you built). It re-keys the scene group each tick
 // so the CSS animations replay. Scenes are course-aligned so the hero teases what students do.
 const HP_SCENES = [
-  { id: "build", week: 3, label: "building live", aria: "building a product" },
+  { id: "build", week: 2, label: "building live", aria: "building a product" },
   { id: "grow", week: 8, label: "growing live", aria: "growing it into a business" },
   { id: "capstone", week: 12, label: "capstone day", aria: "presenting what they built" },
 ];

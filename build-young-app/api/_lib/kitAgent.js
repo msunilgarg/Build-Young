@@ -21,8 +21,8 @@ export function buildKitPrompt({ base } = {}) {
   const b = base || {};
   return [
     "You are helping a teen founder polish the guide files their AI build partner will read every session.",
-    "Below are four files (CLAUDE.md, SPEC.md, POSITIONING.md, PLAYBOOK.md) generated from their spec.",
-    "Improve them: clearer, more specific, more useful to an AI building the product — but KEEP the same four filenames, the same section structure, every guardrail (never homemade passwords; use Stripe, never handle cards; keep secrets off the browser), and the \"Done when…\" acceptance criteria. Don't invent product facts they didn't give; tighten what's there.",
+    "Below are the project files (CLAUDE.md, a SPECS/ folder with one spec per feature plus an overview, POSITIONING.md, PLAYBOOK.md) generated from their specs.",
+    "Improve them: clearer, more specific, more useful to an AI building the product — but KEEP the same filenames (and the SPECS/ paths), the same section structure, every guardrail (never homemade passwords; use Stripe, never handle cards; keep secrets off the browser), and the \"Done when…\" acceptance criteria. Don't invent product facts they didn't give; tighten what's there.",
     "",
     ...KIT_FILES.map((f) => `===== ${f} =====\n${b[f] || ""}`),
     "",

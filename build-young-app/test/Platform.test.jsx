@@ -89,8 +89,8 @@ describe("Course hub (per-week resources & catch-up)", () => {
     await enrollToDashboard(user);
     await user.click(await screen.findByRole("button", { name: "Course progress" }));
     await user.click(await screen.findByRole("button", { name: /Pre-req/i }));
-    // Lesson 1: building hasn't started, so it points at Lesson 3 — NOT the old "Week Infinity" artifact.
-    expect(await screen.findByText(/your first tools come in Lesson 3/i)).toBeInTheDocument();
+    // Lesson 1: building hasn't started, so it points at Lesson 2 — NOT the old "Week Infinity" artifact.
+    expect(await screen.findByText(/your first tools come in Lesson 2/i)).toBeInTheDocument();
     expect(screen.queryByText(/Infinity/)).toBeNull();
   });
 
@@ -119,15 +119,17 @@ describe("Lesson 2 spec — 'Done when…' acceptance criteria (SPECS/008 T38)",
     return <ShapePlan s={st} setS={setSt} bare />;
   }
 
-  it("has a 'Done when…' acceptance field, distinct from 'What success looks like', that round-trips into s.shape", async () => {
+  it("Lesson 2 keeps the product vision; the 'Done when…' acceptance lives in each build week (BuildLayer)", async () => {
     const user = userEvent.setup();
+    // ShapePlan (Lesson-2 setup) holds the product-level vision.
     render(<ShapeHarness />);
-    // Both fields exist and are distinct (the vision line AND the sharper checkable criteria).
     expect(screen.getByLabelText(/What success looks like/i)).toBeInTheDocument();
-    const field = screen.getByLabelText(/Done when.*acceptance criteria/i);
+    // The checkable "Done when…" acceptance is edited in the build week's Check card (BuildLayer).
+    function BuildHarness() { const [st, setSt] = useState({ shape: {} }); return <BuildLayer week={2} s={st} setS={setSt} bare />; }
+    render(<BuildHarness />);
+    const field = screen.getByLabelText(/Done.when.criteria/i);
     expect(field).toHaveValue(""); // starts empty
     await user.type(field, "Done when a user signs up, logs in, and sees saved notes after a refresh.");
-    // Round-trips through s.shape.acceptance (controlled value persists via the harness's setState).
     expect(field).toHaveValue("Done when a user signs up, logs in, and sees saved notes after a refresh.");
   });
 
@@ -150,7 +152,7 @@ describe("Lesson 2 project kit (SPECS/009 T43)", () => {
     return <ShapePlan s={st} setS={setSt} bare />;
   }
 
-  it("offers 'Set up with Claude Code' + per-file download, and the setup prompt embeds the four files built from the spec", () => {
+  it("offers 'Set up with Claude Code' + per-file download, and the setup prompt embeds the kit files built from the spec", () => {
     render(<KitHarness />);
     expect(screen.getByText(/Your project kit/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Set up with Claude Code/i })).toBeInTheDocument();
@@ -158,13 +160,37 @@ describe("Lesson 2 project kit (SPECS/009 T43)", () => {
     // a download button per kit file
     expect(screen.getByRole("button", { name: /^CLAUDE\.md$/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^PLAYBOOK\.md$/ })).toBeInTheDocument();
-    // the setup prompt (readonly preview = the exact text "Set up with Claude Code" copies) embeds all
-    // four files, built from the live spec — so pasting it into Claude Code writes the real kit.
+    // the setup prompt (readonly preview = the exact text "Set up with Claude Code" copies) embeds the kit
+    // files — incl. the SPECS/ folder — built from the live spec, so pasting it into Claude Code writes the real kit.
     const prompt = screen.getByLabelText(/Project kit setup prompt/i).value;
-    for (const f of ["CLAUDE.md", "SPEC.md", "POSITIONING.md", "PLAYBOOK.md"]) expect(prompt).toContain(`===== ${f} =====`);
+    for (const f of ["CLAUDE.md", "SPECS/000-overview.md", "SPECS/core-product.md", "POSITIONING.md", "PLAYBOOK.md"]) expect(prompt).toContain(`===== ${f} =====`);
     expect(prompt).toContain("A notes-to-quiz web app for students.");      // spec product → kit
     expect(prompt).toContain("Quiz yourself from your own notes");          // promise → POSITIONING
-    expect(prompt).toContain("Done when notes become a quiz.");             // acceptance → SPEC.md
+    expect(prompt).toContain("Done when notes become a quiz.");             // acceptance → SPECS/000-overview.md
+  });
+});
+
+describe("Build-per-week — commit & build this spec (SPECS/011)", () => {
+  // Lesson 2 is now the FIRST build week (core product): its BuildLayer writes the spec AND its Copy
+  // hands Claude a "create SPECS/<feature>.md → commit → build" handoff. Lesson 6 = finish & harden.
+  function BuildHarness({ week }) {
+    const [st, setSt] = useState({ shape: { product: "a notes-to-quiz app" } });
+    return <BuildLayer week={week} s={st} setS={setSt} bare />;
+  }
+
+  it("the Lesson-2 core-product prompt tells Claude to write the spec to SPECS/core-product.md, commit, then build", () => {
+    render(<BuildHarness week={2} />);
+    const prompt = screen.getByLabelText(/Full prompt preview/i).value;
+    expect(prompt).toMatch(/create the file SPECS\/core-product\.md/);
+    expect(prompt).toMatch(/commit it to my repo, then build it/);
+    expect(prompt).toContain("a notes-to-quiz app"); // the student's spec is embedded
+  });
+
+  it("Lesson 6 is the finish-&-harden build week, writing to SPECS/finish-and-harden.md", () => {
+    render(<BuildHarness week={6} />);
+    expect(screen.getAllByText(/Finish & harden/i).length).toBeGreaterThan(0);
+    const prompt = screen.getByLabelText(/Full prompt preview/i).value;
+    expect(prompt).toMatch(/create the file SPECS\/finish-and-harden\.md/);
   });
 });
 
