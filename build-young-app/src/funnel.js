@@ -407,7 +407,7 @@ export const TREND_METRICS = Object.entries(TREND).map(([key, v]) => ({ key, lab
 
 // One point per calendar week present in `events` (oldest -> newest): { label, value } where value is
 // `metric` over that week's events (respecting the season/track filter). Drives the weekly chart.
-export function weeklyTrend(events, { metric = "visited", filter = null, month = "all" } = {}) {
+export function weeklyTrend(events, { metric = "visited", filter = null, month = "all", now = Date.now() } = {}) {
   const m = TREND[metric] || TREND.visited;
   const byKey = new Map(); // Monday-ISO -> events[]
   (events || []).forEach((e) => {
@@ -418,9 +418,13 @@ export function weeklyTrend(events, { metric = "visited", filter = null, month =
   });
   // For a month: show every week of the month (incl. empty) so the x-axis is the month's weeks.
   // For "all time": the weeks that actually have data, oldest -> newest.
-  const weeks = (month && month !== "all")
+  let weeks = (month && month !== "all")
     ? monthWeekStarts(month)
     : [...byKey.keys()].sort().map((key) => weekLabelFor(new Date(key + "T00:00:00Z")));
+  // Don't plot weeks that haven't STARTED yet: a future week (e.g. the last week of the current month,
+  // before it arrives) has no events and would render as a misleading nosedive to 0 on the right. Keep
+  // the current (in-progress) week — its Monday is already past — but drop any week starting after now.
+  weeks = weeks.filter((w) => Date.parse(w.key + "T00:00:00Z") <= now);
   return weeks.map((w) => ({ label: w.label, value: m.get(summarize(byKey.get(w.key) || [], filter)) }));
 }
 
