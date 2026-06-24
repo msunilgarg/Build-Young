@@ -36,6 +36,8 @@ build against it for six weeks — the exact big-bang the loop exists to avoid. 
 | 8 | the funnel | `funnel` | `SPECS/funnel.md` |
 
 Plus `SPECS/000-overview.md` (product vision `success` + the global **"Done when…"** `acceptance`).
+_(The global `acceptance` here was **superseded by SPECS/012** — acceptance is now per-feature,
+`s.shape.accept[key]`, folded into each `SPECS/<feature>.md`. See the Out-of-scope note below.)_
 
 ## Behavior (per build week)
 - The week shows the feature's spec editor (`BuildLayer`, `s.shape[key]`) + a "Done when…" Check card.
