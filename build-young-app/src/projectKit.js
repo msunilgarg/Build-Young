@@ -95,17 +95,15 @@ Get an independent check against those criteria before calling it done.
 Follow **PLAYBOOK.md** — the Agentic Engineering Process (Spec → Build → Check → Ship), one small slice at a time.
 `;
 
-  // SPECS/000-overview.md — the product-level vision. Each feature's "Done when…" lives in its own spec (SPECS/012).
+  // SPECS/000-overview.md — the map of features. Each feature's spec + its "Done when…" live in its own
+  // file (SPECS/012); this overview just indexes them so the AI can see the whole product at a glance.
   const overview = `# Overview
-
-## What success looks like
-${val(sh.success, "how you'll know it's working — active use, retention, referrals, earning more than it costs")}
 
 ## The features (one spec each, in SPECS/) — each carries its own "Done when…"
 ${FEATURE_SPECS.map((f) => `- **${f.title}** — \`${specFileFor(f.key)}\` (Lesson ${f.lesson})`).join("\n")}
 
-> Each feature's acceptance (the **"Done when…"** lines you check the build against) lives in that
-> feature's own spec file — written the week you build it.
+> Each feature's spec AND its acceptance (the **"Done when…"** lines you check the build against) live in
+> that feature's own spec file — written the week you build it.
 `;
 
   // SPECS/<feature>.md — one short spec per feature (SPECS/011) + its own "Done when…" acceptance (SPECS/012).

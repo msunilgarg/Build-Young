@@ -17,7 +17,6 @@ const FULL = {
     payments: "Free to try; $3/mo unlocks unlimited quizzes.",
     production: "Welcome email; shows up in search; keeps notes private.",
     polish: "Empty notes, a bad paste, two tabs open — each handled gracefully.",
-    success: "Active = makes a quiz weekly; they come back; they tell a friend.",
     // Per-feature "Done when…" (SPECS/012) — each folds into its own SPECS/<feature>.md, not the overview.
     accept: {
       product: "Done when a user can paste notes and get a quiz; quizzes save and reload.",
@@ -47,9 +46,11 @@ describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + POSITIO
     expect(kit["SPECS/accounts.md"]).toContain("saved quizzes survive a refresh");  // per-feature acceptance
     expect(kit["SPECS/payments.md"]).toContain("Free to try; $3/mo");
     expect(kit["SPECS/polish-and-iterate.md"]).toContain("two tabs open");
-    // SPECS/000-overview.md ← product vision (success); the per-feature "Done when…" is NOT here anymore
-    expect(kit["SPECS/000-overview.md"]).toContain("they tell a friend");
+    // SPECS/000-overview.md ← just the feature index now (SPECS/012 removed the product-vision section);
+    // per-feature spec + "Done when…" live in each feature file, NOT here.
+    expect(kit["SPECS/000-overview.md"]).toContain("`SPECS/core-product.md`");   // indexes the features
     expect(kit["SPECS/000-overview.md"]).not.toContain("paste notes and get a quiz");
+    expect(kit["SPECS/000-overview.md"]).not.toMatch(/What success looks like/);
     // POSITIONING.md ← promise, pr, pain, trueVsGoal
     expect(kit["POSITIONING.md"]).toContain("turn your notes into a quiz instantly");
     expect(kit["POSITIONING.md"]).toContain("True now: makes a quiz");
@@ -84,8 +85,8 @@ describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + POSITIO
       expect(kit[f]).not.toMatch(/undefined/);
       expect(typeof kit[f]).toBe("string");
     }
-    expect(kit["SPECS/000-overview.md"]).toMatch(/fill this in/);  // placeholder guidance present
-    expect(kit["SPECS/core-product.md"]).toMatch(/fill this in/);
+    expect(kit["SPECS/000-overview.md"]).toContain("`SPECS/core-product.md`"); // the feature index is always populated
+    expect(kit["SPECS/core-product.md"]).toMatch(/fill this in/);              // empty spec → placeholder guidance
     expect(kit["PLAYBOOK.md"]).toContain("Spec");                  // the shared playbook is always populated
   });
 
