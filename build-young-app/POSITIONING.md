@@ -21,7 +21,7 @@ Build a real product with AI, learn to grow it, and present it at a capstone —
 - **Learn how to grow it** (skill).
 - **Live, small-group**, twice a week (~3 hrs), 100% on Zoom — **no slideware, no lectures, no busywork.**
 - **Build with AI — we don't teach coding** (AI handles the how).
-- **Affordable: $999.** Full refund before start; prorated through the first week.
+- **Affordable: $999.** Full refund before start; flat 75% through the first week.
 - **Builder prize:** first in a cohort to land a real paying customer **within a year** → tuition back (payment proof + parent-approved video).
 - **A real thing to show for it** — a live product + a founder's story they can point to (college essays, activities list, interviews, a portfolio). **Evidence and a story, never an admissions promise.**
 
