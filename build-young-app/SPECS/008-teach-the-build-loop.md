@@ -3,6 +3,10 @@
 > One feature = one short spec. Keep it to a page (this one runs longer because it spans the course —
 > the week-by-week change map is the point). Decisions go here; PRs implement them.
 
+> **Superseded in part by SPECS/013 + 014:** the in-app "Check my work" AI review (`reviewAgent`) is gone —
+> the Check step is now a handoff to the student's OWN Claude running an independent verifier agent. The
+> Spec → Build → Check → Ship method itself is unchanged.
+
 **Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-06-22

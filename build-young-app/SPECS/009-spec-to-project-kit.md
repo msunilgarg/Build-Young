@@ -2,6 +2,10 @@
 
 > One feature = one short spec. Decisions go here; PRs implement them.
 
+> **Superseded in part by SPECS/013 + 014:** the deterministic `buildProjectKit` + the kit handoff stay; the
+> optional "Polish with AI" overlay (`kitAgent`, T45) was removed. The kit is now step ③ "Build it with
+> Claude Code" — one prompt that writes the docs AND builds the feature — on every build week.
+
 **Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-06-23
