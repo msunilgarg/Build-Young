@@ -35,21 +35,29 @@ Every build week is the same three numbered steps, top to bottom:
 ## Data model
 - **NEW** `s.shape.accept` = `{ [featureKey]: "Done when… criteria" }` — one per feature.
 - **REMOVED** the single global `s.shape.acceptance`. (Pre-launch; demo localStorage only — no migration.)
-- `s.shape.success` (product vision) unchanged → `SPECS/000-overview.md`.
+- **REMOVED** `s.shape.success` (the product-vision field) — see the Lesson-2 refinement below.
 
 ## Project kit (`projectKit.js`)
 - Each `SPECS/<feature>.md` = `## Spec` (the feature spec) + `## Done when… (acceptance criteria)`
   (`accept[key]`). One file carries both — what the student commits and what the verifier reads.
-- `SPECS/000-overview.md` keeps the product vision; the global "Done when…" block is gone (acceptance is
-  per-feature now). It notes each feature's spec carries its own "Done when…".
+- `SPECS/000-overview.md` is now just the **feature index** (one line per feature → its spec file);
+  the product-vision section was removed with the `success` field.
 - `CLAUDE.md` "How we spec" / "Definition of done" updated: done = meets the "Done when…" in **that
   feature's own spec file**.
 
-## Lesson 2 only
-- `ShapePlan` = the Agentic-Process primer + the product vision (`success`) **only** — the kit is removed
-  from it. Heading: "Your product vision".
-- Order: `ShapePlan` → core-product `BuildLayer` (the 3 steps) → `ProjectKitPanel` **collapsed**
-  (an optional "Set up your project files" `<details>`), so the files reflect the spec just written.
+## Lesson 2 — refined (2026-06-24, founder review)
+The 3-step loop held up, but Lesson 2 still felt heavy. Refinements (all founder-approved):
+- **Boxes are minimal** — each step box is just **heading + file badge + field**; the orange callouts,
+  explanatory paragraphs, and redundant uppercase captions are gone. Applied to ALL build weeks (shared
+  `BuildLayer`). The lead no longer re-enumerates the steps (the ①②③ headings do that).
+- **No product-vision panel.** `ShapePlan` and the `success` field are deleted; the
+  `AgenticProcessPrimer` renders directly at the head of Lesson 2. (Product metrics are Lesson 9.)
+- **Project-file setup is a REQUIRED step, in order.** Lesson-2 order is **① spec → ② acceptance →
+  📦 Set up your project files (`ProjectKitPanel`) → ③ check** — the kit is passed to `BuildLayer` as a
+  `beforeCheck` slot (so the shared component stays generic), rendered prominently (NOT a collapsed/optional
+  `<details>`). Rationale: you can only check work after you've set up the docs and built with them.
+- **`StretchGoal` removed** — the generic "interrogate your AI" box under every build exercise was clutter
+  outside the loop.
 
 ## Done when (acceptance) — all met
 - [x] `BuildLayer` renders three labeled steps (① spec, ② acceptance, ③ verifier) for **every** build
@@ -58,10 +66,12 @@ Every build week is the same three numbered steps, top to bottom:
       `create SPECS/<feature>.md` instruction.
 - [x] `buildProjectKit` folds per-feature acceptance into each `SPECS/<feature>.md`; the overview no
       longer carries a global "Done when…"; no "undefined" on empty input.
-- [x] Lesson 2: kit is collapsed + below the spec; `ShapePlan` no longer renders the kit.
+- [x] Lesson 2 (refined): boxes are heading+badge+field; no product-vision panel/`success`; project-file
+      setup is a REQUIRED step in order (① → ② → kit → ③) via `BuildLayer.beforeCheck`; `StretchGoal` removed.
 - [x] Worked example per build week shows the spec sample **and** the "Done when…" sample.
-- [x] Build + 392 tests green (project-kit + Platform updated, incl. render tests of the 3 steps +
-      per-feature isolation + collapsed kit); docs synced — `CLAUDE.md`, SPECS/011 (superseded note), this spec.
+- [x] Build + 394 tests green (project-kit + Platform updated, incl. render tests of the 3 steps +
+      the beforeCheck ordering + the kit-is-required panel +
+      per-feature isolation); docs synced — `CLAUDE.md`, SPECS/011 (superseded note), this spec.
 
 ## Out of scope
 - Per-feature *spec* files already exist (SPECS/011); this only adds their per-feature acceptance.

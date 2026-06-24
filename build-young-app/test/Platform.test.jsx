@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
-import { Platform, ShapePlan, BuildLayer, ProjectKitPanel, GoLiveChecklist, FounderStoryPanel } from "../src/Platform.jsx";
+import { Platform, AgenticProcessPrimer, BuildLayer, ProjectKitPanel, GoLiveChecklist, FounderStoryPanel } from "../src/Platform.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
 // AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production catalog.
@@ -111,20 +111,11 @@ describe("Course hub (per-week resources & catch-up)", () => {
   });
 });
 
-describe("Lesson 2 spec — 'Done when…' acceptance criteria (SPECS/008 T38)", () => {
-  // Render ShapePlan directly with a stateful harness so the controlled field round-trips through s.shape
-  // (avoids the course calendar deciding which lesson is current/unlocked).
-  function ShapeHarness() {
-    const [st, setSt] = useState({ shape: {} });
-    return <ShapePlan s={st} setS={setSt} bare />;
-  }
-
-  it("Lesson 2 keeps the product vision; the 'Done when…' acceptance lives in each build week (BuildLayer)", async () => {
+describe("Lesson 2 — 'Done when…' acceptance + the method primer (SPECS/008 T38 / 012)", () => {
+  // SPECS/012: Lesson 2 has NO product-vision panel anymore — it opens straight into the core-product
+  // BuildLayer (the 3-step loop), where this feature's "Done when…" is written (step ②).
+  it("the 'Done when…' acceptance is written in the build week (BuildLayer step ②)", async () => {
     const user = userEvent.setup();
-    // ShapePlan (Lesson-2 setup) holds the product-level vision.
-    render(<ShapeHarness />);
-    expect(screen.getByLabelText(/What success looks like/i)).toBeInTheDocument();
-    // The checkable "Done when…" acceptance is edited in the build week's Check card (BuildLayer).
     function BuildHarness() { const [st, setSt] = useState({ shape: {} }); return <BuildLayer week={2} s={st} setS={setSt} bare />; }
     render(<BuildHarness />);
     const field = screen.getByLabelText(/Done.when.criteria/i);
@@ -133,17 +124,22 @@ describe("Lesson 2 spec — 'Done when…' acceptance criteria (SPECS/008 T38)",
     expect(field).toHaveValue("Done when a user signs up, logs in, and sees saved notes after a refresh.");
   });
 
-  it("shows the named 'Agentic Engineering Process' primer in Lesson 2 (not Lesson 1)", () => {
-    render(<ShapeHarness />);
-    // Assert the primer card via its UNIQUE intro line — the kit's PLAYBOOK.md preview (also on this
-    // lesson now) embeds the same step descriptions, so match a phrase only the primer card uses.
+  it("shows the named 'Agentic Engineering Process' primer (rendered at the head of Lesson 2)", () => {
+    render(<AgenticProcessPrimer />);
+    // Assert the primer card via its UNIQUE intro line — match a phrase only the primer card uses.
     expect(screen.getByText(/You'll repeat these four steps every time you build something/)).toBeInTheDocument();
     expect(screen.getAllByText(/The Agentic Engineering Process/).length).toBeGreaterThan(0);
+  });
+
+  it("Lesson 2 no longer asks for a separate product vision ('What success looks like' is gone)", () => {
+    function BuildHarness() { const [st, setSt] = useState({ shape: {} }); return <BuildLayer week={2} s={st} setS={setSt} bare />; }
+    render(<BuildHarness />);
+    expect(screen.queryByLabelText(/What success looks like/i)).toBeNull();
   });
 });
 
 describe("Lesson 2 project kit (SPECS/009 T43 + 012)", () => {
-  // The kit now renders SEPARATELY from ShapePlan (collapsed, after the spec at L2) — render it directly.
+  // The kit renders standalone as a REQUIRED step (Lesson 2, between acceptance and the check, SPECS/012).
   function KitHarness() {
     const [st] = useState({
       build: { promise: "Quiz yourself from your own notes in 2 minutes." },
@@ -154,7 +150,7 @@ describe("Lesson 2 project kit (SPECS/009 T43 + 012)", () => {
 
   it("offers 'Set up with Claude Code' + per-file download, and the setup prompt embeds the kit files built from the spec", () => {
     render(<KitHarness />);
-    expect(screen.getByText(/Your project kit/i)).toBeInTheDocument();
+    expect(screen.getByText(/Set up your project files/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Set up with Claude Code/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Polish with AI/i })).toBeInTheDocument(); // optional AI polish (T45)
     // a download button per kit file
@@ -169,13 +165,12 @@ describe("Lesson 2 project kit (SPECS/009 T43 + 012)", () => {
     expect(prompt).toContain("Done when notes become a quiz.");             // per-feature acceptance → SPECS/core-product.md
   });
 
-  it("collapses into an optional <details> when used at Lesson 2 (after the spec), so it doesn't dominate the page", () => {
-    function Collapsed() { const [st] = useState({ shape: {} }); return <ProjectKitPanel s={st} collapsed />; }
-    const { container } = render(<Collapsed />);
-    const details = container.querySelector("details");
-    expect(details).toBeTruthy();                                // it's collapsible
-    expect(details.open).toBe(false);                            // closed by default
-    expect(screen.getByText(/Set up your project files/i)).toBeInTheDocument(); // the summary heading
+  it("is a REQUIRED, prominent step (not a collapsed/optional <details>) — SPECS/012", () => {
+    function Kit() { const [st] = useState({ shape: {} }); return <ProjectKitPanel s={st} />; }
+    const { container } = render(<Kit />);
+    // The heading is a plain prominent heading, NOT a <summary> the student has to expand.
+    expect(container.querySelector("details > summary")?.textContent || "").not.toMatch(/Set up your project files/i);
+    expect(screen.getByText(/Set up your project files — do this once/i)).toBeInTheDocument();
   });
 });
 
@@ -213,6 +208,20 @@ describe("Build-per-week — commit & build this spec (SPECS/011)", () => {
     expect(screen.getByText(/③ Check my work — the verifier/)).toBeInTheDocument();
     // the file-mapping is shown in plain sight (the SPECS/core-product.md path appears in the step pills)
     expect(screen.getAllByText("SPECS/core-product.md").length).toBeGreaterThan(0);
+  });
+
+  // SPECS/012: at Lesson 2 the REQUIRED project-file setup (beforeCheck) renders AFTER ② acceptance and
+  // BEFORE ③ check — the spec → acceptance → set-up-files → check order.
+  it("renders the beforeCheck slot (project-file setup) between ② acceptance and ③ check", () => {
+    function L2() { const [st, setSt] = useState({ shape: {} }); return <BuildLayer week={2} s={st} setS={setSt} bare beforeCheck={<div data-testid="kit-slot">SET UP FILES</div>} />; }
+    const { container } = render(<L2 />);
+    const text = container.textContent;
+    const iAcc = text.indexOf("Write your acceptance criteria");
+    const iKit = text.indexOf("SET UP FILES");
+    const iChk = text.indexOf("Check my work — the verifier");
+    expect(iAcc).toBeGreaterThan(-1);
+    expect(iKit).toBeGreaterThan(iAcc);   // kit comes after acceptance
+    expect(iChk).toBeGreaterThan(iKit);   // check comes after the kit
   });
 
   it("acceptance is PER-FEATURE — each week reads/writes its own s.shape.accept[key]", async () => {
