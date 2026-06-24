@@ -1013,10 +1013,10 @@ Why people love it: [the payoff].
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-// Lesson-2 project kit (SPECS/009 T43): compile the spec into the four docs the student's AI reads, and
-// hand them over with zero friction — "Set up with Claude Code" (one prompt their OWN agent runs to write
-// the files) + per-file download. Always reflects the LIVE spec (re-generatable); buildProjectKit is the
-// deterministic base. A readonly preview doubles as a copy-fallback when the clipboard is blocked.
+// Step ③ "Build it with Claude Code" (SPECS/009 T43 → 013): the single handoff into the student's own
+// Claude, rendered on EVERY build week. ONE "Set up & build with Claude Code" action copies a prompt that
+// writes/refreshes all the project docs (buildProjectKit, re-generatable) AND builds THIS week's feature
+// (from BUILD_LAYERS[week]). Fallback: a single current-week file download (no per-file grid, no preview).
 export function ProjectKitPanel({ s, week }) {
   const [copied, setCopied] = useState(false);
   // Optional AI polish (SPECS/009 T45): default is the instant deterministic kit; "Polish with AI" swaps
