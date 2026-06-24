@@ -279,7 +279,7 @@ function PrereqChecklist({ s, setS, items, title, blurb }) {
 // Which week a PREREQS item is needed (from its `when`: "Lesson N" → N). "Day one" items (e.g. a
 // laptop) aren't real setup tasks — they're already in class — so they return null (no per-week tab).
 function prereqWeek(when) {
-  const m = /week\s*(\d+)/i.exec(when || "");
+  const m = /(?:lesson|week)\s*(\d+)/i.exec(when || ""); // labels say "Lesson N" (older copy said "Week N")
   return m ? Number(m[1]) : null;
 }
 
@@ -293,7 +293,7 @@ function weekPrereqs(week, s, setS) {
   }
   const firstWeek = Math.min(...PREREQS.map((p) => prereqWeek(p.when)).filter(Boolean)); // Lesson 3 (first setup)
   let msg;
-  if (week < firstWeek) msg = `Nothing to set up yet — your first tools come in Week ${firstWeek}, when building starts.`;
+  if (week < firstWeek) msg = `Nothing to set up yet — your first tools come in Lesson ${firstWeek}, when building starts.`;
   else if (PREREQS.some((p) => prereqWeek(p.when) > week)) msg = "Nothing new to set up this lesson — your tools carry through. A few more come as you need them in later lessons.";
   else msg = "You're all set — every tool you need is ready. ✓";
   return <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, background: C.paper, border: `1px solid ${C.line}`, borderRadius: 6, padding: "12px 14px" }}>{msg}</div>;
