@@ -83,7 +83,7 @@ build-young-app/
 │   ├── course.js         # WEEKS + ACTS curriculum data
 │   ├── courseState.js    # founder-editable HOMEWORK/OBJECTIVES (live bindings + setters)
 │   ├── engine.js         # email builders + newState + advance()
-│   └── cohorts.js, cert.js, scenarios.js, site.js, marketMedia.js, funnel.js, projectKit.js  # other SoT data/logic
+│   └── cohorts.js, cert.js, scenarios.js, site.js, marketMedia.js, funnel.js, projectKit.js, founderStory.js  # other SoT data/logic
 ├── api/
 │   └── send-email.js     # serverless email sender (Resend); POST-only, validates input, HTML-escapes body
 ├── public/
