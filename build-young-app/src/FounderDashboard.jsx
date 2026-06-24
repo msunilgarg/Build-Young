@@ -638,10 +638,6 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <SettingsEditor />
           <h2 style={h2s}>Funnel simulation agent</h2>
           <ScenarioAgentEditor />
-          <h2 style={h2s}>“Check my work” agent</h2>
-          <ReviewAgentEditor />
-          <h2 style={h2s}>Project-kit polish agent</h2>
-          <KitAgentEditor />
           <h2 style={h2s}>Admins</h2>
           <FoundersEditor founders={founders} />
           <h2 style={h2s}>Partners (third-party enrollment)</h2>
@@ -846,127 +842,6 @@ function ScenarioAgentEditor() {
       <label style={{ display: "block" }}>
         <span style={lab}>Model</span>
         <select aria-label="Scenario model" value={ops.model} onChange={(e) => setOps({ ...ops, model: e.target.value })} style={fieldS} disabled={!ops.enabled}>
-          {SCENARIO_MODEL_OPTS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
-        </select>
-      </label>
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
-        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save</button>
-        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
-      </div>
-    </Card>
-  );
-}
-
-// The "Check my work" agent (SPECS/008) — students' independent build review. Same ops blob + key as the
-// scenario agent (saveOps merges, so saving here won't clobber scenario/notifyEmail settings); a SEPARATE
-// reviewModel lets the founder tune its cost independently. Disabled / no key → students get the free
-// deterministic local self-check, so the Check step always works.
-function ReviewAgentEditor() {
-  const [ops, setOps] = useState(null);
-  const [keyPresent, setKeyPresent] = useState(false);
-  const [status, setStatus] = useState("");
-  useEffect(() => {
-    let live = true;
-    (async () => {
-      try {
-        const r = await fetch("/api/funnel?resource=ops"); const d = r.ok ? await r.json() : {};
-        const o = d.ops || {};
-        if (live) { setKeyPresent(!!d.anthropicKeyPresent); setOps({ enabled: o.reviewAgentEnabled !== false, model: o.reviewModel || "claude-haiku-4-5" }); }
-      } catch { if (live) setOps({ enabled: true, model: "claude-haiku-4-5" }); }
-    })();
-    return () => { live = false; };
-  }, []);
-  if (ops === null) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
-  const liveOn = keyPresent && ops.enabled;
-  const save = async () => {
-    setStatus("Saving…");
-    try {
-      const r = await fetch("/api/funnel?resource=ops", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ reviewAgentEnabled: ops.enabled, reviewModel: ops.model }) });
-      const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok) { setOps({ enabled: d.ops.reviewAgentEnabled !== false, model: d.ops.reviewModel }); setStatus("Saved — live now ✓"); }
-      else setStatus(adminSaveErr(r, d, "save review agent"));
-    } catch { setStatus(ADMIN_NET_ERR); }
-  };
-  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
-  const fieldS = { fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", maxWidth: 460, boxSizing: "border-box" };
-  return (
-    <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>The build weeks' <b>“Check my work”</b> button uses AI to review a student's build against their own “Done when…” criteria (an independent check — the heart of the Agentic Engineering Process). If it's off or no key is set, students still get a free built-in self-check. You're billed per check on whatever Anthropic key you set — a <b>separate model</b> from the funnel agent so you can tune its cost.</div>
-      <div style={{ fontSize: 12.5, lineHeight: 1.55, border: `1px solid ${liveOn ? C.green : C.line}`, background: liveOn ? "#eef3f0" : C.paper2, borderRadius: 6, padding: "10px 12px", marginBottom: 14 }}>
-        <b style={{ color: liveOn ? C.green : C.ink2 }}>Currently: {liveOn ? "AI review (billed)" : "Free built-in self-check — no charge"}</b>
-        <div style={{ color: C.muted, marginTop: 4 }}>
-          {keyPresent
-            ? <>An <code>ANTHROPIC_API_KEY</code> is set on the host. {ops.enabled ? "The agent is live — each check bills your key." : "Flip the toggle on to use it."}</>
-            : <>No <code>ANTHROPIC_API_KEY</code> detected, so this stays free. It uses the same key as the funnel agent — add it once as <code>ANTHROPIC_API_KEY</code> in <b>Vercel → Settings → Environment Variables</b> and redeploy.</>}
-        </div>
-      </div>
-      <label style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 14, color: C.ink, cursor: "pointer", marginBottom: 14 }}>
-        <input type="checkbox" checked={ops.enabled} onChange={(e) => setOps({ ...ops, enabled: e.target.checked })} style={{ width: 17, height: 17, accentColor: C.emerald }} />
-        <span>Enable AI “Check my work” review</span>
-      </label>
-      <label style={{ display: "block" }}>
-        <span style={lab}>Model</span>
-        <select aria-label="Review model" value={ops.model} onChange={(e) => setOps({ ...ops, model: e.target.value })} style={fieldS} disabled={!ops.enabled}>
-          {SCENARIO_MODEL_OPTS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
-        </select>
-      </label>
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginTop: 14 }}>
-        <button className="btn" onClick={save} style={{ background: C.ink, color: C.paper2, padding: "9px 18px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Save</button>
-        {status && <span style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status) }}>{status}</span>}
-      </div>
-    </Card>
-  );
-}
-
-// The project-kit polish agent (SPECS/009 T45) — OPTIONAL AI polish of the Lesson-2 kit files. Same ops
-// blob + key (saveOps merges); a SEPARATE kitModel cost lever. Off / no key → students get the free
-// deterministic kit, so the feature always works.
-function KitAgentEditor() {
-  const [ops, setOps] = useState(null);
-  const [keyPresent, setKeyPresent] = useState(false);
-  const [status, setStatus] = useState("");
-  useEffect(() => {
-    let live = true;
-    (async () => {
-      try {
-        const r = await fetch("/api/funnel?resource=ops"); const d = r.ok ? await r.json() : {};
-        const o = d.ops || {};
-        if (live) { setKeyPresent(!!d.anthropicKeyPresent); setOps({ enabled: o.kitAgentEnabled !== false, model: o.kitModel || "claude-haiku-4-5" }); }
-      } catch { if (live) setOps({ enabled: true, model: "claude-haiku-4-5" }); }
-    })();
-    return () => { live = false; };
-  }, []);
-  if (ops === null) return <Card style={{ padding: 18, color: C.muted }}>Loading…</Card>;
-  const liveOn = keyPresent && ops.enabled;
-  const save = async () => {
-    setStatus("Saving…");
-    try {
-      const r = await fetch("/api/funnel?resource=ops", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kitAgentEnabled: ops.enabled, kitModel: ops.model }) });
-      const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok) { setOps({ enabled: d.ops.kitAgentEnabled !== false, model: d.ops.kitModel }); setStatus("Saved — live now ✓"); }
-      else setStatus(adminSaveErr(r, d, "save kit agent"));
-    } catch { setStatus(ADMIN_NET_ERR); }
-  };
-  const lab = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".04em", display: "block", marginBottom: 4 };
-  const fieldS = { fontSize: 14, padding: "9px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, width: "100%", maxWidth: 460, boxSizing: "border-box" };
-  return (
-    <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>The Lesson-2 <b>project kit</b> (CLAUDE.md / SPEC.md / POSITIONING.md / PLAYBOOK.md) is generated instantly from each student's spec. With this on, a <b>“Polish with AI”</b> button sharpens those files. Off or no key ⇒ students still get the free deterministic kit. Billed per polish on your Anthropic key — a <b>separate model</b> so you can tune its cost.</div>
-      <div style={{ fontSize: 12.5, lineHeight: 1.55, border: `1px solid ${liveOn ? C.green : C.line}`, background: liveOn ? "#eef3f0" : C.paper2, borderRadius: 6, padding: "10px 12px", marginBottom: 14 }}>
-        <b style={{ color: liveOn ? C.green : C.ink2 }}>Currently: {liveOn ? "AI polish available (billed)" : "Free deterministic kit — no charge"}</b>
-        <div style={{ color: C.muted, marginTop: 4 }}>
-          {keyPresent
-            ? <>An <code>ANTHROPIC_API_KEY</code> is set on the host. {ops.enabled ? "The agent is live — each polish bills your key." : "Flip the toggle on to use it."}</>
-            : <>No <code>ANTHROPIC_API_KEY</code> detected, so this stays free. It uses the same key as the other agents — add it once as <code>ANTHROPIC_API_KEY</code> in <b>Vercel → Settings → Environment Variables</b> and redeploy.</>}
-        </div>
-      </div>
-      <label style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 14, color: C.ink, cursor: "pointer", marginBottom: 14 }}>
-        <input type="checkbox" checked={ops.enabled} onChange={(e) => setOps({ ...ops, enabled: e.target.checked })} style={{ width: 17, height: 17, accentColor: C.emerald }} />
-        <span>Enable AI project-kit polish</span>
-      </label>
-      <label style={{ display: "block" }}>
-        <span style={lab}>Model</span>
-        <select aria-label="Kit model" value={ops.model} onChange={(e) => setOps({ ...ops, model: e.target.value })} style={fieldS} disabled={!ops.enabled}>
           {SCENARIO_MODEL_OPTS.map(([id, label]) => <option key={id} value={id}>{label}</option>)}
         </select>
       </label>

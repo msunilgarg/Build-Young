@@ -1019,25 +1019,8 @@ Why people love it: [the payoff].
 // (from BUILD_LAYERS[week]). Fallback: a single current-week file download (no per-file grid, no preview).
 export function ProjectKitPanel({ s, week }) {
   const [copied, setCopied] = useState(false);
-  // Optional AI polish (SPECS/009 T45): default is the instant deterministic kit; "Polish with AI" swaps
-  // in the sharpened version when the founder's agent is on. A spec edit invalidates a prior polish, so
-  // the kit always reflects the LIVE spec (re-generatable).
-  const [aiKit, setAiKit] = useState(null);
-  const [polishing, setPolishing] = useState(false);
-  const [polishNote, setPolishNote] = useState("");
-  const specKey = JSON.stringify([s.build, s.shape]);
-  useEffect(() => { setAiKit(null); setPolishNote(""); }, [specKey]);
-  const kit = aiKit || buildProjectKit({ build: s.build, shape: s.shape });
-  const polish = async () => {
-    setPolishing(true); setPolishNote("");
-    try {
-      const r = await fetch("/api/funnel?resource=kit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ build: s.build, shape: s.shape }) });
-      const d = r.ok ? await r.json() : {};
-      if (d.configured && d.kit && typeof d.kit === "object") { setAiKit(d.kit); setPolishNote("Polished ✨"); }
-      else setPolishNote("AI polish isn't on — your standard kit is ready.");
-    } catch { setPolishNote("Couldn't reach the polisher — your standard kit is ready."); }
-    setPolishing(false);
-  };
+  // The deterministic kit, always reflecting the live spec (SPECS/014 removed the optional "Polish with AI" overlay).
+  const kit = buildProjectKit({ build: s.build, shape: s.shape });
   // ③ BUILD handoff (SPECS/013): ONE prompt that (1) writes/refreshes all the project docs and (2) builds
   // THIS lesson's feature from its spec. The single "into your Claude" path, shown on every build week.
   const cfg = (week != null) ? BUILD_LAYERS[week] : null;
@@ -1065,8 +1048,6 @@ export function ProjectKitPanel({ s, week }) {
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <button type="button" className="btn" onClick={copySetup} style={{ background: copied ? C.green : C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700 }}>{copied ? "Copied — paste into Claude Code ✓" : "Set up & build with Claude Code"}</button>
         <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none", whiteSpace: "nowrap" }}>Open Claude Code ↗</a>
-        <button type="button" className="btn" onClick={polish} disabled={polishing} style={{ background: "transparent", border: `1px solid ${C.turq}`, color: C.turq, padding: "7px 14px", borderRadius: 4, fontSize: 12.5, fontWeight: 700, opacity: polishing ? 0.7 : 1 }}>{polishing ? "Polishing…" : "Polish with AI (optional)"}</button>
-        {polishNote && <span style={{ fontSize: 12, fontWeight: 700, color: polishNote.startsWith("Polished") ? C.green : C.muted }}>{polishNote}</span>}
       </div>
       {cfg && <p style={{ fontSize: 12, color: C.muted, margin: "8px 0 0" }}>Can't paste? <button type="button" onClick={() => downloadFile(specPath.split("/").pop(), kit[specPath], "text/markdown")} style={{ background: "none", border: "none", padding: 0, color: C.turq, fontWeight: 700, fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>Download this lesson's file ({specPath})</button> and add it by hand.</p>}
     </div>

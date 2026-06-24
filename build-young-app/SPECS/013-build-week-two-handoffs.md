@@ -40,12 +40,9 @@ do it: a fresh agent checks the build against the spec's acceptance criteria.
 - The in-app **review** UI (`built` paste, "Check my work", `s.review` verdict card) in `BuildLayer`.
 
 ## Out of scope (flag for follow-up, NOT this change)
-- The **server-side `reviewAgent`** (`api/_lib/reviewAgent.js`, `POST /api/funnel?resource=review`) and its
-  founder console (`ReviewAgentEditor`) + ops (`reviewAgentEnabled`/`reviewModel`) are now unused by the
-  student flow. Left intact (founder-only, inert) — a separate cleanup PR removes them to avoid bundling a
-  multi-surface backend deletion with this UI redesign.
+- ~~The server-side `reviewAgent` + its console/ops are now unused; a separate cleanup PR removes them.~~
+  **Done in SPECS/014** (also removed the `kitAgent` + the kit's "Polish with AI" button).
 - Connecting the student's GitHub so a check could read real code automatically (still deferred: minors/consent).
-- "Polish with AI" kit button kept as-is for now (not in scope of this declutter).
 
 ## Done when (acceptance) — all met
 - [x] Every build week's `BuildLayer` renders the four steps (① spec, ② acceptance, ③ build-kit,

@@ -312,6 +312,15 @@ a **driver** pursues them. The payoff isn't "more agents"; it's that each next s
   trigger decides *where the task comes from*, not *whether it earns a spec* — letting a labeled issue
   skip the spec is how a substantial change gets built from a one-line prompt with fuzzy acceptance
   criteria, which is exactly what the spec-first gate exists to prevent.*
+- **Classify every request before acting — bug or feature — and never code ahead of an approved spec.**
+  The *first* move on any incoming ask is to decide its bucket: a **bug/small fix** you may fix directly
+  (still verified before shipping); a **feature / non-trivial / ambiguous / architectural / money- or
+  auth-touching change** is **spec-first** — write the one-page spec, surface it inline, get explicit
+  sign-off, *then* build. A quick clarifying `AskUserQuestion` is **not** a substitute for the spec gate:
+  answering one question and then diving into a multi-file change still skips the human's decision on
+  scope/tradeoffs. When the bucket is unclear, **ask which it is.** *(Why: the failure mode is treating
+  "the human replied to my question" as "the human approved the plan" — they're different; approval is of
+  the *spec's content*, read and signed off, not of a single answer mid-flight.)*
 - **A spec is approved by the human before its tasks are built — and approval means they actually read
   it.** Surface the spec's *content* to the human for review (show it inline in the conversation, don't
   just leave a file for them to open), capture the decisions they make on it, and only then flip its
@@ -340,6 +349,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-24** — §9: **classify every request bug-vs-feature before acting, and never code ahead of an approved spec.** The first move on any ask is to bucket it; a feature/non-trivial change is spec-first (write → surface inline → sign-off → build). A quick clarifying `AskUserQuestion` is not a substitute for the spec gate — answering one question then diving into a multi-file change still skips the human's scope/tradeoff decision. When the bucket is unclear, ask. (Prompted by a session where I repeatedly jumped from a question straight into implementation.)
 - **2026-06-22** — §9: a spec is **approved by the human before its tasks are built, and approval means they actually read it** — surface the spec's content inline for review (don't just leave a file to open), capture their decisions, and flip `draft → approved` only on sign-off; queued tasks stay dormant until then. The spec-first gate is a human-in-the-loop decision point, not a notification — a spec that ships to an unopened file is a rubber stamp.
 - **2026-06-18** — §9: the spec-first gate is **trigger-independent** — an event/issue on-ramp that treats "the issue IS the task" is for *bug-level* work; a non-trivial/feature goal is still specced first regardless of how the run was triggered (the trigger chooses *where the task comes from*, not *whether it earns a spec*). Surfaced in the loop diagram's issue on-ramp + the architecture doc Triggers row.
 - **2026-06-16** — §9: a UX/visual or user-facing-copy change must be verified by **rendering + viewing the actual screen** (or a deterministic render test that asserts the visible strings + absence of banned ones), not by reading the diff + grepping. Shipped "WEEK 1 · THIS WEEK" green because a grep pattern (`WEEK \{`) missed the real template (`WEEK ${...}`) and no test rendered that header — two read/grep passes share the same blind spot; a render doesn't. Generalizes §3's "VIEW the artifact" from diagrams to every rendered surface.

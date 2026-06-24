@@ -53,14 +53,15 @@ describe("site settings store", () => {
   });
 });
 
-describe("private ops settings store (notifications email + scenario & review agents)", () => {
-  const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5", reviewAgentEnabled: true, reviewModel: "claude-haiku-4-5", kitAgentEnabled: true, kitModel: "claude-haiku-4-5" };
+describe("private ops settings store (notifications email + scenario agent)", () => {
+  // SPECS/014 removed the review + kit-polish agents; only notifyEmail + the Week-9 scenario agent remain.
+  const OPS_DEFAULTS = { notifyEmail: "", scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5" };
 
-  it("defaults: empty notifyEmail, both agents on, Haiku models", () => {
+  it("defaults: empty notifyEmail, scenario agent on, Haiku model", () => {
     expect(defaultOps()).toEqual(OPS_DEFAULTS);
   });
 
-  it("sanitizeOps trims the email, coerces the toggles, validates the models, drops junk", () => {
+  it("sanitizeOps trims the email, coerces the toggle, validates the model, drops junk", () => {
     expect(sanitizeOps({ notifyEmail: "  founder@x.com  ", junk: "x" }))
       .toEqual({ ...OPS_DEFAULTS, notifyEmail: "founder@x.com" });
     // "off" string → false; a known model is kept; an unknown model falls back to the default
@@ -69,23 +70,11 @@ describe("private ops settings store (notifications email + scenario & review ag
     expect(sanitizeOps({ scenarioModel: "gpt-4o" }).scenarioModel).toBe("claude-haiku-4-5");
   });
 
-  it("review-agent fields: separate toggle + model, validated independently of the scenario agent", () => {
-    // The review agent has its OWN toggle + model (a separate cost lever) — SPECS/008.
-    expect(sanitizeOps({ reviewAgentEnabled: "off", reviewModel: "claude-sonnet-4-6" }))
-      .toMatchObject({ reviewAgentEnabled: false, reviewModel: "claude-sonnet-4-6" });
-    expect(sanitizeOps({ reviewModel: "gpt-4o" }).reviewModel).toBe("claude-haiku-4-5"); // unknown → default
-    // tuning the review agent doesn't disturb the scenario agent's defaults
-    expect(sanitizeOps({ reviewAgentEnabled: false }))
-      .toMatchObject({ scenarioAgentEnabled: true, scenarioModel: "claude-haiku-4-5", reviewAgentEnabled: false });
-  });
-
-  it("kit-agent fields: separate toggle + model, validated independently (SPECS/009 T45)", () => {
-    expect(sanitizeOps({ kitAgentEnabled: "off", kitModel: "claude-opus-4-8" }))
-      .toMatchObject({ kitAgentEnabled: false, kitModel: "claude-opus-4-8" });
-    expect(sanitizeOps({ kitModel: "gpt-4o" }).kitModel).toBe("claude-haiku-4-5"); // unknown → default
-    // tuning the kit agent leaves the other two agents' defaults intact
-    expect(sanitizeOps({ kitAgentEnabled: false }))
-      .toMatchObject({ scenarioAgentEnabled: true, reviewAgentEnabled: true, kitAgentEnabled: false });
+  it("drops the removed review/kit ops fields (SPECS/014)", () => {
+    const out = sanitizeOps({ reviewAgentEnabled: false, reviewModel: "claude-opus-4-8", kitAgentEnabled: false, kitModel: "claude-opus-4-8" });
+    expect(out).toEqual(OPS_DEFAULTS);            // none of the removed fields survive
+    expect(out).not.toHaveProperty("reviewModel");
+    expect(out).not.toHaveProperty("kitAgentEnabled");
   });
 
   it("loadOps falls back to defaults + saveOps refuses an unconfigured store", async () => {
