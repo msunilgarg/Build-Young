@@ -10,15 +10,18 @@
 // 1→100 (Weeks 8–10) — grow first customers into a real business. Act 3 · THE CAPSTONE (Lesson 11
 // prep + Lesson 12 present what you built). Lesson content is the per-week
 // activity (weekActivity); Lesson 12 is the capstone presentation.
+// BUILD-PER-WEEK (SPECS/011): from Lesson 2 on, each build week writes ONE spec for THAT week's
+// feature (spec name = feature name) and builds it that week — no monolithic up-front spec.
 export const WEEKS = [
-  // ─── Act 1 · 0 → 1 (Weeks 1–7): find a problem → write the spec → build it in 4 layers
-  // (Wk3 core product · Wk4 accounts & data · Wk5 payments · Wk6 production-ready) → Wk7 go live ───
+  // ─── Act 1 · 0 → 1 (Weeks 1–7): find a problem → then each build week writes its feature's spec
+  // and builds it: Wk2 core product · Wk3 accounts & data · Wk4 payments · Wk5 production-ready ·
+  // Wk6 polish & iterate → Wk7 go live ───
   { act: 1, t: "Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your product starts here.", action: "build", comingSoon: true },
-  { act: 1, t: "Shape the Idea — write your spec", s: "Turn the need into a clear spec: what it is, what it does, how it works.", action: "build", comingSoon: true },
-  { act: 1, t: "Build the Core Product", s: "Hand Claude your spec and build the core product — the main thing it does — then ship it live.", action: "build", comingSoon: true },
-  { act: 1, t: "Make It Yours", s: "Add sign-in and save each user's data, so it's personal and remembers them.", action: "build", comingSoon: true },
-  { act: 1, t: "Add E-commerce", s: "Add e-commerce to your product — a real checkout so people can buy what you built, with payments handled safely.", action: "build", comingSoon: true },
-  { act: 1, t: "Make It Real", s: "Emails, being findable, and keeping data safe — everything that makes it ready for real users.", action: "build", comingSoon: true },
+  { act: 1, t: "Build the Core Product", s: "Write the spec for your core product, then build it with AI — the main thing it does — and get it running.", action: "build", comingSoon: true },
+  { act: 1, t: "Make It Yours", s: "Spec it, then build it: add sign-in and save each user's data, so it's personal and remembers them.", action: "build", comingSoon: true },
+  { act: 1, t: "Add E-commerce", s: "Spec it, then build it: a real checkout so people can buy what you made, with payments handled safely.", action: "build", comingSoon: true },
+  { act: 1, t: "Make It Real", s: "Spec it, then build it: emails, being findable, and keeping data safe — everything that makes it ready for real users.", action: "build", comingSoon: true },
+  { act: 1, t: "Polish & Iterate", s: "Refine what you built against real use — smooth the rough edges, tighten your spec, and make it great before you take it live.", action: "build", comingSoon: true },
   { act: 1, t: "Go Live", s: "Point a real web address at it, switch on live payments, and run your launch checklist — your product is open for business.", action: "build", comingSoon: true },
   // ─── Act 2 · 1 → 100 (Weeks 8–10): grow it — funnel → metrics & scaling → product-led growth ───
   { act: 2, t: "The Funnel", s: "Build a funnel into your product — find it → try it → come back — and add the tracking so you can see how people move through it.", action: "build", comingSoon: true },

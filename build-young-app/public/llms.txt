@@ -11,8 +11,8 @@ High schoolers (the "Builders" program). Each season you choose a schedule — M
 
 ## What students learn
 Act 1 — 0 to 1: build & launch the product (Weeks 1–7):
-- Find a real problem people will pay to solve, and write a clear spec
-- Build the product with AI (Claude Code) in four layers, one per week: the core product, then accounts & saved data, then payments, then a production-ready pass (emails, findability, safety)
+- Find a real problem people will pay to solve
+- Then each build week, write a short spec for that week's feature and build it with AI (Claude Code): the core product, then accounts & saved data, then payments, then production-ready (emails, findability, safety), then a finish-and-harden pass
 - Go live: a real web address, live payments, and a launch checklist
 Act 2 — 1 to 100: grow it into a business (Weeks 8–10):
 - Build the funnel into the product: how people find it, try it, and come back — with tracking
