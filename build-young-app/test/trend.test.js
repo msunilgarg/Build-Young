@@ -31,10 +31,19 @@ describe("funnel time-slicing (month scope + weekly trend)", () => {
     expect(weeklyTrend([], { metric: "visited" })).toEqual([]);
     expect(monthsIn([])).toEqual([]);
   });
-  it("month scope enumerates the whole month's weeks (zeros included), with range labels", () => {
+  it("month scope enumerates the whole month's weeks (zeros included), with range labels — once the month is past", () => {
     const evs = [visited("2026-06-09T12:00:00Z"), visited("2026-06-10T12:00:00Z"), visited("2026-06-15T12:00:00Z")];
-    const t2 = weeklyTrend(evs, { metric: "visited", month: "2026-06" });
+    // `now` after the month → every June week has started, so the full month renders (incl. zero weeks).
+    const t2 = weeklyTrend(evs, { metric: "visited", month: "2026-06", now: T("2026-08-01T00:00:00Z") });
     expect(t2.map((p) => p.label)).toEqual(["Jun 1-7", "Jun 8-14", "Jun 15-21", "Jun 22-28", "Jun 29-Jul 5"]);
     expect(t2.map((p) => p.value)).toEqual([0, 2, 1, 0, 0]);
+  });
+  it("drops weeks that haven't started yet — no misleading nosedive to 0 for a future week (mid-month)", () => {
+    const evs = [visited("2026-06-15T12:00:00Z"), visited("2026-06-23T12:00:00Z")];
+    // mid-month (now = Jun 24): the current week (Jun 22-28) shows; the not-yet-started Jun 29-Jul 5 is dropped.
+    const t = weeklyTrend(evs, { metric: "visited", month: "2026-06", now: T("2026-06-24T12:00:00Z") });
+    expect(t.map((p) => p.label)).toEqual(["Jun 1-7", "Jun 8-14", "Jun 15-21", "Jun 22-28"]);
+    expect(t.map((p) => p.value)).toEqual([0, 0, 1, 1]);
+    expect(t[t.length - 1].label).not.toMatch(/Jun 29/); // the future week is gone — the line ends at the current week
   });
 });

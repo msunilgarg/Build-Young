@@ -84,6 +84,16 @@ describe("Course hub (per-week resources & catch-up)", () => {
     expect(screen.queryByRole("link", { name: /Use this template/i })).toBeNull();
   });
 
+  it("the per-lesson Pre-req tab shows the right setup note (prereqWeek matches 'Lesson N', not 'Week Infinity')", async () => {
+    const user = userEvent.setup();
+    await enrollToDashboard(user);
+    await user.click(await screen.findByRole("button", { name: "Course progress" }));
+    await user.click(await screen.findByRole("button", { name: /Pre-req/i }));
+    // Lesson 1: building hasn't started, so it points at Lesson 3 — NOT the old "Week Infinity" artifact.
+    expect(await screen.findByText(/your first tools come in Lesson 3/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Infinity/)).toBeNull();
+  });
+
   it("has no serious/critical accessibility violations on the Course hub", async () => {
     const user = userEvent.setup();
     const { container } = render(<App />);
