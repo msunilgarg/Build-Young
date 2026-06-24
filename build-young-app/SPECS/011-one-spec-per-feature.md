@@ -8,7 +8,7 @@
 
 > **Approved 2026-06-24** (founder sign-off). Decisions: **build starts Lesson 2** (the dedicated
 > "Shape the Idea" spec week is gone — Lesson 2 now writes the core-product spec AND builds it); the
-> freed Lesson 6 becomes a **"Finish & Harden"** build week (an extra production-ready pass — Act ranges
+> freed Lesson 6 becomes a **"Polish & Iterate"** build week (an extra production-ready pass — Act ranges
 > 1–7 / 8–10 / 11–12 unchanged, so Go Live stays Lesson 7 and the public copy is untouched); **one spec
 > per build week, named for its feature**; the student has their **own Claude commit + build** each spec.
 > Shipped as one change.
@@ -32,7 +32,7 @@ build against it for six weeks — the exact big-bang the loop exists to avoid. 
 | 3 | accounts & saved data | `accounts` | `SPECS/accounts.md` |
 | 4 | payments | `payments` | `SPECS/payments.md` |
 | 5 | production-ready | `production` | `SPECS/production-ready.md` |
-| 6 | finish & harden | `harden` | `SPECS/finish-and-harden.md` |
+| 6 | polish & iterate | `polish` | `SPECS/polish-and-iterate.md` |
 | 8 | the funnel | `funnel` | `SPECS/funnel.md` |
 
 Plus `SPECS/000-overview.md` (product vision `success` + the global **"Done when…"** `acceptance`).
@@ -47,12 +47,12 @@ Plus `SPECS/000-overview.md` (product vision `success` + the global **"Done when
 - Re-generatable: the kit always reflects the live specs.
 
 ## Done when (acceptance) — all met
-- [x] `BUILD_LAYERS`/`BUILD_WEEKS` keyed by lessons **2, 3, 4, 5, 6, 8**; L2 = core product, L6 = finish & harden.
+- [x] `BUILD_LAYERS`/`BUILD_WEEKS` keyed by lessons **2, 3, 4, 5, 6, 8**; L2 = core product, L6 = polish & iterate.
 - [x] Each build week's "Copy" is a **commit-&-build** handoff naming the feature's `SPECS/<feature>.md` file.
 - [x] `buildProjectKit` emits the `SPECS/` folder (one file per feature + overview) + CLAUDE.md/POSITIONING/PLAYBOOK; `KIT_FILES`/`specFileFor`/`FEATURE_SPECS` are the SoT; `CLAUDE.md` points at `SPECS/`.
 - [x] Lesson 2 = first build week (`ShapePlan` setup → core-product `BuildLayer`); the old spec-only Lesson 2 is gone.
 - [x] Curriculum renumbered (course.js, marketMedia.js titles/prep/objectives, PREREQS, HeroPreview) with Act ranges + public copy unchanged; connective "last/next lesson" threads rewoven.
-- [x] Build + 386 tests green (project-kit / kit-agent / Platform updated); `CLAUDE.md` + this spec updated.
+- [x] Build + 389 tests green (project-kit / kit-agent / Platform updated + render tests added); `CLAUDE.md` + arch doc + this spec updated.
 
 ## Out of scope
 - Per-feature acceptance (kept ONE global `s.shape.acceptance`, edited in each build week's Check card).

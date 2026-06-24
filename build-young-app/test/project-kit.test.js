@@ -16,7 +16,7 @@ const FULL = {
     accounts: "Each student signs in and their notes + quizzes are saved.",
     payments: "Free to try; $3/mo unlocks unlimited quizzes.",
     production: "Welcome email; shows up in search; keeps notes private.",
-    harden: "Empty notes, a bad paste, two tabs open — each handled gracefully.",
+    polish: "Empty notes, a bad paste, two tabs open — each handled gracefully.",
     success: "Active = makes a quiz weekly; they come back; they tell a friend.",
     acceptance: "Done when a user can paste notes and get a quiz; quizzes save and reload.",
   },
@@ -39,7 +39,7 @@ describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + POSITIO
     // One spec per feature in SPECS/
     expect(kit["SPECS/core-product.md"]).toContain("turns a student's notes into a self-quiz");
     expect(kit["SPECS/payments.md"]).toContain("Free to try; $3/mo");
-    expect(kit["SPECS/finish-and-harden.md"]).toContain("two tabs open");
+    expect(kit["SPECS/polish-and-iterate.md"]).toContain("two tabs open");
     // SPECS/000-overview.md ← success + the acceptance contract
     expect(kit["SPECS/000-overview.md"]).toContain("they tell a friend");
     expect(kit["SPECS/000-overview.md"]).toMatch(/Done when…/);
@@ -91,9 +91,9 @@ describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + POSITIO
   // SPECS/011: one spec per build week, named for its feature.
   it("emits one SPECS/<feature>.md per build week, named for the feature", () => {
     const kit = buildProjectKit(FULL);
-    expect(FEATURE_SPECS.map((f) => f.key)).toEqual(["product", "accounts", "payments", "production", "harden", "funnel"]);
+    expect(FEATURE_SPECS.map((f) => f.key)).toEqual(["product", "accounts", "payments", "production", "polish", "funnel"]);
     expect(specFileFor("product")).toBe("SPECS/core-product.md");
-    expect(specFileFor("harden")).toBe("SPECS/finish-and-harden.md");
+    expect(specFileFor("polish")).toBe("SPECS/polish-and-iterate.md");
     for (const f of FEATURE_SPECS) {
       const path = specFileFor(f.key);
       expect(KIT_FILES).toContain(path);                       // it's in the kit

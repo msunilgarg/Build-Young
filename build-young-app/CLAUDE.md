@@ -400,7 +400,7 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
 - **Curriculum structure (WEEKS) — BUILD-FIRST, THREE acts, 12 weeks (7/3/2):** founder's outline:
   **Act 1 · 0→1 (Weeks 1–7)** — find a problem → then **each build week WRITE that week's feature spec
   and BUILD it** (SPECS/011 build-per-week): **Wk2 core product · Wk3 accounts & data · Wk4 payments ·
-  Wk5 production-ready · Wk6 finish & harden** → **Wk7 Go Live**;
+  Wk5 production-ready · Wk6 polish & iterate** → **Wk7 Go Live**;
   **Act 2 · 1→100 (Weeks 8–10)** — **The Funnel** (Wk8: spec a connected funnel + tracking via
   `BuildLayer`, PLUS list the funnel steps you track via `FunnelStages` → `s.funnelStages`) →
   **Metrics & Scaling** (Wk9: NO prompt — `FunnelScenarios` renders several PRACTICE funnels built
@@ -422,7 +422,7 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   **One spec per build week (SPECS/011):** each build week the student WRITES that week's feature spec and
   has their AI **commit + build** it — the BuildLayer "Copy" hands Claude a *"create `SPECS/<feature>.md` →
   commit → build"* handoff (`specFileFor` maps key→filename). `s.shape` holds one field per feature —
-  `product`(Wk2)/`accounts`(Wk3)/`payments`(Wk4)/`production`(Wk5)/`harden`(Wk6)/`funnel`(Wk8) — plus
+  `product`(Wk2)/`accounts`(Wk3)/`payments`(Wk4)/`production`(Wk5)/`polish`(Wk6)/`funnel`(Wk8) — plus
   `success` (the product vision) + **`acceptance`** (the checkable **"Done when…"** criteria the "Check my
   work" step grades against; editable in each build week's Check card). `BUILD_LAYERS` (keyed by weeks
   **2, 3, 4, 5, 6, 8**; `BUILD_WEEKS` = that set) drives `BuildLayer`, which shows ONLY that week's spec
@@ -437,7 +437,7 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   removes per project. Lesson 2 also shows the build
   pre-reqs. Each Act-2 week prepends plain-English `GlossaryCard`s (Wk8: `FUNNEL_PRIMER` +
   `METRICS_PRIMER`; Wk9: `METRICS_PRIMER`; Wk10: `PLG_PRIMER`). `SHAPE_EXAMPLE`
-  is the worked Build-Young spec (`product`/`accounts`/`payments`/`production`/`harden`/`success`/`funnel`). (`WEEK_INFRA`/`InfraBuildPlan`/`MAKE_PRINCIPLES`/
+  is the worked Build-Young spec (`product`/`accounts`/`payments`/`production`/`polish`/`success`/`funnel`). (`WEEK_INFRA`/`InfraBuildPlan`/`MAKE_PRINCIPLES`/
   `PrinciplesCard` are now unused/legacy.) **No finance weeks:** Act 3 is **Week 11 "Get Your First
   Customers"** (go-to-market, `action:"build"`) + the **Week 12 capstone** (`action:"capstone"`) — there
   are NO money/investing/markets weeks (all that was removed). Every week is `action:"build"` except

@@ -15,13 +15,13 @@
 export const WEEKS = [
   // ─── Act 1 · 0 → 1 (Weeks 1–7): find a problem → then each build week writes its feature's spec
   // and builds it: Wk2 core product · Wk3 accounts & data · Wk4 payments · Wk5 production-ready ·
-  // Wk6 finish & harden → Wk7 go live ───
+  // Wk6 polish & iterate → Wk7 go live ───
   { act: 1, t: "Find a Problem Worth Solving", s: "Spot a real need people would pay to fix — your product starts here.", action: "build", comingSoon: true },
   { act: 1, t: "Build the Core Product", s: "Write the spec for your core product, then build it with AI — the main thing it does — and get it running.", action: "build", comingSoon: true },
   { act: 1, t: "Make It Yours", s: "Spec it, then build it: add sign-in and save each user's data, so it's personal and remembers them.", action: "build", comingSoon: true },
   { act: 1, t: "Add E-commerce", s: "Spec it, then build it: a real checkout so people can buy what you made, with payments handled safely.", action: "build", comingSoon: true },
   { act: 1, t: "Make It Real", s: "Spec it, then build it: emails, being findable, and keeping data safe — everything that makes it ready for real users.", action: "build", comingSoon: true },
-  { act: 1, t: "Finish & Harden", s: "Finish the production-ready work and smooth the rough edges — make what you built solid before you take it live.", action: "build", comingSoon: true },
+  { act: 1, t: "Polish & Iterate", s: "Refine what you built against real use — smooth the rough edges, tighten your spec, and make it great before you take it live.", action: "build", comingSoon: true },
   { act: 1, t: "Go Live", s: "Point a real web address at it, switch on live payments, and run your launch checklist — your product is open for business.", action: "build", comingSoon: true },
   // ─── Act 2 · 1 → 100 (Weeks 8–10): grow it — funnel → metrics & scaling → product-led growth ───
   { act: 2, t: "The Funnel", s: "Build a funnel into your product — find it → try it → come back — and add the tracking so you can see how people move through it.", action: "build", comingSoon: true },

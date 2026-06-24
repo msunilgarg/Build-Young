@@ -172,7 +172,7 @@ describe("Lesson 2 project kit (SPECS/009 T43)", () => {
 
 describe("Build-per-week — commit & build this spec (SPECS/011)", () => {
   // Lesson 2 is now the FIRST build week (core product): its BuildLayer writes the spec AND its Copy
-  // hands Claude a "create SPECS/<feature>.md → commit → build" handoff. Lesson 6 = finish & harden.
+  // hands Claude a "create SPECS/<feature>.md → commit → build" handoff. Lesson 6 = polish & iterate.
   function BuildHarness({ week }) {
     const [st, setSt] = useState({ shape: { product: "a notes-to-quiz app" } });
     return <BuildLayer week={week} s={st} setS={setSt} bare />;
@@ -186,11 +186,11 @@ describe("Build-per-week — commit & build this spec (SPECS/011)", () => {
     expect(prompt).toContain("a notes-to-quiz app"); // the student's spec is embedded
   });
 
-  it("Lesson 6 is the finish-&-harden build week, writing to SPECS/finish-and-harden.md", () => {
+  it("Lesson 6 is the polish-&-iterate build week, writing to SPECS/polish-and-iterate.md", () => {
     render(<BuildHarness week={6} />);
-    expect(screen.getAllByText(/Finish & harden/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Polish & iterate/i).length).toBeGreaterThan(0);
     const prompt = screen.getByLabelText(/Full prompt preview/i).value;
-    expect(prompt).toMatch(/create the file SPECS\/finish-and-harden\.md/);
+    expect(prompt).toMatch(/create the file SPECS\/polish-and-iterate\.md/);
   });
 });
 

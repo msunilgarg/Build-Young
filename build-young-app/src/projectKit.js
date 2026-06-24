@@ -26,7 +26,7 @@ export const FEATURE_SPECS = [
   { key: "accounts", file: "accounts", title: "Accounts & saved data", lesson: 3 },
   { key: "payments", file: "payments", title: "Payments", lesson: 4 },
   { key: "production", file: "production-ready", title: "Production-ready", lesson: 5 },
-  { key: "harden", file: "finish-and-harden", title: "Finish & harden", lesson: 6 },
+  { key: "polish", file: "polish-and-iterate", title: "Polish & iterate", lesson: 6 },
   { key: "funnel", file: "funnel", title: "The funnel", lesson: 8 },
 ];
 // The repo path for a feature's spec file (e.g. "product" → "SPECS/core-product.md").

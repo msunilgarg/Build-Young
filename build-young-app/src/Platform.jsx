@@ -116,7 +116,7 @@ function OverviewPanel({ s, batch, onTab, setS }) {
 
       <Card style={{ padding: 20 }}>
         <h3 style={sectionTitle}>What to expect</h3>
-        <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lessons 1–7 — Build &amp; launch.</b> Find a problem, then each week write a short spec for that week's feature and build it with AI — core product, accounts, payments, production-ready, finish &amp; harden — then take it live.</span></div>
+        <div style={li}><Sparkles size={17} color={C.green} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lessons 1–7 — Build &amp; launch.</b> Find a problem, then each week write a short spec for that week's feature and build it with AI — core product, accounts, payments, production-ready, polish &amp; iterate — then take it live.</span></div>
         <div style={li}><GraduationCap size={17} color={C.emerald} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lessons 8–10 — Learn to grow it.</b> Build a funnel into your product, read the real numbers to see what's working, then talk through product-led growth — the skills that grow a product.</span></div>
         <div style={li}><TrendingUp size={17} color={C.turq} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lesson 11 — Prepare your capstone.</b> Pull it all together for the final presentation: polish your product and shape the story of what you built and who it's for.</span></div>
         <div style={li}><Flag size={17} color={C.gold} style={{ flexShrink: 0, marginTop: 1 }} /><span><b>Lesson 12 — Capstone.</b> Present everything — what you built, who's using it, and what you'd build next. Parents are welcome to join this final call to watch.</span></div>
@@ -154,7 +154,7 @@ Why families love it: It's live and small-group with a standing weekly time, so 
 
 // Worked examples for each build week's spec (SPECS/011 build-per-week): one field per feature the
 // student writes + builds in its week (core product → accounts → payments → production-ready → finish &
-// harden → funnel), plus `success` (product vision) and `acceptance` ("Done when…"). NOTE: keep the
+// polish → funnel), plus `success` (product vision) and `acceptance` ("Done when…"). NOTE: keep the
 // per-feature copy week-AGNOSTIC in the UI — the schedule is revealed week by week. Build Young is the model.
 const SHAPE_EXAMPLE = {
   product: `What it is: a live, online entrepreneurship program for high schoolers, delivered as one web app. Over 12 weeks they build a real product with AI, grow it into a business, and go get their first customers. It's hands-on and a bit like a game.
@@ -177,13 +177,13 @@ Use a trusted checkout (like Stripe) — never handle card details yourself.`,
   production: `Emails: a welcome when they enroll, a reminder 2 days before each lesson's first class, a recap with homework after each lesson, and a certificate at the end.
 Findable: the site shows up in search and looks right when someone shares the link (title, description, share image).
 Safe: it checks everything people type in, keeps secret keys off the browser, and protects students' data — they're minors.`,
-  harden: `What's left to finish and make solid before going live:
+  polish: `What to refine and make great before going live:
 • Empty states: a brand-new student with no notes/progress yet sees friendly guidance, not a blank or broken screen.
 • Wrong input: bad email, a half-filled enroll form, a refresh mid-checkout — each shows a clear message and never crashes.
-• Edge cases: two people using it at once, a cohort that's full, a late enroll the day before start — all handled gracefully.
-• Polish: the rough spots I noticed while building (a slow page, an awkward layout on mobile, a confusing button) are smoothed out.
+• Rough edges: the awkward spots I noticed while building (a slow page, a clumsy layout on mobile, a confusing button) are smoothed out.
+• Refine against real use: the things that felt off when I actually used it get tightened up.
 
-Write yours as a short list of what still feels unfinished — then have your AI tackle them one at a time until it's solid.`,
+Write yours as a short list of what still feels unfinished or could be better — then have your AI improve them one at a time until it's great.`,
   success: `Here's how we'll know it's working:
 Product success: real teens use it weekly and keep coming back through the whole course — they'd be bummed if it went away, and they tell friends, so cohorts keep filling.
 • Active user = a student who opens their dashboard and advances their week.
@@ -834,7 +834,7 @@ export function GoLiveChecklist({ s, setS, bare }) {
 
 // The build layers (Lessons 2–6, then 8). BUILD-PER-WEEK (SPECS/011): each build week WRITES the spec
 // for THAT week's feature (spec name = the feature) and builds it that week. Keyed by lesson number:
-// core product (L2) → accounts & data (L3) → payments (L4) → production-ready (L5) → finish & harden
+// core product (L2) → accounts & data (L3) → payments (L4) → production-ready (L5) → polish & iterate
 // (L6) → funnel (L8). The whole plan lives in s.shape (one field per feature); each build week shows
 // ONLY its own spec field + the "commit & build this spec" handoff (BuildLayer).
 const BUILD_LAYERS = {
@@ -870,14 +870,14 @@ const BUILD_LAYERS = {
     placeholder: "(Write production-ready: emails, being findable, and keeping data safe.)",
     intro: "Please make the app I've already built production-ready. You write the code; I'll tell you what's good and what to change — don't break what already works.",
     instruction: "Use trusted services to send emails; keep every secret key off the browser; check everything users type in; and make it findable (a clear title, description, and share image). When it's done, give me a short checklist to confirm it's ready for real users." },
-  6: { key: "harden",
-    heading: "Finish & harden 🧰",
-    lead: "Write a short spec for what's left to finish, then make your product solid — smooth the rough edges and test the tricky paths before you go live.",
-    fieldLabel: "Finish & harden",
-    promptLabel: "Your spec — finish & harden:",
-    placeholder: "(What's left to finish: rough edges to smooth, and tricky paths to test — empty states, wrong input, errors, two people at once — so it's solid before launch.)",
-    intro: "Please help me finish and harden the app I've already built — I want it solid before I take it live. You write the code; I'll tell you what's good and what to change — don't break what already works.",
-    instruction: "Smooth the rough edges, handle the tricky cases (empty states, wrong input, errors, two people using it at once), and make sure nothing important is half-done. When it's solid, give me a short checklist of what you hardened and how to test it." },
+  6: { key: "polish",
+    heading: "Polish & iterate ✨",
+    lead: "Write a short spec for what to refine, then make your product great — smooth the rough edges and tighten what's awkward against real use before you go live.",
+    fieldLabel: "Polish & iterate",
+    promptLabel: "Your spec — polish & iterate:",
+    placeholder: "(What to refine: rough edges to smooth, awkward bits to improve, and tricky paths to handle — empty states, wrong input, errors — so it's great before launch.)",
+    intro: "Please help me polish and iterate on the app I've already built — I want it great before I take it live. You write the code; I'll tell you what's good and what to change — don't break what already works.",
+    instruction: "Refine it against real use: smooth the rough edges, improve what's awkward, and handle the tricky cases (empty states, wrong input, errors). When it's polished, give me a short checklist of what you changed and how to test it." },
   // Lesson 8 (the funnel) is the only Act-2 BUILD week. It follows the SAME spec pattern as 3–6 (no
   // `seed`): the student writes their funnel spec in s.shape.funnel and the sample (SHAPE_EXAMPLE.funnel)
   // is shown as class material; Copy wraps their spec in the connected-funnel intro + instruction.
@@ -1032,7 +1032,7 @@ export function ShapePlan({ s, setS, bare }) {
       {field("success", "What success looks like", "Make success measurable: what does an 'active' user actually DO, and how often? How many come back (retention)? When would someone tell a friend? And the money — it should earn more than it costs to run.", 5)}
       {/* The project kit (SPECS/009): compile the spec into the docs the student's AI reads — now a SPECS/ folder, one file per feature (SPECS/011). */}
       <ProjectKitPanel s={s} />
-      {/* Per-feature specs (product/accounts/payments/production/harden/funnel) are written in each build
+      {/* Per-feature specs (product/accounts/payments/production/polish/funnel) are written in each build
           week's BuildLayer; "Done when…" acceptance is editable there too. Tools setup lives in the Pre-req tab. */}
     </>
   );
