@@ -388,7 +388,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
             <div style={{ width: 64, height: 4, borderRadius: 2, margin: "12px auto 0", background: `linear-gradient(90deg, ${C.green}, ${C.turq}, ${C.pink})` }} />
           </div>
           <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 18, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
-            <b className="disp">Raising builders, not consumers.</b> AI just collapsed the barrier to building — what once took a team and a budget, a motivated teenager can now do alone. So the edge isn't a credential; it's <b>taste</b> — knowing what's worth making — and starting early. We teach it by letting them live it: they build, they ship, then they learn to grow what they've made.
+            <b className="disp">Raising builders, not consumers.</b> AI just collapsed the barrier to building — what once took a team and a budget, a motivated teenager can now do alone. So the edge isn't a credential; it's <b>taste</b> — knowing what's worth making — and starting early. We teach it by letting them live it: they build, they ship, then they learn to grow what they've made. And what they're left with — a real, shipped product and a story only they can tell — stands out far beyond the classroom: in a college essay, an interview, anywhere genuine initiative counts.
           </p>
           {/* founder teaser card → links through to the full story page */}
           <Card style={{ padding: "20px 22px", marginTop: 22, display: "flex", gap: 18, alignItems: "center", flexWrap: "wrap" }}>
