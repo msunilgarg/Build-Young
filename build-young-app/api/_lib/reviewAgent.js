@@ -2,7 +2,7 @@
 //
 // The Check step of the Agentic Engineering Process (SPECS/008): an INDEPENDENT review pass for a
 // student's build — it grades what they built against THEIR OWN "Done when…" acceptance criteria
-// (Lesson 2, s.shape.acceptance) and returns strengths + gaps + a verdict. Mirrors the repo's own
+// (per-feature, s.shape.accept[key], SPECS/012) and returns strengths + gaps + a verdict. Mirrors the repo's own
 // independent verifier, and the Week-9 scenario agent's shape.
 //
 // Caller: POST /api/funnel?resource=review (student-initiated). The agent is Claude, called over plain

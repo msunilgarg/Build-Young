@@ -36,7 +36,7 @@ export const specFileFor = (key) => {
 };
 
 // The files the kit produces (the student's repo gets these). The SPECS/ folder is one file per feature
-// plus an overview (the product-level vision + acceptance), mirroring our own repo.
+// (spec + its own "Done when…", SPECS/012) plus an overview (the product-level vision), mirroring our repo.
 export const KIT_FILES = [
   "CLAUDE.md",
   "SPECS/000-overview.md",
@@ -84,38 +84,44 @@ ${val(sh.production, "emails, being findable, keeping data safe")}
 
 ## How we spec
 One feature = one short spec in the **\`SPECS/\` folder** (\`SPECS/core-product.md\`, \`SPECS/accounts.md\`, …).
-Each build week, write that feature's spec, commit it, then build it. \`SPECS/000-overview.md\` holds the
-product vision + the **"Done when…"** acceptance a slice is checked against.
+Each build week, write that feature's spec **and its own "Done when…" acceptance in the same file**,
+commit it, then build it. \`SPECS/000-overview.md\` holds the product vision.
 
 ## Definition of done
-A slice isn't done until it meets the **"Done when…"** acceptance in **SPECS/000-overview.md** (and the
-feature's own spec). Get an independent check before calling it done.
+A slice isn't done until it meets the **"Done when…"** acceptance in **that feature's own spec file**.
+Get an independent check against those criteria before calling it done.
 
 ## How we build
 Follow **PLAYBOOK.md** — the Agentic Engineering Process (Spec → Build → Check → Ship), one small slice at a time.
 `;
 
-  // SPECS/000-overview.md — the product-level vision + the acceptance contract the build + check work against.
+  // SPECS/000-overview.md — the product-level vision. Each feature's "Done when…" lives in its own spec (SPECS/012).
   const overview = `# Overview
 
 ## What success looks like
 ${val(sh.success, "how you'll know it's working — active use, retention, referrals, earning more than it costs")}
 
-## Done when… (acceptance criteria)
-${val(sh.acceptance, "a short list of checkable \"Done when…\" lines you can verify by looking")}
-
-## The features (one spec each, in SPECS/)
+## The features (one spec each, in SPECS/) — each carries its own "Done when…"
 ${FEATURE_SPECS.map((f) => `- **${f.title}** — \`${specFileFor(f.key)}\` (Lesson ${f.lesson})`).join("\n")}
+
+> Each feature's acceptance (the **"Done when…"** lines you check the build against) lives in that
+> feature's own spec file — written the week you build it.
 `;
 
-  // SPECS/<feature>.md — one short spec per feature (SPECS/011). Written + committed + built per week.
+  // SPECS/<feature>.md — one short spec per feature (SPECS/011) + its own "Done when…" acceptance (SPECS/012).
+  // Written + committed + built per week; the feature spec AND the bar its build is checked against, in one file.
+  const acc = (sh.accept && typeof sh.accept === "object") ? sh.accept : {};
   const featureSpecs = {};
   for (const f of FEATURE_SPECS) {
     featureSpecs[specFileFor(f.key)] = `# ${f.title}
 
 > One feature = one short spec (Lesson ${f.lesson}). Write it, commit it, then have your AI build it.
 
-${val(sh[f.key], `the ${f.title.toLowerCase()} — what it is and what "done" looks like`)}
+## Spec
+${val(sh[f.key], `the ${f.title.toLowerCase()} — what it is and what it does`)}
+
+## Done when… (acceptance criteria)
+${val(acc[f.key], `how you'll know the ${f.title.toLowerCase()} is built right — short, checkable lines you can verify by looking`)}
 `;
   }
 

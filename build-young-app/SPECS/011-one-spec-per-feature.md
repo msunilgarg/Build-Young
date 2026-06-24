@@ -36,6 +36,8 @@ build against it for six weeks — the exact big-bang the loop exists to avoid. 
 | 8 | the funnel | `funnel` | `SPECS/funnel.md` |
 
 Plus `SPECS/000-overview.md` (product vision `success` + the global **"Done when…"** `acceptance`).
+_(The global `acceptance` here was **superseded by SPECS/012** — acceptance is now per-feature,
+`s.shape.accept[key]`, folded into each `SPECS/<feature>.md`. See the Out-of-scope note below.)_
 
 ## Behavior (per build week)
 - The week shows the feature's spec editor (`BuildLayer`, `s.shape[key]`) + a "Done when…" Check card.
@@ -55,7 +57,9 @@ Plus `SPECS/000-overview.md` (product vision `success` + the global **"Done when
 - [x] Build + 389 tests green (project-kit / kit-agent / Platform updated + render tests added); `CLAUDE.md` + arch doc + this spec updated.
 
 ## Out of scope
-- Per-feature acceptance (kept ONE global `s.shape.acceptance`, edited in each build week's Check card).
+- ~~Per-feature acceptance (kept ONE global `s.shape.acceptance`, edited in each build week's Check card).~~
+  **Superseded by SPECS/012:** acceptance is now **per-feature** (`s.shape.accept[key]`), folded into each
+  `SPECS/<feature>.md`, written as step ② of the consistent build-week loop.
 - Server-side GitHub commit for the student (still SPECS/009 Path C, consent-gated) — here the student's
   OWN Claude does the commit.
 

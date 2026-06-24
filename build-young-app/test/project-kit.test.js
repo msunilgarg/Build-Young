@@ -18,7 +18,11 @@ const FULL = {
     production: "Welcome email; shows up in search; keeps notes private.",
     polish: "Empty notes, a bad paste, two tabs open — each handled gracefully.",
     success: "Active = makes a quiz weekly; they come back; they tell a friend.",
-    acceptance: "Done when a user can paste notes and get a quiz; quizzes save and reload.",
+    // Per-feature "Done when…" (SPECS/012) — each folds into its own SPECS/<feature>.md, not the overview.
+    accept: {
+      product: "Done when a user can paste notes and get a quiz; quizzes save and reload.",
+      accounts: "Done when login works and saved quizzes survive a refresh.",
+    },
   },
 };
 
@@ -36,14 +40,16 @@ describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + POSITIO
     expect(kit["CLAUDE.md"]).toContain("Classmates cram and forget");
     expect(kit["CLAUDE.md"]).toContain("Quiz yourself from your own notes");
     expect(kit["CLAUDE.md"]).toContain("notes + quizzes are saved");
-    // One spec per feature in SPECS/
+    // One spec per feature in SPECS/ — each carries its spec AND its own "Done when…" (SPECS/012)
     expect(kit["SPECS/core-product.md"]).toContain("turns a student's notes into a self-quiz");
+    expect(kit["SPECS/core-product.md"]).toMatch(/Done when…/);
+    expect(kit["SPECS/core-product.md"]).toContain("paste notes and get a quiz");   // acceptance lives in the feature file
+    expect(kit["SPECS/accounts.md"]).toContain("saved quizzes survive a refresh");  // per-feature acceptance
     expect(kit["SPECS/payments.md"]).toContain("Free to try; $3/mo");
     expect(kit["SPECS/polish-and-iterate.md"]).toContain("two tabs open");
-    // SPECS/000-overview.md ← success + the acceptance contract
+    // SPECS/000-overview.md ← product vision (success); the per-feature "Done when…" is NOT here anymore
     expect(kit["SPECS/000-overview.md"]).toContain("they tell a friend");
-    expect(kit["SPECS/000-overview.md"]).toMatch(/Done when…/);
-    expect(kit["SPECS/000-overview.md"]).toContain("paste notes and get a quiz");
+    expect(kit["SPECS/000-overview.md"]).not.toContain("paste notes and get a quiz");
     // POSITIONING.md ← promise, pr, pain, trueVsGoal
     expect(kit["POSITIONING.md"]).toContain("turn your notes into a quiz instantly");
     expect(kit["POSITIONING.md"]).toContain("True now: makes a quiz");
