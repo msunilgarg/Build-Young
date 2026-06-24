@@ -55,7 +55,9 @@ Plus `SPECS/000-overview.md` (product vision `success` + the global **"Done when
 - [x] Build + 389 tests green (project-kit / kit-agent / Platform updated + render tests added); `CLAUDE.md` + arch doc + this spec updated.
 
 ## Out of scope
-- Per-feature acceptance (kept ONE global `s.shape.acceptance`, edited in each build week's Check card).
+- ~~Per-feature acceptance (kept ONE global `s.shape.acceptance`, edited in each build week's Check card).~~
+  **Superseded by SPECS/012:** acceptance is now **per-feature** (`s.shape.accept[key]`), folded into each
+  `SPECS/<feature>.md`, written as step ② of the consistent build-week loop.
 - Server-side GitHub commit for the student (still SPECS/009 Path C, consent-gated) — here the student's
   OWN Claude does the commit.
 
