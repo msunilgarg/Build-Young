@@ -40,6 +40,30 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 009 — Spec → Project Kit (the docs the student's AI reads). See SPECS/009-spec-to-project-kit.md.
      Phase 1 (T42→T45) ALL SHIPPED. Path C (GitHub commit for minors) deferred to a consent/auth phase. ===== -->
 
+<!-- ===== Spec 010 — Your Founder Story (capstone application-ready narrative). See SPECS/010-founder-story.md (APPROVED).
+     T46 generator (+ worked sample) → T47 capstone panels (Lesson 11 draft + Lesson 12 final). Public portfolio
+     page + AI polish deferred. ===== -->
+
+## [ ] T46 — Founder-story generator + worked sample (pure module)  ·  risk: med
+Goal: a dependency-free function that compiles the student's reflection/build into an honest application-ready one-pager.
+Acceptance criteria:
+- New foundation module `src/founderStory.js` (pure, like `projectKit.js`): `buildFounderStory({ build, shape, reflect })` → a markdown string one-pager via a deterministic template. Sections: headline (`build.promise`/`reflect[11].whatBuilt`), the problem (`build.pain`), what I built with AI (`reflect[11].whatBuilt` + `shape.product`), who's using it (`reflect[11].whoUses`), proudest / what's next (`reflect[11].proud`/`reflect[11].next`), and a short honest **"How to use this"** (essay hook / activities line / 30-sec interview answer).
+- A worked **`FOUNDER_STORY_EXAMPLE`** (a model story for Build Young, mirroring `SHAPE_EXAMPLE`) — exported for the Lesson-11 `ExampleCard`.
+- Empty fields degrade to gentle placeholders, never "undefined". **No admissions-outcome language** anywhere (per POSITIONING — assert banned phrases absent).
+- Unit tests: each reflection field lands in the right section; the honest "how to use this" present; NO banned outcome phrases ("guarantee", "get you in", "boost"); empty-safe. build + tests green.
+Files: src/founderStory.js (new), test/founder-story.test.js (new), build-young-app/CLAUDE.md, BUILD-YOUNG-ARCHITECTURE.md
+Stop-and-ask if: the copy would imply an admissions outcome (must not — POSITIONING guardrail).
+
+## [ ] T47 — Capstone "Your founder story" panels (Lesson 11 draft + Lesson 12 final) + sample  ·  risk: med
+Goal: the student drafts their founder story at Lesson 11 and finalizes it for the presentation at Lesson 12.
+Acceptance criteria:
+- **Lesson 11** ("Prepare Your Capstone"): a **"Draft your founder story"** panel rendering `buildFounderStory` from live state, with **copy + download** (reuse `downloadFile`), re-generatable; plus the `FOUNDER_STORY_EXAMPLE` shown via `ExampleCard`.
+- **Lesson 12** (capstone): a **"Your founder story — for your presentation"** panel (same generator, final framing) with copy + download.
+- Never gates progression/cert; POSITIONING-voiced copy (evidence + story, no admissions claim).
+- Render test (deterministic): the Lesson-11 panel renders the action + the generated story embeds the student's reflection content; the sample renders. build + tests green; CLAUDE.md note.
+Files: src/Platform.jsx, test/Platform.test.jsx, build-young-app/CLAUDE.md
+Stop-and-ask if: (depends on T46)
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 

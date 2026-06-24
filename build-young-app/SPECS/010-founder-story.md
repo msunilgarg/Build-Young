@@ -2,9 +2,15 @@
 
 > One feature = one short spec. Decisions go here; PRs implement them.
 
-**Status:** draft
+**Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-06-24
+
+> **Approved 2026-06-24** (founder sign-off). Decisions: surface on **BOTH** capstone lessons —
+> **Lesson 11 = DRAFT** your founder story (alongside the reflection where the raw material is written),
+> **Lesson 12 = FINAL** version for the presentation; ship a **worked sample** (a model story, like the
+> spec lessons' `ExampleCard`) so students see what good looks like; **v1 is deterministic-only**, AI
+> polish is a fast follow-on; the public portfolio page stays deferred (minors → consent). Tasks T46–T47.
 
 ## What
 At the capstone, compile what the student built into an honest, **application-ready founder story** — a
@@ -20,11 +26,16 @@ into a story they can actually *use*. Authenticity-first: it's evidence + a narr
 getting in (per the POSITIONING guardrails).
 
 ## Users & trigger
-**Enrolled student**, at the **capstone** (Lesson 11/12) — a "Your founder story" panel. Re-generatable as
-they refine their reflection (like the project kit).
+**Enrolled student**, across the **capstone**: **Lesson 11** (draft it, alongside the reflection) and
+**Lesson 12** (the final version for the presentation). Re-generatable as they refine (like the project kit).
 
 ## Behavior
-- A capstone panel assembles a deterministic one-pager from existing data:
+- **Two surfaces, one generator:** **Lesson 11 → "Draft your founder story"** (shown with the reflection,
+  where the raw material is written) and **Lesson 12 → "Your founder story — for your presentation"** (the
+  final). Same `buildFounderStory` output; only the framing copy differs (draft vs. final).
+- **A worked sample** (`FOUNDER_STORY_EXAMPLE` — a model story for Build Young, mirroring `SHAPE_EXAMPLE`)
+  is shown at Lesson 11 via an `ExampleCard`, so students see what a strong founder story looks like.
+- The panel assembles a deterministic one-pager from existing data:
   - **Headline / one-liner** ← `build.promise` (or `reflect[11].whatBuilt`)
   - **The problem** ← `build.pain`
   - **What I built (with AI)** ← `reflect[11].whatBuilt` + the product/spec (`shape.product`)
@@ -55,8 +66,13 @@ they refine their reflection (like the project kit).
 - Reuses existing data: `s.reflect[11]` (REFLECT_WEEKS[11]), `s.build`, `s.shape`, the showcase product link.
 - Touches: new `src/founderStory.js` (foundation, pure), `src/Platform.jsx` (capstone panel), tests, `CLAUDE.md`, `BUILD-YOUNG-ARCHITECTURE.md`.
 
-## Risks / open questions
-- **Minors + anything public** — v1 is deliberately a **private, student-owned** artifact (copy/download), no new public surface, so no consent/privacy surface. Keep it that way for v1; the public portfolio page is its own consent-gated spec.
+## Tasks (Phase 1)
+- **T46 · `founderStory` generator + worked sample (pure module)** — `buildFounderStory({ build, shape, reflect })` (deterministic; placeholders; no admissions language) + `FOUNDER_STORY_EXAMPLE`. risk: med.
+- **T47 · Capstone panels (Lesson 11 draft + Lesson 12 final) + the sample** — copy/download, re-generatable; `ExampleCard` sample at Lesson 11. risk: med. (depends on T46)
+
+## Risks / decisions
+- ✅ **Both lessons:** Lesson 11 draft, Lesson 12 final-for-presentation (one generator, different framing).
+- ✅ **Worked sample** shipped (model story, `ExampleCard` at Lesson 11).
+- ✅ **v1 deterministic-only;** AI polish is a fast follow-on.
+- ✅ **Public portfolio page deferred** — a minor's public work needs parental consent + privacy design (its own gated spec).
 - **Claim integrity** — the single biggest risk is the generated copy drifting into admissions promises; the generator must contain none, and a test asserts the banned phrases are absent.
-- Open: surface it at **Lesson 11 (prepare)**, **Lesson 12 (capstone)**, or both? (Lean: Lesson 11, where the reflection is written, mirroring where the project kit sits at the spec lesson.)
-- Open: v1 deterministic-only, with AI polish as a fast follow-on? (Lean: yes.)
