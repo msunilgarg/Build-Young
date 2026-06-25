@@ -8,7 +8,7 @@ export const LEGAL = {
   privacy: {
     title: "Privacy Policy",
     sections: [
-      ["Who we are", `Build Young provides live, online entrepreneurship classes for teenagers. You can reach us at ${CONFIG.contactEmail}.`],
+      ["Who we are", `Build Young LLC, a Washington limited liability company (“Build Young,” “we,” “us”), provides live, online entrepreneurship classes for teenagers. You can reach us at ${CONFIG.contactEmail}.`],
       ["Eligibility — high school students", "Build Young is intended for high school students, enrolled by a parent or guardian. We do not knowingly create accounts for, or collect personal information from, children under 13. If you believe a child under 13 has provided us information, contact us and we will delete it."],
       ["What we collect", "To enroll a student and run the class, we collect the enrolling adult's name and email, the student's first name or chosen display name, the selected class, and payment confirmation (processed by our payment provider — we do not store full card numbers). During class activities, the student builds a real product in a hands-on, project-based class."],
       ["How we use it", "We use this information to deliver the class, send class logistics and reminders, process enrollment and refunds, and improve the program. We send a confirmation email at enrollment and follow-ups tied to class sessions."],
@@ -22,6 +22,7 @@ export const LEGAL = {
   terms: {
     title: "Terms of Service",
     sections: [
+      ["Who we are", "These Terms of Service are a legal agreement between you and Build Young LLC, a Washington limited liability company (“Build Young,” “we,” “us”), governing your use of our program and website."],
       ["The program", "Build Young offers a live, online program — a 12-week course meeting twice a week, so 24 live sessions in all — delivered over video conference. Students build a product, take it live, learn to grow it, and go to market for their first customers. Classes are live, hands-on, and project-based."],
       ["Eligibility", "Students must be in high school. An adult (parent or guardian) completes enrollment and payment on the student's behalf."],
       ["Education, not professional advice", "Build Young is hands-on entrepreneurship education. It is not licensed business, financial, or legal advice. Students build their own product; any revenue it may earn belongs to the student and their family — Build Young does not collect, hold, or manage it."],

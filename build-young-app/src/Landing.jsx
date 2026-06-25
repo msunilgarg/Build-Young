@@ -515,6 +515,7 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
           <a href={CONFIG.linkedinUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.muted, display: "inline-flex", alignItems: "center", gap: 5 }}><Linkedin size={13} /> Sunil on LinkedIn</a>
         </div>
         <div style={{ marginTop: 8, fontSize: 12 }}>Hands-on entrepreneurship education. Students build a real product with AI.</div>
+        <div style={{ marginTop: 10, fontSize: 12 }}>© 2026 Build Young LLC</div>
       </footer>
 
       {careers && <CareersModal onClose={() => setCareers(false)} />}
