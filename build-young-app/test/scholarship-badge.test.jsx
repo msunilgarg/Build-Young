@@ -19,6 +19,7 @@ describe("Scholarship badge on the landing cohort card (SPECS/017)", () => {
     const text = render(<App />).container.textContent || "";
     expect(text).toContain("Scholarship seats");
     expect(text).toContain("By application");
+    expect(text).toContain("Fully funded"); // the price slot reads "Fully funded", never "Free" (SPECS/017)
   });
 
   it("hides the badge when every cohort is paid", () => {
