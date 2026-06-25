@@ -4,7 +4,7 @@ import { C, fmt, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, act, Stat } from "./ui.jsx";
 import { CONFIG, track, useCohorts, validEmail, AUTH, downloadFile, HESITATION_REASONS } from "./lib.js";
 import { cohortDays, cohortTime, nextClass, dayNum, classMeetingOn, REFUND_WINDOW, buildLessonSchedule, cohortEndDate, paceFromLessons } from "./courseDates.js";
-import { seasonLabel, catalogSeasons } from "./cohorts.js";
+import { seasonLabel, catalogSeasons, duplicateCohort } from "./cohorts.js";
 import { WEEKS } from "./course.js";
 import { HOMEWORK, OBJECTIVES, setHomework, setObjectives } from "./courseState.js";
 import { cancelReasonLabel } from "./engine.js";
@@ -1044,6 +1044,12 @@ function CohortEditor() {
   const update = (i, key, val) => setRows((rs) => rs.map((r, j) => (j === i ? { ...r, [key]: val } : r)));
   const remove = (i) => setRows((rs) => rs.filter((_, j) => j !== i));
   const add = () => setRows((rs) => [...rs, { id: "", season: "fall", track: "Builders", start: "", day: "", seats: 12, price: 999, zoom: "", groupEmail: "", stripeLink: "" }]);
+  // Duplicate a cohort as a starting point for a new one (SPECS/018): insert a clone right below it with a
+  // fresh unique id + cleared per-instance fields. The founder sets a new start date (+ Stripe link), then Saves.
+  const duplicate = (i) => {
+    setRows((rs) => { const clone = duplicateCohort(rs[i], rs.map((r) => r.id)); return [...rs.slice(0, i + 1), clone, ...rs.slice(i + 1)]; });
+    setStatus("Duplicated below — set a new start date" + ((rows[i].price || 0) === 0 ? "" : " + Stripe link") + ", then Save changes.");
+  };
   const save = async () => {
     setStatus("Saving…");
     try {
@@ -1182,7 +1188,8 @@ function CohortEditor() {
               <option value={13}>Graduated (course complete)</option>
             </select>
           </label>
-          <div style={{ textAlign: "right", marginTop: 8 }}>
+          <div style={{ textAlign: "right", marginTop: 8, display: "flex", gap: 18, justifyContent: "flex-end" }}>
+            <span {...act(() => duplicate(i))} style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.emerald }}>Duplicate</span>
             <span {...act(() => remove(i))} style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.rust }}>Remove cohort</span>
           </div>
         </div>

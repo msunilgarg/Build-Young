@@ -53,6 +53,21 @@ export const BATCHES = [
   // automatically; the seasons already exist in SEASONS above so they render as "Not yet scheduled".
 ];
 
+// Clone a cohort as a starting point for a NEW one (founder "Duplicate" — SPECS/018): copy the reusable
+// shape (season, track, day/time, seats, price, blurb, pace, zoom) but assign a FRESH UNIQUE id and clear
+// the per-instance fields that must never be shared between cohorts — dates, the Stripe link, the cohort's
+// group email (re-derived from the new id by sanitizeCatalog), its Resend audience, recordings, and any
+// progress override. The founder then just sets a new start date (+ a Stripe link for a paid cohort).
+export function duplicateCohort(src, existingIds = []) {
+  const taken = new Set(existingIds);
+  const base = String((src && src.id) || "cohort").replace(/-copy(-\d+)?$/, "") || "cohort";
+  let id = `${base}-copy`, n = 2;
+  while (taken.has(id)) id = `${base}-copy-${n++}`;
+  // drop fields that are per-cohort-instance (sharing them would mis-route payments/emails/progress)
+  const { groupAudienceId, recordings, manualLesson, _lpw, _spl, ...rest } = src || {};
+  return { ...rest, id, start: "", stripeLink: "", groupEmail: "" };
+}
+
 export const seasonLabel = (key) => (SEASONS.find((s) => s.key === key) || {}).label || titleCase(key);
 // Title-case a raw season key for display when it's not one of the predefined SEASONS (e.g. a founder
 // adds a "summer" cohort → "Summer"). Keeps custom seasons readable without a hardcoded label.
