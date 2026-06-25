@@ -233,8 +233,39 @@ async function saveCohorts(req, res) {
 async function saveFounders(req, res) {
   if (!(await founderGate(req, res))) return;
   const body = await readBody(req);
+  // Diff against the prior allowlist so we only invite NEWLY-added admins (re-saving the same list
+  // invites nobody). SPECS/015.
+  const before = await loadFounderEmails();
   const result = await saveFounderEmails((body && body.emails) || []);
-  res.status(result.ok ? 200 : 400).json(result);
+  if (result.ok) {
+    const beforeSet = new Set(before);
+    const added = (result.founders || []).filter((e) => !beforeSet.has(e));
+    const { invited, inviteFailed } = await inviteNewAdmins(added);
+    return res.status(200).json({ ...result, invited, inviteFailed });
+  }
+  res.status(400).json(result);
+}
+
+// For each newly-added admin email: provision an account if none exists (the allowlist is the
+// authorization — mirrors request-reset's founder self-provision) and email a set-password invite.
+// An account that already has a password is elevated SILENTLY (no email). Best-effort: a send/provision
+// failure never fails the save — it's reported back in inviteFailed. SPECS/015.
+async function inviteNewAdmins(emails) {
+  const invited = [];
+  const inviteFailed = [];
+  for (const email of emails) {
+    try {
+      const existing = await getUser(email);
+      if (existing && existing.passwordHash) continue; // already can log in — just elevated
+      const user = existing || (await putUser(email, { name: "" }));
+      const r = await sendSetPasswordEmail({ email, name: user.name, isAdmin: true });
+      if (r && r.ok) invited.push(email);
+      else inviteFailed.push(email);
+    } catch {
+      inviteFailed.push(email);
+    }
+  }
+  return { invited, inviteFailed };
 }
 
 // --- PUT ?resource=settings: founder saves the public runtime settings (booking link, etc.) ---

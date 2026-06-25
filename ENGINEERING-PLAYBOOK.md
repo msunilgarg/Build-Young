@@ -231,6 +231,16 @@ size.
   imports, bad refs, broken wiring) that unit tests and the build miss.
 - **Treat unexpected test *warnings/errors* as failures,** not noise — an "unhandled rejection" during a
   passing test is usually a real bug you haven't triggered the assertion for yet.
+- **Guard files your bundler never compiles with a real-loader check — build+tests share a blind spot.**
+  A bundler only parses what it builds (e.g. Vite compiles `src/`, never `api/` serverless functions), and
+  a lenient *test* transform (esbuild/Vitest) silently tolerates things the production runtime rejects —
+  notably **duplicate `import` bindings**, which are a hard `SyntaxError` under Node's real ESM loader but
+  pass `npm run build` *and* the entire test suite. Net: a function that 500s on load every request can ship
+  100% green. Close it with a cheap guard that runs the **real loader** over those files — a test that
+  `node --check`s every `api/**/*.js` (or imports each handler in bare Node) — so the parse/load error fails
+  the suite. *(Why this is its own rule: "build + tests passed" feels like total coverage, but both tools
+  can share the exact same blind spot for code outside the bundle; the only true check is the runtime that
+  will actually load it. An independent verifier caught one such crash that 373 green tests missed.)*
 
 ## 8. Security & data hygiene (defaults worth keeping)
 
@@ -349,6 +359,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-25** — §7: **guard files your bundler never compiles with a real-loader check.** Vite compiles only `src/`, and Vitest's esbuild transform tolerates duplicate `import` bindings — so a duplicate-import `SyntaxError` in a serverless `api/` file passed `npm run build` AND all 373 tests yet crashes on Vercel's Node loader every request. Build + tests shared the same blind spot for code outside the bundle. Fix: a `node --check` test over every `api/**/*.js` (the real loader) so the class of bug fails the suite. Caught by an independent verifier.
 - **2026-06-24** — §9: **classify every request bug-vs-feature before acting, and never code ahead of an approved spec.** The first move on any ask is to bucket it; a feature/non-trivial change is spec-first (write → surface inline → sign-off → build). A quick clarifying `AskUserQuestion` is not a substitute for the spec gate — answering one question then diving into a multi-file change still skips the human's scope/tradeoff decision. When the bucket is unclear, ask. (Prompted by a session where I repeatedly jumped from a question straight into implementation.)
 - **2026-06-22** — §9: a spec is **approved by the human before its tasks are built, and approval means they actually read it** — surface the spec's content inline for review (don't just leave a file to open), capture their decisions, and flip `draft → approved` only on sign-off; queued tasks stay dormant until then. The spec-first gate is a human-in-the-loop decision point, not a notification — a spec that ships to an unopened file is a rubber stamp.
 - **2026-06-18** — §9: the spec-first gate is **trigger-independent** — an event/issue on-ramp that treats "the issue IS the task" is for *bug-level* work; a non-trivial/feature goal is still specced first regardless of how the run was triggered (the trigger chooses *where the task comes from*, not *whether it earns a spec*). Surfaced in the loop diagram's issue on-ramp + the architecture doc Triggers row.

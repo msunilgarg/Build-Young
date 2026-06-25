@@ -1216,7 +1216,16 @@ function FoundersEditor({ founders }) {
         method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ emails: list }),
       });
       const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok) { setList(d.founders); setStatus("Saved ✓"); } else setStatus(adminSaveErr(r, d, "save admins"));
+      if (r.ok && d.ok) {
+        setList(d.founders);
+        // SPECS/015: new admins are auto-emailed a set-password invite; surface who got one (or couldn't).
+        const invited = Array.isArray(d.invited) ? d.invited : [];
+        const failed = Array.isArray(d.inviteFailed) ? d.inviteFailed : [];
+        let msg = "Saved ✓";
+        if (invited.length) msg += ` — set-password invite sent to ${invited.join(", ")}`;
+        if (failed.length) msg += ` — couldn't email ${failed.join(", ")} (check email is configured; they can use “Forgot password?”)`;
+        setStatus(msg);
+      } else setStatus(adminSaveErr(r, d, "save admins"));
     } catch { setStatus(ADMIN_NET_ERR); }
   };
 
