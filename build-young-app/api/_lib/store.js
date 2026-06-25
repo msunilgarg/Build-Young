@@ -25,7 +25,9 @@ const command = kvCommand;
 // is stable if either changes later). They start PENDING (`onboarded:false`) — saving the record does
 // nothing student-facing; an explicit "Start onboarding" action (T28) flips `onboarded` + provisions
 // access. A normal (Stripe) enrollment passes none of these, so its record is unchanged (back-compat).
-export async function addEnrollment({ email, name, batchId, paymentSource, partner, externalRef, priceCents, cutPct, onboarded }) {
+// Cap a stored application write-up so a huge body can't bloat the cohort hash. SPECS/016.
+const WRITEUP_MAX = 6000;
+export async function addEnrollment({ email, name, batchId, paymentSource, partner, externalRef, priceCents, cutPct, onboarded, writeup }) {
   if (!storeConfigured()) return { ok: false, reason: "store not configured" };
   if (!email || !batchId) return { ok: false, reason: "missing email or batchId" };
   const rec = { email, name: name || "", batchId, ts: Date.now() };
@@ -36,6 +38,13 @@ export async function addEnrollment({ email, name, batchId, paymentSource, partn
     rec.priceCents = Math.max(0, Math.round(Number(priceCents) || 0));
     rec.cutPct = Math.min(1, Math.max(0, Number(cutPct) || 0));
     rec.onboarded = onboarded === true; // PENDING until "Start onboarding" (T28)
+  } else if (paymentSource === "free") {
+    // Free / scholarship seat (SPECS/016): the applicant's write-up + founder approval are the gate.
+    // PENDING until the founder approves; price is always 0 (no money moves).
+    rec.paymentSource = "free";
+    rec.priceCents = 0;
+    rec.writeup = String(writeup || "").slice(0, WRITEUP_MAX);
+    rec.onboarded = onboarded === true;
   }
   const res = await command(["HSET", keyFor(batchId), email, JSON.stringify(rec)]);
   return { ok: res !== null };
@@ -84,6 +93,12 @@ export async function listEnrollments(batchId) {
           row.priceCents = rec.priceCents || 0;
           row.cutPct = rec.cutPct || 0;
           row.onboarded = rec.onboarded === true;
+        } else if (rec.paymentSource === "free") {
+          row.paymentSource = "free";
+          row.priceCents = 0;
+          row.writeup = rec.writeup || "";
+          row.ts = rec.ts || 0;
+          row.onboarded = rec.onboarded === true;
         }
         out.push(row);
       }
@@ -104,4 +119,16 @@ export async function listPartnerEnrollments(batchIds) {
     for (const r of rows) if (r.paymentSource === "partner") out.push(r);
   }
   return out;
+}
+
+// All FREE / scholarship applications across the given cohorts — pending + onboarded — for the founder
+// console (SPECS/016), newest first (so fresh applications surface at the top). [] when unconfigured/empty.
+export async function listFreeEnrollments(batchIds) {
+  const ids = Array.isArray(batchIds) ? batchIds : [];
+  const out = [];
+  for (const id of ids) {
+    const rows = await listEnrollments(id);
+    for (const r of rows) if (r.paymentSource === "free") out.push(r);
+  }
+  return out.sort((a, b) => (b.ts || 0) - (a.ts || 0));
 }

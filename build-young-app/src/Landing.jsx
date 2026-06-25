@@ -455,8 +455,8 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
                 {b.blurb || CARD_DEFAULTS.blurb}
               </div>
               <div style={{ borderTop: `1px solid ${C.line}`, marginTop: "auto", marginBottom: 12, paddingTop: 14, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>${b.price}</span>
-                <span style={{ fontSize: 13, color: closed ? C.rust : C.green, fontWeight: 600 }}>{closed ? "Enrollment full" : "Enrollment open"}</span>
+                <span className="disp" style={{ fontSize: 30, fontWeight: 800 }}>{(b.price || 0) === 0 ? "Free" : `$${b.price}`}</span>
+                <span style={{ fontSize: 13, color: closed ? C.rust : C.green, fontWeight: 600 }}>{closed ? "Enrollment full" : ((b.price || 0) === 0 ? "By application" : "Enrollment open")}</span>
               </div>
               <button className="btn" onClick={() => onEnroll(b.id)} style={{ width: "100%", background: closed ? C.line : acc, color: "#fff", padding: "12px", borderRadius: 4, fontSize: 15 }}>{closed ? "Join the next cohort →" : "Enroll in this batch"}</button>
             </Card>

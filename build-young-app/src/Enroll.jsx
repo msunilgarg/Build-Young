@@ -19,10 +19,27 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   // first option the landing tabs lead with (e.g. a Summer cohort before Fall) — not raw catalog order.
   const [batch, setBatch] = useState(preselect || (sortCohorts(BATCHES)[0] || BATCHES[0]).id);
   const [notified, setNotified] = useState(false); // captured interest for a full cohort
+  const [writeup, setWriteup] = useState("");      // free/scholarship application (SPECS/016)
+  const [submitting, setSubmitting] = useState(false);
+  const [submitErr, setSubmitErr] = useState("");
   const b = BATCHES.find((x) => x.id === batch) || BATCHES[0];
   const closed = cohortClosed(b); // sold out, or past the enrollment cutoff (day before start)
+  // A $0 cohort enrolls by APPLICATION (a write-up + founder approval), not Stripe — SPECS/016.
+  const isFree = (b.price || 0) === 0;
+  const WRITEUP_MIN = 300;
   const canContinue = name.trim() && validEmail(email) && age15 && !closed;
+  const canApply = canContinue && writeup.trim().length >= WRITEUP_MIN;
   const canNotify = name.trim() && validEmail(email);
+  const submitApplication = async () => {
+    setSubmitting(true); setSubmitErr("");
+    try {
+      const r = await fetch("/api/funnel?resource=free-enroll", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, batchId: b.id, writeup: writeup.trim() }) });
+      const d = await r.json().catch(() => ({}));
+      if (r.ok && d.ok) { track("free_application", { batchId: b.id }); setStep(3); }
+      else setSubmitErr(d.error || "Couldn't submit — please try again.");
+    } catch { setSubmitErr("Network error — please try again."); }
+    setSubmitting(false);
+  };
   // A full cohort doesn't take a waitlist (no mid-course additions) — we capture interest for the
   // NEXT cohort instead, so the founder sees real overflow demand.
   const submitInterest = async () => {
@@ -48,8 +65,8 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
 
         {step === 1 && (
           <div className="rise">
-            <h2 className="disp" style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>Reserve your seat</h2>
-            <p style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>Choose a batch and tell us who's joining. Takes about a minute.</p>
+            <h2 className="disp" style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>{isFree ? "Apply for a free seat" : "Reserve your seat"}</h2>
+            <p style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{isFree ? "Free seats are limited and awarded by application. Tell us who's joining and why." : "Choose a batch and tell us who's joining. Takes about a minute."}</p>
             {onCall && (
               <div {...act(onCall)} style={{ display: "flex", alignItems: "center", gap: 8, background: "#eaf3fb", border: `1px solid ${C.emeraldLite}`, borderRadius: 4, padding: "10px 12px", marginTop: 14, cursor: "pointer" }}>
                 <Video size={15} color={C.emerald} /><span style={{ fontSize: 12.5, color: C.ink2 }}>Want to talk first? <b style={{ color: C.emerald }}>Book a free 15-minute call with us →</b></span>
@@ -93,10 +110,25 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ marginTop: 12, fontSize: 12, color: C.muted, lineHeight: 1.5, background: C.paper, borderRadius: 6, padding: "9px 12px" }}>
                     <b style={{ color: C.ink2 }}>A note on costs:</b> beyond tuition, your child will need <b>Claude Pro</b> (about <b>$20/month</b>) — the AI that builds the app alongside them — for the build weeks; a free account won't keep up. Everything else we use (GitHub, Vercel, Resend for email) is <b>free</b>. Later, a custom web address (domain) is <b>optional</b> and runs about <b>$10–20/year</b> if you want one.
                   </div>
-                  <button className="btn" disabled={!canContinue} onClick={() => setStep(2)} style={{ width: "100%", marginTop: 18, background: canContinue ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canContinue ? "pointer" : "not-allowed" }}>Continue to payment →</button>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 12, color: C.muted, fontSize: 12.5 }}>
-                    <Lock size={13} /> Secure checkout · no charge until the next step
-                  </div>
+                  {isFree && (
+                    <div style={{ marginTop: 14 }}>
+                      <div style={label}>Why do you want this seat? <span style={{ color: C.muted, fontWeight: 500 }}>— in a few sentences, tell us why you want it and what you'd build</span></div>
+                      <textarea aria-label="Why you want this seat" value={writeup} onChange={(e) => setWriteup(e.target.value)} rows={6} placeholder="I want to build…" style={{ ...inputS, resize: "vertical", minHeight: 120, fontFamily: "inherit" }} />
+                      <div style={{ fontSize: 11.5, color: writeup.trim().length >= WRITEUP_MIN ? C.green : C.muted, marginTop: 4 }}>{writeup.trim().length}/{WRITEUP_MIN} characters minimum</div>
+                    </div>
+                  )}
+                  {isFree ? (<>
+                    <button className="btn" disabled={!canApply || submitting} onClick={submitApplication} style={{ width: "100%", marginTop: 18, background: (canApply && !submitting) ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: (canApply && !submitting) ? "pointer" : "not-allowed" }}>{submitting ? "Submitting…" : "Submit application →"}</button>
+                    {submitErr && <div style={{ color: C.rust, fontSize: 12.5, marginTop: 10, textAlign: "center" }}>{submitErr}</div>}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 12, color: C.muted, fontSize: 12.5 }}>
+                      <Mail size={13} /> Free seats are limited — we read every application personally.
+                    </div>
+                  </>) : (<>
+                    <button className="btn" disabled={!canContinue} onClick={() => setStep(2)} style={{ width: "100%", marginTop: 18, background: canContinue ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canContinue ? "pointer" : "not-allowed" }}>Continue to payment →</button>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 12, color: C.muted, fontSize: 12.5 }}>
+                      <Lock size={13} /> Secure checkout · no charge until the next step
+                    </div>
+                  </>)}
                 </>)}
               </div>
               {/* summary column */}
@@ -109,11 +141,17 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 12.5, fontWeight: 600, marginTop: 6 }}><Video size={13} /> {b.day} · live on Zoom</div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderTop: `1px solid ${C.line}`, marginTop: 14, paddingTop: 12 }}>
                     <span style={{ fontSize: 13, color: C.muted }}>Tuition</span>
-                    <span className="disp" style={{ fontSize: 26, fontWeight: 800 }}>${b.price}</span>
+                    <span className="disp" style={{ fontSize: 26, fontWeight: 800 }}>{isFree ? "Free" : `$${b.price}`}</span>
                   </div>
-                  <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
-                    <b style={{ color: C.ink2 }}>Full refund</b> if you cancel before {b.start}. After classes begin, a <b style={{ color: C.ink2 }}>flat 75% refund</b> is available through the first week; non-refundable after.
-                  </div>
+                  {isFree ? (
+                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
+                      <b style={{ color: C.ink2 }}>By application.</b> Free seats are limited and awarded by application — tell us why you want one. If you're selected, we'll email you to set your password and get started.
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
+                      <b style={{ color: C.ink2 }}>Full refund</b> if you cancel before {b.start}. After classes begin, a <b style={{ color: C.ink2 }}>flat 75% refund</b> is available through the first week; non-refundable after.
+                    </div>
+                  )}
                   <div style={{ fontSize: 11, color: C.muted, marginTop: 8, fontWeight: 700, letterSpacing: ".04em" }}>WHAT YOU GET FROM ME</div>
                   <div style={{ marginTop: 8, display: "grid", gap: 7 }}>
                     {[
@@ -200,7 +238,19 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
           );
         })()}
 
-        {step === 3 && (
+        {step === 3 && isFree && (
+          <div className="rise" style={{ textAlign: "center" }}>
+            <div style={{ width: 64, height: 64, borderRadius: 4, background: C.emerald, display: "grid", placeItems: "center", margin: "8px auto 16px" }}><Check size={32} color="#fff" /></div>
+            <h2 className="disp" style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>Application received, {name.split(" ")[0]}!</h2>
+            <p style={{ color: C.muted, fontSize: 14, marginTop: 6 }}>Thanks for applying for a free seat in the {b.track} cohort. We read every write-up personally — if you're selected, we'll email you a link to set your password and get started.</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "9px 12px", marginTop: 12 }}>
+              <Mail size={15} color={C.emerald} /><span style={{ fontSize: 12.5, color: C.ink2 }}>A confirmation email has been sent to <b>{email}</b>.</span>
+            </div>
+            <button className="btn" onClick={() => (onHome ? onHome() : onBack())} style={{ width: "100%", marginTop: 22, background: C.emerald, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16 }}>Back to home →</button>
+          </div>
+        )}
+
+        {step === 3 && !isFree && (
           <div className="rise" style={{ textAlign: "center" }}>
             <div style={{ width: 64, height: 64, borderRadius: 4, background: C.emerald, display: "grid", placeItems: "center", margin: "8px auto 16px" }}><Check size={32} color="#fff" /></div>
             <h2 className="disp" style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>You're enrolled, {name.split(" ")[0]}!</h2>
