@@ -2,9 +2,12 @@
 
 > One feature = one short spec. Decisions go here; PRs implement them. Follow-up to the positioning gap.
 
-**Status:** draft
+**Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-06-25
+
+> **Approved 2026-06-25 — all 3 recommendations:** name = `PITCH.md` ("Your Pitch"); add a "why you / vs.
+> the alternative" differentiator line; include the worked-example pitch in v1.
 
 ## Why
 The course coaches **specs + acceptance criteria** rigorously (every build week: write ① → check ④, against
@@ -47,15 +50,15 @@ example faster than from instructions.
    vs. keep the existing 5 fields as-is and only reframe/relabel.
 3. **Worked example in v1?** **Yes, include it** (adapt Build Young's positioning) — vs. defer to a follow-up.
 
-## Done when (acceptance)
-- [ ] The kit writes **`PITCH.md`** (renamed from `POSITIONING.md`); `KIT_FILES`, the kit prompt, and all
-      student-facing references use the new name; the company `POSITIONING.md` is untouched.
-- [ ] Week 1 frames the work as **"Write your pitch"** (+ the differentiator line, per decision #2).
-- [ ] Every build week shows an editable **"Your pitch"** panel that edits `s.build` and flows into the
-      regenerated `PITCH.md` (verified: editing it on a build week changes the kit output).
-- [ ] (If decision #3 = yes) a worked-example pitch is shown as a model.
-- [ ] Build + tests green; a test covers the kit emitting `PITCH.md` from `s.build`; docs synced (CLAUDE.md
-      project-kit note).
+## Done when (acceptance) — all met
+- [x] The kit writes **`PITCH.md`** (renamed from `POSITIONING.md`); `KIT_FILES`, the ③ prompt, and all
+      student-facing references use the new name; the company `POSITIONING.md` is untouched (it keeps its name).
+- [x] Week 1 frames the work as **"Your pitch"** + the new **"Why yours — vs. what they do today"** (`edge`) line.
+- [x] Every build week shows a collapsible **"✎ Your pitch"** editor (`PitchFields`) that edits `s.build` and
+      flows into the regenerated `PITCH.md` — pinned by `Platform.test.jsx` (the ③ prompt carries the edited pitch).
+- [x] A worked-example pitch is shown (the Week-1 `ExampleCard` is Build Young's own pitch, now incl. the `edge` row).
+- [x] Build + 425 tests green; `project-kit.test.js` covers the kit emitting `PITCH.md` (with the `edge` line)
+      and `POSITIONING.md` undefined; docs synced (CLAUDE.md project-kit note).
 
 ## Out of scope
 - Renaming the company's internal `POSITIONING.md`. Multi-week *curriculum* changes beyond surfacing the

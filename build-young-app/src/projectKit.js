@@ -2,9 +2,9 @@
 //
 // Compiles a student's Week-1 bet (`s.build`) + per-feature specs (`s.shape`) into the files their
 // building-AI reads every session — CLAUDE.md, a SPECS/ folder (one file per feature, SPECS/011),
-// POSITIONING.md, PLAYBOOK.md. This is the connective tissue: each feature's spec stops dead-ending as
-// one prompt and becomes a durable doc that steers the build AND grounds the "Check my work" step (the
-// same way CLAUDE.md/SPECS/POSITIONING steer ours).
+// PITCH.md (their living positioning — SPECS/019), PLAYBOOK.md. This is the connective tissue: each
+// feature's spec stops dead-ending as one prompt and becomes a durable doc that steers the build AND
+// grounds the "Check my work" step (the same way CLAUDE.md/SPECS/PITCH steer ours).
 //
 // Pure + dependency-free (foundation): deterministic, no AI, offline-safe. The optional AI expand/polish
 // layer (SPECS/009 T45) sits on top server-side; THIS is the always-on base and its fallback.
@@ -41,7 +41,7 @@ export const KIT_FILES = [
   "CLAUDE.md",
   "SPECS/000-overview.md",
   ...FEATURE_SPECS.map((f) => specFileFor(f.key)),
-  "POSITIONING.md",
+  "PITCH.md",
   "PLAYBOOK.md",
 ];
 
@@ -68,7 +68,7 @@ ${val(b.pain, "the customer and the problem you're solving")}
 
 ## How we talk about it
 - Our one promise: ${val(b.promise, "the single thing you promise a customer")}
-- Voice + the claims we make vs. avoid live in **POSITIONING.md**.
+- Who it's for, why us, voice + the claims we make vs. avoid live in **PITCH.md**.
 
 ## Accounts & saved data
 ${val(sh.accounts, "who signs in and what's saved for each person")}
@@ -123,17 +123,21 @@ ${val(acc[f.key], `how you'll know the ${f.title.toLowerCase()} is built right �
 `;
   }
 
-  // POSITIONING.md — voice + the honest claims line.
-  const positioning = `# Positioning
+  // PITCH.md — the student's living positioning: who it's for, the one promise, why us, and the honest
+  // claims line. Written in Week 1, refined every build week (SPECS/019).
+  const pitch = `# Pitch
 
 ## Our one promise
 ${val(b.promise, "the single thing you promise a customer, in one line")}
 
+## Who it's for
+${val(b.pain, "the customer and the problem they have today")}
+
+## Why us — vs. what they do today
+${val(b.edge, "the one reason they'd pick this over the alternative they use now")}
+
 ## How we describe it
 ${val(b.pr, "your press-release statement — what it is, who it helps, the payoff")}
-
-## Who it's for
-${val(b.pain, "the customer and the problem")}
 
 ## Claims we make vs. claims we avoid
 Be honest: what's **true now** you can say plainly; what's still a **goal** you describe as where you're headed — never as already true.
@@ -160,7 +164,7 @@ A few rules that make the loop work:
     "CLAUDE.md": claude,
     "SPECS/000-overview.md": overview,
     ...featureSpecs,
-    "POSITIONING.md": positioning,
+    "PITCH.md": pitch,
     "PLAYBOOK.md": playbook,
   };
 }

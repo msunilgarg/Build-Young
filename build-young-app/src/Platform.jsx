@@ -136,6 +136,7 @@ const EXAMPLE_BUILD = {
   pain: `Teens aren't taught how to build something real or how the real world actually works — it's not on any test, and the free videos out there go unwatched.
 Parents worry that in an AI world a degree won't be the edge — but there's no hands-on way for their kid to actually learn to build before adulthood.
 The classes that exist teach coding syntax or theory — not how to take an idea, build it with AI, and put it in front of real people, which is the part that actually shapes a life.`,
+  edge: `We begin where coding classes stop — build with AI, then learn to grow it. Affordable and focused (12 weeks), not a $6,000 intensive or free videos that go unwatched.`,
   pr: `Announcing Build Young — a live program where teens build a product people would pay for, with AI as their tool, grow it into a business, and go get their first customers.
 
 The problem: Kids leave school having never built anything real or learned how money works — and in an AI world, the edge is what you can build, not what you were credentialed to do.
@@ -397,6 +398,7 @@ function weekExample(week) {
   if (week === 1) return <ExampleCard subtitle="A worked plan — how we'd fill this in" fields={[
     ["The idea", EXAMPLE_BUILD.idea],
     ["Customer pain point(s)", EXAMPLE_BUILD.pain],
+    ["Why yours — vs. what they do today", EXAMPLE_BUILD.edge],
     ["Press release", EXAMPLE_BUILD.pr],
     ["Your one promise", EXAMPLE_BUILD.promise],
     ["Honest check — true now vs. the goal", EXAMPLE_BUILD.trueVsGoal],
@@ -940,27 +942,74 @@ function InfraBuildPlan({ s, setS, bare, week }) {
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
 }
 
-function BuildPlan({ s, setS, bare }) {
-  const build = s.build || {};
-  const setField = (k, v) => setS((p) => ({ ...p, build: { ...(p.build || {}), [k]: v } }));
-  const isCustom = build.scenario === "custom";
-
-  const labelStyle = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
-  const inputStyle = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
-  const PR_PLACEHOLDER = `Announcing [your product] — [one line: what it does and who it helps].
+// The PITCH fields (SPECS/019) — the student's living positioning: who/problem, why-you, the press
+// release, the one promise, and the honest true-vs-goal check. Used in Week 1 (BuildPlan) AND surfaced on
+// EVERY build week (a collapsible editor in BuildLayer) so the student sharpens it as they learn who it's
+// really for — it flows into PITCH.md on each ③ build. Edits the same `s.build` fields either way.
+const PITCH_LABEL = { fontSize: 11, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: ".05em", display: "block", marginBottom: 5 };
+const PITCH_INPUT = { width: "100%", boxSizing: "border-box", fontSize: 14, padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 4, background: C.paper2, fontFamily: "inherit", color: C.ink };
+const PR_PLACEHOLDER = `Announcing [your product] — [one line: what it does and who it helps].
 The problem: [what's hard or annoying today].
 How it works: [the one magic thing it does].
 Why people love it: [the payoff].
 "[a happy first user's quote]"`;
 
-  const inner = (
+function PitchFields({ s, setS }) {
+  const build = s.build || {};
+  const setField = (k, v) => setS((p) => ({ ...p, build: { ...(p.build || {}), [k]: v } }));
+  return (
     <>
-      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your product — start from the customer 🧭</h3>
-      <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 14px" }}>Fill these in as you shape your product. Saved automatically.</p>
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={PITCH_LABEL}>Customer pain point(s)</span>
+        <textarea aria-label="Customer pain points" value={build.pain || ""} onChange={(e) => setField("pain", e.target.value)} rows={3}
+          placeholder="Who has this problem, and what's frustrating about it today? (e.g., 'My classmates cram the night before and forget everything — there's no quick way to quiz yourself from your own notes.')"
+          style={{ ...PITCH_INPUT, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
 
       <label style={{ display: "block", marginBottom: 14 }}>
-        <span style={labelStyle}>Your idea</span>
-        <select aria-label="Choose an idea" value={build.scenario || ""} onChange={(e) => setField("scenario", e.target.value)} style={inputStyle}>
+        <span style={PITCH_LABEL}>Why yours — vs. what they do today</span>
+        <input aria-label="Why yours vs the alternative" type="text" value={build.edge || ""} onChange={(e) => setField("edge", e.target.value)}
+          placeholder="The one reason they'd pick this over what they use now (even if that's 'nothing'). e.g., 'It quizzes you straight from YOUR notes — no setup, no generic question banks.'"
+          style={PITCH_INPUT} />
+      </label>
+
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={PITCH_LABEL}>Press release statement</span>
+        <textarea aria-label="Press release statement" value={build.pr || ""} onChange={(e) => setField("pr", e.target.value)} rows={6}
+          placeholder={PR_PLACEHOLDER}
+          style={{ ...PITCH_INPUT, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
+
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={PITCH_LABEL}>Your one promise (one line)</span>
+        <input aria-label="Your one promise" type="text" value={build.promise || ""} onChange={(e) => setField("promise", e.target.value)}
+          placeholder="The single thing you promise a customer — e.g., 'Quiz yourself from your own notes in 2 minutes.'"
+          style={PITCH_INPUT} />
+      </label>
+
+      <label style={{ display: "block", marginBottom: 0 }}>
+        <span style={PITCH_LABEL}>Honest check — what's true now vs. the goal</span>
+        <textarea aria-label="What's true now vs. the goal" value={build.trueVsGoal || ""} onChange={(e) => setField("trueVsGoal", e.target.value)} rows={3}
+          placeholder="Be honest: what does it actually do today, and what's still the goal? Say it that way when you talk about it — 'helps you study' (true now) vs. 'gets you an A' (goal). Honest beats hype, and people trust it more."
+          style={{ ...PITCH_INPUT, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
+    </>
+  );
+}
+
+function BuildPlan({ s, setS, bare }) {
+  const build = s.build || {};
+  const setField = (k, v) => setS((p) => ({ ...p, build: { ...(p.build || {}), [k]: v } }));
+  const isCustom = build.scenario === "custom";
+
+  const inner = (
+    <>
+      <h3 style={{ fontSize: 16, fontWeight: 800, color: C.ink, margin: 0 }}>Your pitch — start from the customer 🧭</h3>
+      <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 14px" }}>This is your <b>pitch</b> — who it's for, why it matters, and the one promise. It becomes <b>PITCH.md</b> (a doc your AI reads every session), and like your specs you'll <b>sharpen it every build week</b> as you learn who it's really for. Saved automatically.</p>
+
+      <label style={{ display: "block", marginBottom: 14 }}>
+        <span style={PITCH_LABEL}>Your idea</span>
+        <select aria-label="Choose an idea" value={build.scenario || ""} onChange={(e) => setField("scenario", e.target.value)} style={PITCH_INPUT}>
           <option value="">Choose an idea to start from…</option>
           <option value="custom">✍️  Write my own</option>
           {SCENARIO_GROUPS.map((g) => (
@@ -973,41 +1022,13 @@ Why people love it: [the payoff].
 
       {isCustom && (
         <label style={{ display: "block", marginBottom: 14 }}>
-          <span style={labelStyle}>My idea (one line)</span>
-          <input aria-label="My idea" type="text" value={build.custom || ""} onChange={(e) => setField("custom", e.target.value)} placeholder="e.g., A tool that helps my swim team track their times" style={inputStyle} />
+          <span style={PITCH_LABEL}>My idea (one line)</span>
+          <input aria-label="My idea" type="text" value={build.custom || ""} onChange={(e) => setField("custom", e.target.value)} placeholder="e.g., A tool that helps my swim team track their times" style={PITCH_INPUT} />
         </label>
       )}
 
-      <label style={{ display: "block", marginBottom: 14 }}>
-        <span style={labelStyle}>Customer pain point(s)</span>
-        <textarea aria-label="Customer pain points" value={build.pain || ""} onChange={(e) => setField("pain", e.target.value)} rows={3}
-          placeholder="Who has this problem, and what's frustrating about it today? (e.g., 'My classmates cram the night before and forget everything — there's no quick way to quiz yourself from your own notes.')"
-          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
-      </label>
-
-      <label style={{ display: "block", marginBottom: 14 }}>
-        <span style={labelStyle}>Press release statement</span>
-        <textarea aria-label="Press release statement" value={build.pr || ""} onChange={(e) => setField("pr", e.target.value)} rows={6}
-          placeholder={PR_PLACEHOLDER}
-          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
-      </label>
-
-      {/* Positioning — how you'll talk about it. This is your north star: you'll come back to it at
-          launch, when you grow it, and at the capstone. Keep it honest (true-now vs. goal). */}
-      <label style={{ display: "block", marginBottom: 14 }}>
-        <span style={labelStyle}>Your one promise (one line)</span>
-        <input aria-label="Your one promise" type="text" value={build.promise || ""} onChange={(e) => setField("promise", e.target.value)}
-          placeholder="The single thing you promise a customer — e.g., 'Quiz yourself from your own notes in 2 minutes.'"
-          style={inputStyle} />
-      </label>
-
-      <label style={{ display: "block", marginBottom: 14 }}>
-        <span style={labelStyle}>Honest check — what's true now vs. the goal</span>
-        <textarea aria-label="What's true now vs. the goal" value={build.trueVsGoal || ""} onChange={(e) => setField("trueVsGoal", e.target.value)} rows={3}
-          placeholder="Be honest: what does it actually do today, and what's still the goal? Say it that way when you talk about it — 'helps you study' (true now) vs. 'gets you an A' (goal). Honest beats hype, and people trust it more."
-          style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }} />
-      </label>
-      {/* Lesson 1 is the bet (problem/customer/promise); each feature's spec + "Done when…" is written in its build week. */}
+      <PitchFields s={s} setS={setS} />
+      {/* Week 1 writes the pitch; it's then editable on every build week (BuildLayer) and flows into PITCH.md. */}
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
@@ -1031,7 +1052,7 @@ export function ProjectKitPanel({ s, week }) {
   const setupPrompt = [
     "Set up (or refresh) my project files, then build this lesson's feature.",
     "",
-    "First, create/update each of these files in my project (including the SPECS/ folder) with EXACTLY the content below, and commit them. Read them every time we build — they're your guide (CLAUDE.md), my specs (the SPECS/ folder, one per feature with its acceptance criteria), my voice (POSITIONING.md), and how we work (PLAYBOOK.md).",
+    "First, create/update each of these files in my project (including the SPECS/ folder) with EXACTLY the content below, and commit them. Read them every time we build — they're your guide (CLAUDE.md), my specs (the SPECS/ folder, one per feature with its acceptance criteria), my pitch (PITCH.md), and how we work (PLAYBOOK.md).",
     "",
     ...KIT_FILES.map((f) => `===== ${f} =====\n${kit[f]}`),
     ...buildStep,
@@ -1044,7 +1065,7 @@ export function ProjectKitPanel({ s, week }) {
   return (
     <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "14px 16px", marginBottom: 16 }}>
       <div style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>📦 ③ Build it with Claude Code</div>
-      <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Paste this into Claude Code — it writes (or refreshes) your project files (the docs your AI reads every session — CLAUDE.md, your <b>SPECS/</b>, POSITIONING, PLAYBOOK) and <b>builds this feature</b>. Always reflects your latest spec.</p>
+      <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "6px 0 10px" }}>Paste this into Claude Code — it writes (or refreshes) your project files (the docs your AI reads every session — CLAUDE.md, your <b>SPECS/</b>, PITCH, PLAYBOOK) and <b>builds this feature</b>. Always reflects your latest spec.</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
         <button type="button" className="btn" onClick={copySetup} style={{ background: copied ? C.green : C.emerald, color: "#fff", padding: "8px 16px", borderRadius: 4, fontSize: 13.5, fontWeight: 700 }}>{copied ? "Copied — paste into Claude Code ✓" : "Set up & build with Claude Code"}</button>
         <a href="https://claude.ai/code" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12.5, fontWeight: 700, color: C.emerald, textDecoration: "none", whiteSpace: "nowrap" }}>Open Claude Code ↗</a>
@@ -1057,7 +1078,7 @@ export function ProjectKitPanel({ s, week }) {
 // Capstone "Your founder story" (SPECS/010 T47): compile the student's reflection (s.reflect[11]) + build
 // into an honest, application-ready one-pager — copy/download, re-generatable from live state. `final`
 // switches Lesson-11 (DRAFT, alongside the reflection) ↔ Lesson-12 (FINAL, for the presentation). Honest,
-// no admissions claims (POSITIONING) — it's evidence + a real story. The deterministic generator is the base.
+// no admissions claims (PITCH) — it's evidence + a real story. The deterministic generator is the base.
 export function FounderStoryPanel({ s, final }) {
   const story = buildFounderStory({ build: s.build, shape: s.shape, reflect: s.reflect });
   const [copied, setCopied] = useState(false);
@@ -1136,6 +1157,18 @@ export function BuildLayer({ week, s, setS, bare }) {
       {/* The build-week loop (SPECS/013): two inputs the student types, two handoffs into their own Claude.
           ① write spec → ② write acceptance criteria → ③ build it (the kit) → ④ verify it (independent agent).
           Each box = heading + file badge + its one control. Same on every build week. */}
+
+      {/* Your pitch (SPECS/019): the living positioning artifact — editable on EVERY build week so the student
+          sharpens it as they learn who it's really for. Edits s.build; flows into PITCH.md on the ③ build.
+          Collapsed by default so it doesn't crowd the spec→build→check flow. */}
+      <details style={{ border: `1px solid ${C.line}`, borderRadius: 6, background: C.paper, padding: "10px 14px", marginBottom: 16 }}>
+        <summary style={{ cursor: "pointer", fontSize: 13.5, fontWeight: 800, color: C.ink, listStyle: "none" }}>
+          ✎ Your pitch — who it's for &amp; why <span style={{ fontWeight: 600, color: C.muted }}>(sharpen as you learn)</span>
+          <code style={{ ...codeS, fontSize: 11.5, color: C.emerald, marginLeft: 8 }}>↳ PITCH.md</code>
+        </summary>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "10px 0 12px" }}>Your pitch is a spec for your <b>message</b>. Now that you've built more, is it sharper — who is it <i>really</i> for, and why would they pick it? Edits here flow into <b>PITCH.md</b> on your next build.</p>
+        <PitchFields s={s} setS={setS} />
+      </details>
 
       {/* ① — this lesson's spec (s.shape[cfg.key]) → SPECS/<feature>.md. Just a field. */}
       <div style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
