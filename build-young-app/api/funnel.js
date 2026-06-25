@@ -28,8 +28,7 @@ import { listBuildPlans } from "./_lib/buildPlans.js";
 import { listRefundRequests } from "./_lib/refundStore.js";
 import { listPaymentFailures } from "./_lib/paymentIssueStore.js";
 import { addQuestion, listQuestions } from "./_lib/questionStore.js";
-import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails, getUser, putUser } from "./_lib/auth.js";
-import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
+import { normalizeEmail, requireFounder, loadFounderEmails, saveFounderEmails } from "./_lib/auth.js";
 import { generateScenarios } from "./_lib/scenarioAgent.js";
 
 const KEY = "funnel:events";

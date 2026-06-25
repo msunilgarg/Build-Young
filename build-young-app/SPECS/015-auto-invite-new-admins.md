@@ -56,7 +56,15 @@ Re-saving the list with **no new emails sends nothing** (diff against prior list
 - [x] Promoting a user who already has a password adds them to the allowlist but sends **no** set-password
       email.
 - [x] Save returns `ok` even when the email send fails; response lists `invited` / `inviteFailed`.
-- [x] Build + 373 tests green; docs synced (CLAUDE.md auth/admin note).
+- [x] Build + tests green (406 incl. the new real-loader guard); docs synced (CLAUDE.md auth/admin note).
+
+## Note (caught in verification)
+The first cut added `getUser`/`putUser`/`sendSetPasswordEmail` imports to `api/funnel.js` that were
+**already imported** there (for the partner flow) — a duplicate-binding `SyntaxError` that crashes the
+serverless function on Vercel's Node loader, yet `npm run build` (Vite compiles only `src/`) and the whole
+Vitest suite (esbuild tolerates it) passed green. The independent verifier caught it via `node --check`.
+Fix: dedup the imports **and** add `test/api-syntax.test.js` — a `node --check` over every `api/**/*.js`
+so this whole class of bug fails the suite from now on.
 
 ## Out of scope
 - A "copy a manual set-password link" button for when email is unconfigured (possible follow-up).
