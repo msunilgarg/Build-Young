@@ -52,4 +52,25 @@ describe("Enroll flow", () => {
     await screen.findByRole("heading", { name: /Reserve your seat/i });
     await expectNoSeriousA11y(container);
   });
+
+  it("a $0 scholarship cohort: locks the cohort (no Batch selector), drops the seat count, and notes funding covers tuition only (SPECS/017)", async () => {
+    const user = userEvent.setup();
+    const savedPrices = BATCHES.map((b) => b.price);
+    BATCHES.forEach((b) => { b.price = 999; });
+    BATCHES[0].price = 0; // make the first (default-season) cohort a scholarship seat
+    try {
+      const { container } = render(<App />);
+      await user.click((await screen.findAllByRole("button", { name: /Apply for scholarship/i }))[0]);
+      await screen.findByRole("heading", { name: /Apply for a scholarship seat/i });
+      // the cohort is fixed to the one they clicked — no batch picker
+      expect(screen.queryByLabelText("Batch")).toBeNull();
+      // funding covers tuition only (the build costs are still the family's)
+      expect(container.textContent).toMatch(/a scholarship covers tuition only/i);
+      expect(container.textContent).toMatch(/aren't covered by the scholarship/i);
+      // no seat count for a scholarship cohort
+      expect(container.textContent).not.toMatch(/Capped at 10 students/i);
+    } finally {
+      BATCHES.forEach((b, i) => { b.price = savedPrices[i]; });
+    }
+  });
 });
