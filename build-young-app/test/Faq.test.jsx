@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { readFileSync } from "node:fs";
 import { render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { Faq, FAQ_ITEMS } from "../src/Faq.jsx";
@@ -22,6 +23,27 @@ describe("Faq page", () => {
     expect(a).toMatch(/story|founder/);                  // framed as a founder story
     expect(a).not.toContain("boost");                    // no "boosts your chances"
     expect(a).not.toContain("get you in");               // no admissions-outcome promise
+  });
+
+  it("includes the scholarship / free-seats question (SPECS/017)", () => {
+    const item = FAQ_ITEMS.find((f) => /scholarships or free seats/i.test(f.q));
+    expect(item).toBeTruthy();
+    expect(item.a.toLowerCase()).toContain("by application"); // selective framing, not a cheap giveaway
+    expect(item.a.toLowerCase()).not.toMatch(/exclusive|elite|only the best/); // POSITIONING: not boastful
+  });
+
+  it("stays in sync with the FAQPage JSON-LD in index.html (count + the new scholarship entry)", () => {
+    // POSITIONING standing rule: the FAQ copy and the index.html FAQ schema stay in lockstep. Assert COUNT
+    // parity (each FAQ has a JSON-LD Question) — robust to the JSON-LD's stylistic punctuation (it drops
+    // curly quotes + expands contractions) — plus that the new scholarship Q+A is actually mirrored.
+    const html = readFileSync("index.html", "utf8"); // vitest cwd = package root
+    const jsonLdQuestions = (html.match(/"@type":\s*"Question"/g) || []).length;
+    expect(jsonLdQuestions).toBe(FAQ_ITEMS.length);
+    const norm = (s) => String(s).replace(/[“”]/g, "").replace(/[‘’]/g, "'");
+    const h = norm(html);
+    const scholarship = FAQ_ITEMS.find((f) => /scholarships or free seats/i.test(f.q));
+    expect(h).toContain(norm(scholarship.q));
+    expect(h).toContain(norm(scholarship.a)); // the new entry is mirrored in the schema
   });
 
   it("fires the Back callback", () => {

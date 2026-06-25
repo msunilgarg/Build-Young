@@ -446,6 +446,11 @@ export function Landing({ onEnroll, onCall, onLegal, onStory, onCurriculum, onFa
             <Card key={b.id} className="lift" style={{ padding: 22, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", height: "100%" }}>
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: acc }} />
               <div style={{ marginTop: 4 }}><Pill bg={acc}>{b.track} · {b.audience || CARD_DEFAULTS.audience}</Pill></div>
+              {(b.price || 0) === 0 && (
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "#e7f3ee", border: `1px solid ${C.green}`, borderRadius: 999, padding: "4px 10px", fontSize: 11, fontWeight: 700, color: C.green, marginTop: 8 }}>
+                  <GraduationCap size={12} /> Scholarship seats
+                </div>
+              )}
               <div className="disp" style={{ fontSize: 24, fontWeight: 800, marginTop: 12 }}>Starts {b.start}</div>
               {cohortEndLabel(b) && <div style={{ color: C.ink2, fontSize: 13, fontWeight: 600, marginTop: 2 }}>through {cohortEndLabel(b)}</div>}
               <div style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{b.day}</div>
