@@ -96,6 +96,7 @@ body{{margin:0;font-family:"Liberation Sans","DejaVu Sans",Arial,sans-serif;colo
     {feat("users",BLUE,"Live &amp; small-group")}{feat("sparkles",TEAL,"Build with Claude Code")}{feat("cal",PURPLE,"Twice a week, evenings")}{feat("badge",GREEN,"Certificate to share")}
   </div>
   <div class="prize">{ic("trophy","0.34in",PURPLE,"2")}<div class="t"><b>Builder Prize:</b> the first student in each cohort to land a real paying customer within a year gets tuition refunded.</div></div>
+  <div class="prize">{ic("grad","0.34in",BLUE,"2")}<div class="t"><b>Scholarships:</b> a limited number of funded seats each season, awarded by application &mdash; apply at www.build-young.com.</div></div>
   <div class="quotes">
     {quote("The hottest new programming language is English.","Andrej Karpathy &middot; Anthropic")}
     {quote("A one-person billion-dollar company would have been unimaginable without AI — and now it will happen.","Sam Altman &middot; OpenAI")}
