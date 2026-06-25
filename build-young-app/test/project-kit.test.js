@@ -2,12 +2,13 @@ import { describe, it, expect } from "vitest";
 import { buildProjectKit, KIT_FILES, AGENTIC_STEPS, FEATURE_SPECS, specFileFor } from "../src/projectKit.js";
 
 // SPECS/009 T42 + 011: the deterministic project-kit generator — specs → the files the student's AI reads
-// (CLAUDE.md + a SPECS/ folder, one file per feature + an overview, + POSITIONING.md + PLAYBOOK.md).
+// (CLAUDE.md + a SPECS/ folder, one file per feature + an overview, + PITCH.md + PLAYBOOK.md).
 
 const FULL = {
   build: {
     pain: "Classmates cram and forget — no quick way to self-quiz from your own notes.",
     promise: "Quiz yourself from your own notes in 2 minutes.",
+    edge: "Quizzes straight from YOUR notes — no setup, no generic question banks.",
     pr: "Announcing NoteQuiz — turn your notes into a quiz instantly.",
     trueVsGoal: "True now: makes a quiz from notes. Goal: gets you an A.",
   },
@@ -25,7 +26,7 @@ const FULL = {
   },
 };
 
-describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + POSITIONING + PLAYBOOK)", () => {
+describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + PITCH + PLAYBOOK)", () => {
   it("produces exactly the kit files as non-empty strings", () => {
     const kit = buildProjectKit(FULL);
     expect(Object.keys(kit).sort()).toEqual([...KIT_FILES].sort());
@@ -51,9 +52,11 @@ describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + POSITIO
     expect(kit["SPECS/000-overview.md"]).toContain("`SPECS/core-product.md`");   // indexes the features
     expect(kit["SPECS/000-overview.md"]).not.toContain("paste notes and get a quiz");
     expect(kit["SPECS/000-overview.md"]).not.toMatch(/What success looks like/);
-    // POSITIONING.md ← promise, pr, pain, trueVsGoal
-    expect(kit["POSITIONING.md"]).toContain("turn your notes into a quiz instantly");
-    expect(kit["POSITIONING.md"]).toContain("True now: makes a quiz");
+    // PITCH.md ← promise, who-it's-for (pain), why-us (edge), pr, trueVsGoal (SPECS/019)
+    expect(kit["PITCH.md"]).toContain("turn your notes into a quiz instantly");
+    expect(kit["PITCH.md"]).toContain("True now: makes a quiz");
+    expect(kit["PITCH.md"]).toContain("no generic question banks");   // the "why us" edge line
+    expect(kit["POSITIONING.md"]).toBeUndefined();                    // PITCH.md replaced POSITIONING.md
   });
 
   it("bakes in the guardrails (never homemade passwords, never handle cards, secrets off the browser)", () => {

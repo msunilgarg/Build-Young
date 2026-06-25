@@ -170,9 +170,9 @@ describe("③ Build it with Claude Code — the kit handoff (SPECS/009 + 013)", 
     fireEvent.click(screen.getByRole("button", { name: /Set up & build with Claude Code/i }));
     expect(writeText).toHaveBeenCalled();
     const prompt = writeText.mock.calls[0][0];
-    for (const f of ["CLAUDE.md", "SPECS/000-overview.md", "SPECS/core-product.md", "POSITIONING.md", "PLAYBOOK.md"]) expect(prompt).toContain(`===== ${f} =====`);
+    for (const f of ["CLAUDE.md", "SPECS/000-overview.md", "SPECS/core-product.md", "PITCH.md", "PLAYBOOK.md"]) expect(prompt).toContain(`===== ${f} =====`);
     expect(prompt).toContain("A notes-to-quiz web app for students.");   // spec → kit
-    expect(prompt).toContain("Quiz yourself from your own notes");       // promise → POSITIONING
+    expect(prompt).toContain("Quiz yourself from your own notes");       // promise → PITCH
     expect(prompt).toContain("A user can paste notes and get a quiz.");  // acceptance → SPECS/core-product.md
     expect(prompt).toMatch(/Now build this lesson's feature/);           // it BUILDS, not just sets up
     expect(prompt).toContain("SPECS/core-product.md");                   // names this week's spec file
@@ -209,6 +209,20 @@ describe("Build week loop — four steps, every week (SPECS/013)", () => {
     const prompt = writeText.mock.calls[0][0];
     expect(prompt).toContain("SPECS/polish-and-iterate.md");
     expect(prompt).toMatch(/Now build this lesson's feature/);
+  });
+
+  it("every build week carries the living pitch — the editor renders + flows into PITCH.md (SPECS/019)", () => {
+    const writeText = spyClipboard();
+    function L4() { const [st, setSt] = useState({ shape: { payments: "subscriptions" }, build: { edge: "quizzes from YOUR notes — no generic banks" } }); return <BuildLayer week={4} s={st} setS={setSt} bare />; }
+    render(<L4 />);
+    // the collapsible "Your pitch" editor is present on the build week, incl. the new "why us" field
+    expect(screen.getByText(/Your pitch — who it's for/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Why yours vs the alternative/i)).toBeInTheDocument();
+    // and the ③ build prompt writes PITCH.md, carrying the pitch the student can tweak here
+    fireEvent.click(screen.getByRole("button", { name: /Set up & build with Claude Code/i }));
+    const prompt = writeText.mock.calls[0][0];
+    expect(prompt).toContain("===== PITCH.md =====");
+    expect(prompt).toContain("quizzes from YOUR notes — no generic banks");
   });
 
   it("acceptance is PER-FEATURE — each week reads/writes its own s.shape.accept[key]", async () => {
