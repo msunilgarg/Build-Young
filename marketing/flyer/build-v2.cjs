@@ -109,6 +109,7 @@ const botIcon = (n, color) => `<div class="bi">${ic(n, "0.52in", color, "1.9")}<
         <div class="t">ENROLL NOW &mdash;</div>
         <div class="u">build-young.com</div>
         <div class="s">Live cohorts starting soon · Free 15-min intro call — talk to us first.</div>
+        <div class="s"><b>Scholarships:</b> a limited number of funded seats each season, awarded by application.</div>
       </div>
       <div class="qr">${qr}<div class="c">SCAN TO ENROLL</div></div>
     </div>
