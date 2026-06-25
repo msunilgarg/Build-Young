@@ -261,9 +261,16 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   filter).
 - **Revenue:** `summarize().revenue` = enrolled `priceCents` − withdrawn `refundCents` (gross/refunded/net). **`revenueBySource(events)`** slices it by channel — `direct` vs `partner:<id>` — where partner seats are counted at **net** (their `enrolled` event carries net cents + the `source` tag, fired by `partner-onboard`); the slices sum to the topline. Shown as a "Revenue by source" card in the console.
 - **Admin = founder, by account (not a URL token):** access is gated by the logged-in **session** —
-  a user whose email is in the **`FOUNDER_EMAILS`** allowlist (`isFounderEmail`/`requireFounder` in
-  `api/_lib/auth.js`; `/api/auth/me` returns `isFounder`). The Platform header shows an **Admin**
-  entry for founders; the hidden `?founder` route renders `FounderDashboard`.
+  a user whose email is in the allowlist = env **`FOUNDER_EMAILS`** (permanent bootstrap) ∪ the KV set
+  the console edits (`loadFounderEmails`/`requireFounder` in `api/_lib/auth.js`; `/api/auth/me` returns
+  `isFounder`). The Platform header shows an **Admin** entry for founders; the hidden `?founder` route
+  renders `FounderDashboard`. **Adding a new admin auto-onboards them (SPECS/015):** saving the admin
+  allowlist (`PUT ?resource=founders`) diffs against the prior list and, for each newly-added email,
+  **provisions the account (`putUser`) + emails an admin-flavored `sendSetPasswordEmail` invite** — so a
+  new admin gets a set-password link directly instead of hunting for "Forgot password?". An account that
+  already has a password is elevated silently; the env bootstrap admins are never emailed; a send failure
+  is best-effort (reported in the response's `inviteFailed`, the save still succeeds). Requires email
+  (Resend) configured — else the invite can't send and the new admin must use "Forgot password?".
 - **One endpoint, method-routed (Hobby 12-function cap):** **`POST /api/funnel`** = public event
   ingest (`funnel:events` KV list, capped); **`GET`** = founder-only funnel read (or `?resource=partners`
   for the full partners registry); **`PUT`** = founder saves the cohort catalog (default), the **admin
