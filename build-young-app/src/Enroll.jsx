@@ -171,7 +171,9 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                       "Your own student dashboard",
                       "Build a real product, grow it, and get your first customers",
                       "A certificate of completion you can add to LinkedIn",
-                      "A shot at the builder prize — land a real paying customer in a year, get your tuition back",
+                      // The builder prize is a TUITION refund — N/A for a scholarship student (no tuition paid),
+                      // so it's omitted on funded cohorts (SPECS/017 follow-up).
+                      ...(isFree ? [] : ["A shot at the builder prize — land a real paying customer in a year, get your tuition back"]),
                     ].map((t, i) => (
                       <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12.5, color: C.ink2 }}>
                         <Check size={14} color={acc} style={{ flexShrink: 0, marginTop: 1 }} /> {t}

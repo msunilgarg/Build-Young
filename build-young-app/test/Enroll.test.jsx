@@ -69,6 +69,8 @@ describe("Enroll flow", () => {
       expect(container.textContent).toMatch(/aren't covered by the scholarship/i);
       // no seat count for a scholarship cohort
       expect(container.textContent).not.toMatch(/Capped at 10 students/i);
+      // no "builder prize — get your tuition back" (there's no tuition to refund a scholarship student)
+      expect(container.textContent).not.toMatch(/builder prize/i);
     } finally {
       BATCHES.forEach((b, i) => { b.price = savedPrices[i]; });
     }
