@@ -1152,7 +1152,7 @@ function CohortEditor() {
 
   return (
     <Card style={{ padding: 16 }}>
-      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Edits go live on the public site immediately (no redeploy). Each cohort's <b>id</b> must be unique and stable; its Stripe link's metadata/redirect should use that id.</div>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Edits go live on the public site immediately (no redeploy). Each cohort's <b>id</b> must be unique and stable; its Stripe link's metadata/redirect should use that id. Set <b>Price ($)</b> to <b>0</b> for a <b>free / scholarship cohort</b> — those enroll <b>by application</b> (a write-up you approve under Students → Free applications), no Stripe link needed.</div>
       {rows.map((b, i) => (
         <div key={i} style={{ border: `1px solid ${C.line}`, borderRadius: 6, padding: 12, marginBottom: 10, background: C.paper }}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }} className="enroll-grid">

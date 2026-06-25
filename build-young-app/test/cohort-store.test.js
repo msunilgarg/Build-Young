@@ -32,6 +32,13 @@ describe("cohort catalog store", () => {
     expect(clean.checkins).toBe(2);
   });
 
+  it("preserves an explicit $0 (free / by-application) cohort — SPECS/016", () => {
+    // The founder creates a free cohort by setting Price to 0 in the console; it must survive the save
+    // round-trip as 0 (not coerced to a default), since price===0 is what routes enrollment to application.
+    const clean = sanitizeCatalog({ batches: [{ id: "free-fall", price: 0, season: "fall" }] });
+    expect(clean.batches[0].price).toBe(0);
+  });
+
   it("sanitizeCatalog keeps + trims the group email, and derives <id>@domain when absent", () => {
     const clean = sanitizeCatalog({ batches: [{ id: "a", price: 999, groupEmail: "  custom@build-young.com  " }] });
     expect(clean.batches[0].groupEmail).toBe("custom@build-young.com"); // explicit value trimmed + kept

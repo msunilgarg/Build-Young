@@ -89,7 +89,10 @@ password exists, silent if one already does) → fire the **`enrolled`** funnel 
 - [x] Paid-cohort enrollment (Stripe) is unchanged; revenue math treats free seats as $0 (`source:"free"`).
 - [x] Public `free-enroll` is rate-limited and rejects a missing/short write-up or a non-free cohort; the
       approve/decline/list endpoints are founder-gated (403 otherwise). — `test/free-enroll.test.js` (7 tests).
-- [x] Build + 413 tests green (incl. the `node --check` api guard); docs synced (CLAUDE.md + architecture).
+- [x] The founder can **create a free cohort from the console** — the cohort editor's numeric **Price ($)**
+      field accepts `0` (preserved by `sanitizeCatalog`, pinned in `cohort-store.test.js`), with an inline
+      hint that 0 = free/by-application; no Stripe link needed.
+- [x] Build + 414 tests green (incl. the `node --check` api guard); docs synced (CLAUDE.md + architecture).
 
 ## Out of scope
 - Seat-limit/capacity enforcement for free seats (founder controls via approvals); waitlists.
