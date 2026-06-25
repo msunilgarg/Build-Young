@@ -25,11 +25,14 @@ describe("Faq page", () => {
     expect(a).not.toContain("get you in");               // no admissions-outcome promise
   });
 
-  it("includes the scholarship / free-seats question (SPECS/017)", () => {
+  it("includes the scholarship / free-seats question, framed as funding-dependent + limited (SPECS/017)", () => {
     const item = FAQ_ITEMS.find((f) => /scholarships or free seats/i.test(f.q));
     expect(item).toBeTruthy();
-    expect(item.a.toLowerCase()).toContain("by application"); // selective framing, not a cheap giveaway
-    expect(item.a.toLowerCase()).not.toMatch(/exclusive|elite|only the best/); // POSITIONING: not boastful
+    const a = item.a.toLowerCase();
+    expect(a).toContain("by application");           // selective framing, not a cheap giveaway
+    expect(a).toMatch(/funding|sponsor/);            // only when we have funding — not a standing offer
+    expect(a).toContain("limited");                  // a limited number of seats
+    expect(a).not.toMatch(/exclusive|elite|only the best/); // POSITIONING: not boastful
   });
 
   it("stays in sync with the FAQPage JSON-LD in index.html (count + the new scholarship entry)", () => {

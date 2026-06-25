@@ -29,10 +29,13 @@ cheap, boastful, or an admissions promise.
 ## Proposed copy (for approval)
 - **Card badge:** `🎓 Scholarship seats` (GraduationCap icon + "Scholarship seats"), shown only on $0 cohorts.
 - **FAQ — Q:** "Do you offer scholarships or free seats?"
-- **FAQ — A:** "Yes — a limited number of free seats are available by application each cohort. If tuition is a
-  barrier, we want to hear from you: tell us who you are and what you'd build, and we read every application
-  ourselves. Selected students get the full program — the same classes, dashboard, and support — at no cost.
-  When a cohort has free seats open, you apply right from the enrollment page."
+- **FAQ — A:** "Sometimes — it depends on funding. When we have sponsorship to cover seats, we open a limited
+  number of free scholarship places for that cohort, awarded by application, so it isn't offered every time.
+  When it is, you'll see a free cohort on the enrollment page. If cost is a barrier, tell us who you are and
+  what you'd build — we read every application ourselves, and selected students get the full program, the
+  same classes, dashboard, and support, at no cost."
+  - **Framing (per founder):** scholarships are **funding-dependent and limited** — something we do *only when
+    we have sponsorship available*, for a limited number of students; **not** a standing per-cohort offer.
 
 ## Out of scope
 - A separate `scholarship` cohort flag (price===0 is the single signal — no schema change).
