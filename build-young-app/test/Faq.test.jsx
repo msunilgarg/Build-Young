@@ -35,6 +35,15 @@ describe("Faq page", () => {
     expect(a).not.toMatch(/exclusive|elite|only the best/); // POSITIONING: not boastful
   });
 
+  it("the paid-vs-scholarship FAQ makes clear scholarships are merit-based + not guaranteed, with paid as the fallback", () => {
+    const item = FAQ_ITEMS.find((f) => /both paid and scholarship/i.test(f.q));
+    expect(item).toBeTruthy();
+    const a = item.a.toLowerCase();
+    expect(a).toMatch(/merit/);                 // merit-based
+    expect(a).toMatch(/aren't guaranteed|not guaranteed/); // not a given
+    expect(a).toMatch(/paid cohort/);           // paid is the fallback if not selected
+  });
+
   it("stays in sync with the FAQPage JSON-LD in index.html (count + the new scholarship entry)", () => {
     // POSITIONING standing rule: the FAQ copy and the index.html FAQ schema stay in lockstep. Assert COUNT
     // parity (each FAQ has a JSON-LD Question) — robust to the JSON-LD's stylistic punctuation (it drops
