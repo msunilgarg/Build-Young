@@ -15,7 +15,9 @@ import { kvConfigured, kvCommand, kvDel } from "./_lib/kv.js";
 import { saveCatalog, loadCatalog } from "./_lib/cohortStore.js";
 import { saveSettings, loadOps, saveOps } from "./_lib/settingsStore.js";
 import { loadPartners, savePartners } from "./_lib/partnerStore.js";
-import { addEnrollment, removeEnrollment, listEnrollments, listPartnerEnrollments } from "./_lib/store.js";
+import { addEnrollment, removeEnrollment, listEnrollments, listPartnerEnrollments, listFreeEnrollments } from "./_lib/store.js";
+import { sendEmail } from "./_lib/sendEmail.js";
+import { rateLimited, clientIp } from "./_lib/rateLimit.js";
 import { putUser, getUser } from "./_lib/auth.js";
 import { sendSetPasswordEmail } from "./_lib/sendSetPassword.js";
 import { addContact, removeContact } from "./_lib/resendAudience.js";
@@ -175,6 +177,15 @@ async function read(req, res) {
     // Founder-only: every partner (third-party) enrollment across cohorts — pending + onboarded.
     const catalog = await loadCatalog();
     const enrollments = await listPartnerEnrollments((catalog.batches || []).map((b) => b.id));
+    res.status(200).json({ enrollments });
+    return;
+  }
+
+  if (req.query && req.query.resource === "free-enrollments") {
+    // Founder-only: every FREE / scholarship application across cohorts — pending + onboarded, with
+    // each applicant's write-up, newest first (SPECS/016).
+    const catalog = await loadCatalog();
+    const enrollments = await listFreeEnrollments((catalog.batches || []).map((b) => b.id));
     res.status(200).json({ enrollments });
     return;
   }
@@ -438,6 +449,124 @@ async function removePartnerEnrollment(req, res) {
   res.status(200).json({ ok: true });
 }
 
+// ============================ FREE / SCHOLARSHIP SEATS (SPECS/016) ============================
+// A $0 cohort isn't "click → free": the applicant submits a WRITE-UP and the founder APPROVES, which
+// fires the same onboarding as Stripe/partner — at $0. The write-up + manual approval is the scarcity
+// mechanism (selective, not a giveaway).
+
+const FREE_WRITEUP_MIN = 300; // chars — a few real sentences, set in SPECS/016
+const FREE_NOTIFY_FALLBACK = "team@build-young.com";
+
+// --- POST ?resource=free-enroll: PUBLIC (rate-limited). An applicant applies for a $0/free seat with a
+// write-up. Stores a PENDING record (paymentSource:"free", onboarded:false) — INERT, exactly like a
+// partner pending seat (no account, no audience, no `enrolled` event). Notifies the founder (with the
+// write-up) and emails the applicant a confirmation. Validates the cohort is real AND free (price 0). ---
+async function addFreeApplication(req, res) {
+  if (rateLimited(`free-enroll:${clientIp(req)}`, { max: 5 })) { res.status(429).json({ ok: false, error: "Too many requests — try again shortly." }); return; }
+  const body = (await readBody(req)) || {};
+  const email = normalizeEmail(body.email || "");
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const batchId = String(body.batchId || "").trim();
+  const writeup = typeof body.writeup === "string" ? body.writeup.trim() : "";
+  if (!email || !email.includes("@")) { res.status(400).json({ ok: false, error: "Enter a valid email." }); return; }
+  if (!name) { res.status(400).json({ ok: false, error: "Enter the student's name." }); return; }
+  if (!batchId) { res.status(400).json({ ok: false, error: "Pick a cohort." }); return; }
+  if (writeup.length < FREE_WRITEUP_MIN) { res.status(400).json({ ok: false, error: `Tell us a bit more — at least ${FREE_WRITEUP_MIN} characters.` }); return; }
+  const cohort = ((await loadCatalog()).batches || []).find((b) => b.id === batchId);
+  if (!cohort) { res.status(400).json({ ok: false, error: "Unknown cohort." }); return; }
+  if ((cohort.price || 0) !== 0) { res.status(400).json({ ok: false, error: "That cohort isn't a free seat." }); return; }
+  const existing = await listEnrollments(batchId);
+  if (existing.some((e) => e.email === email)) { res.status(409).json({ ok: false, error: "You've already applied for this cohort." }); return; }
+
+  const result = await addEnrollment({ email, name, batchId, paymentSource: "free", writeup, onboarded: false });
+  if (!result.ok) { res.status(400).json({ ok: false, error: result.reason || "Couldn't submit — try again." }); return; }
+
+  // Notify the founder (with the write-up so they can decide) + confirm to the applicant. Best-effort.
+  try {
+    const to = (await loadOps()).notifyEmail || FREE_NOTIFY_FALLBACK;
+    await sendEmail({ to, replyTo: email, subject: `New free-seat application — ${cohort.track || ""} (${batchId})`.trim(),
+      body: `A student applied for a free/scholarship seat.\n\nName: ${name}\nEmail: ${email}\nCohort: ${batchId}${cohort.track ? ` (${cohort.track})` : ""}\n\nWhy they want it:\n${writeup}\n\nApprove or decline in the founder console → Students → Free applications.` });
+  } catch { /* best-effort */ }
+  try {
+    await sendEmail({ to: email, subject: "We got your Build Young application",
+      body: `Hi ${name.split(" ")[0] || "there"},\n\nThanks for applying for a seat in Build Young${cohort.track ? ` (${cohort.track})` : ""}. We read every write-up personally — if you're selected, we'll email you a link to set your password and get started.\n\nThe Build Young Team` });
+  } catch { /* best-effort */ }
+
+  res.status(200).json({ ok: true });
+}
+
+// --- POST ?resource=free-approve: FOUNDER-ONLY. Approve a pending free application → runs the SAME
+// onboarding as Stripe/partner, at $0: mark onboarded, add to the Resend audience, provision the account
+// + send the welcome/set-password email, and fire `enrolled` with priceCents:0, source:"free". Mirrors
+// onboardPartnerEnrollment; re-runnable/idempotent (re-sends the invite until a password exists). ---
+async function approveFreeEnrollment(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const body = (await readBody(req)) || {};
+  const email = normalizeEmail(body.email || "");
+  const batchId = String(body.batchId || "").trim();
+  if (!email || !batchId) { res.status(400).json({ ok: false, error: "Provide email + cohort" }); return; }
+  const rows = await listEnrollments(batchId);
+  const rec = rows.find((e) => e.email === email && e.paymentSource === "free");
+  if (!rec) { res.status(404).json({ ok: false, error: "No free application for that email + cohort" }); return; }
+  const cohort = ((await loadCatalog()).batches || []).find((b) => b.id === batchId);
+
+  // 1) Mark onboarded (idempotent — keeps the write-up, just flips the flag).
+  await addEnrollment({ email, name: rec.name, batchId, paymentSource: "free", writeup: rec.writeup, onboarded: true });
+
+  // 2) Add to the cohort's Resend audience (best-effort, key-gated).
+  let audience = false;
+  try {
+    if (cohort && cohort.groupAudienceId) {
+      const first = String(rec.name || "").trim().split(" ")[0] || "";
+      const last = String(rec.name || "").trim().split(" ").slice(1).join(" ");
+      const r = await addContact(cohort.groupAudienceId, { email, firstName: first, lastName: last });
+      audience = !!(r && r.ok !== false);
+    }
+  } catch { /* best-effort */ }
+
+  // 3) Provision the account + send the SAME welcome/set-password email (student-experience parity).
+  let invited = false, inviteNote;
+  if (!kvConfigured()) {
+    inviteNote = "store not configured (KV) — cannot provision or invite";
+  } else {
+    try {
+      const existing = await getUser(email);
+      await putUser(email, { name: rec.name, batchId, paymentSource: "free" });
+      if (existing && existing.passwordHash) inviteNote = "already set up (password exists) — no re-invite";
+      else { const sent = await sendSetPasswordEmail({ email, name: rec.name }); invited = !!(sent && sent.ok); if (!invited) inviteNote = "email send failed (or email disabled)"; }
+    } catch (e) { inviteNote = `invite error: ${(e && e.message) || String(e)}`; }
+  }
+
+  // 4) Fire `enrolled` at $0 tagged source:"free" (counts the seat without affecting revenue). Best-effort.
+  try {
+    if (kvConfigured() && cohort) {
+      const ev = JSON.stringify({ event: "enrolled", ts: Date.now(), props: { batchId, season: cohort.season || "", track: cohort.track || "", priceCents: 0, source: "free" } });
+      await kvCommand(["RPUSH", KEY, ev]);
+      await kvCommand(["LTRIM", KEY, String(-CAP), "-1"]);
+    }
+  } catch { /* best-effort */ }
+
+  res.status(200).json({ ok: true, invited, audience, inviteNote });
+}
+
+// --- POST ?resource=free-remove: FOUNDER-ONLY. Decline a free application (or remove a free student):
+// drops the record; if they were already onboarded, also removes the Resend contact + account/state
+// (course access ends). Silent — no decline email (SPECS/016 decision #4). ---
+async function removeFreeEnrollment(req, res) {
+  if (!(await founderGate(req, res))) return;
+  const body = (await readBody(req)) || {};
+  const email = normalizeEmail(body.email || "");
+  const batchId = String(body.batchId || "").trim();
+  if (!email || !batchId) { res.status(400).json({ ok: false, error: "Provide email + cohort" }); return; }
+  await removeEnrollment({ email, batchId });
+  try {
+    const cohort = ((await loadCatalog()).batches || []).find((b) => b.id === batchId);
+    if (cohort && cohort.groupAudienceId) await removeContact(cohort.groupAudienceId, email);
+  } catch { /* best-effort */ }
+  try { if (kvConfigured()) { await kvDel(`user:${email}`); await kvDel(`state:${email}`); } } catch { /* best-effort */ }
+  res.status(200).json({ ok: true });
+}
+
 // --- POST ?resource=interest: public — capture a family's interest when a cohort is full (so we
 // can notify them about the NEXT cohort). ---
 async function saveInterest(req, res) {
@@ -490,6 +619,9 @@ export default async function handler(req, res) {
     if (req.query && req.query.resource === "partner-enroll") return addPartnerEnrollment(req, res); // FOUNDER-gated inside
     if (req.query && req.query.resource === "partner-onboard") return onboardPartnerEnrollment(req, res); // FOUNDER-gated inside
     if (req.query && req.query.resource === "partner-remove") return removePartnerEnrollment(req, res); // FOUNDER-gated inside
+    if (req.query && req.query.resource === "free-enroll") return addFreeApplication(req, res); // public, rate-limited (SPECS/016)
+    if (req.query && req.query.resource === "free-approve") return approveFreeEnrollment(req, res); // FOUNDER-gated inside
+    if (req.query && req.query.resource === "free-remove") return removeFreeEnrollment(req, res); // FOUNDER-gated inside
     return ingest(req, res);     // public: track an event
   }
   if (req.method === "GET") return read(req, res);        // founder: read funnel events

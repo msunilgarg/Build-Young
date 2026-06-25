@@ -607,6 +607,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             {segBtn("Inbound · leads & requests", studentsView === "inbound", () => setStudentsView("inbound"))}
           </div>
           {studentsView === "enrolled" ? (<>
+            <h2 style={h2s}>Free applications</h2>
+            <FreeApplicationsAdmin />
             <h2 style={h2s}>Partner enrollments</h2>
             <PartnerEnrollAdmin />
             <h2 style={h2s}>Certificates</h2>
@@ -1468,6 +1470,64 @@ function PartnerEnrollAdmin() {
           ))}
         </div>
       )}
+    </Card>
+  );
+}
+
+// Free / scholarship applications (SPECS/016). Applicants self-apply with a write-up from the public site
+// ($0 cohorts); the founder reviews here and APPROVES (→ runs the SAME onboarding as Stripe/partner, at $0:
+// account + welcome/set-password email + class audience + an `enrolled` event) or DECLINES (silent remove).
+function FreeApplicationsAdmin() {
+  const [list, setList] = useState(null);
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState("");
+  const reload = async () => {
+    try { const r = await fetch("/api/funnel?resource=free-enrollments"); const d = r.ok ? await r.json() : {}; setList(Array.isArray(d.enrollments) ? d.enrollments : []); }
+    catch { setList([]); }
+  };
+  useEffect(() => { let live = true; (async () => { if (live) await reload(); })(); return () => { live = false; }; }, []);
+  const approve = async (e) => {
+    const key = `${e.email}|${e.batchId}`; setBusy(key);
+    try {
+      const r = await fetch("/api/funnel?resource=free-approve", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: e.email, batchId: e.batchId }) });
+      const d = await r.json().catch(() => ({}));
+      setStatus(r.ok && d.ok ? (e.onboarded ? "Invite re-sent ✓" : "Approved ✓ — welcome email sent") : (d.error || adminSaveErr(r, d, "approve")));
+      await reload();
+    } catch { setStatus(ADMIN_NET_ERR); }
+    setBusy("");
+  };
+  const decline = async (e) => {
+    if (!window.confirm(`Decline ${e.email}'s application for ${e.batchId}? This removes it${e.onboarded ? " and ends their course access" : ""}. No email is sent.`)) return;
+    const key = `${e.email}|${e.batchId}`; setBusy(key);
+    try {
+      const r = await fetch("/api/funnel?resource=free-remove", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: e.email, batchId: e.batchId }) });
+      const d = await r.json().catch(() => ({}));
+      setStatus(r.ok && d.ok ? "Removed ✓" : (d.error || adminSaveErr(r, d, "decline")));
+      await reload();
+    } catch { setStatus(ADMIN_NET_ERR); }
+    setBusy("");
+  };
+  return (
+    <Card style={{ padding: 16 }}>
+      <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>Students apply for <b>free / scholarship seats</b> ($0 cohorts) with a write-up from the public site. <b>Approve</b> runs the full onboarding (account + welcome/set-password email + class audience) at $0; <b>Decline</b> removes the application silently (no email).</div>
+      {!Array.isArray(list) ? <span style={{ fontSize: 13, color: C.muted }}>Loading…</span>
+        : list.length === 0 ? <span style={{ fontSize: 13, color: C.muted }}>No free applications yet.</span>
+        : list.map((e, i) => (
+          <div key={i} style={{ padding: "12px 0", borderTop: `1px solid ${C.line}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13.5, color: C.ink2, fontWeight: 700 }}>{e.name || "—"} <span style={{ fontWeight: 400, color: C.muted }}>· {e.email} · {e.batchId}</span></span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: e.onboarded ? C.green : C.muted }}>{e.onboarded ? "Approved" : "Pending"}</span>
+                <button className="btn" disabled={busy === `${e.email}|${e.batchId}`} onClick={() => approve(e)} style={{ background: e.onboarded ? "transparent" : C.emerald, color: e.onboarded ? C.muted : "#fff", border: e.onboarded ? `1px solid ${C.line}` : "none", padding: "6px 12px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>
+                  {busy === `${e.email}|${e.batchId}` ? "Working…" : (e.onboarded ? "Resend invite" : "Approve")}
+                </button>
+                <span {...act(() => decline(e))} aria-label={`Decline ${e.email}`} style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.rust }}>Decline</span>
+              </span>
+            </div>
+            {e.writeup && <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, marginTop: 8, background: C.paper, borderRadius: 6, padding: "9px 12px", whiteSpace: "pre-wrap" }}>{e.writeup}</div>}
+          </div>
+        ))}
+      {status && <div style={{ fontSize: 13, fontWeight: 700, color: adminStatusColor(status), marginTop: 12 }}>{status}</div>}
     </Card>
   );
 }

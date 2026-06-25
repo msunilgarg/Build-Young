@@ -1267,10 +1267,12 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
   const batch = BATCHES.find((b) => b.id === s.student.batch) || BATCHES[0];
   const startInfo = cohortStartInfo(batch);
   const notStarted = !s.started; // before the first session → full refund
-  // Partner (third-party / marketplace) students don't self-withdraw — the founder removes them and
-  // refunds are the partner's policy, so we never show them our withdraw control OR refund copy (T31).
+  // Partner (third-party, T31) AND free/scholarship (SPECS/016) students don't self-withdraw and have no
+  // refund to claim (they paid nothing / the partner owns the policy) — so we never show them our withdraw
+  // control OR refund copy.
   const isPartner = s.paymentSource === "partner";
-  const canWithdraw = canWithdrawNow(s) && !isPartner; // pre-start, or within the first REFUND_WEEKS weeks
+  const noSelfWithdraw = isPartner || s.paymentSource === "free";
+  const canWithdraw = canWithdrawNow(s) && !noSelfWithdraw; // pre-start, or within the first REFUND_WEEKS weeks
   // Refund is a flat rule: full before start; a flat 75% within the first week; nothing after.
   const refund = refundFor(batch, s.started, s.week);
   // Confirm a withdrawal: email the refund/cancellation confirmation (once — a ref guards
@@ -1442,7 +1444,7 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
               <button className="btn" onClick={() => setWithdraw("confirm")} style={{ background: "transparent", border: `1px solid ${C.line}`, color: C.muted, padding: "9px 14px", borderRadius: 4, fontSize: 13 }}>{notStarted ? "Cancel enrollment" : "Withdraw"}</button>
             </Card>
           )}
-          {!canWithdraw && !isPartner && s.started && s.phase === "course" && s.week > REFUND_WEEKS && (
+          {!canWithdraw && !noSelfWithdraw && s.started && s.phase === "course" && s.week > REFUND_WEEKS && (
             <Card style={{ padding: 14, marginTop: 14 }}>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>
                 The refund window closed at the end of the {REFUND_WINDOW}. Past that point, tuition is non-refundable — but you keep full access through all 12 lessons.
