@@ -75,6 +75,13 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
             <div className="enroll-grid" style={{ marginTop: 18 }}>
               {/* form column */}
               <div>
+                {isFree ? (
+                  // Scholarship application: the cohort is fixed to the one they clicked "Apply for
+                  // scholarship" on — no batch picker (switching cohorts here, incl. to a paid one, is wrong).
+                  <div><div style={label}>Cohort</div>
+                    <div style={{ ...inputS, background: C.paper, color: C.ink2 }}>{seasonLabel(b.season)} · {b.track} — starts {b.start}</div>
+                  </div>
+                ) : (
                 <div><div style={label}>Batch</div>
                   <select aria-label="Batch" value={batch} onChange={(e) => { setBatch(e.target.value); setNotified(false); }} style={inputS}>
                     {catalogSeasons(BATCHES).filter((s) => BATCHES.some((x) => x.season === s.key)).map((s) => (
@@ -86,6 +93,7 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     ))}
                   </select>
                 </div>
+                )}
                 <div style={{ marginTop: 14 }}><div style={label}>Student name</div><input aria-label="Student name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jordan Rivera" style={inputS} /></div>
                 <div style={{ marginTop: 14 }}><div style={label}>Email <span style={{ color: C.muted, fontWeight: 500 }}>— this is your username</span></div><input aria-label="Email (your username)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" style={inputS} /></div>
                 {closed ? (
@@ -108,7 +116,11 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     <span>I'm the parent/guardian enrolling, and I confirm the student is <b>in high school</b>. <span style={{ color: C.muted }}>Build Young is for high schoolers.</span></span>
                   </label>
                   <div style={{ marginTop: 12, fontSize: 12, color: C.muted, lineHeight: 1.5, background: C.paper, borderRadius: 6, padding: "9px 12px" }}>
-                    <b style={{ color: C.ink2 }}>A note on costs:</b> beyond tuition, your child will need <b>Claude Pro</b> (about <b>$20/month</b>) — the AI that builds the app alongside them — for the build weeks; a free account won't keep up. Everything else we use (GitHub, Vercel, Resend for email) is <b>free</b>. Later, a custom web address (domain) is <b>optional</b> and runs about <b>$10–20/year</b> if you want one.
+                    {isFree ? (
+                      <><b style={{ color: C.ink2 }}>A note on costs:</b> a scholarship covers <b>tuition only</b>. Your child will still need <b>Claude Pro</b> (about <b>$20/month</b>) — the AI that builds the app alongside them — during the build weeks; a free account won't keep up. Everything else we use (GitHub, Vercel, email) is <b>free</b>, and a custom web address (domain) is <b>optional</b> (about <b>$10–20/year</b>). These aren't covered by the scholarship.</>
+                    ) : (
+                      <><b style={{ color: C.ink2 }}>A note on costs:</b> beyond tuition, your child will need <b>Claude Pro</b> (about <b>$20/month</b>) — the AI that builds the app alongside them — for the build weeks; a free account won't keep up. Everything else we use (GitHub, Vercel, Resend for email) is <b>free</b>. Later, a custom web address (domain) is <b>optional</b> and runs about <b>$10–20/year</b> if you want one.</>
+                    )}
                   </div>
                   {isFree && (
                     <div style={{ marginTop: 14 }}>
@@ -170,7 +182,9 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     {[
                       { icon: Video, t: "100% live online over Zoom" },
                       { icon: Lock, t: "A safe place to build for real" },
-                      { icon: GraduationCap, t: "Capped at 10 students" },
+                      // No seat count for a scholarship cohort — scholarship places are merit-based + funding-
+                      // dependent, not a fixed inventory, so we don't imply "N seats" (SPECS/017 follow-up).
+                      ...(isFree ? [] : [{ icon: GraduationCap, t: "Capped at 10 students" }]),
                     ].map((x, i) => (
                       <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12, color: C.muted, fontWeight: 600 }}>
                         <x.icon size={13} color={C.muted} /> {x.t}
