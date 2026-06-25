@@ -2,6 +2,7 @@ import React from "react";
 import { Sparkles, Anchor, Briefcase, Linkedin, ArrowRight } from "lucide-react";
 import { C, SUNIL_PHOTO } from "./theme.js";
 import { Card, Mark, act } from "./ui.jsx";
+import { MoreThanMoneyBody } from "./MoreThanMoney.jsx";
 import { CONFIG } from "./lib.js";
 
 // The "Our story / why this exists" page (route: /about). The founder essay + "More than money"
@@ -78,9 +79,7 @@ export function About({ onBack, onHome, onEnroll, onCall }) {
             <h1 className="disp" style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>More than <span className="grad-warm">money</span></h1>
             <div style={{ width: 64, height: 4, borderRadius: 2, margin: "12px auto 0", background: `linear-gradient(90deg, ${C.green}, ${C.turq}, ${C.pink})` }} />
           </div>
-          <p style={{ fontSize: 21, lineHeight: 1.5, marginTop: 18, maxWidth: 760, marginLeft: "auto", marginRight: "auto", textAlign: "center", color: C.ink }}>
-            <b className="disp">Raising builders, not consumers.</b> AI just collapsed the barrier to building — what once took a team and a budget, a motivated teenager can now do alone. So the edge isn't a credential; it's <b>taste</b> — knowing what's worth making — and starting early. We teach it by letting them live it: they build, they ship, then they learn to grow what they've made. And what they're left with — a real, shipped product and a story only they can tell — stands out far beyond the classroom: in a college essay, an interview, anywhere genuine initiative counts.
-          </p>
+          <MoreThanMoneyBody />
           <p style={{ color: C.ink2, fontSize: 17.5, lineHeight: 1.6, marginTop: 18, maxWidth: 740, marginLeft: "auto", marginRight: "auto" }}>
             It's not only about the money — it's who a kid becomes in the doing. Making something real, putting it in front of people, living with the wins and the flops shapes a person in ways no lecture can. And a kid who has built something real and seen how money actually works talks about it without shame — and decides from confidence, not fear.
           </p>
