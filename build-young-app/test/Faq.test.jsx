@@ -26,7 +26,7 @@ describe("Faq page", () => {
   });
 
   it("includes the scholarship / free-seats question, framed as funding-dependent + limited (SPECS/017)", () => {
-    const item = FAQ_ITEMS.find((f) => /scholarships or free seats/i.test(f.q));
+    const item = FAQ_ITEMS.find((f) => /do you offer scholarships/i.test(f.q));
     expect(item).toBeTruthy();
     const a = item.a.toLowerCase();
     expect(a).toContain("by application");           // selective framing, not a cheap giveaway
@@ -44,7 +44,7 @@ describe("Faq page", () => {
     expect(jsonLdQuestions).toBe(FAQ_ITEMS.length);
     const norm = (s) => String(s).replace(/[“”]/g, "").replace(/[‘’]/g, "'");
     const h = norm(html);
-    const scholarship = FAQ_ITEMS.find((f) => /scholarships or free seats/i.test(f.q));
+    const scholarship = FAQ_ITEMS.find((f) => /do you offer scholarships/i.test(f.q));
     expect(h).toContain(norm(scholarship.q));
     expect(h).toContain(norm(scholarship.a)); // the new entry is mirrored in the schema
   });

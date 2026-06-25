@@ -7,6 +7,10 @@
 **Date:** 2026-06-25
 
 > **Approved 2026-06-25** — card badge + FAQ copy as written.
+> **Update 2026-06-25 (per founder):** don't use the word "free" in display copy — it reads cheap. The card
+> price slot shows **"Fully funded"** (not "Free"), the Enroll flow uses **"scholarship"** wording, and the
+> FAQ question is **"Do you offer scholarships?"**. ("Free" stays only on unrelated copy like "free 15-min
+> call".) Pinned by a render test asserting the card shows "Fully funded".
 
 ## Why
 SPECS/016 made $0 cohorts enroll by application, but the public surface barely signals it — a $0 card just

@@ -65,8 +65,8 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
 
         {step === 1 && (
           <div className="rise">
-            <h2 className="disp" style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>{isFree ? "Apply for a free seat" : "Reserve your seat"}</h2>
-            <p style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{isFree ? "Free seats are limited and awarded by application. Tell us who's joining and why." : "Choose a batch and tell us who's joining. Takes about a minute."}</p>
+            <h2 className="disp" style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>{isFree ? "Apply for a scholarship seat" : "Reserve your seat"}</h2>
+            <p style={{ color: C.muted, fontSize: 14, marginTop: 4 }}>{isFree ? "Scholarship seats are limited and awarded by application. Tell us who's joining and why." : "Choose a batch and tell us who's joining. Takes about a minute."}</p>
             {onCall && (
               <div {...act(onCall)} style={{ display: "flex", alignItems: "center", gap: 8, background: "#eaf3fb", border: `1px solid ${C.emeraldLite}`, borderRadius: 4, padding: "10px 12px", marginTop: 14, cursor: "pointer" }}>
                 <Video size={15} color={C.emerald} /><span style={{ fontSize: 12.5, color: C.ink2 }}>Want to talk first? <b style={{ color: C.emerald }}>Book a free 15-minute call with us →</b></span>
@@ -121,7 +121,7 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                     <button className="btn" disabled={!canApply || submitting} onClick={submitApplication} style={{ width: "100%", marginTop: 18, background: (canApply && !submitting) ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: (canApply && !submitting) ? "pointer" : "not-allowed" }}>{submitting ? "Submitting…" : "Submit application →"}</button>
                     {submitErr && <div style={{ color: C.rust, fontSize: 12.5, marginTop: 10, textAlign: "center" }}>{submitErr}</div>}
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, marginTop: 12, color: C.muted, fontSize: 12.5 }}>
-                      <Mail size={13} /> Free seats are limited — we read every application personally.
+                      <Mail size={13} /> Scholarship seats are limited — we read every application personally.
                     </div>
                   </>) : (<>
                     <button className="btn" disabled={!canContinue} onClick={() => setStep(2)} style={{ width: "100%", marginTop: 18, background: canContinue ? C.emerald : C.line, color: "#fff", padding: 14, borderRadius: 4, fontSize: 16, cursor: canContinue ? "pointer" : "not-allowed" }}>Continue to payment →</button>
@@ -141,11 +141,11 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
                   <div style={{ display: "flex", alignItems: "center", gap: 6, color: acc, fontSize: 12.5, fontWeight: 600, marginTop: 6 }}><Video size={13} /> {b.day} · live on Zoom</div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderTop: `1px solid ${C.line}`, marginTop: 14, paddingTop: 12 }}>
                     <span style={{ fontSize: 13, color: C.muted }}>Tuition</span>
-                    <span className="disp" style={{ fontSize: 26, fontWeight: 800 }}>{isFree ? "Free" : `$${b.price}`}</span>
+                    <span className="disp" style={{ fontSize: isFree ? 20 : 26, fontWeight: 800 }}>{isFree ? "Fully funded" : `$${b.price}`}</span>
                   </div>
                   {isFree ? (
                     <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
-                      <b style={{ color: C.ink2 }}>By application.</b> Free seats are limited and awarded by application — tell us why you want one. If you're selected, we'll email you to set your password and get started.
+                      <b style={{ color: C.ink2 }}>By application.</b> Scholarship seats are limited and awarded by application — tell us why you want one. If you're selected, we'll email you to set your password and get started.
                     </div>
                   ) : (
                     <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>
@@ -242,7 +242,7 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
           <div className="rise" style={{ textAlign: "center" }}>
             <div style={{ width: 64, height: 64, borderRadius: 4, background: C.emerald, display: "grid", placeItems: "center", margin: "8px auto 16px" }}><Check size={32} color="#fff" /></div>
             <h2 className="disp" style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>Application received, {name.split(" ")[0]}!</h2>
-            <p style={{ color: C.muted, fontSize: 14, marginTop: 6 }}>Thanks for applying for a free seat in the {b.track} cohort. We read every write-up personally — if you're selected, we'll email you a link to set your password and get started.</p>
+            <p style={{ color: C.muted, fontSize: 14, marginTop: 6 }}>Thanks for applying for a scholarship seat in the {b.track} cohort. We read every write-up personally — if you're selected, we'll email you a link to set your password and get started.</p>
             <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", background: "#eef3f0", border: `1px solid ${C.line}`, borderRadius: 4, padding: "9px 12px", marginTop: 12 }}>
               <Mail size={15} color={C.emerald} /><span style={{ fontSize: 12.5, color: C.ink2 }}>A confirmation email has been sent to <b>{email}</b>.</span>
             </div>
