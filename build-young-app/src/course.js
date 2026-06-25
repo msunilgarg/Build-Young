@@ -31,4 +31,4 @@ export const WEEKS = [
   { act: 3, t: "Prepare Your Capstone", s: "Get ready to present — pull together the story of what you built, who it's for, and what's next, and polish your product so it shines on the final call.", action: "build", comingSoon: true },
   { act: 3, t: "Capstone: Present What You Built", s: "Present it all — the product you made, who's using it, and what you'd build next. This is your moment to show family and friends what you created; parents are welcome to join this final call to watch.", action: "capstone" },
 ];
-export const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "Learn how to grow it", 3: "Make your parents proud" };
+export const ACTS = { 1: "0 → 1 · Build & launch the product", 2: "Learn how to grow it", 3: "Celebrate your impact" };
