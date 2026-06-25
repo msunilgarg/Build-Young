@@ -103,7 +103,7 @@ body{{margin:0;font-family:"Liberation Sans","DejaVu Sans",Arial,sans-serif;colo
     {quote("Everyone is a programmer — now you just say something to the computer.","Jensen Huang &middot; NVIDIA")}
   </div>
   <div class="cta">
-    <div><div class="big">Now enrolling — starts September</div><a class="url" href="https://www.build-young.com">www.build-young.com {ic("extlink","0.16in","#fff","2.3")}</a><div class="sm">See all dates &amp; enroll online &middot; Free 15-min intro call — talk to us.</div></div>
+    <div><div class="big">Now enrolling — starts August</div><a class="url" href="https://www.build-young.com">www.build-young.com {ic("extlink","0.16in","#fff","2.3")}</a><div class="sm">See all dates &amp; enroll online &middot; Free 15-min intro call — talk to us.</div></div>
     <div class="qr"><img src="data:image/png;base64,{QR}"><div class="cap">SCAN TO LEARN MORE</div></div>
   </div>
 </div></body></html>'''
