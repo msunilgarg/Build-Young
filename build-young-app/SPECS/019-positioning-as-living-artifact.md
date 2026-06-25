@@ -54,6 +54,8 @@ example faster than from instructions.
 - [x] The kit writes **`PITCH.md`** (renamed from `POSITIONING.md`); `KIT_FILES`, the ③ prompt, and all
       student-facing references use the new name; the company `POSITIONING.md` is untouched (it keeps its name).
 - [x] Week 1 frames the work as **"Your pitch"** + the new **"Why yours — vs. what they do today"** (`edge`) line.
+- [x] **Voice** (`s.build.voice`, "how it talks") added to the pitch + `PITCH.md` (`## How it talks (voice)`) + the
+      worked example — the soft/style guideline; students define their OWN voice, not Build Young's "we/us".
 - [x] Every build week shows a collapsible **"✎ Your pitch"** editor (`PitchFields`) that edits `s.build` and
       flows into the regenerated `PITCH.md` — pinned by `Platform.test.jsx` (the ③ prompt carries the edited pitch).
 - [x] A worked-example pitch is shown (the Week-1 `ExampleCard` is Build Young's own pitch, now incl. the `edge` row).
