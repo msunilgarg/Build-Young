@@ -55,7 +55,7 @@ A powerful angle for the **parent** (the buyer), layered on top of the build-led
 ## Canonical phrasings (keep identical everywhere)
 - **Tagline:** "Raising builders, not consumers."
 - **Mission ("More than money"):** *"…AI just collapsed the barrier to building — what once took a team and a budget, a motivated teenager can now do alone. So the edge isn't a credential; it's taste — knowing what's worth making — and starting early. We teach it by letting them live it: they build, they ship, then they learn to grow what they've made."*
-- **Acts:** "0 → 1 · Build & launch the product" / "Learn how to grow it" / "Make your parents proud."
+- **Acts:** "0 → 1 · Build & launch the product" / "Learn how to grow it" / "Celebrate your impact."
 - **Format line:** "12 weeks, twice a week (~3 hrs), live on Zoom — Mon & Wed or Tue & Thu."
 
 ## Facts (single source — must match across all surfaces)
