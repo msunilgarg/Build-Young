@@ -143,6 +143,11 @@ ${val(b.pr, "your press-release statement — what it is, who it helps, the payo
 Be honest: what's **true now** you can say plainly; what's still a **goal** you describe as where you're headed — never as already true.
 
 ${val(b.trueVsGoal, "what's true today vs. what's still the goal")}
+
+## How it talks (voice)
+How the product sounds to its users — keep every word on-brand with this.
+
+${val(b.voice, "a few words for how it sounds — e.g. friendly and encouraging, not stiff or salesy")}
 `;
 
   // PLAYBOOK.md — the shared agentic rules (the four steps come from AGENTIC_STEPS, the single source).

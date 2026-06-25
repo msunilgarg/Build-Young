@@ -11,6 +11,7 @@ const FULL = {
     edge: "Quizzes straight from YOUR notes — no setup, no generic question banks.",
     pr: "Announcing NoteQuiz — turn your notes into a quiz instantly.",
     trueVsGoal: "True now: makes a quiz from notes. Goal: gets you an A.",
+    voice: "Friendly and encouraging, like a study buddy rooting for you.",
   },
   shape: {
     product: "A web app that turns a student's notes into a self-quiz.",
@@ -56,6 +57,8 @@ describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + PITCH +
     expect(kit["PITCH.md"]).toContain("turn your notes into a quiz instantly");
     expect(kit["PITCH.md"]).toContain("True now: makes a quiz");
     expect(kit["PITCH.md"]).toContain("no generic question banks");   // the "why us" edge line
+    expect(kit["PITCH.md"]).toContain("study buddy rooting for you");  // the voice line (SPECS/019)
+    expect(kit["PITCH.md"]).toContain("How it talks (voice)");         // the voice section header
     expect(kit["POSITIONING.md"]).toBeUndefined();                    // PITCH.md replaced POSITIONING.md
   });
 

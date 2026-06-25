@@ -148,6 +148,7 @@ Why families love it: It's live and small-group with a standing weekly time, so 
 "My daughter went from 'I don't get money' to running her own little product and explaining compound interest at dinner." — a Build Young parent`,
   promise: `In 12 weeks, your teen builds a real product with AI and learns to grow it — finishing with a capstone they present.`,
   trueVsGoal: `True now: they build and launch a real product and learn the growth playbook (funnels, metrics). The goal — not promised in 12 weeks: real paying customers and scale. So we say it honestly — "learn to grow it," not "grow a business."`,
+  voice: `Warm, confident, and forward — never boastful or fearful. Talks like a coach who believes in you (we/us), and keeps it honest.`,
   productSuccess: `Real teens use it and keep coming back — and they'd be bummed if it went away. They like it enough to tell their friends, so classes keep filling up.`,
   financialSuccess: `It makes more money than it costs to run. Most new families come from people telling their friends, so we don't have to spend much to find them — and there's enough left over to keep it going and make it bigger.`,
 };
@@ -402,6 +403,7 @@ function weekExample(week) {
     ["Press release", EXAMPLE_BUILD.pr],
     ["Your one promise", EXAMPLE_BUILD.promise],
     ["Honest check — true now vs. the goal", EXAMPLE_BUILD.trueVsGoal],
+    ["Voice — how it talks", EXAMPLE_BUILD.voice],
   ]} />;
   // Lesson 9 (metrics): explain the terms FIRST — teens won't know DAU/MAU/retention yet.
   // Lesson 8 (build the funnel) needs BOTH glossaries: the funnel concept AND the metrics it'll be
@@ -987,11 +989,18 @@ function PitchFields({ s, setS }) {
           style={PITCH_INPUT} />
       </label>
 
-      <label style={{ display: "block", marginBottom: 0 }}>
+      <label style={{ display: "block", marginBottom: 14 }}>
         <span style={PITCH_LABEL}>Honest check — what's true now vs. the goal</span>
         <textarea aria-label="What's true now vs. the goal" value={build.trueVsGoal || ""} onChange={(e) => setField("trueVsGoal", e.target.value)} rows={3}
           placeholder="Be honest: what does it actually do today, and what's still the goal? Say it that way when you talk about it — 'helps you study' (true now) vs. 'gets you an A' (goal). Honest beats hype, and people trust it more."
           style={{ ...PITCH_INPUT, resize: "vertical", lineHeight: 1.5 }} />
+      </label>
+
+      <label style={{ display: "block", marginBottom: 0 }}>
+        <span style={PITCH_LABEL}>Voice — how it talks</span>
+        <input aria-label="Voice how it talks" type="text" value={build.voice || ""} onChange={(e) => setField("voice", e.target.value)}
+          placeholder="A few words for how your product sounds to its users — e.g., 'friendly and encouraging, like a study buddy who's rooting for you' (not stiff or salesy)."
+          style={PITCH_INPUT} />
       </label>
     </>
   );
