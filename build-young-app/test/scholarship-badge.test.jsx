@@ -20,6 +20,7 @@ describe("Scholarship badge on the landing cohort card (SPECS/017)", () => {
     expect(text).toContain("Scholarship seats");
     expect(text).toContain("By application");
     expect(text).toContain("Fully funded"); // the price slot reads "Fully funded", never "Free" (SPECS/017)
+    expect(text).toContain("Apply for scholarship"); // CTA on a $0 card, not "Enroll in this batch"
   });
 
   it("hides the badge when every cohort is paid", () => {
