@@ -17,21 +17,16 @@ repo, e.g. to CI / the cloud loop):** @../ENGINEERING-PLAYBOOK.md
 >   (playbook §9); it is **trigger-independent** (applies to a one-line ask just as much as a planned task).
 > When unsure which bucket a request is in, **ask.**
 >
-> **Then, on EVERY shipped change, the standing checks — co-equal with the bug/feature gate, not a separate
-> thing you have to remember:**
-> - **Living docs stay current (same change).** If the change **adds / removes / moves / renames a module,
->   an `api/` endpoint, a route, a skill, a hook, or an external service — or changes the loop/ship flow**,
->   update **`BUILD-YOUNG-ARCHITECTURE.md`** (+ its Mermaid diagram if structure changed) **and** the relevant
->   `CLAUDE.md` / `POSITIONING.md` notes **in that same change** (detailed rule in the callout below).
-> - **Name those docs to the verifier.** A spawned verifier inherits no context — it only checks what its
->   prompt names. So whenever a change touches a module/endpoint/route, the verifier's spawn prompt must
->   include the standing check *"did this touch a module/endpoint/route? is `BUILD-YOUNG-ARCHITECTURE.md` updated?"* —
->   else the doc silently drifts (this bit us: a kit-file rename left the arch doc stale).
+> *(Why this is rule #1: jumping from a quick question into a multi-file change skips the human's
+> scope/tradeoff decision — the exact thing the gate protects.)*
 >
-> *(Why all of this is rule #1: jumping from a quick question straight into a multi-file change skips the
-> human's scope/tradeoff decision; and treating doc-currency as "something to remember" rather than a
-> standing check is exactly how the architecture doc drifts. Classify → spec-if-needed → build → **doc
-> currency + verify** — every time.)*
+> **Co-equal standing check on every shipped change — keep living docs current + name the structural docs to
+> the verifier.** The portable rule + *why* are the playbook's (single source of truth, the verifier reads it):
+> **§3** (doc-currency as a *standing* verifier check — "did this add/remove/move a module/endpoint/route? is the
+> architecture doc updated in the same change?") and **§9** (hand a fresh verifier the docs it must grade against —
+> it inherits no context). The only project-specific piece — the doc is **`BUILD-YOUNG-ARCHITECTURE.md`** (+ its
+> diagram) — is the callout just below. *(This bit us once: a kit-file rename left the arch doc stale because the
+> verifier wasn't told to check it.)*
 
 > **Keep the architecture doc alive (living-document rule).** The repo-root
 > [`BUILD-YOUNG-ARCHITECTURE.md`](../BUILD-YOUNG-ARCHITECTURE.md) maps both layers — the agentic loop and the app
