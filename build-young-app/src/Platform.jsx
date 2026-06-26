@@ -1130,6 +1130,70 @@ export function FounderStoryPanel({ s, final }) {
   );
 }
 
+// "Is it going somewhere?" (SPECS/023) — steering a build IN PROGRESS: telling whether it's converging or
+// spinning, and what to do when it's going nowhere. Sits between ③ Build and ④ Check on every build week —
+// Check grades a finished slice; this reads the messy middle. The first build week the student has actually
+// felt a spin (Lesson 3) gets the fuller intro (open); compact + collapsed thereafter. Read-only guidance.
+export function SteeringBeat({ week }) {
+  const full = week === 3; // Lesson 3 — they've now built once (Lesson 2) and likely felt a spin.
+  const SIGN = [
+    ["Going somewhere", `each round gets closer — errors shrink, the changes get smaller and more on-target, and you can still follow what it's doing.`],
+    ["Going nowhere (spinning)", `the same error keeps moving around instead of shrinking, it re-writes things that already worked, the scope creeps, it "apologizes and tries again" in a loop — and you've lost the thread of what it's doing.`],
+  ];
+  const MOVES = [
+    ["Stop.", `Don't fire off another "no, fix it" — more prompts on a confused build usually make it worse.`],
+    ["Re-read your spec.", `A spin is almost always a fuzzy spec. Is "done" actually clear and small?`],
+    ["Sharpen or shrink.", `Give it ONE concrete failing example, or split the work into a smaller slice.`],
+    ["Reset the context.", `If it's truly gone in circles, start fresh with the sharper, smaller spec — don't dig the same hole deeper.`],
+    ["Capture the lesson.", `Add a line to your Engineering rules so you spot that spin sooner next time.`],
+  ];
+  return (
+    <details open={full} style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
+      <summary style={{ cursor: "pointer", fontSize: 13.5, fontWeight: 800, color: C.ink, listStyle: "none" }}>
+        <Activity size={14} style={{ verticalAlign: "-2px", marginRight: 6, color: C.turq }} />Is it going somewhere? <span style={{ fontWeight: 600, color: C.muted }}>— steering your build &amp; knowing when to stop</span>
+      </summary>
+      {full && (
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.55, margin: "10px 0 4px" }}>
+          You've built once now — so you've probably felt this: sometimes the AI just <b>goes in circles</b>. The most
+          useful skill in building isn't typing faster, it's reading whether a build is <b>going somewhere</b> — and
+          steering or stopping it when it isn't. (Check, next, grades a <i>finished</i> slice; this is about the one
+          you're <i>in the middle of</i>.)
+        </p>
+      )}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, margin: "12px 0 4px" }} className="enroll-grid">
+        {SIGN.map(([h, d], i) => (
+          <div key={h} style={{ border: `1px solid ${i ? C.gold : C.green}`, borderRadius: 6, background: i ? "#fbf3e3" : "#eef3f0", padding: "9px 11px" }}>
+            <div style={{ fontSize: 12.5, fontWeight: 800, color: C.ink, display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 9, height: 9, borderRadius: 999, background: i ? C.gold : C.green, flexShrink: 0 }} />{h}
+            </div>
+            <div style={{ fontSize: 12, color: C.ink2, lineHeight: 1.5, marginTop: 3 }}>{d}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 12.5, fontWeight: 800, color: C.ink, margin: "10px 0 5px" }}>When it's spinning — steer or stop:</div>
+      <ol style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: C.ink2, lineHeight: 1.55 }}>
+        {MOVES.map(([h, d]) => <li key={h} style={{ marginBottom: 3 }}><b>{h}</b> {d}</li>)}
+      </ol>
+      <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, margin: "10px 0 0" }}>
+        Also worth learning by doing: <b>what your AI is reliably good at</b> (hand those off whole) vs. the new or
+        tricky parts (break down + spec tightly). Good builders don't out-type the AI — they <b>out-plan and
+        out-judge</b> it, and that's exactly what the work is.
+      </p>
+      <details style={{ marginTop: 10 }}>
+        <summary style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.turq, listStyle: "none" }}>See an example — a spin, and what we did</summary>
+        <p style={{ fontSize: 12, color: C.ink2, lineHeight: 1.55, margin: "8px 0 0", background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "10px 12px" }}>
+          Building Build Young, we asked our AI to "make the login work" — and it spun: each fix broke another
+          screen, and three rounds in, the same error was just moving around. We <b>stopped</b>, re-read the
+          spec, and realized "make login work" wasn't a spec at all. We shrank it to one slice — <i>"a returning
+          student enters email + password and lands on their dashboard; nothing else"</i> — reset to a fresh
+          context with that, and it was done in one pass. The rule we wrote: <i>"If it spins twice, the spec is
+          too big — cut it in half."</i>
+        </p>
+      </details>
+    </details>
+  );
+}
+
 // A build week's activity (SPECS/011 → 013): four steps the student runs in THEIR own Claude —
 // ① write the spec → ② write its acceptance criteria → ③ build it (the project kit handoff) →
 // ④ verify it (an independent verifier agent). Each build week owns ONE s.shape[cfg.key]. Lessons 2–6, 8.
@@ -1211,6 +1275,12 @@ export function BuildLayer({ week, s, setS, bare }) {
       {/* ③ — BUILD IT: the project kit is the single handoff into the student's Claude (sets up/refreshes all
           the docs AND builds this feature). Shown on EVERY build week (SPECS/013). */}
       <ProjectKitPanel s={s} week={week} />
+
+      {/* Between ③ Build and ④ Check (SPECS/023): steering a build IN PROGRESS — telling whether it's
+          converging or spinning, and what to do when it's going nowhere. The build's highest-leverage skill,
+          and where Check grades a finished slice, this reads the messy middle. Fuller intro the first week
+          they've actually built (Lesson 3, after a spin in Lesson 2); compact thereafter. */}
+      <SteeringBeat week={week} />
 
       {/* ④ — VERIFY IT: the student's OWN Claude runs an independent verifier agent (SPECS/013) — the real
           "Check" step, the way Build Young itself is verified. A handoff, not an in-app review. */}

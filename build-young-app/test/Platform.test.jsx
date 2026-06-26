@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import App, { CONFIG, BATCHES } from "../src/App.jsx";
-import { Platform, AgenticProcessPrimer, BuildLayer, ProjectKitPanel, GoLiveChecklist, FounderStoryPanel } from "../src/Platform.jsx";
+import { Platform, AgenticProcessPrimer, BuildLayer, ProjectKitPanel, GoLiveChecklist, FounderStoryPanel, SteeringBeat } from "../src/Platform.jsx";
 
 // These exercise the self-contained DEMO flow (enroll → localStorage dashboard), so pin demo mode
 // AND clear each cohort's Stripe link (empty link = demo checkout) regardless of the production catalog.
@@ -252,6 +252,44 @@ describe("Build week loop — four steps, every week (SPECS/013)", () => {
     expect(crit).toHaveValue("");                                  // accounts has no criteria yet
     await user.type(crit, "Login works on any device.");
     expect(crit).toHaveValue("Login works on any device.");
+  });
+});
+
+describe("Is it going somewhere? — steering & knowing when to stop (SPECS/023)", () => {
+  it("renders the converging-vs-spinning signal + the steer/stop moves", () => {
+    render(<SteeringBeat week={4} />);
+    expect(screen.getByText(/steering your build/i)).toBeInTheDocument();          // the named beat
+    expect(screen.getByText(/errors shrink, the changes get smaller/i)).toBeInTheDocument(); // "going somewhere"
+    expect(screen.getByText(/Going nowhere \(spinning\)/i)).toBeInTheDocument();   // the spin tell
+    expect(screen.getByText(/Re-read your spec\./i)).toBeInTheDocument();          // a steer/stop move
+    expect(screen.getByText(/out-plan/i)).toBeInTheDocument();                     // the honest hook
+  });
+
+  it("Lesson 3 shows the fuller intro (after a spin in Lesson 2); a later build week stays compact", () => {
+    const { unmount } = render(<SteeringBeat week={3} />);
+    expect(screen.getByText(/goes in circles/i)).toBeInTheDocument();   // fuller intro present at L3
+    unmount();
+    render(<SteeringBeat week={5} />);
+    expect(screen.queryByText(/goes in circles/i)).toBeNull();          // compact thereafter — no intro
+  });
+
+  it("ties the spin to Engineering rules and shows a worked example", () => {
+    render(<SteeringBeat week={3} />);
+    expect(screen.getByText(/Engineering rules/i)).toBeInTheDocument();
+    expect(screen.getByText(/See an example/i)).toBeInTheDocument();
+    expect(screen.getByText(/cut it in half/i)).toBeInTheDocument();    // the example's captured rule
+  });
+
+  it("sits between ③ Build and ④ Check in every build week", () => {
+    function H() { const [st, setSt] = useState({ shape: { product: "a notes app" } }); return <BuildLayer week={2} s={st} setS={setSt} bare />; }
+    const { container } = render(<H />);
+    const t = container.textContent;
+    const i3 = t.indexOf("③ Build it with Claude Code");
+    const iS = t.indexOf("Is it going somewhere?");
+    const i4 = t.indexOf("④ Check your work");
+    expect(i3).toBeGreaterThan(-1);
+    expect(iS).toBeGreaterThan(i3);
+    expect(i4).toBeGreaterThan(iS);
   });
 });
 
