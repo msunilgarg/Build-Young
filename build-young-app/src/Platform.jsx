@@ -1131,9 +1131,9 @@ export function FounderStoryPanel({ s, final }) {
 }
 
 // "Is it going somewhere?" (SPECS/023) — steering a build IN PROGRESS: telling whether it's converging or
-// spinning, and what to do when it's going nowhere. Sits between ③ Build and ④ Check on every build week —
-// Check grades a finished slice; this reads the messy middle. The first build week the student has actually
-// felt a spin (Lesson 3) gets the fuller intro (open); compact + collapsed thereafter. Read-only guidance.
+// spinning, and what to do when it's going nowhere. Sits AFTER ④ Check and FEEDS the Engineering rules below
+// (a spin → a new rule): Check grades the finished slice, this reflects on how the build *went*. The first
+// build week the student has actually felt a spin (Lesson 3) gets the fuller intro (open); compact after.
 export function SteeringBeat({ week }) {
   const full = week === 3; // Lesson 3 — they've now built once (Lesson 2) and likely felt a spin.
   const SIGN = [
@@ -1145,7 +1145,7 @@ export function SteeringBeat({ week }) {
     ["Re-read your spec.", `A spin is almost always a fuzzy spec. Is "done" actually clear and small?`],
     ["Sharpen or shrink.", `Give it ONE concrete failing example, or split the work into a smaller slice.`],
     ["Reset the context.", `If it's truly gone in circles, start fresh with the sharper, smaller spec — don't dig the same hole deeper.`],
-    ["Capture the lesson.", `Add a line to your Engineering rules so you spot that spin sooner next time.`],
+    ["Capture the lesson.", `Add a line to your Engineering rules (just below) so you spot that spin sooner next time — that's how a hard moment becomes a rule your AI follows on the next build.`],
   ];
   return (
     <details open={full} style={{ border: `1px solid ${C.turq}`, borderRadius: 6, background: "#eef6f6", padding: "12px 14px", marginBottom: 16 }}>
@@ -1156,8 +1156,8 @@ export function SteeringBeat({ week }) {
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.55, margin: "10px 0 4px" }}>
           You've built once now — so you've probably felt this: sometimes the AI just <b>goes in circles</b>. The most
           useful skill in building isn't typing faster, it's reading whether a build is <b>going somewhere</b> — and
-          steering or stopping it when it isn't. (Check, next, grades a <i>finished</i> slice; this is about the one
-          you're <i>in the middle of</i>.)
+          steering or stopping it when it isn't. You just <i>checked</i> the finished slice above; now look back at <i>how
+          it went</i> — and turn what you learned into an <b>Engineering rule</b> (just below).
         </p>
       )}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, margin: "12px 0 4px" }} className="enroll-grid">
@@ -1276,12 +1276,6 @@ export function BuildLayer({ week, s, setS, bare }) {
           the docs AND builds this feature). Shown on EVERY build week (SPECS/013). */}
       <ProjectKitPanel s={s} week={week} />
 
-      {/* Between ③ Build and ④ Check (SPECS/023): steering a build IN PROGRESS — telling whether it's
-          converging or spinning, and what to do when it's going nowhere. The build's highest-leverage skill,
-          and where Check grades a finished slice, this reads the messy middle. Fuller intro the first week
-          they've actually built (Lesson 3, after a spin in Lesson 2); compact thereafter. */}
-      <SteeringBeat week={week} />
-
       {/* ④ — VERIFY IT: the student's OWN Claude runs an independent verifier agent (SPECS/013) — the real
           "Check" step, the way Build Young itself is verified. A handoff, not an in-app review. */}
       <div style={{ border: `1px solid ${C.emerald}`, borderRadius: 6, background: "#eef3f0", padding: "12px 14px" }}>
@@ -1298,6 +1292,12 @@ export function BuildLayer({ week, s, setS, bare }) {
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 0" }}>You can't grade your own homework — so have a <b>fresh, independent agent</b> read your spec's acceptance criteria and your build, and tell you what's done and what's missing. (Same way Build Young itself is checked.)</p>
       </div>
 
+      {/* After ④ Check (SPECS/023): steering a build + knowing when to stop. Sits here — after you've built and
+          checked — as the reflection that turns *how the build went* into a lesson: it reads the messy middle
+          (the in-progress build, vs. ④ Check's finished slice) AND feeds straight into the Engineering rules
+          below (a spin → a new rule). Fuller intro open at Lesson 3 (after a spin in Lesson 2); compact after. */}
+      <SteeringBeat week={week} />
+
       {/* Engineering rules (SPECS/021): the living playbook the student authors — seeded with the craft rules,
           then theirs to review/edit/grow. Edits s.build.rules; flows into PLAYBOOK.md on the ③ build, so their
           AI reads a rule they add on the very next build. Collapsed so it doesn't crowd the spec→build→check flow. */}
@@ -1306,7 +1306,7 @@ export function BuildLayer({ week, s, setS, bare }) {
           ✎ Your engineering rules <span style={{ fontWeight: 600, color: C.muted }}>(grow them as you learn)</span>
           <code style={{ ...codeS, fontSize: 11.5, color: C.emerald, marginLeft: 8 }}>↳ PLAYBOOK.md</code>
         </summary>
-        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "10px 0 12px" }}>These are <b>your</b> rules — your AI reads them every build, so a rule you write here changes your next build. Start from the set below, <b>edit what doesn't fit, and add a new line each time you learn something the hard way</b> (for example, right after a check turns up a gap). The security basics are always on, so you don't need to add those.</p>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "10px 0 12px" }}>These are <b>your</b> rules — your AI reads them every build, so a rule you write here changes your next build. Start from the set below, <b>edit what doesn't fit, and add a new line each time you learn something the hard way</b> (for example, right after a check turns up a gap, or a build started spinning — see <i>“Is it going somewhere?”</i> above). The security basics are always on, so you don't need to add those.</p>
         <textarea aria-label="Your engineering rules" value={rulesVal} onChange={(e) => setRules(e.target.value)} rows={6} style={{ ...fieldS }} />
         <details style={{ marginTop: 10 }}>
           <summary style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.emerald, listStyle: "none" }}>See an example — Build Young's own rules</summary>

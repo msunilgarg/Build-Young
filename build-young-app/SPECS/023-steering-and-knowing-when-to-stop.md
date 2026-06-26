@@ -6,9 +6,14 @@
 **Owner:** Sunil Garg
 **Date:** 2026-06-26
 
-> **Approved 2026-06-26 — slot = Option 1:** a persistent **"Is it going somewhere?"** beat in `BuildLayer`,
-> between ③ Build and ④ Check, on every build week — fuller intro the first build week the student has felt a
-> spin (**Lesson 3**), compact thereafter. Name: **"Is it going somewhere?"**
+> **Approved 2026-06-26 — slot = Option 1:** a persistent **"Is it going somewhere?"** beat in `BuildLayer` on
+> every build week — fuller intro the first build week the student has felt a spin (**Lesson 3**), compact
+> thereafter. Name: **"Is it going somewhere?"**
+>
+> **Refined 2026-06-26:** placed **after ④ Check** (not between ③ and ④) and made to **feed the Engineering
+> rules (SPECS/021) directly below** — order is **③ Build → ④ Check → steering → Engineering rules**. Check
+> grades the finished slice; steering then reflects on *how the build went* and turns a spin into a captured
+> rule. The beat's "capture the lesson" move + the rules section's nudge cross-reference each other.
 
 ## Why
 The course teaches the clean loop — **Spec → Build → Check → Ship** — but not the *messy* reality between Build

@@ -280,16 +280,18 @@ describe("Is it going somewhere? — steering & knowing when to stop (SPECS/023)
     expect(screen.getByText(/cut it in half/i)).toBeInTheDocument();    // the example's captured rule
   });
 
-  it("sits between ③ Build and ④ Check in every build week", () => {
+  it("sits AFTER ④ Check and feeds the Engineering rules below (③ Build → ④ Check → steering → rules)", () => {
     function H() { const [st, setSt] = useState({ shape: { product: "a notes app" } }); return <BuildLayer week={2} s={st} setS={setSt} bare />; }
     const { container } = render(<H />);
     const t = container.textContent;
     const i3 = t.indexOf("③ Build it with Claude Code");
-    const iS = t.indexOf("Is it going somewhere?");
     const i4 = t.indexOf("④ Check your work");
+    const iS = t.indexOf("Is it going somewhere?");
+    const iR = t.indexOf("Your engineering rules");
     expect(i3).toBeGreaterThan(-1);
-    expect(iS).toBeGreaterThan(i3);
-    expect(i4).toBeGreaterThan(iS);
+    expect(i4).toBeGreaterThan(i3);   // Check comes after Build
+    expect(iS).toBeGreaterThan(i4);   // steering comes after Check
+    expect(iR).toBeGreaterThan(iS);   // and feeds the Engineering rules below
   });
 });
 
