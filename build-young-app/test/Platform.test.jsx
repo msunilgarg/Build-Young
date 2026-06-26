@@ -225,6 +225,25 @@ describe("Build week loop — four steps, every week (SPECS/013)", () => {
     expect(prompt).toContain("quizzes from YOUR notes — no generic banks");
   });
 
+  it("every build week carries the living Engineering rules — seeded with the defaults, flows into PLAYBOOK.md (SPECS/021)", async () => {
+    const user = userEvent.setup();
+    const writeText = spyClipboard();
+    function L5() { const [st, setSt] = useState({ shape: { production: "go live" } }); return <BuildLayer week={5} s={st} setS={setSt} bare />; }
+    render(<L5 />);
+    // the collapsible "Engineering rules" editor is present, seeded with the defaults (not empty, not "undefined")
+    const editor = screen.getByLabelText(/Your engineering rules/i);
+    expect(editor.value).toMatch(/One feature = one short spec/);   // the seeded DEFAULT_ENGINEERING_RULES
+    expect(editor.value).not.toMatch(/undefined/);
+    // editing it flows into the regenerated PLAYBOOK.md on the ③ build
+    await user.clear(editor);
+    await user.type(editor, "- Never ship on a Friday.");
+    fireEvent.click(screen.getByRole("button", { name: /Set up & build with Claude Code/i }));
+    const prompt = writeText.mock.calls[0][0];
+    expect(prompt).toContain("===== PLAYBOOK.md =====");
+    expect(prompt).toContain("## Engineering rules");
+    expect(prompt).toContain("- Never ship on a Friday.");
+  });
+
   it("acceptance is PER-FEATURE — each week reads/writes its own s.shape.accept[key]", async () => {
     const user = userEvent.setup();
     function AccountsHarness() { const [st, setSt] = useState({ shape: { accept: { product: "product criteria" } } }); return <BuildLayer week={3} s={st} setS={setSt} bare />; }

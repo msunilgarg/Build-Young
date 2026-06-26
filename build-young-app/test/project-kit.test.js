@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildProjectKit, KIT_FILES, AGENTIC_STEPS, FEATURE_SPECS, specFileFor } from "../src/projectKit.js";
+import { buildProjectKit, KIT_FILES, AGENTIC_STEPS, FEATURE_SPECS, specFileFor, DEFAULT_ENGINEERING_RULES } from "../src/projectKit.js";
 
 // SPECS/009 T42 + 011: the deterministic project-kit generator — specs → the files the student's AI reads
 // (CLAUDE.md + a SPECS/ folder, one file per feature + an overview, + PITCH.md + PLAYBOOK.md).
@@ -77,6 +77,30 @@ describe("buildProjectKit — the kit files (CLAUDE.md + SPECS/ folder + PITCH +
       expect(p).toContain(step.d.slice(0, 25));    // each step's description text
     }
     expect(AGENTIC_STEPS.map((s) => s.n)).toEqual(["Spec", "Build", "Check", "Ship"]);
+  });
+
+  // SPECS/021 — the playbook is a living artifact: the fixed loop + fixed security non-negotiables, PLUS a
+  // student-authored "## Engineering rules" section (seeded with the defaults, overridden by s.build.rules).
+  it("PLAYBOOK.md keeps the security non-negotiables FIXED (a student can't delete them via rules)", () => {
+    const p = buildProjectKit({ build: { rules: "- only my rule" } })["PLAYBOOK.md"];
+    expect(p).toMatch(/Non-negotiables/i);
+    expect(p).toMatch(/never write your own password/i);
+    expect(p).toMatch(/secrets safe/i);
+    expect(p).toContain("- only my rule");           // the student's rules still flow in
+  });
+
+  it("PLAYBOOK.md seeds '## Engineering rules' with the defaults when the student hasn't written any", () => {
+    const p = buildProjectKit(FULL)["PLAYBOOK.md"];   // FULL has no build.rules
+    expect(p).toContain("## Engineering rules");
+    expect(p).toContain(DEFAULT_ENGINEERING_RULES);
+  });
+
+  it("PLAYBOOK.md uses the student's OWN rules when present (editing s.build.rules changes the kit)", () => {
+    const mine = "- Always write a tiny test first.\n- Never ship on a Friday.";
+    const p = buildProjectKit({ build: { rules: mine } })["PLAYBOOK.md"];
+    expect(p).toContain("## Engineering rules");
+    expect(p).toContain(mine);
+    expect(p).not.toContain(DEFAULT_ENGINEERING_RULES);  // theirs replaces the seed, doesn't append
   });
 
   it("CLAUDE.md points at the SPECS/ folder (acceptance) and PLAYBOOK.md (the method) — the docs are wired together", () => {
