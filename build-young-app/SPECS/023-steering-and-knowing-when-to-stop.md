@@ -6,9 +6,14 @@
 **Owner:** Sunil Garg
 **Date:** 2026-06-26
 
-> **Approved 2026-06-26 — slot = Option 1:** a persistent **"Is it going somewhere?"** beat in `BuildLayer`,
-> between ③ Build and ④ Check, on every build week — fuller intro the first build week the student has felt a
-> spin (**Lesson 3**), compact thereafter. Name: **"Is it going somewhere?"**
+> **Approved 2026-06-26 — slot = Option 1:** a persistent **"Is it going somewhere?"** beat in `BuildLayer` on
+> every build week — fuller intro the first build week the student has felt a spin (**Lesson 3**), compact
+> thereafter. Name: **"Is it going somewhere?"**
+>
+> **Refined 2026-06-26:** placed **after ④ Check** (not between ③ and ④) and made to **feed the Engineering
+> rules (SPECS/021) directly below** — order is **③ Build → ④ Check → steering → Engineering rules**. Check
+> grades the finished slice; steering then reflects on *how the build went* and turns a spin into a captured
+> rule. The beat's "capture the lesson" move + the rules section's nudge cross-reference each other.
 
 ## Why
 The course teaches the clean loop — **Spec → Build → Check → Ship** — but not the *messy* reality between Build
@@ -67,7 +72,7 @@ it — and that's exactly what a company is paying for. Keep it confidence-build
 > Sunil to decide the slot before build. Naming also open: **"Is it going somewhere?"** vs. "Steer & stop" vs.
 > "When it's going nowhere."
 
-## Done when (acceptance) — Option 1 (a `BuildLayer` beat between ③ Build and ④ Check)
+## Done when (acceptance) — Option 1 (a `BuildLayer` beat after ④ Check, feeding the Engineering rules)
 - [x] The four content beats are taught in the `SteeringBeat` panel, POSITIONING-voiced (us/we; build-with-AI,
       not coding; honest + confidence-building, no fear-mongering, no token-minimization framing). No emoji
       glyphs (the converging/spinning markers are CSS dots, not 🟢/🟠).
@@ -75,8 +80,9 @@ it — and that's exactly what a company is paying for. Keep it confidence-build
       a spin → capture an **Engineering rule** (SPECS/021).
 - [x] A worked example (the "make login work" spin + the rule we wrote) is shown, like our other examples.
 - [x] Build + tests green (445) — render tests assert the signal + steer/stop moves, the Lesson-3 fuller intro
-      vs. compact later, the Engineering-rules tie + example, and that it sits between ③ and ④. Docs synced
-      (CLAUDE.md curriculum note; arch doc checked — no module/endpoint/route or `AGENTIC_STEPS` change).
+      vs. compact later, the Engineering-rules tie + example, and the order **③ Build → ④ Check → steering →
+      Engineering rules**. Docs synced (CLAUDE.md curriculum note; arch doc checked — no module/endpoint/route
+      or `AGENTIC_STEPS` change).
 
 ## Out of scope
 - Any real token metering / cost dashboard in the app (the cost angle is a teaching hook, not a feature).
