@@ -240,7 +240,9 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const settlement = useMemo(() => settlementSummary(partners, partnerEnrollments), [partners, partnerEnrollments]);
   const paths = useMemo(() => journeys(events || [], { limit: 12 }), [events]);
 
-  const viewStages = seg.kind === "scholarship" ? SCHOLARSHIP_STAGES : STAGES; // the scholarship spine (SPECS/020)
+  const isSchol = seg.kind === "scholarship";                       // scholarship segment view (SPECS/020)
+  const viewStages = isSchol ? SCHOLARSHIP_STAGES : STAGES;          // the scholarship spine when in that view
+  const enrolledCount = isSchol ? summary.counts.awarded : summary.counts.enrolled; // "enrolled" is keyed "awarded" in the scholarship spine
   const funnelData = viewStages.map((st, i) => {
     const count = summary.counts[st.key];
     const annot = i === 0 ? count.toLocaleString() : `${count.toLocaleString()} · ${ratePct(summary.steps[i - 1].rate)}`;
@@ -337,8 +339,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18, marginTop: 14, alignItems: "start" }} className="enroll-grid">
             <Card style={{ padding: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <b style={{ fontSize: 14 }}>The funnel</b>
-                <span style={muted}>{ratePct(summary.overall)} visited → enrolled</span>
+                <b style={{ fontSize: 14 }}>{isSchol ? "Scholarship funnel" : "The funnel"}</b>
+                <span style={muted}>{ratePct(summary.overall)} {isSchol ? "applied → awarded" : "visited → enrolled"}</span>
               </div>
               <React.Suspense fallback={<div style={{ height: 280, display: "grid", placeItems: "center", color: C.muted, fontSize: 13 }}>Loading chart…</div>}>
                 <Charts kind="funnel" data={funnelData} mutedColor={C.muted} fmt={fmt} />
@@ -346,8 +348,9 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             </Card>
             <div style={{ display: "grid", gap: 12 }}>
               <Stat label="Net revenue" value={fmt(summary.revenue.netCents / 100)} sub={`${fmt(summary.revenue.grossCents / 100)} gross − ${fmt(summary.revenue.refundedCents / 100)} refunded`} icon={CircleDollarSign} color={C.green} />
-              <Stat label="Enrolled" value={summary.counts.enrolled.toLocaleString()} sub={`${summary.calls.enrolledFromCall} via a booked call · ${summary.calls.enrolledDirect} direct`} icon={Users} color={C.emerald} />
-              <Stat label="Calls booked" value={summary.calls.booked.toLocaleString()} sub="“Talk to Sunil” — clicked to book a call" icon={Video} color={C.turq} />
+              <Stat label={isSchol ? "Awarded" : "Enrolled"} value={(enrolledCount || 0).toLocaleString()} sub={isSchol ? `${(summary.counts.applied || 0).toLocaleString()} applied · funded ($0 each)` : `${summary.calls.enrolledFromCall} via a booked call · ${summary.calls.enrolledDirect} direct`} icon={Users} color={C.emerald} />
+              {!isSchol && <Stat label="Calls booked" value={summary.calls.booked.toLocaleString()} sub="“Talk to Sunil” — clicked to book a call" icon={Video} color={C.turq} />}
+              {isSchol && <Stat label="Graduated" value={(summary.counts.graduated || 0).toLocaleString()} sub="scholarship students who finished" icon={Video} color={C.turq} />}
             </div>
           </div>
 
