@@ -15,9 +15,23 @@ repo, e.g. to CI / the cloud loop):** @../ENGINEERING-PLAYBOOK.md
 >   explicit approval (draft → approved) BEFORE writing any code.** Do NOT implement ahead of the approved
 >   spec — clarifying questions are fine, but the build waits for sign-off. This is the spec-first gate
 >   (playbook §9); it is **trigger-independent** (applies to a one-line ask just as much as a planned task).
-> When unsure which bucket a request is in, **ask.** *(Why this is rule #1: jumping from a quick question
-> straight into a multi-file change skips the human's decision point on scope/tradeoffs — the exact thing
-> the gate exists to protect.)*
+> When unsure which bucket a request is in, **ask.**
+>
+> **Then, on EVERY shipped change, the standing checks — co-equal with the bug/feature gate, not a separate
+> thing you have to remember:**
+> - **Living docs stay current (same change).** If the change **adds / removes / moves / renames a module,
+>   an `api/` endpoint, a route, a skill, a hook, or an external service — or changes the loop/ship flow**,
+>   update **`BUILD-YOUNG-ARCHITECTURE.md`** (+ its Mermaid diagram if structure changed) **and** the relevant
+>   `CLAUDE.md` / `POSITIONING.md` notes **in that same change** (detailed rule in the callout below).
+> - **Name those docs to the verifier.** A spawned verifier inherits no context — it only checks what its
+>   prompt names. So whenever a change touches a module/endpoint/route, the verifier's spawn prompt must
+>   include the standing check *"did this touch a module/endpoint/route? is `BUILD-YOUNG-ARCHITECTURE.md` updated?"* —
+>   else the doc silently drifts (this bit us: a kit-file rename left the arch doc stale).
+>
+> *(Why all of this is rule #1: jumping from a quick question straight into a multi-file change skips the
+> human's scope/tradeoff decision; and treating doc-currency as "something to remember" rather than a
+> standing check is exactly how the architecture doc drifts. Classify → spec-if-needed → build → **doc
+> currency + verify** — every time.)*
 
 > **Keep the architecture doc alive (living-document rule).** The repo-root
 > [`BUILD-YOUNG-ARCHITECTURE.md`](../BUILD-YOUNG-ARCHITECTURE.md) maps both layers — the agentic loop and the app
