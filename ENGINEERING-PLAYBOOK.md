@@ -345,6 +345,20 @@ a **driver** pursues them. The payoff isn't "more agents"; it's that each next s
   internal/model identifiers in committed artifacts (enforce with a commit guard); if the verifier fails
   the same task ~3 rounds, stop and surface the blocker instead of thrashing.
 
+## 10. AI / LLM features (architecture defaults)
+
+- **Default to context-stuffing over RAG — adopt retrieval only when the corpus outgrows the context
+  window.** For a feature that "answers from a corpus," start by putting the relevant documents *straight
+  into the prompt*. Reach for RAG (chunking, embeddings, hybrid search, reranking) **only** when two things
+  are both true: the feature genuinely grounds on a corpus, **and** that corpus no longer fits the model's
+  context window. *Why:* RAG is a *scaling answer to a context-size problem*, not a default architecture —
+  but teams reach for it reflexively and inherit its whole failure surface (bad chunking, low recall,
+  stale/irrelevant hits, attribution bugs, an embedding index to keep fresh) long before they have the
+  corpus size that justifies any of it. Context-stuffing is simpler, cheaper, and has none of those failure
+  modes; it's also a clean baseline to *measure* a later retrieval layer against. Make "does this actually
+  exceed the window?" an explicit check before any RAG work. (Same spirit as "don't prematurely modularize"
+  in §1: don't buy a scaling solution before you have the scale.)
+
 ---
 
 ## Meta: keeping this current
@@ -359,6 +373,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-25** — Added §10 "AI / LLM features (architecture defaults)": **default to context-stuffing over RAG — adopt retrieval only when the corpus genuinely outgrows the context window.** RAG is a scaling answer to a context-size problem, not a default; teams reach for it reflexively and inherit its failure surface (chunking, recall, stale hits, attribution, a fresh index) before they have the scale that justifies it. Stuff context first; measure any later retrieval layer against it.
 - **2026-06-25** — §7: **guard files your bundler never compiles with a real-loader check.** Vite compiles only `src/`, and Vitest's esbuild transform tolerates duplicate `import` bindings — so a duplicate-import `SyntaxError` in a serverless `api/` file passed `npm run build` AND all 373 tests yet crashes on Vercel's Node loader every request. Build + tests shared the same blind spot for code outside the bundle. Fix: a `node --check` test over every `api/**/*.js` (the real loader) so the class of bug fails the suite. Caught by an independent verifier.
 - **2026-06-24** — §9: **classify every request bug-vs-feature before acting, and never code ahead of an approved spec.** The first move on any ask is to bucket it; a feature/non-trivial change is spec-first (write → surface inline → sign-off → build). A quick clarifying `AskUserQuestion` is not a substitute for the spec gate — answering one question then diving into a multi-file change still skips the human's scope/tradeoff decision. When the bucket is unclear, ask. (Prompted by a session where I repeatedly jumped from a question straight into implementation.)
 - **2026-06-22** — §9: a spec is **approved by the human before its tasks are built, and approval means they actually read it** — surface the spec's content inline for review (don't just leave a file to open), capture their decisions, and flip `draft → approved` only on sign-off; queued tasks stay dormant until then. The spec-first gate is a human-in-the-loop decision point, not a notification — a spec that ships to an unopened file is a rubber stamp.
