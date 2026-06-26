@@ -43,6 +43,20 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 010 — Your Founder Story (capstone application-ready narrative). See SPECS/010-founder-story.md.
      T46→T47 ALL SHIPPED. Public portfolio page + AI polish deferred. ===== -->
 
+<!-- ===== Spec 022 — track the scholarship application as its own screen. See SPECS/022-scholarship-apply-as-its-own-screen.md.
+     Gated: build only once the spec is flipped draft → approved. ===== -->
+
+## [ ] T48 — Scholarship application = its own engagement screen (`enroll-scholarship`)  ·  risk: low
+Goal: the funded/apply flow emits a distinct `screen_view`/`exit` screen key so the founder console's whole-site Traffic & engagement + Top paths surface a clearly-labeled "Scholarship application" row/path (today it's indistinguishable from paid `enroll`).
+Acceptance criteria:
+- In `App.jsx`'s screen-view effect, when `route === "enroll"` AND the preselected batch is free (`price === 0`), record the screen as `enroll-scholarship` (for BOTH `screen_view` and the `exit` event, via `screenRef`); a paid cohort still records `enroll`. The `/enroll` URL, `ROUTES`, and the funnel `enroll_started`/`enrolled` events are unchanged.
+- `FounderDashboard.jsx` `SCREEN_LABELS` gains `"enroll-scholarship": "Scholarship application"`; it appears as its own row in "Which screens hold attention" / "Where they leave" and as its own node in Top paths.
+- A test asserts `engagement()`/`journeys()` distinguish `enroll-scholarship` from `enroll`; an App-level test asserts the funded flow emits the new key and the paid flow doesn't.
+- Docs synced (CLAUDE.md screens/analytics note; arch doc checked — no new module/endpoint/route, just a screen key).
+- build + tests stay green (always implied).
+Files: `src/App.jsx` (screen-key derivation), `src/FounderDashboard.jsx` (label), tests (`test/funnel.test.js` + an App/engagement test)
+Stop-and-ask if: the spec is still `draft` (don't build ahead of sign-off); or making the apply flow its own screen would require a new route/URL (spec says analytics-relabel only).
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
 
