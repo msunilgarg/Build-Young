@@ -20,31 +20,27 @@ you don't repeat it."** Their Claude **reads `PLAYBOOK.md` every session**, so a
 changes their next build* — a tight, visible feedback loop (and exactly the practice Build Young itself runs).
 
 ## What
+> _(As shipped — the approval note above resolved the open decisions: label "Engineering rules"; the editor
+> shows the defaults seeded in with a review/edit/add nudge, no separate ④-Check nudge; security guardrails
+> stay fixed.)_
+
 ### 1. PLAYBOOK.md gets a student-authored section
-Keep the fixed **"How we build"** (the loop + guardrails); **append** a **"## My rules — what I've learned"**
-section generated from a new **`s.build.rules`** field (free text, a running list — one rule per line; capped).
-Empty → a gentle placeholder ("add a rule each time something bites you — your AI reads these every build").
+Keep the fixed **"How we build"** (the loop + the **security non-negotiables**); add a **"## Engineering rules"**
+section **seeded from `DEFAULT_ENGINEERING_RULES`** (the craft rules) and **overridden by a new `s.build.rules`**
+field (free text, a running list — one rule per line). Only the *craft* rules are student-editable; the security
+non-negotiables stay fixed in the kit, so a student can't delete them.
 
-### 2. A living "My rules" editor on every build week
-Mirror the SPECS/019 pitch pattern: a **collapsible "✎ My rules"** panel in `BuildLayer` (every build week)
-that edits `s.build.rules` and flows into the regenerated `PLAYBOOK.md` on each ③ build. Framing:
-*"Learned something the hard way? Add a one-line rule — your AI reads these every build, so it won't repeat it."*
+### 2. A living "Engineering rules" editor on every build week
+Mirror the SPECS/019 pitch pattern: a **collapsible "✎ Your engineering rules"** panel in `BuildLayer` (every
+build week), **seeded with the defaults**, that edits `s.build.rules` and flows into the regenerated
+`PLAYBOOK.md` on each ③ build. Framing: *"Your AI reads these every build, so a rule you write here changes your
+next build — review the starting set, edit what doesn't fit, and add a line each time you learn something the
+hard way (e.g. right after a check turns up a gap)."* The review/edit/add nudge lives here — **not** in the ④
+Check box (per the approval note).
 
-### 3. Capture nudge at the moment it lands
-A one-line nudge in the **④ Check** box (where a gap surfaces): *"Found a gap? Capture it as a rule in **My
-rules** below so it doesn't bite you again."* — connecting the lesson to the practice.
-
-### 4. A worked example
-Show a short **`RULES_EXAMPLE`** (Build Young's own real rules — e.g. "Ship behind a flag," "No homemade
-passwords — use a standard sign-in," "One small slice, then check") as a model, like `SHAPE_EXAMPLE` / the
+### 3. A worked example
+Show a short **`RULES_EXAMPLE`** (Build Young's own real craft rules) as a model, like `SHAPE_EXAMPLE` / the
 pitch example.
-
-## Open decisions (please confirm — recommendation in **bold**)
-1. **Label / section name:** **"My rules — what I've learned"** (UI panel + the `PLAYBOOK.md` heading). Alt:
-   "Lessons" / "House rules."
-2. **Capture nudge placement:** **a collapsible editor on every build week + a one-line nudge in the ④ Check
-   box** — vs. just the editor (no Check-box nudge).
-3. **Worked example in v1:** **yes** (Build Young's own model rules) — vs. defer.
 
 ## Done when (acceptance)
 - [x] `PLAYBOOK.md` keeps the fixed loop + **security non-negotiables**, AND has a **"## Engineering rules"**
