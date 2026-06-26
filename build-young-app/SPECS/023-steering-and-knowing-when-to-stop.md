@@ -72,7 +72,7 @@ it — and that's exactly what a company is paying for. Keep it confidence-build
 > Sunil to decide the slot before build. Naming also open: **"Is it going somewhere?"** vs. "Steer & stop" vs.
 > "When it's going nowhere."
 
-## Done when (acceptance) — Option 1 (a `BuildLayer` beat between ③ Build and ④ Check)
+## Done when (acceptance) — Option 1 (a `BuildLayer` beat after ④ Check, feeding the Engineering rules)
 - [x] The four content beats are taught in the `SteeringBeat` panel, POSITIONING-voiced (us/we; build-with-AI,
       not coding; honest + confidence-building, no fear-mongering, no token-minimization framing). No emoji
       glyphs (the converging/spinning markers are CSS dots, not 🟢/🟠).
@@ -80,8 +80,9 @@ it — and that's exactly what a company is paying for. Keep it confidence-build
       a spin → capture an **Engineering rule** (SPECS/021).
 - [x] A worked example (the "make login work" spin + the rule we wrote) is shown, like our other examples.
 - [x] Build + tests green (445) — render tests assert the signal + steer/stop moves, the Lesson-3 fuller intro
-      vs. compact later, the Engineering-rules tie + example, and that it sits between ③ and ④. Docs synced
-      (CLAUDE.md curriculum note; arch doc checked — no module/endpoint/route or `AGENTIC_STEPS` change).
+      vs. compact later, the Engineering-rules tie + example, and the order **③ Build → ④ Check → steering →
+      Engineering rules**. Docs synced (CLAUDE.md curriculum note; arch doc checked — no module/endpoint/route
+      or `AGENTIC_STEPS` change).
 
 ## Out of scope
 - Any real token metering / cost dashboard in the app (the cost angle is a teaching hook, not a feature).
