@@ -461,7 +461,11 @@ mobile wrapping). Those need a real browser / human eyes — the founder reviews
   their own Claude — each box = heading + a file-mapping badge + its one control:
   **① Write your spec** (`s.shape[key]`) → **② Write your acceptance criteria** (`s.shape.accept[key]`,
   per-feature) → **③ Build it with Claude Code** (`ProjectKitPanel`, on EVERY build week) → **④ Check your
-  work — with an independent agent**. **③** is the single "into your Claude" path: one **"Set up & build with
+  work — with an independent agent**. Between **③** and **④** sits the **`SteeringBeat`** ("Is it going
+  somewhere?", SPECS/023) — read-only guidance on telling whether a build is **converging vs. spinning** and
+  the steer/stop playbook (stop → re-read the spec → sharpen/shrink → reset context → capture an Engineering
+  rule); fuller intro open at **Lesson 3** (after a spin in Lesson 2), compact + collapsed thereafter. It
+  reads the *in-progress* build (vs. ④ Check's *finished* slice). **③** is the single "into your Claude" path: one **"Set up & build with
   Claude Code"** button copies a prompt that writes/refreshes all the project docs (`buildProjectKit` → CLAUDE.md
   + the `SPECS/` folder, one file per feature with its acceptance criteria + an overview index + PITCH.md
   + PLAYBOOK.md) **and** builds this lesson's feature (`SPECS/<feature>.md`); a single current-week download is

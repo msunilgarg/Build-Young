@@ -2,9 +2,13 @@
 
 > One feature = one short spec. Decisions go here; the PR implements them.
 
-**Status:** draft
+**Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-06-26
+
+> **Approved 2026-06-26 — slot = Option 1:** a persistent **"Is it going somewhere?"** beat in `BuildLayer`,
+> between ③ Build and ④ Check, on every build week — fuller intro the first build week the student has felt a
+> spin (**Lesson 3**), compact thereafter. Name: **"Is it going somewhere?"**
 
 ## Why
 The course teaches the clean loop — **Spec → Build → Check → Ship** — but not the *messy* reality between Build
@@ -63,14 +67,16 @@ it — and that's exactly what a company is paying for. Keep it confidence-build
 > Sunil to decide the slot before build. Naming also open: **"Is it going somewhere?"** vs. "Steer & stop" vs.
 > "When it's going nowhere."
 
-## Done when (acceptance) — finalized once the slot is chosen
-- [ ] The four content beats above are taught in the chosen slot, POSITIONING-voiced (us/we; build-with-AI, not
-      coding; honest + confidence-building, no fear-mongering, no token-minimization framing).
-- [ ] It explicitly connects to the existing loop: it's about the *in-progress* build (vs. ④ Check's finished
-      slice), and a spin → capture an **Engineering rule** (SPECS/021).
-- [ ] A worked example (a realistic "it was spinning — here's what I did" mini-story), like our other examples.
-- [ ] Build + tests green (a render test asserts the beat shows in its slot + the key strings); docs synced
-      (CLAUDE.md curriculum note; arch doc checked — likely no change unless option 3 touches `AGENTIC_STEPS`).
+## Done when (acceptance) — Option 1 (a `BuildLayer` beat between ③ Build and ④ Check)
+- [x] The four content beats are taught in the `SteeringBeat` panel, POSITIONING-voiced (us/we; build-with-AI,
+      not coding; honest + confidence-building, no fear-mongering, no token-minimization framing). No emoji
+      glyphs (the converging/spinning markers are CSS dots, not 🟢/🟠).
+- [x] It explicitly connects to the loop: it reads the *in-progress* build (vs. ④ Check's finished slice), and
+      a spin → capture an **Engineering rule** (SPECS/021).
+- [x] A worked example (the "make login work" spin + the rule we wrote) is shown, like our other examples.
+- [x] Build + tests green (445) — render tests assert the signal + steer/stop moves, the Lesson-3 fuller intro
+      vs. compact later, the Engineering-rules tie + example, and that it sits between ③ and ④. Docs synced
+      (CLAUDE.md curriculum note; arch doc checked — no module/endpoint/route or `AGENTIC_STEPS` change).
 
 ## Out of scope
 - Any real token metering / cost dashboard in the app (the cost angle is a teaching hook, not a feature).

@@ -45,8 +45,14 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 
 <!-- ===== Spec 022 — track the scholarship application as its own screen. See SPECS/022-scholarship-apply-as-its-own-screen.md. SHIPPED (T48). ===== -->
 
+<!-- ===== Spec 023 — teach steering & knowing when to stop ("is it going somewhere?"). See SPECS/023-steering-and-knowing-when-to-stop.md. SHIPPED (T49). ===== -->
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T49 — "Is it going somewhere?" steering beat (between ③ Build and ④ Check)  ·  risk: low
+Done (SPECS/023, Option 1). New exported `SteeringBeat({ week })` in Platform.jsx, rendered in `BuildLayer` between ③ Build (`ProjectKitPanel`) and the ④ Check box on EVERY build week — read-only guidance on steering an in-progress build: the **converging vs. spinning** signal (two cards; CSS-dot markers, no emoji glyphs), the **steer/stop playbook** (stop → re-read the spec → sharpen/shrink → reset context → capture an Engineering rule), a quick "what your AI is good at" read, and the honest hook (out-plan/out-judge, not out-type; no token-minimization framing). Fuller intro **open at Lesson 3** (after a spin in Lesson 2), compact + collapsed thereafter; a worked example (the "make login work" spin + the rule we wrote). Ties to ④ Check (finished slice) + SPECS/021 Engineering rules. 4 render tests (signal+moves, L3-intro-vs-compact, rules-tie+example, sits-between-③-and-④); a11y clean. CLAUDE.md curriculum note. Build + 445; independently verified.
+
 
 ## [x] T48 — Scholarship application = its own engagement screen (`enroll-scholarship`)  ·  risk: low
 Done (SPECS/022). The funded/apply flow shared the `enroll` route with paid enrollment, so it was invisible in the whole-site Traffic & engagement + Top paths panels. New pure `engagementScreen(route, batch)` (`src/lib.js`, foundation): keys the enroll flow entered for a FREE ($0) cohort as `enroll-scholarship` (paid stays `enroll`, any other route keeps its key, null-batch-safe). `App.jsx` screen-view effect computes the key via the helper from the preselected batch → both `screen_view` and `exit` carry it; `/enroll` URL, ROUTES, and the funnel `enroll_started`/`enrolled` events are unchanged. `FounderDashboard.jsx` `SCREEN_LABELS` → `"enroll-scholarship": "Scholarship application"`, so it appears as its own row in both engagement cards and as its own node in Top paths (engagement/journeys are generic over screen keys — no change). Limitation: going-forward only (no backfill); keyed off the initially-clicked batch (reliable — the funded enroll flow locks the picker). New `test/engagement-screen.test.js` (7: helper free/paid/other-route/null + engagement/journeys distinguish the screen). CLAUDE.md analytics-screens note. Build + 441; independently verified.
