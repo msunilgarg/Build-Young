@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement, revenueBySource, settlementSummary,
+  STAGES, SCHOLARSHIP_STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement, revenueBySource, settlementSummary,
 } from "../src/funnel.js";
 
 // Build one timestamped event.
@@ -16,6 +16,10 @@ describe("funnel definitions", () => {
   it("has the linear spine in order", () => {
     expect(STAGES.map((s) => s.key)).toEqual(["visited", "enroll_started", "enrolled", "class_started", "graduated"]);
   });
+  it("has the scholarship spine: Applied → Awarded → Class started → Graduated (SPECS/020)", () => {
+    expect(SCHOLARSHIP_STAGES.map((s) => s.key)).toEqual(["applied", "awarded", "class_started", "graduated"]);
+    expect(SCHOLARSHIP_STAGES.map((s) => s.event)).toEqual(["free_application", "enrolled", "class_started", "graduated"]);
+  });
   it("conversionRate guards divide-by-zero", () => {
     expect(conversionRate(5, 10)).toBe(0.5);
     expect(conversionRate(3, 0)).toBe(0);
@@ -23,6 +27,42 @@ describe("funnel definitions", () => {
   it("cohortMeta pulls season/track/price and carries no PII", () => {
     expect(FALL).toEqual({ batchId: "fall-mw", season: "fall", track: "Builders", priceCents: 99900 });
     expect(Object.keys(FALL)).not.toContain("email");
+  });
+});
+
+describe("scholarship funnel + journey (SPECS/020)", () => {
+  const meta = (over) => ({ season: "fall", track: "Builders", batchId: "free-fall", source: "free", ...over });
+  const events = [
+    ...n(5, () => ev("free_application", { batchId: "free-fall" })),                 // Applied ×5
+    ...n(2, () => ev("enrolled", meta({ priceCents: 0 }))),                          // Awarded ×2 (funded, $0)
+    ev("class_started", meta()),
+    ...n(11, (i) => ev("week_advanced", meta({ week: i + 2 }))),                     // weeks 2..12, one scholarship student
+    ev("graduated", meta()),
+    // a PAID student's journey — must NOT count in the scholarship spine
+    ev("enrolled", { season: "fall", track: "Builders", batchId: "fall-mw", priceCents: 99900 }), // direct (no source)
+    ev("class_started", { season: "fall", track: "Builders", batchId: "fall-mw", source: "direct" }),
+    ev("graduated", { season: "fall", track: "Builders", batchId: "fall-mw", source: "direct" }),
+  ];
+
+  it("summarize({source:'free'}) returns the Applied → Awarded → Class started → Graduated spine, source-filtered", () => {
+    const s = summarize(events, { source: "free" });
+    expect(s.counts).toEqual({ applied: 5, awarded: 2, class_started: 1, graduated: 1 });
+    expect(s.overall).toBe(0.4);                                   // applied → awarded selection rate (2/5)
+    expect(s.steps[0]).toMatchObject({ from: "applied", to: "awarded", rate: 0.4 });
+    expect(s.weekCurve.every((w) => w.value === 1)).toBe(true);    // the paid student's journey is excluded
+    expect(s.revenue.grossCents).toBe(0);                          // funded seats are $0
+  });
+
+  it("the default funnel is unchanged by source tags — paid + free both count as Enrolled / journey", () => {
+    const s = summarize(events);
+    expect(s.counts.enrolled).toBe(3);      // 2 free + 1 paid
+    expect(s.counts.class_started).toBe(2); // free + paid
+    expect(s.counts.graduated).toBe(2);
+  });
+
+  it("revenueBySource buckets the scholarship channel separately at $0", () => {
+    const free = revenueBySource(events).find((x) => x.source === "free");
+    expect(free).toMatchObject({ count: 2, cents: 0 });
   });
 });
 

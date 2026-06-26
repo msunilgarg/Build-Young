@@ -15,6 +15,26 @@ describe("FounderDashboard (account-gated)", () => {
     await waitFor(() => expect(screen.getByText(/Access denied/i)).toBeInTheDocument());
   });
 
+  it("the Scholarship segment renders without crashing — Applied → Awarded view (SPECS/020)", async () => {
+    const events = [
+      { event: "free_application", ts: 1, props: { batchId: "free-fall" } },
+      { event: "free_application", ts: 2, props: { batchId: "free-fall" } },
+      { event: "enrolled", ts: 3, props: { season: "fall", track: "Builders", batchId: "free-fall", priceCents: 0, source: "free" } },
+    ];
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [], checkins: 1 }) };
+      return { status: 200, json: async () => ({ events }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
+    await waitFor(() => expect(screen.getByText("Segment")).toBeInTheDocument());
+    // Clicking "Scholarship" previously crashed (summary.counts.enrolled was undefined in this view).
+    await user.click(screen.getByText("Scholarship"));
+    expect(screen.getByText("Scholarship funnel")).toBeInTheDocument();   // the view re-labeled — render completed, no crash
+  });
+
   it("renders the funnel scaffold + cohort editor for a founder session", async () => {
     vi.stubGlobal("fetch", vi.fn(async (url) => {
       if (String(url).includes("/api/cohorts")) {

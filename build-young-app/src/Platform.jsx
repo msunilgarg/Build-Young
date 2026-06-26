@@ -1385,7 +1385,10 @@ export function Platform({ state, setState, onExit, onFounder, onHome }) {
     if (!batch || !s || s.phase !== "course" || isFounder) return;
     const pos = effectivePosition(batch); // founder's manual override when set, else the calendar
     if (s.week === pos.week && s.started === pos.started && s.done === pos.done) return;
-    const fmeta = { season: batch.season, track: batch.track, batchId: batch.id };
+    // Tag the journey with the enrollment channel (SPECS/020) so the funnel can segment the lifecycle
+    // by source — "free" (scholarship) / "partner" / "direct" — not just the enrolled stage.
+    const source = s.paymentSource === "free" ? "free" : s.paymentSource === "partner" ? "partner" : "direct";
+    const fmeta = { season: batch.season, track: batch.track, batchId: batch.id, source };
     if (!s.started && pos.started) track("class_started", fmeta);
     if (pos.week > (s.week || 1)) track("week_advanced", { ...fmeta, week: pos.week });
     if (!s.done && pos.done) track("graduated", fmeta);

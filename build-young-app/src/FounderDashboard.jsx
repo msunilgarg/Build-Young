@@ -12,7 +12,7 @@ import { buildCertSvg, CertificateView } from "./Certificate.jsx";
 import { certVerifyUrl, certDate } from "./cert.js";
 import { scenarioLabel } from "./scenarios.js";
 import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
-import { STAGES, summarize, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS, revenueBySource, settlementSummary } from "./funnel.js";
+import { STAGES, SCHOLARSHIP_STAGES, summarize, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS, revenueBySource, settlementSummary } from "./funnel.js";
 import { WEEK_PREP, WEEK_OBJECTIVES } from "./marketMedia.js";
 
 const Charts = React.lazy(() => import("./Charts.jsx"));
@@ -227,7 +227,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   }, []);
   useEffect(() => { loadFunnel(); }, [loadFunnel]);
 
-  const filter = seg.kind === "season" ? { season: seg.key } : seg.kind === "track" ? { track: seg.key } : null;
+  const filter = seg.kind === "season" ? { season: seg.key } : seg.kind === "track" ? { track: seg.key } : seg.kind === "scholarship" ? { source: "free" } : null;
   const scoped = useMemo(() => eventsInMonth(events || [], period), [events, period]);
   const months = useMemo(() => monthsIn(events || []), [events]);
   const didDefaultPeriod = React.useRef(false);
@@ -240,7 +240,10 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const settlement = useMemo(() => settlementSummary(partners, partnerEnrollments), [partners, partnerEnrollments]);
   const paths = useMemo(() => journeys(events || [], { limit: 12 }), [events]);
 
-  const funnelData = STAGES.map((st, i) => {
+  const isSchol = seg.kind === "scholarship";                       // scholarship segment view (SPECS/020)
+  const viewStages = isSchol ? SCHOLARSHIP_STAGES : STAGES;          // the scholarship spine when in that view
+  const enrolledCount = isSchol ? summary.counts.awarded : summary.counts.enrolled; // "enrolled" is keyed "awarded" in the scholarship spine
+  const funnelData = viewStages.map((st, i) => {
     const count = summary.counts[st.key];
     const annot = i === 0 ? count.toLocaleString() : `${count.toLocaleString()} · ${ratePct(summary.steps[i - 1].rate)}`;
     return { label: st.label, count, color: FUNNEL_COLORS[i % FUNNEL_COLORS.length], annot };
@@ -314,8 +317,10 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             {segBtn("All", seg.kind === "all", () => setSeg({ kind: "all", key: null }))}
             {catalogSeasons(liveBatches).map((s) => segBtn(s.label, seg.kind === "season" && seg.key === s.key, () => setSeg({ kind: "season", key: s.key })))}
             {TRACKS.length > 1 && TRACKS.map((t) => segBtn(t, seg.kind === "track" && seg.key === t, () => setSeg({ kind: "track", key: t })))}
+            {segBtn("Scholarship", seg.kind === "scholarship", () => setSeg({ kind: "scholarship", key: "free" }))}
           </div>
-          {filter && <div style={{ ...muted, marginTop: 8 }}>Segmented views start at <b>Enrolled</b> — top-of-funnel events (visits, enroll-starts) aren’t tied to a cohort.</div>}
+          {filter && seg.kind !== "scholarship" && <div style={{ ...muted, marginTop: 8 }}>Segmented views start at <b>Enrolled</b> — top-of-funnel events (visits, enroll-starts) aren’t tied to a cohort.</div>}
+          {seg.kind === "scholarship" && <div style={{ ...muted, marginTop: 8 }}>The scholarship channel: <b>Applied</b> (write-ups submitted) → <b>Awarded</b> (funded seats), then the class journey. Funded seats are <b>$0</b>, so they don’t add revenue.</div>}
 
           {/* exclude this browser from tracking (the destructive "reset the stream" lives under Settings → Danger zone so it can't be clicked by mistake) */}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginTop: 12 }}>
@@ -334,8 +339,8 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18, marginTop: 14, alignItems: "start" }} className="enroll-grid">
             <Card style={{ padding: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <b style={{ fontSize: 14 }}>The funnel</b>
-                <span style={muted}>{ratePct(summary.overall)} visited → enrolled</span>
+                <b style={{ fontSize: 14 }}>{isSchol ? "Scholarship funnel" : "The funnel"}</b>
+                <span style={muted}>{ratePct(summary.overall)} {isSchol ? "applied → awarded" : "visited → enrolled"}</span>
               </div>
               <React.Suspense fallback={<div style={{ height: 280, display: "grid", placeItems: "center", color: C.muted, fontSize: 13 }}>Loading chart…</div>}>
                 <Charts kind="funnel" data={funnelData} mutedColor={C.muted} fmt={fmt} />
@@ -343,8 +348,9 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             </Card>
             <div style={{ display: "grid", gap: 12 }}>
               <Stat label="Net revenue" value={fmt(summary.revenue.netCents / 100)} sub={`${fmt(summary.revenue.grossCents / 100)} gross − ${fmt(summary.revenue.refundedCents / 100)} refunded`} icon={CircleDollarSign} color={C.green} />
-              <Stat label="Enrolled" value={summary.counts.enrolled.toLocaleString()} sub={`${summary.calls.enrolledFromCall} via a booked call · ${summary.calls.enrolledDirect} direct`} icon={Users} color={C.emerald} />
-              <Stat label="Calls booked" value={summary.calls.booked.toLocaleString()} sub="“Talk to Sunil” — clicked to book a call" icon={Video} color={C.turq} />
+              <Stat label={isSchol ? "Awarded" : "Enrolled"} value={(enrolledCount || 0).toLocaleString()} sub={isSchol ? `${(summary.counts.applied || 0).toLocaleString()} applied · funded ($0 each)` : `${summary.calls.enrolledFromCall} via a booked call · ${summary.calls.enrolledDirect} direct`} icon={Users} color={C.emerald} />
+              {!isSchol && <Stat label="Calls booked" value={summary.calls.booked.toLocaleString()} sub="“Talk to Sunil” — clicked to book a call" icon={Video} color={C.turq} />}
+              {isSchol && <Stat label="Graduated" value={(summary.counts.graduated || 0).toLocaleString()} sub="scholarship students who finished" icon={Video} color={C.turq} />}
             </div>
           </div>
 
@@ -355,7 +361,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
               <b style={{ fontSize: 14 }}>Revenue by source</b>
               <div style={{ ...muted, margin: "2px 0 10px" }}>Where enrollments came from — partner (marketplace/reseller) seats count at <b>net</b> (after their cut); direct is full tuition.</div>
               {bySource.map((s) => {
-                const label = s.source.startsWith("partner:") ? `Partner · ${s.source.slice(8)}` : "Direct";
+                const label = s.source === "free" ? "Scholarship (funded · $0)" : s.source.startsWith("partner:") ? `Partner · ${s.source.slice(8)}` : "Direct";
                 return (
                   <div key={s.source} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, padding: "7px 0", borderTop: `1px solid ${C.line}`, fontSize: 13.5 }}>
                     <span style={{ color: C.ink2, fontWeight: 600 }}>{label}</span>

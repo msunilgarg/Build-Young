@@ -35,6 +35,17 @@ export const STAGES = [
   { key: "graduated",      event: "graduated",      label: "Graduated",      desc: "Completed all 12 weeks" },
 ];
 
+// The scholarship (free / $0) channel runs a PARALLEL spine (SPECS/020): a public APPLICATION replaces
+// visited/enroll-started as the top, then the founder AWARDS the seat (an `enrolled{source:"free"}`), and
+// the student flows through the same journey. `summarize(events, {source:"free"})` returns this spine —
+// giving the applied→awarded selection rate + a scholarship-only journey (class started → graduated).
+export const SCHOLARSHIP_STAGES = [
+  { key: "applied",       event: "free_application", label: "Applied",       desc: "Submitted a scholarship application" },
+  { key: "awarded",       event: "enrolled",         label: "Awarded",       desc: "Scholarship awarded (approved + onboarded)" },
+  { key: "class_started", event: "class_started",    label: "Class started", desc: "First session attended" },
+  { key: "graduated",     event: "graduated",        label: "Graduated",     desc: "Completed all 12 weeks" },
+];
+
 export const REFUND_TIERS = ["full", "prorated", "none"];
 // One combined teen track now ("Builders"); segmentation is meaningful by season, not age.
 export const TRACKS = ["Builders"];
@@ -66,34 +77,42 @@ function matches(ev, filter) {
   return true;
 }
 
-// Aggregate the raw event stream into a funnel summary. `filter` optionally narrows to a
-// {season, track} segment for cohort comparison.
+// Aggregate the raw event stream into a funnel summary. `filter` optionally narrows to a {season, track}
+// segment for cohort comparison, OR `{source:"free"}` for the SCHOLARSHIP spine (SPECS/020) — which uses
+// SCHOLARSHIP_STAGES (Applied → Awarded → Class started → Graduated) and counts only `source:"free"` events
+// (except the application itself, which is inherently a scholarship signal and carries no source).
 export function summarize(events, filter = null) {
   const evs = Array.isArray(events) ? events : [];
+  const schol = !!(filter && filter.source === "free");
+  const stages = schol ? SCHOLARSHIP_STAGES : STAGES;
+  const segFilter = schol ? null : filter; // scholarship narrows by source, not {season,track}
+  const srcOk = (e) => !schol || e.event === "free_application" || (e.props && e.props.source === "free");
   const where = (name, extra) => evs.filter((e) =>
-    e && e.event === name && matches(e, filter) && (!extra || extra(e)));
+    e && e.event === name && matches(e, segFilter) && srcOk(e) && (!extra || extra(e)));
   const count = (name, extra) => where(name, extra).length;
 
-  // Linear funnel counts, in stage order.
+  // Linear funnel counts, in stage order (the scholarship spine when source:"free").
   const counts = {};
-  STAGES.forEach((s) => { counts[s.key] = count(s.event); });
+  stages.forEach((s) => { counts[s.key] = count(s.event); });
 
   // Stage-to-stage conversion between each consecutive pair (where the drop-off shows).
   const steps = [];
-  for (let i = 1; i < STAGES.length; i++) {
-    const from = STAGES[i - 1], to = STAGES[i];
+  for (let i = 1; i < stages.length; i++) {
+    const from = stages[i - 1], to = stages[i];
     steps.push({
       from: from.key, to: to.key, fromLabel: from.label, toLabel: to.label,
       fromCount: counts[from.key], toCount: counts[to.key],
       rate: conversionRate(counts[to.key], counts[from.key]),
     });
   }
-  const overall = conversionRate(counts.enrolled, counts.visited); // visited → enrolled
+  // Overall = top → the "win" stage (visited→enrolled, or applied→awarded for scholarships).
+  const overall = schol ? conversionRate(counts.awarded, counts.applied) : conversionRate(counts.enrolled, counts.visited);
 
   // Parallel assist path: calls booked, and the call→enroll vs. direct-enroll split.
+  const enrolledTotal = schol ? counts.awarded : counts.enrolled; // `enrolled` event count (keyed "awarded" in the scholarship spine)
   const callBooked = count("call_booked");
   const enrolledFromCall = count("enrolled", (e) => !!e.props?.fromCall);
-  const enrolledDirect = counts.enrolled - enrolledFromCall;
+  const enrolledDirect = enrolledTotal - enrolledFromCall;
 
   // Week-by-week progression curve (weeks 2..12 — week N = students who advanced to it).
   const weekCurve = [];
