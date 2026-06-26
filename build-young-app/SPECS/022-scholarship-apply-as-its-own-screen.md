@@ -2,9 +2,12 @@
 
 > One feature = one short spec. Decisions go here; the PR implements them.
 
-**Status:** draft
+**Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-06-26
+
+> **Approved 2026-06-26:** screen key `enroll-scholarship`, label "Scholarship application"; scope = track it as
+> its own screen (panels stay whole-site), per the two recommended decisions.
 
 ## Why
 On the founder console, selecting the **Scholarship** segment changes the funnel + **Drop-off** (they use
@@ -42,13 +45,19 @@ screen now appears as its own row in the two engagement cards and as its own nod
    scholarship-only sessions (a later option if wanted).
 
 ## Done when (acceptance)
-- [ ] When the enroll flow is entered for a **funded ($0)** cohort, the emitted `screen_view`/`exit` carry
-      `screen: "enroll-scholarship"`; for a **paid** cohort they still carry `screen: "enroll"`.
-- [ ] The founder console shows **"Scholarship application"** as a distinct row in "Which screens hold
-      attention" / "Where they leave" and as its own node in Top paths (verified via `screenName`/engagement).
-- [ ] `engagement()`/`journeys()` distinguish the new screen from `enroll` (test).
-- [ ] Build + tests green; docs synced (CLAUDE.md analytics/screens note; arch doc checked — no new
-      module/endpoint/route, just a new screen key, so likely no arch-doc change).
+- [x] When the enroll flow is entered for a **funded ($0)** cohort, the emitted `screen_view`/`exit` carry
+      `screen: "enroll-scholarship"`; for a **paid** cohort they still carry `screen: "enroll"`. (Logic in the
+      pure `engagementScreen(route, batch)` helper, `src/lib.js`; App.jsx calls it in the screen-view effect.)
+- [x] The founder console shows **"Scholarship application"** as a distinct row in "Which screens hold
+      attention" / "Where they leave" and as its own node in Top paths (`SCREEN_LABELS` + `engagement`/`journeys`).
+- [x] `engagement()`/`journeys()` distinguish the new screen from `enroll` (test/engagement-screen.test.js).
+- [x] Build + tests green (441); docs synced (CLAUDE.md analytics/screens note; arch doc checked — no new
+      module/endpoint/route, just a new screen key + a foundation helper, so no arch-doc change).
+
+> **Note on the App-level test:** the emit logic lives in the pure `engagementScreen` helper, unit-tested
+> directly (free→`enroll-scholarship`, paid→`enroll`, other routes/null-batch→route). This is stronger than a
+> full App render+`track` spy — `track()` is a deliberate no-op in tests, so a render couldn't observe the emit
+> anyway; the helper *is* the decision and App.jsx only calls it.
 
 ## Limitations (called out, not silently)
 - **Going forward only** — no backfill; past scholarship applicants already logged as `enroll` stay that way.

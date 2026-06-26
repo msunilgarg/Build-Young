@@ -27,7 +27,7 @@ import { STAGES, summarize, segments, toCSV, toDataRoom, ratePct, TRACKS, engage
 // the cron + tests). Imported for use here and re-exported so existing importers keep working.
 import { CHECKIN_TIME, checkinDateLabel, nextClassLabel, classDateLabel, cohortStartInfo, dayNum, classMeetingOn, sessionDate, enrollClosed, cohortClosed, nextClass, PROGRAM_TZ, coursePosition, cohortTime, cohortDays, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
 export { CHECKIN_TIME, checkinDateLabel, nextClassLabel, classDateLabel, cohortStartInfo, classMeetingOn, sessionDate, enrollClosed, cohortClosed, nextClass, PROGRAM_TZ, coursePosition, cohortTime, cohortDays, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
-import { CONFIG, validEmail, cohortMetaFrom, CohortsContext, useCohorts, postJson, AUTH, sendEmail, setPendingEnroll, readPendingEnroll, clearPendingEnroll, track, trackVisitOnce, sessionId } from "./lib.js";
+import { CONFIG, validEmail, cohortMetaFrom, CohortsContext, useCohorts, postJson, AUTH, sendEmail, setPendingEnroll, readPendingEnroll, clearPendingEnroll, track, trackVisitOnce, sessionId, engagementScreen } from "./lib.js";
 export { CONFIG, validEmail };
 import { Login, SetPassword, CheckEmail } from "./auth.jsx";
 export { Login, SetPassword };
@@ -122,7 +122,12 @@ export default function App() {
       const ms = (prev.acc || 0) + (prev.at ? now - prev.at : 0);
       track("screen_view", { screen: prev.screen, ms, sid: sessionId() });
     }
-    screenRef.current = { screen: route, at: now, acc: 0, flushed: false };
+    // SPECS/022: the funded/apply flow gets its own engagement screen key (`enroll-scholarship`) so it's
+    // distinct from a paid `enroll` in Traffic & Top-paths. Re-keyed only on navigation ([route]) — the
+    // preselected free batch is set before nav("enroll") and the funded enroll flow locks the picker, so the
+    // closure's `preselect` is the right cohort here.
+    const screenKey = engagementScreen(route, batches.find((x) => x.id === preselect));
+    screenRef.current = { screen: screenKey, at: now, acc: 0, flushed: false };
   }, [route, loaded]);
   useEffect(() => {
     if (!loaded) return;

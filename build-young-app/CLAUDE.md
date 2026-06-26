@@ -295,7 +295,13 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   `screen_view {screen, ms}` (per-route dwell, fired on each route change + on tab hide/close) and
   `exit {screen}` (last screen before leaving). `engagement(events)` in `src/funnel.js` →
   `{sources, screens (views + avgMs), exits (count + pct), exitTotal}`; the console renders it as
-  three cards under the drop-off. Explains the Visited → Enroll-started leak.
+  three cards under the drop-off. Explains the Visited → Enroll-started leak. **These two panels +
+  Top paths (`journeys`) are whole-site / not segment-filtered** — anonymous `screen_view`/`exit`
+  carry only an ephemeral `sid`, no source/cohort. The screen key is the `route`, EXCEPT the
+  **funded/scholarship apply flow**, which `engagementScreen(route, batch)` (`src/lib.js`, SPECS/022)
+  keys as **`enroll-scholarship`** (vs a paid `enroll`) so it shows as its own "Scholarship
+  application" row/path (`SCREEN_LABELS` in `FounderDashboard.jsx`); reliable because the funded
+  enroll flow locks the cohort picker.
 - **Founder-editable site settings (NEW):** the runtime, non-secret public values — **booking link
   (Calendly), contact email, LinkedIn URL, the shared Stripe link, the showcase toggle, the
   founder photo, and the `starterRepoUrl` (the student starter template repo, SPECS/009)** — are now editable live from the console (no redeploy),
