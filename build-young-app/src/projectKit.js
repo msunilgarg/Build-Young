@@ -45,6 +45,14 @@ export const KIT_FILES = [
   "PLAYBOOK.md",
 ];
 
+// The SEED for the student's editable "Engineering rules" (SPECS/021) — the craft rules they review, edit,
+// and grow. The SECURITY non-negotiables (no homemade passwords, keep secrets safe) stay FIXED in the kit's
+// PLAYBOOK.md (not here), so a student can't delete them. Shared with the build-week editor (Platform.jsx).
+export const DEFAULT_ENGINEERING_RULES = `- One feature = one short spec — write it in SPECS/, commit it, then build it.
+- One small slice at a time — don't try to build everything at once.
+- Ship early — put it live before it's perfect; real users surface the real problems.
+- You can't grade your own homework — get an independent check before you call it done.`;
+
 // A spec field, or a gentle placeholder when empty — never "undefined" in the student's repo.
 const val = (v, placeholder) => {
   const s = String(v == null ? "" : v).trim();
@@ -150,19 +158,23 @@ How the product sounds to its users — keep every word on-brand with this.
 ${val(b.voice, "a few words for how it sounds — e.g. friendly and encouraging, not stiff or salesy")}
 `;
 
-  // PLAYBOOK.md — the shared agentic rules (the four steps come from AGENTIC_STEPS, the single source).
+  // PLAYBOOK.md — the agentic loop (from AGENTIC_STEPS, the single source) + the fixed security
+  // non-negotiables + the student's OWN "Engineering rules" (SPECS/021): seeded with the craft rules, then
+  // theirs to review/edit/grow. Their AI reads this every build, so a rule they add changes the next build.
   const playbook = `# How we build — the Agentic Engineering Process
 
 This is how real builders work with AI — and how Build Young itself was built. The same loop, every time you build something:
 
 ${AGENTIC_STEPS.map((st, i) => `${i + 1}. **${st.n}** — ${st.d}`).join("\n")}
 
-A few rules that make the loop work:
-- **One feature = one short spec** — write it in \`SPECS/\`, commit it, then build it.
-- **One small slice at a time** — don't try to build everything at once.
-- **Ship early** — put it live before it's perfect; real users surface the real problems.
-- **You can't grade your own homework** — get an independent check before you call it done.
+**Non-negotiables (these always apply):**
+- **Never write your own password/login code** — use a trusted, standard sign-in.
 - **Keep secrets safe** — API keys live in environment variables, never in your code or the browser.
+
+## Engineering rules
+Your own rules — your AI reads these every build, so a rule you write here changes your next build. Review the starting set, edit what doesn't fit, and **add a new rule each time you learn something the hard way** (for example, right after a check turns up a gap).
+
+${b.rules ? b.rules : DEFAULT_ENGINEERING_RULES}
 `;
 
   return {

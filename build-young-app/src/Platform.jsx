@@ -3,7 +3,7 @@ import { TrendingUp, LineChart as LineIcon, GraduationCap, Check, Lock, Newspape
 import { C, fmt } from "./theme.js";
 import { Card, Mark, Pill, act, PageBackdrop } from "./ui.jsx";
 import { CONFIG, track, useCohorts, sendEmail, postJson, AUTH, downloadFile } from "./lib.js";
-import { AGENTIC_STEPS, buildProjectKit, KIT_FILES, specFileFor } from "./projectKit.js"; // SoT for the steps + the kit generator
+import { AGENTIC_STEPS, buildProjectKit, DEFAULT_ENGINEERING_RULES, KIT_FILES, specFileFor } from "./projectKit.js"; // SoT for the steps + the kit generator
 import { buildFounderStory, FOUNDER_STORY_EXAMPLE } from "./founderStory.js"; // capstone founder-story generator + sample
 import { cohortStartInfo, classDateLabel, effectivePosition, refundFor, REFUND_WEEKS, REFUND_WINDOW, canWithdrawNow } from "./courseDates.js";
 import { WEEKS } from "./course.js";
@@ -152,6 +152,14 @@ Why families love it: It's live and small-group with a standing weekly time, so 
   productSuccess: `Real teens use it and keep coming back — and they'd be bummed if it went away. They like it enough to tell their friends, so classes keep filling up.`,
   financialSuccess: `It makes more money than it costs to run. Most new families come from people telling their friends, so we don't have to spend much to find them — and there's enough left over to keep it going and make it bigger.`,
 };
+
+// A worked example for the student's "Engineering rules" editor (SPECS/021): Build Young's OWN craft rules
+// — the real ones it added the hard way — shown as a model, like SHAPE_EXAMPLE / the pitch example. These
+// are the *craft* rules a builder grows; the security non-negotiables stay fixed in the kit's PLAYBOOK.md.
+const RULES_EXAMPLE = `- Bug or feature? A quick fix can go straight to code; anything new gets a one-line spec and a thumbs-up first.
+- Keep the map current — if you add or move a feature, update the doc that lists them in the SAME change.
+- Stuff the docs straight into context before reaching for anything fancier — the simplest thing that fits wins.
+- Ship behind a flag you can flip off, so a half-built thing never breaks the live app.`;
 
 // Worked examples for each build week's spec (SPECS/011 build-per-week): one field per feature the
 // student writes + builds in its week (core product → accounts → payments → production-ready → polish →
@@ -1161,6 +1169,13 @@ export function BuildLayer({ week, s, setS, bare }) {
     </div>
   );
 
+  // Engineering rules (SPECS/021): the student's OWN craft rules — seeded with the defaults, then theirs to
+  // review/edit/grow. Edits s.build.rules; flows into PLAYBOOK.md's "## Engineering rules" on the ③ build.
+  // (The security non-negotiables stay FIXED in the kit, so this editor never exposes them to deletion.)
+  const build = s.build || {};
+  const rulesVal = build.rules != null ? build.rules : DEFAULT_ENGINEERING_RULES;
+  const setRules = (v) => setS((p) => ({ ...p, build: { ...(p.build || {}), rules: v } }));
+
   const inner = (
     <>
       {/* The build-week loop (SPECS/013): two inputs the student types, two handoffs into their own Claude.
@@ -1212,6 +1227,22 @@ export function BuildLayer({ week, s, setS, bare }) {
         {mapPill("checks your build against")}
         <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "8px 0 0" }}>You can't grade your own homework — so have a <b>fresh, independent agent</b> read your spec's acceptance criteria and your build, and tell you what's done and what's missing. (Same way Build Young itself is checked.)</p>
       </div>
+
+      {/* Engineering rules (SPECS/021): the living playbook the student authors — seeded with the craft rules,
+          then theirs to review/edit/grow. Edits s.build.rules; flows into PLAYBOOK.md on the ③ build, so their
+          AI reads a rule they add on the very next build. Collapsed so it doesn't crowd the spec→build→check flow. */}
+      <details style={{ border: `1px solid ${C.line}`, borderRadius: 6, background: C.paper, padding: "10px 14px", marginTop: 16 }}>
+        <summary style={{ cursor: "pointer", fontSize: 13.5, fontWeight: 800, color: C.ink, listStyle: "none" }}>
+          ✎ Your engineering rules <span style={{ fontWeight: 600, color: C.muted }}>(grow them as you learn)</span>
+          <code style={{ ...codeS, fontSize: 11.5, color: C.emerald, marginLeft: 8 }}>↳ PLAYBOOK.md</code>
+        </summary>
+        <p style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5, margin: "10px 0 12px" }}>These are <b>your</b> rules — your AI reads them every build, so a rule you write here changes your next build. Start from the set below, <b>edit what doesn't fit, and add a new line each time you learn something the hard way</b> (for example, right after a check turns up a gap). The security basics are always on, so you don't need to add those.</p>
+        <textarea aria-label="Your engineering rules" value={rulesVal} onChange={(e) => setRules(e.target.value)} rows={6} style={{ ...fieldS }} />
+        <details style={{ marginTop: 10 }}>
+          <summary style={{ cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.emerald, listStyle: "none" }}>See an example — Build Young's own rules</summary>
+          <pre style={{ whiteSpace: "pre-wrap", fontSize: 12, color: C.ink2, lineHeight: 1.5, margin: "8px 0 0", fontFamily: "inherit", background: C.paper2, border: `1px solid ${C.line}`, borderRadius: 4, padding: "10px 12px" }}>{RULES_EXAMPLE}</pre>
+        </details>
+      </details>
     </>
   );
   return bare ? inner : <Card style={{ padding: 20, marginBottom: 12 }}>{inner}</Card>;
