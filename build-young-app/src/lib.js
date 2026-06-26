@@ -137,6 +137,14 @@ export function track(event, props = {}) {
     else fetch("/api/funnel", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
   } catch (e) { /* analytics must never break the app */ }
 }
+// SPECS/022: the engagement screen key for a route. The funded/scholarship APPLY flow shares the `enroll`
+// route with paid enrollment, so on its own it's invisible in the whole-site Traffic & Top-paths panels
+// (anonymous screen views carry no source). When the enroll flow is entered for a FREE ($0) cohort, key it
+// as `enroll-scholarship` so it surfaces as its own "Scholarship application" row/path; a paid enroll (or
+// any other route) keeps its plain route key. Pure + dependency-free so it's unit-testable.
+export function engagementScreen(route, batch) {
+  return route === "enroll" && batch && (Number(batch.price) || 0) === 0 ? "enroll-scholarship" : route;
+}
 // An ephemeral, random per-tab id used ONLY to stitch one visit's screen views into an ordered path
 // in the founder console. Lives in sessionStorage, so it's cleared when the tab closes and is NOT
 // stable across visits; it carries no name/email/IP — not PII. Best-effort: if storage is blocked

@@ -43,8 +43,13 @@ Risk drives autonomy: `low`/`med` the loop ships on its own; `high` it implement
 <!-- ===== Spec 010 — Your Founder Story (capstone application-ready narrative). See SPECS/010-founder-story.md.
      T46→T47 ALL SHIPPED. Public portfolio page + AI polish deferred. ===== -->
 
+<!-- ===== Spec 022 — track the scholarship application as its own screen. See SPECS/022-scholarship-apply-as-its-own-screen.md. SHIPPED (T48). ===== -->
+
 <!-- Completed tasks are checked off and moved below this line by the loop, newest first. -->
 ## Done
+
+## [x] T48 — Scholarship application = its own engagement screen (`enroll-scholarship`)  ·  risk: low
+Done (SPECS/022). The funded/apply flow shared the `enroll` route with paid enrollment, so it was invisible in the whole-site Traffic & engagement + Top paths panels. New pure `engagementScreen(route, batch)` (`src/lib.js`, foundation): keys the enroll flow entered for a FREE ($0) cohort as `enroll-scholarship` (paid stays `enroll`, any other route keeps its key, null-batch-safe). `App.jsx` screen-view effect computes the key via the helper from the preselected batch → both `screen_view` and `exit` carry it; `/enroll` URL, ROUTES, and the funnel `enroll_started`/`enrolled` events are unchanged. `FounderDashboard.jsx` `SCREEN_LABELS` → `"enroll-scholarship": "Scholarship application"`, so it appears as its own row in both engagement cards and as its own node in Top paths (engagement/journeys are generic over screen keys — no change). Limitation: going-forward only (no backfill); keyed off the initially-clicked batch (reliable — the funded enroll flow locks the picker). New `test/engagement-screen.test.js` (7: helper free/paid/other-route/null + engagement/journeys distinguish the screen). CLAUDE.md analytics-screens note. Build + 441; independently verified.
 
 ## [x] T47 — Capstone "Your founder story" panels (Lesson 11 draft + Lesson 12 final) + sample  ·  risk: med
 Done (PR #516; merged, full-auto). Completes SPECS/010. New exported `FounderStoryPanel` (Platform.jsx): renders `buildFounderStory` from live state with **copy + download** (reuses `downloadFile`), re-generatable. `final` prop switches **Lesson 11 = "Draft your founder story"** (mounted after the `ReflectionPanel`, with the worked `FOUNDER_STORY_EXAMPLE` shown via `ExampleCard`) ↔ **Lesson 12 = "Your founder story — for your presentation"** (in the capstone block, after `ShowcaseCapture`). Never gates progression; POSITIONING-voiced (evidence + a real story, no admissions claim). Render tests: L11 drafts from the reflection + the sample renders; L12 final framing. CLAUDE.md note. Build + 384; Sonnet-verified.
