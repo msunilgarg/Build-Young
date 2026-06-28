@@ -81,6 +81,26 @@ describe("free-cohort enrollment by application (SPECS/016)", () => {
     expect(list.payload.enrollments[0]).toMatchObject({ email: "kid@free.org", batchId: "free-fall", paymentSource: "free", onboarded: false, writeup: WRITEUP });
   });
 
+  it("records the funnel `free_application` event SERVER-SIDE on apply (reliably, not via a client beacon)", async () => {
+    const res = makeRes();
+    await funnelHandler(apply(), res);
+    expect(res.statusCode).toBe(200);
+    // The scholarship "Applied" funnel stage is now written by the endpoint itself — so it can't be lost to a
+    // no-track flag / ad-blocker / sendBeacon drop (the bug that zeroed the count). Exactly one — no double-count.
+    const events = JSON.parse(fetch._store.get("funnel:events") || "[]").map((e) => JSON.parse(e));
+    const applied = events.filter((e) => e.event === "free_application");
+    expect(applied).toHaveLength(1);
+    expect(applied[0].props).toMatchObject({ batchId: "free-fall" });
+  });
+
+  it("a rejected application (short write-up) records NO funnel event", async () => {
+    const res = makeRes();
+    await funnelHandler(apply({ writeup: "too short" }), res);
+    expect(res.statusCode).toBe(400);
+    const events = JSON.parse(fetch._store.get("funnel:events") || "[]").map((e) => JSON.parse(e));
+    expect(events.some((e) => e.event === "free_application")).toBe(false);
+  });
+
   it("rejects a missing/short write-up", async () => {
     const res = makeRes();
     await funnelHandler(apply({ writeup: "too short" }), res);
