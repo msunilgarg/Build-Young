@@ -57,6 +57,16 @@ async function readRaw(req) {
   });
 }
 
+// Append one event to the funnel stream — the server-side source of truth for WRITES. Used by the public
+// ingest endpoint AND by server flows that must record reliably, never via a suppressible client beacon —
+// e.g. a scholarship application's `free_application` event (the founder's no-track flag, ad-blockers, or a
+// sendBeacon drop would otherwise lose it; SPECS/016 + 020). Caps the stream length, mirroring ingest.
+async function recordEvent(event, props = {}) {
+  const record = JSON.stringify({ event, ts: Date.now(), props });
+  await kvCommand(["RPUSH", KEY, record]);
+  await kvCommand(["LTRIM", KEY, String(-CAP), "-1"]);
+}
+
 // --- POST: ingest one event ---
 async function ingest(req, res) {
   if (!kvConfigured()) { res.status(200).json({ ok: false, reason: "store not configured" }); return; }
@@ -97,10 +107,8 @@ async function ingest(req, res) {
     }
   }
 
-  const record = JSON.stringify({ event, ts: Date.now(), props });
   try {
-    await kvCommand(["RPUSH", KEY, record]);
-    await kvCommand(["LTRIM", KEY, String(-CAP), "-1"]);
+    await recordEvent(event, props);
   } catch { res.status(200).json({ ok: false }); return; }
   res.status(200).json({ ok: true });
 }
@@ -481,6 +489,11 @@ async function addFreeApplication(req, res) {
 
   const result = await addEnrollment({ email, name, batchId, paymentSource: "free", writeup, onboarded: false });
   if (!result.ok) { res.status(400).json({ ok: false, error: result.reason || "Couldn't submit — try again." }); return; }
+
+  // Record the funnel "Applied" event (SPECS/020) SERVER-SIDE — reliably, the moment the application is
+  // saved, instead of the suppressible client beacon (founder no-track / ad-blockers / sendBeacon drops
+  // were silently zeroing the scholarship Applied count). Best-effort: the application is already stored.
+  try { await recordEvent("free_application", { batchId }); } catch { /* best-effort — the application is saved */ }
 
   // Notify the founder (with the write-up so they can decide) + confirm to the applicant. Best-effort.
   try {

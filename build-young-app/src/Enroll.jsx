@@ -2,7 +2,7 @@ import { useState } from "react";
 import { GraduationCap, Check, Lock, Video, Mail, Award } from "lucide-react";
 import { C } from "./theme.js";
 import { Card, Mark, act, PageBackdrop } from "./ui.jsx";
-import { CONFIG, track, useCohorts, validEmail, setPendingEnroll } from "./lib.js";
+import { CONFIG, useCohorts, validEmail, setPendingEnroll } from "./lib.js";
 import { cohortClosed, cohortSummary, cohortEndLabel } from "./courseDates.js";
 import { SEASONS, seasonLabel, sortCohorts, catalogSeasons } from "./cohorts.js";
 import { WhyStrip, HesitationStrip } from "./WhyStrip.jsx";
@@ -35,7 +35,9 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
     try {
       const r = await fetch("/api/funnel?resource=free-enroll", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, batchId: b.id, writeup: writeup.trim() }) });
       const d = await r.json().catch(() => ({}));
-      if (r.ok && d.ok) { track("free_application", { batchId: b.id }); setStep(3); }
+      // The `free_application` funnel event is recorded SERVER-SIDE by the endpoint (reliable; a client
+      // beacon was being suppressed by no-track/ad-blockers, zeroing the scholarship Applied count).
+      if (r.ok && d.ok) { setStep(3); }
       else setSubmitErr(d.error || "Couldn't submit — please try again.");
     } catch { setSubmitErr("Network error — please try again."); }
     setSubmitting(false);

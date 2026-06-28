@@ -250,6 +250,16 @@ size.
 - Outward-facing or hard-to-reverse actions get confirmed before they run; "approved once" ≠ "approved
   forever."
 - Internal/build identifiers and model strings never land in committed artifacts (enforce with a guard).
+- **Record events you actually count server-side at the action — never via a client-side fire-and-forget
+  beacon.** A browser beacon (`sendBeacon`/`fetch` to an analytics endpoint) is silently dropped by ad/privacy
+  blockers, a "don't-track-this-browser" flag, and navigations that kill the request — so any metric you *rely*
+  on (conversions, applications, signups) will **under-count, invisibly**. When the server already handles the
+  action (an API write), emit the event **there**, where nothing can suppress it; keep client beacons only for
+  best-effort, lossy-is-fine signals (page dwell, scroll depth). *Why the failure is nasty: it's silent — the
+  feature works, the record is saved, the email sends, but the funnel reads zero, and you only find out when
+  someone asks "why is this empty?" (Build Young's scholarship "Applied" stage rode a client `track()` beacon;
+  applications saved fine server-side but the funnel count stayed 0 because the founder's own no-track flag —
+  and any blocker — ate the beacon. Fix: record it in the endpoint that stores the application.)*
 
 ## 9. Loop engineering (drive a backlog autonomously)
 
@@ -373,6 +383,7 @@ honesty about what didn't work.
 
 ## Changelog
 
+- **2026-06-28** — §8: **record events you actually count server-side at the action, not via a client-side fire-and-forget beacon.** Ad/privacy blockers, a no-track flag, and navigation-killed requests silently drop browser beacons, so a relied-on metric under-counts invisibly. Emit the event in the server endpoint that already handles the action; keep client beacons for lossy-is-fine signals only. (Build Young's scholarship "Applied" funnel stage read 0 because it rode a client `track()` beacon the founder's own no-track flag ate — the application saved fine server-side; fix was to record the event in the endpoint.)
 - **2026-06-25** — Added §10 "AI / LLM features (architecture defaults)": **default to context-stuffing over RAG — adopt retrieval only when the corpus genuinely outgrows the context window.** RAG is a scaling answer to a context-size problem, not a default; teams reach for it reflexively and inherit its failure surface (chunking, recall, stale hits, attribution, a fresh index) before they have the scale that justifies it. Stuff context first; measure any later retrieval layer against it.
 - **2026-06-25** — §7: **guard files your bundler never compiles with a real-loader check.** Vite compiles only `src/`, and Vitest's esbuild transform tolerates duplicate `import` bindings — so a duplicate-import `SyntaxError` in a serverless `api/` file passed `npm run build` AND all 373 tests yet crashes on Vercel's Node loader every request. Build + tests shared the same blind spot for code outside the bundle. Fix: a `node --check` test over every `api/**/*.js` (the real loader) so the class of bug fails the suite. Caught by an independent verifier.
 - **2026-06-24** — §9: **classify every request bug-vs-feature before acting, and never code ahead of an approved spec.** The first move on any ask is to bucket it; a feature/non-trivial change is spec-first (write → surface inline → sign-off → build). A quick clarifying `AskUserQuestion` is not a substitute for the spec gate — answering one question then diving into a multi-file change still skips the human's scope/tradeoff decision. When the bucket is unclear, ask. (Prompted by a session where I repeatedly jumped from a question straight into implementation.)
