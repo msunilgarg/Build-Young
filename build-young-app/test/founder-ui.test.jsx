@@ -35,6 +35,27 @@ describe("FounderDashboard (account-gated)", () => {
     expect(screen.getByText("Scholarship funnel")).toBeInTheDocument();   // the view re-labeled — render completed, no crash
   });
 
+  it("'Which screens hold attention' shows the low-volume Scholarship application screen (not truncated off the top-8)", async () => {
+    // 9 other screens with 2 views each all out-rank the single scholarship view, so under the old top-8 cap
+    // "Scholarship application" was cut off the bottom. The scholarship view carries NO sid (so it doesn't
+    // also appear in Top paths) — proving it shows specifically in the "Which screens hold attention" card.
+    const others = ["home", "story", "curriculum", "faq", "enroll", "call", "login", "setpw", "founder"];
+    const events = [];
+    let ts = 1;
+    for (const s of others) for (let i = 0; i < 2; i++) events.push({ event: "screen_view", ts: ts++, props: { screen: s, ms: 1000, sid: `${s}-${i}` } });
+    events.push({ event: "screen_view", ts: ts++, props: { screen: "enroll-scholarship", ms: 1000 } }); // 1 view, no sid → ranks 10th
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [], checkins: 0 }) };
+      return { status: 200, json: async () => ({ events }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
+    await waitFor(() => expect(screen.getByText("Which screens hold attention")).toBeInTheDocument());
+    expect(screen.getByText("Scholarship application")).toBeInTheDocument(); // surfaced despite ranking below the old top-8
+  });
+
   it("renders the funnel scaffold + cohort editor for a founder session", async () => {
     vi.stubGlobal("fetch", vi.fn(async (url) => {
       if (String(url).includes("/api/cohorts")) {

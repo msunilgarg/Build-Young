@@ -459,7 +459,9 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                     <span>Screen</span><span style={{ textAlign: "right", minWidth: 44 }}>Views</span><span style={{ textAlign: "right", minWidth: 56 }}>Avg time</span>
                   </div>
                 )}
-                {eng.screens.slice(0, 8).map((s) => (
+                {/* Show all screens (the set is bounded by the route registry + scholarship-apply), so low-volume
+                    but meaningful screens — e.g. "Scholarship application" — aren't truncated off the bottom. */}
+                {eng.screens.slice(0, 20).map((s) => (
                   <div key={s.screen} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, alignItems: "center", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
                     <span style={{ color: C.ink2 }}>{screenName(s.screen)}</span>
                     <b style={{ textAlign: "right", minWidth: 44 }}>{s.views.toLocaleString()}</b>
@@ -478,7 +480,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                     <span>Screen</span><span style={{ textAlign: "right", minWidth: 44 }}>Exits</span><span style={{ textAlign: "right", minWidth: 56 }}>Share</span>
                   </div>
                 )}
-                {eng.exits.slice(0, 8).map((s) => (
+                {eng.exits.slice(0, 20).map((s) => (
                   <div key={s.screen} style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 12, alignItems: "center", padding: "6px 0", borderTop: `1px solid ${C.line}`, fontSize: 13 }}>
                     <span style={{ color: C.ink2 }}>{screenName(s.screen)}</span>
                     <b style={{ textAlign: "right", minWidth: 44 }}>{s.count.toLocaleString()}</b>
