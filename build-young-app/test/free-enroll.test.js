@@ -7,6 +7,7 @@ const sendEmailMock = vi.fn(async () => ({ ok: true, status: 200 }));
 vi.mock("../api/_lib/sendEmail.js", () => ({ sendEmail: (...a) => sendEmailMock(...a), FROM_ADDRESS: "x", REPLY_TO_ADDRESS: "y", escapeHtml: (s) => s }));
 
 import funnelHandler from "../api/funnel.js";
+import { engagement, journeys } from "../src/funnel.js";
 import { signSession, SESSION_COOKIE } from "../api/_lib/auth.js";
 
 const cookieFor = (email) => `${SESSION_COOKIE}=${signSession(email)}`;
@@ -93,12 +94,37 @@ describe("free-cohort enrollment by application (SPECS/016)", () => {
     expect(applied[0].props).toMatchObject({ batchId: "free-fall" });
   });
 
+  it("also records the scholarship-apply SCREEN server-side (enroll-scholarship + sid) so it's traceable in engagement/Top-paths", async () => {
+    const res = makeRes();
+    await funnelHandler(apply({ sid: "sess-abc-123" }), res);
+    expect(res.statusCode).toBe(200);
+    const events = JSON.parse(fetch._store.get("funnel:events") || "[]").map((e) => JSON.parse(e));
+    // exactly one server-recorded apply screen, carrying the path-stitch sid
+    const views = events.filter((e) => e.event === "screen_view" && e.props.screen === "enroll-scholarship");
+    expect(views).toHaveLength(1);
+    expect(views[0].props.sid).toBe("sess-abc-123");
+    // it flows through the readers as its own row/path — not lumped under "enroll" (Enroll flow)
+    expect(engagement(events).screens.some((s) => s.screen === "enroll-scholarship")).toBe(true);
+    expect(journeys(events).paths.some((p) => p.steps.includes("enroll-scholarship"))).toBe(true);
+  });
+
+  it("the apply screen records even with no sid (just won't stitch into a path)", async () => {
+    const res = makeRes();
+    await funnelHandler(apply(), res); // apply() sends no sid
+    expect(res.statusCode).toBe(200);
+    const events = JSON.parse(fetch._store.get("funnel:events") || "[]").map((e) => JSON.parse(e));
+    const views = events.filter((e) => e.event === "screen_view" && e.props.screen === "enroll-scholarship");
+    expect(views).toHaveLength(1);
+    expect(views[0].props.sid).toBeUndefined();
+  });
+
   it("a rejected application (short write-up) records NO funnel event", async () => {
     const res = makeRes();
     await funnelHandler(apply({ writeup: "too short" }), res);
     expect(res.statusCode).toBe(400);
     const events = JSON.parse(fetch._store.get("funnel:events") || "[]").map((e) => JSON.parse(e));
     expect(events.some((e) => e.event === "free_application")).toBe(false);
+    expect(events.some((e) => e.props && e.props.screen === "enroll-scholarship")).toBe(false); // no apply screen either
   });
 
   it("rejects a missing/short write-up", async () => {
