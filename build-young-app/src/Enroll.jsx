@@ -2,7 +2,7 @@ import { useState } from "react";
 import { GraduationCap, Check, Lock, Video, Mail, Award } from "lucide-react";
 import { C } from "./theme.js";
 import { Card, Mark, act, PageBackdrop } from "./ui.jsx";
-import { CONFIG, useCohorts, validEmail, setPendingEnroll } from "./lib.js";
+import { CONFIG, useCohorts, validEmail, setPendingEnroll, sessionId } from "./lib.js";
 import { cohortClosed, cohortSummary, cohortEndLabel } from "./courseDates.js";
 import { SEASONS, seasonLabel, sortCohorts, catalogSeasons } from "./cohorts.js";
 import { WhyStrip, HesitationStrip } from "./WhyStrip.jsx";
@@ -33,7 +33,9 @@ export function Enroll({ preselect, onDone, onBack, onCall, onHome }) {
   const submitApplication = async () => {
     setSubmitting(true); setSubmitErr("");
     try {
-      const r = await fetch("/api/funnel?resource=free-enroll", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, batchId: b.id, writeup: writeup.trim() }) });
+      // Send the anonymous path-stitch `sid` so the server can thread the scholarship-apply screen into the
+      // visit's Top-path (the funnel event + apply screen are both recorded server-side now; SPECS/020 + 022).
+      const r = await fetch("/api/funnel?resource=free-enroll", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, batchId: b.id, writeup: writeup.trim(), sid: sessionId() }) });
       const d = await r.json().catch(() => ({}));
       // The `free_application` funnel event is recorded SERVER-SIDE by the endpoint (reliable; a client
       // beacon was being suppressed by no-track/ad-blockers, zeroing the scholarship Applied count).

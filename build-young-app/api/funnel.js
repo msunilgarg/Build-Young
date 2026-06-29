@@ -477,6 +477,7 @@ async function addFreeApplication(req, res) {
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const batchId = String(body.batchId || "").trim();
   const writeup = typeof body.writeup === "string" ? body.writeup.trim() : "";
+  const sid = String(body.sid || "").replace(/[^a-zA-Z0-9-]/g, "").slice(0, 40); // the visit's path-stitch token (anonymous), to thread the server-recorded screen into Top paths
   if (!email || !email.includes("@")) { res.status(400).json({ ok: false, error: "Enter a valid email." }); return; }
   if (!name) { res.status(400).json({ ok: false, error: "Enter the student's name." }); return; }
   if (!batchId) { res.status(400).json({ ok: false, error: "Pick a cohort." }); return; }
@@ -494,6 +495,12 @@ async function addFreeApplication(req, res) {
   // saved, instead of the suppressible client beacon (founder no-track / ad-blockers / sendBeacon drops
   // were silently zeroing the scholarship Applied count). Best-effort: the application is already stored.
   try { await recordEvent("free_application", { batchId }); } catch { /* best-effort — the application is saved */ }
+
+  // Also record the apply page as its own engagement screen (SPECS/022) SERVER-SIDE, so "Scholarship
+  // application" reliably shows in Traffic & engagement + Top paths — instead of depending on the client
+  // `screen_view` beacon (the SAME no-track / ad-blocker / sendBeacon suppression that hid the funnel event
+  // one layer up). `sid`, when the client sends it, stitches this into the visit's path. Best-effort.
+  try { await recordEvent("screen_view", sid ? { screen: "enroll-scholarship", sid } : { screen: "enroll-scholarship" }); } catch { /* best-effort */ }
 
   // Notify the founder (with the write-up so they can decide) + confirm to the applicant. Best-effort.
   try {

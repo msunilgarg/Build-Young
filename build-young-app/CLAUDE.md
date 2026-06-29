@@ -301,7 +301,13 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   **funded/scholarship apply flow**, which `engagementScreen(route, batch)` (`src/lib.js`, SPECS/022)
   keys as **`enroll-scholarship`** (vs a paid `enroll`) so it shows as its own "Scholarship
   application" row/path (`SCREEN_LABELS` in `FounderDashboard.jsx`); reliable because the funded
-  enroll flow locks the cohort picker.
+  enroll flow locks the cohort picker. **Reliability — both scholarship signals are recorded
+  SERVER-SIDE** so they can't be lost to a no-track flag / ad-blocker / sendBeacon drop (the bug class
+  in ENGINEERING-PLAYBOOK §8): the `free-enroll` endpoint (`addFreeApplication`) records BOTH the
+  funnel **`free_application`** event AND a **`screen_view{screen:"enroll-scholarship", sid}`** the
+  moment an application is saved (the client passes its `sid` so the apply screen stitches into Top
+  paths). The client `screen_view` beacon still best-effort-captures apply-page *visits* that don't
+  submit; every actual application is guaranteed via the server record.
 - **Founder-editable site settings (NEW):** the runtime, non-secret public values — **booking link
   (Calendly), contact email, LinkedIn URL, the shared Stripe link, the showcase toggle, the
   founder photo, and the `starterRepoUrl` (the student starter template repo, SPECS/009)** — are now editable live from the console (no redeploy),
