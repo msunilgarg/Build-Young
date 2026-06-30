@@ -385,7 +385,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
               <div style={{ ...muted, marginTop: 10 }}>No data in this period yet.</div>
             ) : (
               <React.Suspense fallback={<div style={{ height: 220, display: "grid", placeItems: "center", color: C.muted, fontSize: 13 }}>Loading chart…</div>}>
-                <Charts kind="countline" data={trendData} color={C.emerald} mutedColor={C.muted} fmt={fmt} />
+                <Charts kind="countbar" data={trendData} color={C.emerald} mutedColor={C.muted} fmt={fmt} />
               </React.Suspense>
             )}
           </Card>
