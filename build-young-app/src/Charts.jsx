@@ -23,6 +23,20 @@ export default function Charts({ kind, data, color, mutedColor, fmt }) {
       </ResponsiveContainer>
     );
   }
+  // Generic integer-count BARS (e.g. the weekly "Visited by week" trend — discrete weekly buckets read
+  // better as bars than a curve). Same {label, value} data shape as `countline`.
+  if (kind === "countbar") {
+    return (
+      <ResponsiveContainer width="100%" height={200}>
+        <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <XAxis dataKey="label" tick={{ fontSize: 11, fill: mutedColor }} />
+          <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: mutedColor }} width={36} />
+          <Tooltip formatter={(v) => v.toLocaleString()} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
+          <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} maxBarSize={48} isAnimationActive={false} />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  }
   // Generic integer-count line (week progression / check-in retention curves).
   if (kind === "countline") {
     return (
