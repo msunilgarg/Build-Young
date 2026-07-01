@@ -38,6 +38,24 @@ describe("funnel time-slicing (month scope + weekly trend)", () => {
     expect(t2.map((p) => p.label)).toEqual(["Jun 1-7", "Jun 8-14", "Jun 15-21", "Jun 22-28", "Jun 29-Jul 5"]);
     expect(t2.map((p) => p.value)).toEqual([0, 2, 1, 0, 0]);
   });
+  it("a new/sparse month extends BACKWARD into prior weeks that have data (no lonely single bar)", () => {
+    // Data ramps across June, then one visit in the first (Jun 29-Jul 5) week of July. Selecting July —
+    // which alone is a single bar — pulls in the prior weeks that have data (back to the first, not before).
+    const evs = [
+      visited("2026-06-08T12:00:00Z"), // Jun 8-14 (earliest data)
+      visited("2026-06-16T12:00:00Z"), // Jun 15-21
+      visited("2026-06-23T12:00:00Z"), // Jun 22-28
+      visited("2026-07-02T12:00:00Z"), // Jun 29-Jul 5  ← the only July week
+    ];
+    const t = weeklyTrend(evs, { metric: "visited", month: "2026-07", now: T("2026-07-03T00:00:00Z") });
+    expect(t.length).toBeGreaterThan(1); // not a lonely single bar anymore
+    expect(t.map((p) => p.label)).toEqual(["Jun 8-14", "Jun 15-21", "Jun 22-28", "Jun 29-Jul 5"]);
+    expect(t.map((p) => p.value)).toEqual([1, 1, 1, 1]);
+    expect(t[t.length - 1].label).toBe("Jun 29-Jul 5"); // most recent on the right
+    // and it never pads BEFORE the first week with data (no leading pre-launch zero for Jun 1-7)
+    expect(t.some((p) => p.label === "Jun 1-7")).toBe(false);
+  });
+
   it("drops weeks that haven't started yet — no misleading nosedive to 0 for a future week (mid-month)", () => {
     const evs = [visited("2026-06-15T12:00:00Z"), visited("2026-06-23T12:00:00Z")];
     // mid-month (now = Jun 24): the current week (Jun 22-28) shows; the not-yet-started Jun 29-Jul 5 is dropped.
