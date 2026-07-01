@@ -35,6 +35,27 @@ describe("FounderDashboard (account-gated)", () => {
     expect(screen.getByText("Scholarship funnel")).toBeInTheDocument();   // the view re-labeled — render completed, no crash
   });
 
+  it("Traffic & engagement is scoped to the selected Period (month), not all-time", async () => {
+    const jun = new Date("2026-06-10T12:00:00Z").getTime();
+    const jul = new Date("2026-07-10T12:00:00Z").getTime();
+    const events = [
+      { event: "screen_view", ts: jun, props: { screen: "story", ms: 1000, sid: "a" } }, // June only
+      { event: "screen_view", ts: jul, props: { screen: "faq", ms: 1000, sid: "b" } },    // July only
+    ];
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [], checkins: 0 }) };
+      return { status: 200, json: async () => ({ events }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
+    await waitFor(() => expect(screen.getByText("Which screens hold attention")).toBeInTheDocument());
+    // Period defaults to the latest month (July) → engagement shows July's screen only, not June's.
+    expect(screen.getAllByText("FAQ (/faq)").length).toBeGreaterThan(0);   // July's screen shows
+    expect(screen.queryByText("Our story (/about)")).toBeNull();           // June's is scoped OUT (the fix)
+  });
+
   it("'The funnel' renders as an HTML list — a small non-zero stage shows its label + count·% cleanly (no chart overlap)", async () => {
     // Reproduces the mobile glitch case: Visited 9, Enroll started 1 (→ "1 · 11.1%"). The old recharts
     // horizontal-bar funnel collided the label with the annotation; the HTML list renders both as plain text.

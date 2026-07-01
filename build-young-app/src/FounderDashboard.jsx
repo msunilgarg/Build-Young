@@ -236,11 +236,13 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   // Trend runs on the WHOLE stream (not the month-scoped `scoped`), so a new/sparse month can extend back
   // into prior weeks for context (weeklyTrend anchors to `month` + backfills to a min number of weeks).
   const trendData = useMemo(() => weeklyTrend(events || [], { metric: trendMetric, filter, month: period }), [events, trendMetric, period, seg.kind, seg.key]);
-  // Traffic & engagement is whole-site (not segmented by cohort) — it's the top-of-funnel picture.
-  const eng = useMemo(() => engagement(events || []), [events]);
+  // Traffic & engagement + Top paths run on the PERIOD-scoped events (`scoped`), so selecting a month scopes
+  // them too — like the funnel. (They still can't be COHORT-segmented: anonymous visits carry no cohort; the
+  // season/track/scholarship Segment doesn't apply here, only the month Period does.)
+  const eng = useMemo(() => engagement(scoped), [scoped]);
   const bySource = useMemo(() => revenueBySource(scoped), [scoped]);
   const settlement = useMemo(() => settlementSummary(partners, partnerEnrollments), [partners, partnerEnrollments]);
-  const paths = useMemo(() => journeys(events || [], { limit: 12 }), [events]);
+  const paths = useMemo(() => journeys(scoped, { limit: 12 }), [scoped]);
 
   const isSchol = seg.kind === "scholarship";                       // scholarship segment view (SPECS/020)
   const viewStages = isSchol ? SCHOLARSHIP_STAGES : STAGES;          // the scholarship spine when in that view
@@ -335,7 +337,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
               <option value="all">All time</option>
               {months.map((m) => <option key={m.key} value={m.key}>{m.label}</option>)}
             </select>
-            {period !== "all" && <span style={muted}>Funnel + trend scoped to this month.</span>}
+            {period !== "all" && <span style={muted}>Funnel, traffic &amp; paths scoped to this month.</span>}
           </div>
           {/* funnel + revenue */}
           <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 18, marginTop: 14, alignItems: "start" }} className="enroll-grid">
