@@ -35,6 +35,28 @@ describe("FounderDashboard (account-gated)", () => {
     expect(screen.getByText("Scholarship funnel")).toBeInTheDocument();   // the view re-labeled — render completed, no crash
   });
 
+  it("'The funnel' renders as an HTML list — a small non-zero stage shows its label + count·% cleanly (no chart overlap)", async () => {
+    // Reproduces the mobile glitch case: Visited 9, Enroll started 1 (→ "1 · 11.1%"). The old recharts
+    // horizontal-bar funnel collided the label with the annotation; the HTML list renders both as plain text.
+    const ts = new Date("2026-07-02T12:00:00Z").getTime();
+    const events = [
+      ...Array.from({ length: 9 }, (_, i) => ({ event: "visited", ts: ts + i, props: { source: "direct", sid: `v${i}` } })),
+      { event: "enroll_started", ts: ts + 50, props: {} },
+    ];
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [], checkins: 0 }) };
+      return { status: 200, json: async () => ({ events }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
+    await waitFor(() => expect(screen.getByText("The funnel")).toBeInTheDocument());
+    // the stage label AND its "count · pct" annotation both render as plain text (jsdom couldn't render the old chart)
+    expect(screen.getByText("Enroll started")).toBeInTheDocument();
+    expect(screen.getByText("1 · 11.1%")).toBeInTheDocument();
+  });
+
   it("'Which screens hold attention' shows the low-volume Scholarship application screen (not truncated off the top-8)", async () => {
     // 9 other screens with 2 views each all out-rank the single scholarship view, so under the old top-8 cap
     // "Scholarship application" was cut off the bottom. The scholarship view carries NO sid (so it doesn't

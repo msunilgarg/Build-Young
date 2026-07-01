@@ -344,9 +344,25 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                 <b style={{ fontSize: 14 }}>{isSchol ? "Scholarship funnel" : "The funnel"}</b>
                 <span style={muted}>{ratePct(summary.overall)} {isSchol ? "applied → awarded" : "visited → enrolled"}</span>
               </div>
-              <React.Suspense fallback={<div style={{ height: 280, display: "grid", placeItems: "center", color: C.muted, fontSize: 13 }}>Loading chart…</div>}>
-                <Charts kind="funnel" data={funnelData} mutedColor={C.muted} fmt={fmt} />
-              </React.Suspense>
+              {/* Funnel as an HTML list with proportional bars (label · count·pct on one row, bar below). Robust
+                  at any width — the old recharts horizontal-bar funnel collided its labels on narrow mobile. */}
+              <div style={{ marginTop: 12 }} aria-label="Funnel stages">
+                {funnelData.map((d, i) => {
+                  const max = funnelData[0] && funnelData[0].count > 0 ? funnelData[0].count : 1;
+                  const w = Math.max(0, Math.min(100, Math.round((d.count / max) * 100)));
+                  return (
+                    <div key={d.label} style={{ padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, fontSize: 13.5 }}>
+                        <span style={{ color: C.ink2, fontWeight: 600 }}>{d.label}</span>
+                        <span style={{ color: C.muted, whiteSpace: "nowrap", flexShrink: 0 }}>{d.annot}</span>
+                      </div>
+                      <div style={{ height: 8, background: C.line, borderRadius: 999, marginTop: 6, overflow: "hidden" }}>
+                        <div style={{ width: `${w}%`, height: "100%", background: d.color, borderRadius: 999 }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </Card>
             <div style={{ display: "grid", gap: 12 }}>
               <Stat label="Net revenue" value={fmt(summary.revenue.netCents / 100)} sub={`${fmt(summary.revenue.grossCents / 100)} gross − ${fmt(summary.revenue.refundedCents / 100)} refunded`} icon={CircleDollarSign} color={C.green} />
