@@ -310,6 +310,16 @@ conversion/curve/revenue math live in ONE place — `src/funnel.js`** (dependenc
   moment an application is saved (the client passes its `sid` so the apply screen stitches into Top
   paths). The client `screen_view` beacon still best-effort-captures apply-page *visits* that don't
   submit; every actual application is guaranteed via the server record.
+- **Enrollment/application geography (SPECS/024):** country (+ US state) is server-stamped from Vercel's
+  `x-vercel-ip-country`/`-region` headers — via `geoFromReq(req)` in `api/funnel.js` — onto **`visited`**,
+  **`enrolled`** (in `ingest`; a direct paid enroll fires from the student's browser), and the scholarship
+  **`free_application`** (in `addFreeApplication`; also persisted on the stored application record via
+  `addEnrollment`'s `country`/`region`). Server-derived, NOT in `ALLOWED_PROPS` (unspoofable), country/state
+  only (no city, no IP). **Not** stamped on server-fired `enrolled` (scholarship award / partner onboard) —
+  those headers are the founder's, so scholarship location lives on the *application*; partner seats are
+  location-less. Surfaced: `enrollmentGeography(events)` (`src/funnel.js`) → a period-scoped "Where enrollments
+  & applications come from" card, and per-applicant `country (region)` in the Students → Free applications list.
+  Going-forward only (no backfill).
 - **Founder-editable site settings (NEW):** the runtime, non-secret public values — **booking link
   (Calendly), contact email, LinkedIn URL, the shared Stripe link, the showcase toggle, the
   founder photo, and the `starterRepoUrl` (the student starter template repo, SPECS/009)** — are now editable live from the console (no redeploy),

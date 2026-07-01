@@ -27,7 +27,7 @@ const command = kvCommand;
 // access. A normal (Stripe) enrollment passes none of these, so its record is unchanged (back-compat).
 // Cap a stored application write-up so a huge body can't bloat the cohort hash. SPECS/016.
 const WRITEUP_MAX = 6000;
-export async function addEnrollment({ email, name, batchId, paymentSource, partner, externalRef, priceCents, cutPct, onboarded, writeup }) {
+export async function addEnrollment({ email, name, batchId, paymentSource, partner, externalRef, priceCents, cutPct, onboarded, writeup, country, region }) {
   if (!storeConfigured()) return { ok: false, reason: "store not configured" };
   if (!email || !batchId) return { ok: false, reason: "missing email or batchId" };
   const rec = { email, name: name || "", batchId, ts: Date.now() };
@@ -45,6 +45,12 @@ export async function addEnrollment({ email, name, batchId, paymentSource, partn
     rec.priceCents = 0;
     rec.writeup = String(writeup || "").slice(0, WRITEUP_MAX);
     rec.onboarded = onboarded === true;
+    // The applicant's location (country + US state), server-stamped at apply time (SPECS/024). Country/state
+    // only — no city, no IP. Stored so the founder sees where each application came from.
+    if (/^[A-Z]{2}$/.test(String(country || ""))) {
+      rec.country = String(country).toUpperCase().slice(0, 2);
+      if (rec.country === "US" && /^[A-Z]{2,3}$/.test(String(region || ""))) rec.region = String(region).toUpperCase().slice(0, 3);
+    }
   }
   const res = await command(["HSET", keyFor(batchId), email, JSON.stringify(rec)]);
   return { ok: res !== null };
@@ -99,6 +105,8 @@ export async function listEnrollments(batchId) {
           row.writeup = rec.writeup || "";
           row.ts = rec.ts || 0;
           row.onboarded = rec.onboarded === true;
+          if (rec.country) row.country = rec.country;   // where the application came from (SPECS/024)
+          if (rec.region) row.region = rec.region;
         }
         out.push(row);
       }

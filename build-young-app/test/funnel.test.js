@@ -1,7 +1,27 @@
 import { describe, it, expect } from "vitest";
 import {
-  STAGES, SCHOLARSHIP_STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement, revenueBySource, settlementSummary,
+  STAGES, SCHOLARSHIP_STAGES, EVENTS, cohortMeta, conversionRate, summarize, segments, toCSV, toDataRoom, ratePct, engagement, revenueBySource, settlementSummary, enrollmentGeography,
 } from "../src/funnel.js";
+
+describe("enrollmentGeography — where enrollments + applications come from (SPECS/024)", () => {
+  it("tallies country (+ US state) over enrolled + free_application; ignores no-geo + unrelated events", () => {
+    const g = enrollmentGeography([
+      { event: "enrolled", props: { country: "US", region: "WA" } },
+      { event: "enrolled", props: { country: "US", region: "OR" } },
+      { event: "free_application", props: { country: "US", region: "WA" } },
+      { event: "free_application", props: { country: "CA" } },       // Canada (no US state)
+      { event: "enrolled", props: {} },                               // no geo → in total, not withGeo
+      { event: "visited", props: { country: "US", region: "NY" } },   // not enrolled/applied → ignored
+    ]);
+    expect(g.total).toBe(5);     // 3 enrolled + 2 applications (visited excluded)
+    expect(g.withGeo).toBe(4);   // one enrolled had no geo
+    expect(g.byCountry).toEqual([{ country: "US", count: 3 }, { country: "CA", count: 1 }]);
+    expect(g.usStates).toEqual([{ region: "WA", count: 2 }, { region: "OR", count: 1 }]);
+  });
+  it("empty-safe", () => {
+    expect(enrollmentGeography([])).toEqual({ total: 0, withGeo: 0, byCountry: [], usStates: [] });
+  });
+});
 
 // Build one timestamped event.
 const ev = (event, props = {}) => ({ event, ts: Date.now(), props });

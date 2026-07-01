@@ -118,6 +118,38 @@ describe("free-cohort enrollment by application (SPECS/016)", () => {
     expect(views[0].props.sid).toBeUndefined();
   });
 
+  it("stamps the applicant's location (country + US state) on the event AND the stored record (SPECS/024)", async () => {
+    const res = makeRes();
+    await funnelHandler(req("POST", { query: { resource: "free-enroll" }, headers: { "x-forwarded-for": nextIp(), "x-vercel-ip-country": "US", "x-vercel-ip-country-region": "WA" }, body: { name: "Geo Kid", email: "geo@free.org", batchId: "free-fall", writeup: WRITEUP } }), res);
+    expect(res.statusCode).toBe(200);
+    // the free_application event carries geo (server-stamped from headers, not client-settable)
+    const events = JSON.parse(fetch._store.get("funnel:events") || "[]").map((e) => JSON.parse(e));
+    const applied = events.find((e) => e.event === "free_application");
+    expect(applied.props).toMatchObject({ country: "US", region: "WA" });
+    // the stored application record carries it too (surfaced in the founder's list)
+    const list = await listFree();
+    const rec = list.payload.enrollments.find((x) => x.email === "geo@free.org");
+    expect(rec).toMatchObject({ country: "US", region: "WA" });
+  });
+
+  it("ingest stamps geo (country + US state) on an `enrolled` event too — not just `visited` (SPECS/024)", async () => {
+    const res = makeRes();
+    await funnelHandler(req("POST", { headers: { "x-vercel-ip-country": "US", "x-vercel-ip-country-region": "OR" }, body: { event: "enrolled", props: { batchId: "free-fall", season: "fall", country: "ZZ" } } }), res);
+    expect(res.payload).toEqual({ ok: true });
+    const events = JSON.parse(fetch._store.get("funnel:events") || "[]").map((e) => JSON.parse(e));
+    const enr = events.find((e) => e.event === "enrolled");
+    expect(enr.props).toMatchObject({ country: "US", region: "OR" }); // server headers win; client-sent "ZZ" is ignored (not in ALLOWED_PROPS)
+  });
+
+  it("a non-US application gets country but NO state (region is US-only)", async () => {
+    const res = makeRes();
+    await funnelHandler(req("POST", { query: { resource: "free-enroll" }, headers: { "x-forwarded-for": nextIp(), "x-vercel-ip-country": "CA", "x-vercel-ip-country-region": "ON" }, body: { name: "CA Kid", email: "ca@free.org", batchId: "free-fall", writeup: WRITEUP } }), res);
+    const events = JSON.parse(fetch._store.get("funnel:events") || "[]").map((e) => JSON.parse(e));
+    const applied = events.find((e) => e.event === "free_application" && e.props.country === "CA");
+    expect(applied.props.country).toBe("CA");
+    expect(applied.props.region).toBeUndefined();
+  });
+
   it("a rejected application (short write-up) records NO funnel event", async () => {
     const res = makeRes();
     await funnelHandler(apply({ writeup: "too short" }), res);

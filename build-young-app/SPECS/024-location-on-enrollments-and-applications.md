@@ -2,9 +2,12 @@
 
 > One feature = one short spec. Decisions go here; the PR implements them.
 
-**Status:** draft
+**Status:** approved
 **Owner:** Sunil Garg
 **Date:** 2026-07-01
+
+> **Approved 2026-07-01:** granularity **country + US state**; **per-record in the applications list + an
+> aggregate card**; **no backfill** (going-forward only).
 
 ## Why
 Today only anonymous `visited` events carry geography (country + US state, server-stamped from Vercel's geo
@@ -45,13 +48,15 @@ data only" for the *public/analytics* surfaces.
    OK.
 
 ## Done when (acceptance)
-- [ ] `free_application` and (client-fired) `enrolled` events carry server-stamped `country`/`region`; a crafted
-      POST can't spoof them (not in `ALLOWED_PROPS`).
-- [ ] The stored free-application record carries the location; the console applications list shows it per row.
-- [ ] A geography aggregate for enrollments + applications renders in the Funnel tab (period-scoped).
-- [ ] Server-fired `enrolled` (scholarship award / partner) is NOT stamped with founder-location.
-- [ ] Build + tests green (ingest stamps enrolled; addFreeApplication stamps the app; render test for the list
-      location + the aggregate); docs synced (CLAUDE.md funnel/geo note; arch doc checked — no new endpoint/route).
+- [x] `free_application` and (client-fired) `enrolled` events carry server-stamped `country`/`region` via
+      `geoFromReq(req)`; a crafted POST can't spoof them (not in `ALLOWED_PROPS` — test asserts client "ZZ" ignored).
+- [x] The stored free-application record carries the location (`addEnrollment` country/region); the console
+      applications list shows `country (region)` per row.
+- [x] A period-scoped "Where enrollments & applications come from" card (`enrollmentGeography`) renders in the Funnel tab.
+- [x] Server-fired `enrolled` (scholarship award / partner) is NOT stamped with founder-location (only ingest +
+      the applicant's own free-enroll request stamp geo).
+- [x] Build + tests green (461) — funnel `enrollmentGeography`; free-enroll geo on event + record + non-US +
+      ingest-enrolled; founder-ui card + list location. Docs synced (CLAUDE.md; no arch change — no new endpoint/route).
 
 ## Out of scope
 - City-level or map visualizations; backfilling past records; per-enrollment location tied to a named student in
