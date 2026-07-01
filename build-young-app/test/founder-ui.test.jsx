@@ -78,6 +78,27 @@ describe("FounderDashboard (account-gated)", () => {
     expect(screen.getByText("1 · 11.1%")).toBeInTheDocument();
   });
 
+  it("funnel bar is NOT a misleading full bar for a downstream stage when the entry (Visited) is 0", async () => {
+    // A cohort Segment (or here: only an enroll_started, no visits) → Visited 0, Enroll started 1. The bar for
+    // Enroll started must be EMPTY (scales to the funnel entry), not full-width as it was when the denominator
+    // fell back to 1.
+    const ts = new Date("2026-07-02T12:00:00Z").getTime();
+    const events = [{ event: "enroll_started", ts, props: {} }];
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [], checkins: 0 }) };
+      return { status: 200, json: async () => ({ events }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
+    await waitFor(() => expect(screen.getByText("The funnel")).toBeInTheDocument());
+    const stages = screen.getByLabelText("Funnel stages");
+    const enrollRow = Array.from(stages.children).find((r) => r.textContent.includes("Enroll started"));
+    const bar = enrollRow.lastElementChild.firstElementChild; // the proportional fill inside the track
+    expect(bar.style.width).toBe("0%"); // empty, not "100%"
+  });
+
   it("'Which screens hold attention' shows the low-volume Scholarship application screen (not truncated off the top-8)", async () => {
     // 9 other screens with 2 views each all out-rank the single scholarship view, so under the old top-8 cap
     // "Scholarship application" was cut off the bottom. The scholarship view carries NO sid (so it doesn't

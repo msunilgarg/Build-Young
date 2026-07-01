@@ -350,8 +350,11 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                   at any width — the old recharts horizontal-bar funnel collided its labels on narrow mobile. */}
               <div style={{ marginTop: 12 }} aria-label="Funnel stages">
                 {funnelData.map((d, i) => {
-                  const max = funnelData[0] && funnelData[0].count > 0 ? funnelData[0].count : 1;
-                  const w = Math.max(0, Math.min(100, Math.round((d.count / max) * 100)));
+                  // Bars scale to the funnel ENTRY (the first stage — Visited, or Applied for scholarship). When
+                  // there's no entry (e.g. a cohort Segment, where anonymous visits aren't tagged → Visited 0),
+                  // show flat/empty bars — NEVER a misleading full bar for a downstream stage that's non-zero.
+                  const top = funnelData[0] ? funnelData[0].count : 0;
+                  const w = top > 0 ? Math.max(0, Math.min(100, Math.round((d.count / top) * 100))) : 0;
                   return (
                     <div key={d.label} style={{ padding: "9px 0", borderTop: i ? `1px solid ${C.line}` : "none" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, fontSize: 13.5 }}>
