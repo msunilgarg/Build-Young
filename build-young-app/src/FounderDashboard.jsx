@@ -233,7 +233,9 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const didDefaultPeriod = React.useRef(false);
   useEffect(() => { if (!didDefaultPeriod.current && months.length) { setPeriod(months[months.length - 1].key); didDefaultPeriod.current = true; } }, [months]); // default to the latest month so it reads as a monthly trend
   const summary = useMemo(() => summarize(scoped, filter), [scoped, seg.kind, seg.key]);
-  const trendData = useMemo(() => weeklyTrend(scoped, { metric: trendMetric, filter, month: period }), [scoped, trendMetric, period, seg.kind, seg.key]);
+  // Trend runs on the WHOLE stream (not the month-scoped `scoped`), so a new/sparse month can extend back
+  // into prior weeks for context (weeklyTrend anchors to `month` + backfills to a min number of weeks).
+  const trendData = useMemo(() => weeklyTrend(events || [], { metric: trendMetric, filter, month: period }), [events, trendMetric, period, seg.kind, seg.key]);
   // Traffic & engagement is whole-site (not segmented by cohort) — it's the top-of-funnel picture.
   const eng = useMemo(() => engagement(events || []), [events]);
   const bySource = useMemo(() => revenueBySource(scoped), [scoped]);
@@ -380,7 +382,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             </div>
           </div>
           <Card style={{ padding: 18 }}>
-            <div style={muted}>{(TREND_METRICS.find((m) => m.key === trendMetric) || {}).label} by week (Mon–Sun){period !== "all" ? ", across the month" : ", weeks with data"} — most recent on the right.</div>
+            <div style={muted}>{(TREND_METRICS.find((m) => m.key === trendMetric) || {}).label} by week (Mon–Sun){period !== "all" ? " — the month plus recent weeks for context" : ", weeks with data"}; most recent on the right.</div>
             {trendData.length === 0 ? (
               <div style={{ ...muted, marginTop: 10 }}>No data in this period yet.</div>
             ) : (

@@ -426,7 +426,7 @@ export const TREND_METRICS = Object.entries(TREND).map(([key, v]) => ({ key, lab
 
 // One point per calendar week present in `events` (oldest -> newest): { label, value } where value is
 // `metric` over that week's events (respecting the season/track filter). Drives the weekly chart.
-export function weeklyTrend(events, { metric = "visited", filter = null, month = "all", now = Date.now() } = {}) {
+export function weeklyTrend(events, { metric = "visited", filter = null, month = "all", now = Date.now(), minWeeks = 6 } = {}) {
   const m = TREND[metric] || TREND.visited;
   const byKey = new Map(); // Monday-ISO -> events[]
   (events || []).forEach((e) => {
@@ -444,6 +444,20 @@ export function weeklyTrend(events, { metric = "visited", filter = null, month =
   // before it arrives) has no events and would render as a misleading nosedive to 0 on the right. Keep
   // the current (in-progress) week — its Monday is already past — but drop any week starting after now.
   weeks = weeks.filter((w) => Date.parse(w.key + "T00:00:00Z") <= now);
+  // When a month view has fewer than `minWeeks` started weeks — e.g. a brand-new month that's just one
+  // lonely bar — extend BACKWARD with the immediately-preceding weeks so the trend has context. Cap the
+  // reach at the first week that actually has data (`events` is the WHOLE stream, not month-scoped), so we
+  // never pad with pre-launch zero weeks — a past month whose data starts mid-month is left untouched.
+  if (month && month !== "all" && weeks.length && weeks.length < minWeeks && byKey.size) {
+    const earliestMs = Date.parse([...byKey.keys()].sort()[0] + "T00:00:00Z");
+    const lead = [];
+    for (let cur = Date.parse(weeks[0].key + "T00:00:00Z") - 7 * 86400000;
+         weeks.length + lead.length < minWeeks && cur >= earliestMs;
+         cur -= 7 * 86400000) {
+      lead.unshift(weekLabelFor(new Date(cur)));
+    }
+    weeks = [...lead, ...weeks];
+  }
   return weeks.map((w) => ({ label: w.label, value: m.get(summarize(byKey.get(w.key) || [], filter)) }));
 }
 
