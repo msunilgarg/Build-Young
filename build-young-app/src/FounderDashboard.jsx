@@ -12,7 +12,7 @@ import { buildCertSvg, CertificateView } from "./Certificate.jsx";
 import { certVerifyUrl, certDate } from "./cert.js";
 import { scenarioLabel } from "./scenarios.js";
 import { SITE_DEFAULTS, SETTINGS_FIELDS } from "./site.js";
-import { STAGES, SCHOLARSHIP_STAGES, summarize, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS, revenueBySource, settlementSummary } from "./funnel.js";
+import { STAGES, SCHOLARSHIP_STAGES, summarize, toCSV, toDataRoom, ratePct, TRACKS, engagement, journeys, monthsIn, eventsInMonth, weeklyTrend, TREND_METRICS, revenueBySource, settlementSummary, enrollmentGeography } from "./funnel.js";
 import { WEEK_PREP, WEEK_OBJECTIVES } from "./marketMedia.js";
 
 const Charts = React.lazy(() => import("./Charts.jsx"));
@@ -241,6 +241,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   // season/track/scholarship Segment doesn't apply here, only the month Period does.)
   const eng = useMemo(() => engagement(scoped), [scoped]);
   const bySource = useMemo(() => revenueBySource(scoped), [scoped]);
+  const enrollGeo = useMemo(() => enrollmentGeography(scoped), [scoped]); // where enrollments + applications come from (SPECS/024)
   const settlement = useMemo(() => settlementSummary(partners, partnerEnrollments), [partners, partnerEnrollments]);
   const paths = useMemo(() => journeys(scoped, { limit: 12 }), [scoped]);
 
@@ -401,6 +402,30 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
                   </div>
                 );
               })}
+            </Card>
+          )}
+
+          {/* Where enrollments + scholarship applications come from (SPECS/024): country (+ US state), server-
+              detected at the moment it happened. Aggregate, no city/IP. Period-scoped. Going-forward only. */}
+          {enrollGeo.withGeo > 0 && (
+            <Card style={{ padding: 18, marginTop: 14 }}>
+              <b style={{ fontSize: 14 }}>Where enrollments &amp; applications come from</b>
+              <div style={{ ...muted, margin: "2px 0 10px" }}>Location of each enrollment + scholarship application (country · US state), server-detected — no city, no IP. Captured going forward.</div>
+              {enrollGeo.byCountry.map((c) => (
+                <div key={c.country} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, padding: "7px 0", borderTop: `1px solid ${C.line}`, fontSize: 13.5 }}>
+                  <span style={{ color: C.ink2, fontWeight: 600 }}>{countryName(c.country)}</span>
+                  <b style={{ color: C.ink }}>{c.count.toLocaleString()}</b>
+                </div>
+              ))}
+              {enrollGeo.usStates.length > 0 && (
+                <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${C.line}` }}>
+                  <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 3 }}>US by state</div>
+                  <div style={{ fontSize: 12.5, color: C.ink2, lineHeight: 1.5 }}>
+                    {enrollGeo.usStates.slice(0, 12).map((s, i) => <span key={s.region}>{i > 0 ? " · " : ""}{s.region} {s.count.toLocaleString()}</span>)}
+                    {enrollGeo.usStates.length > 12 && <span style={{ color: C.muted }}> · +{enrollGeo.usStates.length - 12} more</span>}
+                  </div>
+                </div>
+              )}
             </Card>
           )}
 
@@ -1562,7 +1587,7 @@ function FreeApplicationsAdmin() {
         : list.map((e, i) => (
           <div key={i} style={{ padding: "12px 0", borderTop: `1px solid ${C.line}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13.5, color: C.ink2, fontWeight: 700 }}>{e.name || "—"} <span style={{ fontWeight: 400, color: C.muted }}>· {e.email} · {e.batchId}</span></span>
+              <span style={{ fontSize: 13.5, color: C.ink2, fontWeight: 700 }}>{e.name || "—"} <span style={{ fontWeight: 400, color: C.muted }}>· {e.email} · {e.batchId}{e.country ? ` · ${countryName(e.country)}${e.region ? ` (${e.region})` : ""}` : ""}</span></span>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: e.onboarded ? C.green : C.muted }}>{e.onboarded ? "Approved" : "Pending"}</span>
                 <button className="btn" disabled={busy === `${e.email}|${e.batchId}`} onClick={() => approve(e)} style={{ background: e.onboarded ? "transparent" : C.emerald, color: e.onboarded ? C.muted : "#fff", border: e.onboarded ? `1px solid ${C.line}` : "none", padding: "6px 12px", borderRadius: 4, fontSize: 12.5, fontWeight: 700 }}>

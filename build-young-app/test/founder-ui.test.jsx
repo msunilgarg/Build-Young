@@ -78,6 +78,31 @@ describe("FounderDashboard (account-gated)", () => {
     expect(screen.getByText("1 · 11.1%")).toBeInTheDocument();
   });
 
+  it("shows 'Where enrollments & applications come from' + per-application location (SPECS/024)", async () => {
+    const ts = new Date("2026-07-10T12:00:00Z").getTime();
+    const events = [
+      { event: "enrolled", ts, props: { season: "fall", track: "Builders", batchId: "fall-mw", priceCents: 99900, country: "US", region: "WA" } },
+      { event: "free_application", ts: ts + 1, props: { batchId: "free-fall", country: "US", region: "OR" } },
+    ];
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      const u = String(url);
+      if (u.includes("resource=free-enrollments")) return { status: 200, ok: true, json: async () => ({ enrollments: [{ email: "olivia@x.com", name: "Olivia", batchId: "free-fall", paymentSource: "free", onboarded: false, writeup: "hi", ts, country: "US", region: "WA" }] }) };
+      if (u.includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [], checkins: 0 }) };
+      return { status: 200, json: async () => ({ events }) };
+    }));
+    const user = userEvent.setup();
+    render(<FounderDashboard onHome={() => {}} />);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
+    // aggregate card renders from the enrolled + free_application geo
+    expect(await screen.findByText("Where enrollments & applications come from")).toBeInTheDocument();
+    expect(screen.getByText("US by state")).toBeInTheDocument();
+    // per-application location shows in the Free applications list
+    await user.click(screen.getByText("Students"));
+    expect(await screen.findByText(/Olivia/)).toBeInTheDocument();
+    expect(screen.getByText(/United States \(WA\)/)).toBeInTheDocument();
+  });
+
   it("a cohort (season) segment starts the funnel at Enrolled — drops the un-tagged Visited/Enroll-started rows", async () => {
     const events = [
       { event: "visited", ts: 1, props: { source: "direct", sid: "v" } },

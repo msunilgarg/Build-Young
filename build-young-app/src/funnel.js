@@ -461,6 +461,29 @@ export function weeklyTrend(events, { metric = "visited", filter = null, month =
   return weeks.map((w) => ({ label: w.label, value: m.get(summarize(byKey.get(w.key) || [], filter)) }));
 }
 
+// Where enrollments + scholarship applications come from (SPECS/024): country (+ US state) tallies over the
+// `enrolled` and `free_application` events, each server-stamped with geo at the moment it happened. Aggregate
+// counts only — no PII. `withGeo` < `total` when some events predate the geo capture (no backfill).
+export function enrollmentGeography(events) {
+  const evs = Array.isArray(events) ? events : [];
+  const cty = {}, st = {};
+  let total = 0, withGeo = 0;
+  evs.forEach((e) => {
+    if (!e || (e.event !== "enrolled" && e.event !== "free_application")) return;
+    total += 1;
+    const c = e.props && e.props.country;
+    if (!c) return;
+    withGeo += 1;
+    cty[c] = (cty[c] || 0) + 1;
+    if (c === "US" && e.props.region) st[e.props.region] = (st[e.props.region] || 0) + 1;
+  });
+  return {
+    total, withGeo,
+    byCountry: Object.entries(cty).map(([country, count]) => ({ country, count })).sort((a, b) => b.count - a.count),
+    usStates: Object.entries(st).map(([region, count]) => ({ region, count })).sort((a, b) => b.count - a.count),
+  };
+}
+
 // ---- Investor data-room exports -----------------------------------------------------------
 
 const CSV_COLS = ["ts", "iso", "event", "season", "track", "batchId", "week", "checkin", "refundTier", "refundCents", "priceCents", "fromCall"];

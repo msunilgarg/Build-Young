@@ -61,6 +61,25 @@ async function readRaw(req) {
 // ingest endpoint AND by server flows that must record reliably, never via a suppressible client beacon —
 // e.g. a scholarship application's `free_application` event (the founder's no-track flag, ad-blockers, or a
 // sendBeacon drop would otherwise lose it; SPECS/016 + 020). Caps the stream length, mirroring ingest.
+// Country (+ US state) from Vercel's geo headers on the request. Country/state only — no city, no IP stored;
+// server-derived so it can't be spoofed by a crafted body. Returns {} off-Vercel. Used for visit + enrollment
+// + scholarship-application geography (SPECS/024). `region` (US subdivision) only for US requests.
+function geoFromReq(req) {
+  const h = (req && req.headers) || {};
+  const cc = h["x-vercel-ip-country"] || h["X-Vercel-IP-Country"] || "";
+  const country = String(cc).trim().toUpperCase().slice(0, 2);
+  const geo = {};
+  if (/^[A-Z]{2}$/.test(country)) {
+    geo.country = country;
+    if (country === "US") {
+      const rr = h["x-vercel-ip-country-region"] || h["X-Vercel-IP-Country-Region"] || "";
+      const region = String(rr).trim().toUpperCase().slice(0, 3);
+      if (/^[A-Z]{2,3}$/.test(region)) geo.region = region;
+    }
+  }
+  return geo;
+}
+
 async function recordEvent(event, props = {}) {
   const record = JSON.stringify({ event, ts: Date.now(), props });
   await kvCommand(["RPUSH", KEY, record]);
@@ -89,23 +108,10 @@ async function ingest(req, res) {
     if (sid) props.sid = sid; else delete props.sid;
   }
 
-  // Geography: stamp the visitor's country (2-letter code) server-side from Vercel's geo header on
-  // `visited`. Country-level only — no city/precise location, no IP stored. Empty when not on Vercel.
-  // Stamped server-side (NOT in ALLOWED_PROPS) so a crafted POST can't spoof geography.
-  if (event === "visited") {
-    const cc = (req.headers && (req.headers["x-vercel-ip-country"] || req.headers["X-Vercel-IP-Country"])) || "";
-    const country = String(cc).trim().toUpperCase().slice(0, 2);
-    if (/^[A-Z]{2}$/.test(country)) {
-      props.country = country;
-      // For US visits, also stamp the 2-letter state/region (Vercel's subdivision header).
-      // State-level only — no city, no IP. Server-stamped too, so it can't be spoofed.
-      if (country === "US") {
-        const rr = (req.headers && (req.headers["x-vercel-ip-country-region"] || req.headers["X-Vercel-IP-Country-Region"])) || "";
-        const region = String(rr).trim().toUpperCase().slice(0, 3);
-        if (/^[A-Z]{2,3}$/.test(region)) props.region = region;
-      }
-    }
-  }
+  // Geography: stamp country (+ US state) server-side from Vercel's geo headers on `visited` AND `enrolled`
+  // (a direct paid enroll is fired from the student's browser → their location; SPECS/024). Country/state
+  // only — no city/precise location, no IP stored. Server-stamped (NOT in ALLOWED_PROPS) so it can't be spoofed.
+  if (event === "visited" || event === "enrolled") Object.assign(props, geoFromReq(req));
 
   try {
     await recordEvent(event, props);
@@ -488,13 +494,15 @@ async function addFreeApplication(req, res) {
   const existing = await listEnrollments(batchId);
   if (existing.some((e) => e.email === email)) { res.status(409).json({ ok: false, error: "You've already applied for this cohort." }); return; }
 
-  const result = await addEnrollment({ email, name, batchId, paymentSource: "free", writeup, onboarded: false });
+  // The applicant's location (country + US state) from Vercel's geo headers — server-derived, no IP (SPECS/024).
+  const geo = geoFromReq(req);
+  const result = await addEnrollment({ email, name, batchId, paymentSource: "free", writeup, onboarded: false, country: geo.country, region: geo.region });
   if (!result.ok) { res.status(400).json({ ok: false, error: result.reason || "Couldn't submit — try again." }); return; }
 
   // Record the funnel "Applied" event (SPECS/020) SERVER-SIDE — reliably, the moment the application is
   // saved, instead of the suppressible client beacon (founder no-track / ad-blockers / sendBeacon drops
   // were silently zeroing the scholarship Applied count). Best-effort: the application is already stored.
-  try { await recordEvent("free_application", { batchId }); } catch { /* best-effort — the application is saved */ }
+  try { await recordEvent("free_application", { batchId, ...geo }); } catch { /* best-effort — the application is saved */ }
 
   // Also record the apply page as its own engagement screen (SPECS/022) SERVER-SIDE, so "Scholarship
   // application" reliably shows in Traffic & engagement + Top paths — instead of depending on the client
