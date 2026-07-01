@@ -77,8 +77,8 @@ export function bodyToHtml(body) {
       </td></tr>
       <tr><td style="padding:28px;color:#242424;font-size:15px;line-height:1.6;">${renderBlocks(body)}</td></tr>
       <tr><td style="padding:18px 28px;background:#f3f2f1;border-top:1px solid #e1dfdd;color:#605e5c;font-size:12px;line-height:1.5;">
-        Build Young · live, online money &amp; building skills for teens.<br>
-        Money in the program is <strong>simulated</strong> — financial education, not licensed financial advice.
+        Build Young · a live, online program where high schoolers build a real product with AI.<br>
+        Build &amp; launch it, learn to grow it, and present it at a capstone — a focused 12 weeks.
       </td></tr>
     </table>
   </td></tr></table>

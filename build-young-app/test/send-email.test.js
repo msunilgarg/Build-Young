@@ -117,11 +117,13 @@ describe("bodyToHtml (branded HTML email)", () => {
     expect(html).toContain('<a href="https://zoom.us/j/8801000001"');
     expect(html).toContain("<strong>Zoom:</strong>");
   });
-  it("carries the brand wordmark, tagline, and simulated-money disclaimer", () => {
+  it("carries the brand wordmark + tagline, and the on-brand build-with-AI footer (NOT the stale finance copy)", () => {
     const html = bodyToHtml("Hello");
     expect(html).toContain("Build <span");
     expect(html).toContain("Raising builders, not consumers.");
-    expect(html).toContain("simulated");
+    expect(html).toContain("build a real product with AI");   // current positioning
+    // regression guard: the old finance-era footer must never come back
+    expect(html).not.toMatch(/simulated|financial advice|money &amp; building skills/i);
   });
   it("escapes HTML in the body (no injection)", () => {
     const html = bodyToHtml("<script>alert(1)</script>");
