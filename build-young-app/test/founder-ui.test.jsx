@@ -78,6 +78,31 @@ describe("FounderDashboard (account-gated)", () => {
     expect(screen.getByText("1 · 11.1%")).toBeInTheDocument();
   });
 
+  it("a cohort (season) segment starts the funnel at Enrolled — drops the un-tagged Visited/Enroll-started rows", async () => {
+    const events = [
+      { event: "visited", ts: 1, props: { source: "direct", sid: "v" } },
+      { event: "enroll_started", ts: 2, props: { season: "summer", batchId: "summer-1" } },
+      { event: "enrolled", ts: 3, props: { season: "summer", track: "Builders", batchId: "summer-1", priceCents: 99900 } },
+    ];
+    vi.stubGlobal("fetch", vi.fn(async (url) => {
+      if (String(url).includes("/api/cohorts")) return { status: 200, ok: true, json: async () => ({ batches: [{ id: "summer-1", season: "summer", track: "Builders", start: "Aug 10, 2026", day: "Weekdays", price: 999, seats: 10 }], checkins: 0 }) };
+      return { status: 200, json: async () => ({ events }) };
+    }));
+    const user = userEvent.setup();
+    const catalog = [{ id: "summer-1", season: "summer", track: "Builders", start: "Aug 10, 2026", day: "Weekdays", price: 999, seats: 10 }];
+    render(<CohortsContext.Provider value={catalog}><FounderDashboard onHome={() => {}} /></CohortsContext.Provider>);
+    await waitFor(() => expect(screen.getByText("Funnel")).toBeInTheDocument());
+    await user.click(screen.getByText("Funnel"));
+    await user.click(await screen.findByText("Summer 2026"));
+    // Funnel starts at Enrolled: no Visited / Enroll started rows (they're not cohort-tagged).
+    const stages = screen.getByLabelText("Funnel stages");
+    expect(stages.textContent).toContain("Enrolled");
+    expect(stages.textContent).not.toContain("Visited");
+    expect(stages.textContent).not.toContain("Enroll started");
+    // topline reads enrolled → graduated (not the meaningless "visited → enrolled" for a cohort)
+    expect(screen.getByText(/enrolled → graduated/)).toBeInTheDocument();
+  });
+
   it("funnel bar is NOT a misleading full bar for a downstream stage when the entry (Visited) is 0", async () => {
     // A cohort Segment (or here: only an enroll_started, no visits) → Visited 0, Enroll started 1. The bar for
     // Enroll started must be EMPTY (scales to the funnel entry), not full-width as it was when the denominator
