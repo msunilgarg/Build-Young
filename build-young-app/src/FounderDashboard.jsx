@@ -245,17 +245,26 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
   const paths = useMemo(() => journeys(scoped, { limit: 12 }), [scoped]);
 
   const isSchol = seg.kind === "scholarship";                       // scholarship segment view (SPECS/020)
+  const isSeg = seg.kind === "season" || seg.kind === "track";      // a cohort segment (Summer/Fall/…/track)
   const viewStages = isSchol ? SCHOLARSHIP_STAGES : STAGES;          // the scholarship spine when in that view
   const enrolledCount = isSchol ? summary.counts.awarded : summary.counts.enrolled; // "enrolled" is keyed "awarded" in the scholarship spine
-  const funnelData = viewStages.map((st, i) => {
+  // A cohort (season/track) segment starts the funnel at ENROLLED — anonymous visits & enroll-starts aren't
+  // tied to a cohort, so those top rows are dropped (matches the "segmented views start at Enrolled" caption).
+  const startIdx = isSeg ? Math.max(0, viewStages.findIndex((s) => s.key === "enrolled")) : 0;
+  const allRows = viewStages.map((st, i) => {
     const count = summary.counts[st.key];
     const annot = i === 0 ? count.toLocaleString() : `${count.toLocaleString()} · ${ratePct(summary.steps[i - 1].rate)}`;
     return { label: st.label, count, color: FUNNEL_COLORS[i % FUNNEL_COLORS.length], annot };
   });
-  // Biggest leak = the step with the largest drop, only among steps the downstream stage has
-  // actually been reached (toCount > 0). This ignores stages that simply haven't started yet
-  // (e.g. Class started = 0 before a cohort begins), so it flags real drop-off, not timing.
-  const leakSteps = summary.steps.filter((s) => s.toCount > 0);
+  // Drop the pre-Enrolled rows for a cohort segment; the new entry row shows just its count (no "· x%" from a hidden stage).
+  const funnelData = allRows.slice(startIdx).map((r, i) => (i === 0 ? { ...r, annot: r.count.toLocaleString() } : r));
+  // The topline ratio + label: the meaningful end-to-end conversion for each view.
+  const overallPct = isSchol ? summary.overall : isSeg ? (summary.counts.enrolled > 0 ? summary.counts.graduated / summary.counts.enrolled : 0) : summary.overall;
+  const overallLabel = isSchol ? "applied → awarded" : isSeg ? "enrolled → graduated" : "visited → enrolled";
+  // Biggest leak = the step with the largest drop, only among steps the downstream stage has actually been
+  // reached (toCount > 0) — ignores stages that haven't started yet. Scoped to the same VISIBLE stages.
+  const viewSteps = summary.steps.slice(startIdx);
+  const leakSteps = viewSteps.filter((s) => s.toCount > 0);
   const biggestLeak = leakSteps.length ? leakSteps.reduce((a, b) => ((1 - b.rate) > (1 - a.rate) ? b : a)) : null;
 
   const segBtn = (label, active, onClick) => (
@@ -344,7 +353,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             <Card style={{ padding: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <b style={{ fontSize: 14 }}>{isSchol ? "Scholarship funnel" : "The funnel"}</b>
-                <span style={muted}>{ratePct(summary.overall)} {isSchol ? "applied → awarded" : "visited → enrolled"}</span>
+                <span style={muted}>{ratePct(overallPct)} {overallLabel}</span>
               </div>
               {/* Funnel as an HTML list with proportional bars (label · count·pct on one row, bar below). Robust
                   at any width — the old recharts horizontal-bar funnel collided its labels on narrow mobile. */}
@@ -421,7 +430,7 @@ export function FounderDashboard({ onHome, onPreviewStudent }) {
             </div>
           )}
           <Card style={{ padding: 4 }}>
-            {summary.steps.map((st, i) => {
+            {viewSteps.map((st, i) => {
               const lost = Math.max(0, st.fromCount - st.toCount);
               const isLeak = st === biggestLeak;
               return (
